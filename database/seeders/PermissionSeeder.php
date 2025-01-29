@@ -24,6 +24,7 @@ class PermissionSeeder extends Seeder
             'can view projects',
             'can manage SEO tasks',
             'can view SEO tasks',
+            'customer',
         ];
 
         // Create permissions
@@ -43,6 +44,7 @@ class PermissionSeeder extends Seeder
             'AM' => ['can view projects', 'can view tasks'],
             'SM' => ['can view projects'],
             'SALES' => ['can view projects'],
+            'CUSTOMER' => ['customer'],
         ];
 
         foreach ($rolePermissions as $roleName => $permissions) {

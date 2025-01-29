@@ -55,6 +55,14 @@ class DashboardController extends Controller
                     ['title' => 'View SEO Reports', 'content' => 'Analyze SEO reports and progress.'],
                 ]
             ],
+            'CUSTOMER' => [
+                'title' => 'Customer Dashboard',
+                'description' => 'Customer can manage his tasks',
+                'cards' => [
+                    ['title' => 'Customer Tasks', 'content' => 'Track SEO-related tasks and projects.'],
+                    ['title' => 'Customer Reports', 'content' => 'Analyze SEO reports and progress.'],
+                ]
+            ],
             // More roles can be added as necessary...
         ];
 
