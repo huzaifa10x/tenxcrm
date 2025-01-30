@@ -1,41 +1,34 @@
 <!-- resources/views/companies/create.blade.php -->
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create Company') }}
-        </h2>
+        {{ __('Create Company') }}
     </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('companies.store') }}">
-                        @csrf
-                        <div class="mb-4">
-                            <label for="name" class="block text-sm font-medium text-gray-700">Company Name</label>
-                            <input type="text" id="name" name="name" class="mt-1 block w-full" required />
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="website" class="block text-sm font-medium text-gray-700">Website</label>
-                            <input type="url" id="website" name="website" class="mt-1 block w-full" required />
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                            <input type="text" id="city" name="city" class="mt-1 block w-full" required />
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
-                            <input type="text" id="country" name="country" class="mt-1 block w-full" required />
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Create Company</button>
-                    </form>
+    <form method="POST" action="{{ route('companies.store') }}">
+        @csrf
+        <div class="card">
+            <div class="card-body">
+                <div class="row gy-3">
+                    <div class="col-lg-6">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" name="name" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Company Website</label>
+                        <input type="text" name="website" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Company City</label>
+                        <input type="text" name="city" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Company Country</label>
+                        <input type="text" name="country" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <button type="submit" class="btn btn-primary-600 radius-8">Add Company</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </x-app-layout>

@@ -1,37 +1,45 @@
 <x-app-layout>
-    <div class="container">
-        <h1>Create Customer</h1>
-        <form action="{{ route('customers.store') }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" name="name" class="form-control" required>
+    <x-slot name="header">
+        {{ __('Create Customer') }}
+    </x-slot>
+    <form action="{{ route('customers.store') }}" method="POST">
+        @csrf
+        <div class="card">
+            <div class="card-body">
+                <div class="row gy-3">
+                    <div class="col-lg-6">
+                        <label class="form-label">Name</label>
+                        <input name="name" type="text" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Email</label>
+                        <input name="email" type="text" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Phone Number</label>
+                        <input name="phone" type="text" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">City</label>
+                        <input name="city" type="text" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Website</label>
+                        <input name="website" type="text" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Company</label>
+                        <select name="company_id" class="form-control" required>
+                            @foreach ($companies as $company)
+                                <option value="{{ $company->id }}">{{ $company->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-6">
+                        <button type="submit" class="btn btn-primary mt-3">Create</button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" name="email" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="text" name="phone" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="city">City</label>
-                <input type="text" name="city" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="website">Website</label>
-                <input type="url" name="website" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="company_id">Company</label>
-                <select name="company_id" class="form-control" required>
-                    @foreach ($companies as $company)
-                        <option value="{{ $company->id }}">{{ $company->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Create</button>
-        </form>
-    </div>
+        </div>
+    </form>
 </x-app-layout>

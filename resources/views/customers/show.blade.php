@@ -1,25 +1,38 @@
-<x-app-layout>
-    <div class="container">
-        <h1>Customer Details</h1>
-        <div class="card">
-            <div class="card-header">
-                <strong>{{ $customer->name }}</strong>
-            </div>
-            <div class="card-body">
-                <p><strong>Email:</strong> {{ $customer->email }}</p>
-                <p><strong>Phone Number:</strong> {{ $customer->phone }}</p>
-                <p><strong>City:</strong> {{ $customer->city }}</p>
-                <p><strong>Website:</strong> <a href="{{ $customer->website }}"
-                        target="_blank">{{ $customer->website }}</a></p>
-                <p><strong>Company:</strong> {{ $customer->company->name }}</p>
-            </div>
-            <div class="card-footer">
-                <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Edit</a>
-                <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+div<x-app-layout>
+    <x-slot name="header">
+        {{ __('CUSTOMER - ') . $customer->name }}
+    </x-slot>
+    <div class="card">
+        <div class="card-body">
+            <div class="row gy-3">
+                <div class="col-lg-6">
+                    <label class="form-label">Name</label>
+                    <input readonly value="{{ $customer->name }}" type="text" class="form-control">
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Email</label>
+                    <input readonly value="{{ $customer->email }}" type="text" class="form-control">
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Phone Number</label>
+                    <input readonly value="{{ $customer->phone }}" type="text" class="form-control">
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">City</label>
+                    <input readonly value="{{ $customer->city }}" type="text" class="form-control">
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Website</label>
+                    <input readonly value="{{ $customer->website }}" type="text" class="form-control">
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Company</label>
+                    <input readonly value="{{ $customer->company->name }}" type="text" class="form-control">
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Created at</label>
+                    <input readonly value="{{ $customer->created_at }}" type="text" class="form-control">
+                </div>
             </div>
         </div>
     </div>

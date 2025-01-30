@@ -16,45 +16,27 @@ class PermissionSeeder extends Seeder
     {
         // Define demo permissions
         $permissions = [
-            'can manage users',
+            'can view companies',
+            'can manage companies',
             'can view users',
-            'can manage tasks',
-            'can view tasks',
-            'can manage projects',
-            'can view projects',
-            'can manage SEO tasks',
-            'can view SEO tasks',
-            'customer',
+            'can manage users',
+            'can view permissions',
+            'can manage permissions',
+            'can view customers',
+            'can manage customers',
+            'can view roles',
+            'can manage roles',
+            'can view industries',
+            'can manage industries',
+            'can view seo-campaign',
+            'can manage seo-campaign',
+            'can view google-ads-projects',
+            'can manage google-ads-projects',
         ];
 
         // Create permissions
         foreach ($permissions as $permissionName) {
             Permission::updateOrCreate(['name' => $permissionName]);
-        }
-
-        // Assign permissions to roles
-        $rolePermissions = [
-            'ADMIN' => ['can manage users', 'can view users', 'can manage tasks', 'can view tasks', 'can manage projects', 'can view projects'],
-            'CONTENT' => ['can view tasks', 'can view projects'],
-            'ONSITE' => ['can view tasks'],
-            'OFF SITE' => ['can view tasks'],
-            'DESIGN' => ['can view tasks'],
-            'DEVELOPMENT' => ['can manage tasks', 'can view tasks'],
-            'SEO ADMIN' => ['can manage SEO tasks', 'can view SEO tasks'],
-            'AM' => ['can view projects', 'can view tasks'],
-            'SM' => ['can view projects'],
-            'SALES' => ['can view projects'],
-            'CUSTOMER' => ['customer'],
-        ];
-
-        foreach ($rolePermissions as $roleName => $permissions) {
-            $role = Role::where('name', $roleName)->first();
-
-            if ($role) {
-                $role->permissions()->sync(
-                    Permission::whereIn('name', $permissions)->pluck('id')
-                );
-            }
         }
     }
 }

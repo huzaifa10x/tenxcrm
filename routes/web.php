@@ -21,24 +21,22 @@ Route::get('/', function () {
 //     return view('dashboard');
 // })
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('users', UserController::class)->middleware('role:ADMIN');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('users', UserController::class);
     Route::get('/users-grid-view', [UserController::class, 'gridView'])->name('users.gridView');
-    Route::resource('companies', CompanyController::class)->middleware('role:ADMIN');
-    Route::resource('customers', CustomerController::class)->middleware('role:ADMIN');
-    Route::resource('roles', RoleController::class)->middleware('role:ADMIN');
-    Route::resource('permissions', PermissionController::class)->middleware('role:ADMIN');
-    Route::resource('industries', IndustryController::class)->middleware('role:ADMIN');
+    Route::resource('companies', CompanyController::class);
+    Route::resource('customers', CustomerController::class);
+    Route::resource('roles', RoleController::class);
+    Route::resource('permissions', PermissionController::class);
+    Route::resource('industries', IndustryController::class);
     Route::resource('seo-campaign', SeoCampaignProjectController::class);
     Route::resource('google-ads-projects', GoogleAdsProjectController::class);
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__ . '/auth.php';

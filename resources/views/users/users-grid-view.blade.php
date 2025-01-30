@@ -4,16 +4,8 @@
     </x-slot>
     <div class="card h-100 p-0 radius-12">
         <div
-            class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center flex-wrap gap-3 justify-content-between">
-            <div class="d-flex align-items-center flex-wrap gap-3">
-                <form class="navbar-search">
-                    <input type="text" class="bg-base h-40-px w-auto" name="search" placeholder="Search">
-                    <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                </form>
-            </div>
-            <a href="{{ route('users.create') }}"
-                class="btn btn-primary text-sm btn-sm px-12 py-12 radius-8 d-flex align-items-center gap-2">
-                <iconify-icon icon="ic:baseline-plus" class="icon text-xl line-height-1"></iconify-icon>
+            class="card-header">
+            <a href="{{ route('users.create') }}" class="btn btn-outline-primary">
                 Add New User
             </a>
         </div>
@@ -64,8 +56,8 @@
                                         <span class="text-secondary-light text-sm mb-0">Department</span>
                                     </div>
                                     <div class="text-center w-50">
-                                        <h6 class="text-md mb-0">UI UX Designer</h6>
-                                        <span class="text-secondary-light text-sm mb-0">Designation</span>
+                                        <h6 class="text-md mb-0">Phone</h6>
+                                        <span class="text-secondary-light text-sm mb-0">{{ $user->phone }}</span>
                                     </div>
                                 </div>
                                 <a href="{{ route('users.show', $user->id) }}"
@@ -79,6 +71,9 @@
                     </div>
                 @endforeach
             </div>
+
+            {{ $users->links('vendor.pagination.custom') }}
+
         </div>
     </div>
 </x-app-layout>
