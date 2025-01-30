@@ -1,76 +1,118 @@
 <?php
 
-// In app/Http/Controllers/GoogleAdsProjectController.php
 namespace App\Http\Controllers;
 
 use App\Models\GoogleAdsProject;
+use App\Models\Industry;
+use App\Models\User;
+use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GoogleAdsProjectController extends Controller
 {
+    public function index()
+    {
+        $projects = GoogleAdsProject::all();
+        return view('google_ads_projects.index', compact('projects'));
+    }
+
     public function create()
     {
-        return view('google_ads.create');
+        $industries = Industry::all();
+        $users = User::all();
+        $customers = Customer::all();
+        return view('google_ads_projects.create', compact('industries', 'users', 'customers'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'contract_copy' => 'required|array',
-            'payment_method' => 'required|string',
-            'handover_notes' => 'nullable|string',
-            'category' => 'required|string',
+            'category' => 'required',
             'name' => 'required|string',
-            'industry' => 'required|string',
-            'status' => 'required|string',
+            'industry_id' => 'required|exists:industries,id',
+            'status' => 'required',
             'sales_manager_id' => 'required|exists:users,id',
             'account_manager_id' => 'required|exists:users,id',
             'contract_start_date' => 'required|date',
             'contract_term' => 'required|integer',
             'contract_value' => 'required|numeric',
-            'free_month' => 'required|numeric',
+            'free_month' => 'nullable|integer',
+            'contract_copy' => 'nullable|array',
+            'customer_id' => 'required|exists:customers,id',
+            'payment_method' => 'required',
+            'handover_notes' => 'nullable|string',
         ]);
-        $googleAds = new GoogleAdsProject($validated);
-        $googleAds->save();
 
-        return redirect()->route('projects.show');
+        $uploadedFiles = [];
+        if ($request->hasFile('contract_copy')) {
+            foreach ($request->file('contract_copy') as $file) {
+                $filePath = $file->store('contracts', 'public');
+                $uploadedFiles[] = $filePath;
+            }
+        }
+
+        GoogleAdsProject::create([...$validated, 'contract_copy' => $uploadedFiles,]);
+
+        return redirect()->route('google-ads-projects.index')->with('success', 'Google Ads Project created successfully.');
     }
 
-    public function edit($id)
+    public function edit(GoogleAdsProject $googleAdsProject)
     {
-        $googleAds = GoogleAdsProject::findOrFail($id);
-        return view('google_ads.edit', compact('googleAds'));
+        $industries = Industry::all();
+        $users = User::all();
+        $customers = Customer::all();
+        return view('google_ads_projects.edit', compact('googleAdsProject', 'industries', 'users', 'customers'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, GoogleAdsProject $googleAdsProject)
     {
         $validated = $request->validate([
-            'contract_copy' => 'required|array',
-            'payment_method' => 'required|string',
-            'handover_notes' => 'nullable|string',
-            'category' => 'required|string',
+            'category' => 'required',
             'name' => 'required|string',
-            'industry' => 'required|string',
-            'status' => 'required|string',
+            'industry_id' => 'required|exists:industries,id',
+            'status' => 'required',
             'sales_manager_id' => 'required|exists:users,id',
             'account_manager_id' => 'required|exists:users,id',
             'contract_start_date' => 'required|date',
             'contract_term' => 'required|integer',
             'contract_value' => 'required|numeric',
-            'free_month' => 'required|numeric',
+            'free_month' => 'nullable|integer',
+            'contract_copy' => 'nullable|array',
+            'customer_id' => 'required|exists:customers,id',
+            'payment_method' => 'required',
+            'handover_notes' => 'nullable|string',
         ]);
 
-        $googleAds = GoogleAdsProject::findOrFail($id);
-        $googleAds->update($validated);
+        $uploadedFiles = [];
+        if ($request->hasFile('contract_copy')) {
+            foreach ($request->file('contract_copy') as $file) {
+                $filePath = $file->store('contracts', 'public');
+                $uploadedFiles[] = $filePath;
+            }
+        }
 
-        return redirect()->route('projects.show', $googleAds->project_id);
+        if ($request->hasFile('contract_copy')) {
+            foreach ($googleAdsProject->contract_copy as $oldFile) {
+                Storage::delete($oldFile);
+            }
+            $validated['contract_copy'] = $uploadedFiles;
+        }
+
+        $googleAdsProject->update($validated);
+
+        return redirect()->route('google-ads-projects.index')->with('success', 'Google Ads Project updated successfully.');
     }
 
-    public function destroy($id)
+    public function show(GoogleAdsProject $googleAdsProject)
     {
-        $googleAds = GoogleAdsProject::findOrFail($id);
-        $googleAds->delete();
+        return view('google_ads_projects.show', compact('googleAdsProject'));
+    }
+    public function destroy(GoogleAdsProject $googleAdsProject)
+    {
+        // Deleting the project
+        $googleAdsProject->delete();
 
-        return redirect()->route('projects.index');
+        return redirect()->route('google-ads-projects.index')->with('success', 'Google Ads Project deleted successfully.');
     }
 }

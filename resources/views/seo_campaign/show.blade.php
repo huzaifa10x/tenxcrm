@@ -35,6 +35,10 @@
                 <td>{{ $seoCampaign->contract_value }}</td>
             </tr>
             <tr>
+                <th>Client</th>
+                <td>{{ $seoCampaign->customer->name ? $seoCampaign->customer->name : '' }}</td>
+            </tr>
+            <tr>
                 <th>Free Month</th>
                 <td>{{ $seoCampaign->free_month ? 'Yes' : 'No' }}</td>
             </tr>

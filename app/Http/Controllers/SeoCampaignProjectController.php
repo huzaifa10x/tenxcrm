@@ -121,24 +121,14 @@ class SeoCampaignProjectController extends Controller
                 $uploadedFiles[] = $filePath;
             }
         }
+
         // Remove previous contract copies before adding new ones
         if ($request->hasFile('contract_copy')) {
-            // if ($seoCampaign->contract_copy) {
-            //     // Assuming 'contract_copy' is already an array of file paths
-            //     foreach ($seoCampaign->contract_copy as $oldFile) {
-            //         // Delete old files from storage using the stored path
-            //         Storage::delete($oldFile);  // Delete using the file path
-            //     }
-            // }
 
-            // $seoCampaign->contract_copy = json_encode($uploadedFiles); 
-            // $seoCampaign->save();
-            $seoCampaign->update(
-                [
-                    ...$validated,
-                    'contract_copy' => $uploadedFiles,
-                ]
-            );
+            foreach ($seoCampaign->contract_copy as $oldFile) {
+                Storage::delete($oldFile);  
+            }
+            $validated['contract_copy'] = $uploadedFiles;
         }
 
         $seoCampaign->update($validated);

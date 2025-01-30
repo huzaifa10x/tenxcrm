@@ -8,6 +8,7 @@
                     <th>Project Name</th>
                     <th>Category</th>
                     <th>Status</th>
+                    <th>Client</th>
                     <th>Sales Manager</th>
                     <th>Account Manager</th>
                     <th>Actions</th>
@@ -19,6 +20,7 @@
                         <td>{{ $seoCampaign->name }}</td>
                         <td>{{ $seoCampaign->category }}</td>
                         <td>{{ $seoCampaign->status }}</td>
+                        <td>{{ $seoCampaign->customer->name ? $seoCampaign->customer->name : '' }}</td>
                         <td>{{ $seoCampaign->salesManager->name }}</td>
                         <td>{{ $seoCampaign->accountManager->name }}</td>
                         <td>

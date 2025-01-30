@@ -107,7 +107,7 @@
                 <label for="contract_copy">Contract Copy</label>
                 <input type="file" class="form-control" id="contract_copy" name="contract_copy[]" multiple>
                 @foreach($seoCampaign->contract_copy as $file)
-                    {{-- <p>{{ $file->getClientOriginalName() }}</p> --}}
+                    <a href="{{ asset('storage/' . $file) }}">Current Doc</a>
                 @endforeach
             </div>
             <div class="form-group">
