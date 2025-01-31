@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\CheckPermission;
 use Illuminate\Support\ServiceProvider;
-use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Route::aliasMiddleware('role', RoleMiddleware::class);
+        Route::aliasMiddleware('permission', CheckPermission::class);
+        View::composer('*', function ($view) {
+            if (Auth::check()) {
+                $user = Auth::user();
+                $permissions = $user->roles->flatMap->permissions->pluck('name')->unique();
+                $view->with('userPermissions', $permissions);
+            }
+        });
     }
 }

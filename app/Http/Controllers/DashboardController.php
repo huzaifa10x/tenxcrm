@@ -39,7 +39,7 @@ class DashboardController extends Controller
                     ['title' => 'View SEO Tasks', 'content' => 'Monitor SEO-related tasks.'],
                 ]
             ],
-            'DEVELOPER' => [
+            'DEVELOPMENT' => [
                 'title' => 'Developer Dashboard',
                 'description' => 'Developer can view and work on assigned tasks and projects.',
                 'cards' => [

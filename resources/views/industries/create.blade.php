@@ -1,11 +1,23 @@
-<div class="container">
-    <h1>Create Industry</h1>
+<x-app-layout>
+    <x-slot name="header">
+        {{ __('Create Industry') }}
+    </x-slot>
     <form action="{{ route('industries.store') }}" method="POST">
         @csrf
-        <div class="form-group">
-            <label for="industry">Industry Name</label>
-            <input type="text" name="industry" class="form-control" required>
+        <div class="card">
+            <div class="card-body">
+                <div class="row gy-3">
+                    <div class="col-12">
+                        <label class="form-label">Industry Name</label>
+                        <input type="text" placeholder="Enter industry Name" required name="industry"
+                            class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Create Industry</button>
+                        <a href="{{ route('industries.index') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Create</button>
     </form>
-</div>
+</x-app-layout>

@@ -1,29 +1,36 @@
 <x-app-layout>
-    <div class="container">
-        <h1>Create Role</h1>
-        <form method="POST" action="{{ route('roles.store') }}">
-            @csrf
-            <div class="form-group">
-                <label for="name">Role Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter Role Name" required>
-            </div>
-
-            <div class="form-group">
-                <label for="permissions">Assign Permissions</label>
-                <div>
-                    @foreach ($permissions as $permission)
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="permission-{{ $permission->id }}">
-                            <label class="form-check-label" for="permission-{{ $permission->id }}">
-                                {{ $permission->name }}
-                            </label>
+    <x-slot name="header">
+        {{ __('Create Role') }}
+    </x-slot>
+    <form method="POST" action="{{ route('roles.store') }}">
+        @csrf
+        <div class="card">
+            <div class="card-body">
+                <div class="row gy-3">
+                    <div class="col-12">
+                        <label class="form-label">Role Name</label>
+                        <input type="text" placeholder="Enter Role Name" required name="name" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Role Permissions</label>
+                        <div class="d-block d-lg-flex flex-wrap">
+                            @foreach ($permissions as $permission)
+                                <div class="col-lg-4 form-check d-flex align-items-center g-2">
+                                    <input class="form-check-input" type="checkbox" name="permissions[]"
+                                        value="{{ $permission->id }}" id="permission-{{ $permission->id }}">
+                                    <label class="form-check-label" for="permission-{{ $permission->id }}">
+                                        {{ $permission->name }}
+                                    </label>
+                                </div>
+                            @endforeach
                         </div>
-                    @endforeach
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Create Role</button>
+                        <a href="{{ route('roles.index') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
                 </div>
             </div>
-
-            <button type="submit" class="btn btn-primary">Create Role</button>
-            <a href="{{ route('roles.index') }}" class="btn btn-secondary">Cancel</a>
-        </form>
-    </div>
+        </div>
+    </form>
 </x-app-layout>

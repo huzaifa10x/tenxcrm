@@ -9,7 +9,7 @@ class IndustryController extends Controller
 {
     public function index()
     {
-        $industries = Industry::all();
+        $industries = Industry::paginate(10);
         return view('industries.index', compact('industries'));
     }
 
@@ -27,11 +27,6 @@ class IndustryController extends Controller
         Industry::create($request->only('industry'));
 
         return redirect()->route('industries.index')->with('success', 'Industry created successfully.');
-    }
-
-    public function show(Industry $industry)
-    {
-        return view('industries.show', compact('industry'));
     }
 
     public function edit(Industry $industry)

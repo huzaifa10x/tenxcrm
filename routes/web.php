@@ -14,12 +14,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,15 +23,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('users', UserController::class);
-    Route::get('/users-grid-view', [UserController::class, 'gridView'])->name('users.gridView');
-    Route::resource('companies', CompanyController::class);
-    Route::resource('customers', CustomerController::class);
-    Route::resource('roles', RoleController::class);
-    Route::resource('permissions', PermissionController::class);
-    Route::resource('industries', IndustryController::class);
-    Route::resource('seo-campaign', SeoCampaignProjectController::class);
-    Route::resource('google-ads-projects', GoogleAdsProjectController::class);
+
+    Route::middleware('permission:can view users')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::get('/users-grid-view', [UserController::class, 'gridView'])->name('users.gridView');
+    });
+    Route::middleware('permission:can view companies')->group(function () {
+        Route::resource('companies', CompanyController::class);
+    });
+    Route::middleware('permission:can view customers')->group(function () {
+        Route::resource('customers', CustomerController::class);
+    });
+    Route::middleware('permission:can view roles')->group(function () {
+        Route::resource('roles', RoleController::class);
+    });
+    Route::middleware('permission:can view permissions')->group(function () {
+        Route::resource('permissions', PermissionController::class);
+    });
+    Route::middleware('permission:can view industries')->group(function () {
+        Route::resource('industries', IndustryController::class);
+    });
+    Route::middleware('permission:can view seo-campaign')->group(function () {
+        Route::resource('seo-campaign', SeoCampaignProjectController::class);
+    });
+    Route::middleware('permission:can view google-ads-projects')->group(function () {
+        Route::resource('google-ads-projects', GoogleAdsProjectController::class);
+    });
 });
 
 

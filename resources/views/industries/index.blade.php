@@ -1,28 +1,52 @@
-<div class="container">
-    <h1>Industries</h1>
-    <a href="{{ route('industries.create') }}" class="btn btn-primary">Create Industry</a>
-    <table class="table mt-4">
-        <thead>
-            <tr>
-                <th>Industry Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($industries as $industry)
-                <tr>
-                    <td>{{ $industry->industry }}</td>
-                    <td>
-                        <a href="{{ route('industries.show', $industry->id) }}" class="btn btn-info">View</a>
-                        <a href="{{ route('industries.edit', $industry->id) }}" class="btn btn-warning">Edit</a>
-                        <form action="{{ route('industries.destroy', $industry->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+<x-app-layout>
+    <x-slot name="header">
+        {{ __('Industries') }}
+    </x-slot>
+    <div class="card basic-data-table">
+        <div class="card-header">
+            <a href="{{ route('industries.create') }}" class="btn btn-outline-primary">
+                Add New Industry
+            </a>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Industry Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($industries as $industry)
+                        <tr>
+                            <td> {{ $industry->id }}</td>
+                            <td>{{ $industry->industry }}</td>
+                            <td class="text-center">
+                                <div class="d-flex align-items-center gap-10 justify-content-center">
+                                    <a href="{{ route('industries.edit', $industry->id) }}"
+                                        class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                        <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                    </a>
+                                    <form action="{{ route('industries.destroy', $industry->id) }}" method="POST"
+                                        style="display: inline-block;"
+                                        onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                            <iconify-icon icon="fluent:delete-24-regular"
+                                                class="menu-icon"></iconify-icon>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            {{ $industries->links('vendor.pagination.custom') }}
+        </div>
+    </div>
+
+</x-app-layout>

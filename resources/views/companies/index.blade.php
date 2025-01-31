@@ -8,7 +8,7 @@
         <div class="card-header">
             <a class="btn btn-outline-primary" href="{{ route('companies.create') }}">Create New Company</a>
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
                 <thead>
                     <tr>

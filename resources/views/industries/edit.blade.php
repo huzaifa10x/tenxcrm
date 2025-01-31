@@ -1,12 +1,24 @@
-<div class="container">
-    <h1>Edit Industry</h1>
+<x-app-layout>
+    <x-slot name="header">
+        {{ __('EDIT INDUSTRY - ' . $industry->industry) }}
+    </x-slot>
     <form action="{{ route('industries.update', $industry->id) }}" method="POST">
         @csrf
         @method('PUT')
-        <div class="form-group">
-            <label for="industry">Industry Name</label>
-            <input type="text" name="industry" class="form-control" value="{{ old('industry', $industry->industry) }}" required>
+        <div class="card">
+            <div class="card-body">
+                <div class="row gy-3">
+                    <div class="col-12">
+                        <label class="form-label">Industry Name</label>
+                        <input value="{{ old('industry', $industry->industry) }}" type="text"
+                            placeholder="Enter industry Name" required name="industry" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Update Industry</button>
+                        <a href="{{ route('industries.index') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Update</button>
     </form>
-</div>
+</x-app-layout>

@@ -8,7 +8,7 @@
                 Add New User
             </a>
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
                 <thead>
                     <tr>

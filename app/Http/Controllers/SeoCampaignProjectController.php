@@ -8,13 +8,14 @@ use App\Models\SEOCampaignProject;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class SeoCampaignProjectController extends Controller
 {
     public function index()
     {
-        $seoCampaigns = SeoCampaignProject::with(['salesManager', 'accountManager'])->get();
+        $seoCampaigns = SeoCampaignProject::with(['salesManager', 'accountManager'])->paginate(10);
         return view('seo_campaign.index', compact('seoCampaigns'));
     }
     public function show($id)
@@ -36,7 +37,7 @@ class SeoCampaignProjectController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'category' => 'required|string',
             'industry_id' => 'required|exists:industries,id',
@@ -56,10 +57,14 @@ class SeoCampaignProjectController extends Controller
             'guarantee_third_milestone' => 'required|numeric',
             'guarantee_third_milestone_date' => 'required|date',
             'contract_copy' => 'nullable|array',
-            'contract_copy.*' => 'file|mimes:pdf,jpeg,png,jpg',
+            'contract_copy.*' => 'file|mimes:pdf,xls,xlsx,doc,docx,jpeg,png,jpg,gif,webp',
             'payment_method' => 'required|in:Cash,Credit Card,Bank Transfer,PayPal',
             'handover_notes' => 'nullable|string',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('seo-campaign.create')->with('error', $validator->errors()->all());
+        }
 
         $uploadedFiles = [];
         if ($request->hasFile('contract_copy')) {
@@ -70,7 +75,7 @@ class SeoCampaignProjectController extends Controller
         }
 
         $seoCampaign = SeoCampaignProject::create([
-            ...$validated,
+            ...$validator->validated(),
             'contract_copy' => $uploadedFiles,
         ]);
 
@@ -109,7 +114,7 @@ class SeoCampaignProjectController extends Controller
             'guarantee_third_milestone' => 'required|numeric',
             'guarantee_third_milestone_date' => 'required|date',
             'contract_copy' => 'nullable|array',
-            'contract_copy.*' => 'file|mimes:pdf,jpeg,png,jpg',
+            'contract_copy.*' => 'file|mimes:pdf,xls,xlsx,doc,docx,jpeg,png,jpg,gif,webp',
             'payment_method' => 'required|in:Cash,Credit Card,Bank Transfer,PayPal', // Should be required
             'handover_notes' => 'nullable|string',
         ]);
@@ -126,7 +131,7 @@ class SeoCampaignProjectController extends Controller
         if ($request->hasFile('contract_copy')) {
 
             foreach ($seoCampaign->contract_copy as $oldFile) {
-                Storage::delete($oldFile);  
+                Storage::delete($oldFile);
             }
             $validated['contract_copy'] = $uploadedFiles;
         }
