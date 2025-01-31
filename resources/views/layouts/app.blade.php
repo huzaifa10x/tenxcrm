@@ -536,11 +536,15 @@
         </div>
         <div class="dashboard-main-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-                <h6 class="fw-semibold mb-0">
-                    @isset($header)
-                        {{ $header }}
-                    @endisset
-                </h6>
+                <ul class="d-flex align-items-center gap-2">
+                    <li class="fw-medium">
+                        <a href="#">
+                            @isset($header)
+                                {{ $header }}
+                            @endisset
+                        </a>
+                    </li>
+                </ul>
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="{{ route('dashboard') }}"
@@ -565,7 +569,8 @@
                     <p class="mb-0">© 2025 10X Digital. All Rights Reserved.</p>
                 </div>
                 <div class="col-auto">
-                    <p class="mb-0">Made by <a href="https://10xdigital.ae" class="text-primary-600">10X Digital</a></p>
+                    <p class="mb-0">Made by <a href="https://10xdigital.ae" class="text-primary-600">10X
+                            Digital</a></p>
                 </div>
             </div>
         </footer>

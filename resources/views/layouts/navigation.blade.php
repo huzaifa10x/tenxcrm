@@ -244,18 +244,39 @@
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <iconify-icon icon="solar:document-text-outline" class="menu-icon"></iconify-icon>
-                        <span>Seo Campaign</span>
+                        <span>Seo Campaigns</span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li>
                             <a href="{{ route('seo-campaign.index') }}"><i
-                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All Seo Campaign</a>
+                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All Seo
+                                Campaigns</a>
                         </li>
                         @if ($userPermissions->contains('can manage seo-campaign'))
                             <li>
                                 <a href="{{ route('seo-campaign.create') }}"><i
                                         class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Seo
                                     Campaign</a>
+                            </li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+            @if ($userPermissions->contains('can view google-ads-projects'))
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <iconify-icon icon="solar:document-text-outline" class="menu-icon"></iconify-icon>
+                        <span>Google Ads Projects</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a href="{{ route('google-ads-projects.index') }}"><i
+                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All Google ads projects</a>
+                        </li>
+                        @if ($userPermissions->contains('can manage google-ads-projects'))
+                            <li>
+                                <a href="{{ route('google-ads-projects.create') }}"><i
+                                        class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Google Ads Projects</a>
                             </li>
                         @endif
                     </ul>

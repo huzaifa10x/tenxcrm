@@ -131,7 +131,7 @@ div<x-app-layout>
                             <label class="form-label" for="handover_notes">Handover Notes</label>
                             <textarea class="form-control" id="handover_notes" name="handover_notes" required>{{ old('handover_notes', $seoCampaign->handover_notes) }}</textarea>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-12">
                             <label class="form-label" for="contract_copy">Contract Copy</label>
                             @if (!empty($seoCampaign->contract_copy) && count($seoCampaign->contract_copy) > 0)
                                 <div class="row">
@@ -145,9 +145,10 @@ div<x-app-layout>
                                         @if (in_array($extension, $imageExtensions))
                                             {{-- Image Files --}}
                                             <div class="col-lg-6 mb-3">
-                                                <div class="card overflow-hidden bg-light h-100 border shadow-sm">
-                                                    <img src="{{ $filePath }}" class="card-img-top img-fluid"
-                                                        alt="Contract Image">
+                                                <div
+                                                    class="card overflow-hidden d-flex justify-content-center align-items-center bg-light h-100 border shadow-sm">
+                                                    <img style="width: 200px;" src="{{ $filePath }}"
+                                                        class="card-img-top img-fluid" alt="Contract Image">
                                                     <div class="card-body text-center">
                                                         <a href="{{ $filePath }}" target="_blank"
                                                             class="btn fs-6 px-3 py-2 btn-sm btn-primary">View Full</a>
@@ -158,8 +159,9 @@ div<x-app-layout>
                                             {{-- Non-Image Files --}}
                                             <div class="col-lg-6 mb-3">
                                                 <div
-                                                    class="position-relative card overflow-hidden bg-light border h-100 shadow-sm text-center p-3">
-                                                    <div class="badge position-absolute top-0 end-0 bg-primary text-white">
+                                                    class="position-relative card overflow-hidden d-flex justify-content-center align-items-center bg-light border h-100 shadow-sm text-center p-3">
+                                                    <div
+                                                        class="badge position-absolute top-0 end-0 bg-primary text-white">
                                                         {{ strtoupper($extension) }}
                                                     </div>
                                                     <div class="mb-2">

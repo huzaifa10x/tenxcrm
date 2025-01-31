@@ -13,7 +13,7 @@ class GoogleAdsProjectController extends Controller
 {
     public function index()
     {
-        $projects = GoogleAdsProject::all();
+        $projects = GoogleAdsProject::paginate(10);
         return view('google_ads_projects.index', compact('projects'));
     }
 
