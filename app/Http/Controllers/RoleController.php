@@ -11,7 +11,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::with('permissions')->paginate(10);
+        $roles = Role::with('permissions')->paginate(5);
         return view('roles.index', compact('roles'));
     }
     public function create()

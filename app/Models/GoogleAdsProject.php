@@ -10,9 +10,20 @@ class GoogleAdsProject extends Model
     use HasFactory;
 
     protected $fillable = [
-        'category', 'name', 'industry_id', 'status', 'sales_manager_id', 'account_manager_id',
-        'contract_start_date', 'contract_term', 'contract_value', 'free_month', 'contract_copy',
-        'customer_id', 'payment_method', 'handover_notes'
+        'category',
+        'name',
+        'industry_id',
+        'status',
+        'sales_manager_id',
+        'account_manager_id',
+        'contract_start_date',
+        'contract_term',
+        'contract_value',
+        'free_month',
+        'contract_copy',
+        'customer_id',
+        'payment_method',
+        'handover_notes'
     ];
 
     protected $casts = [

@@ -10,7 +10,8 @@ class SocialMediaProject extends Model
     protected $fillable = [
         'category',
         'name',
-        'industry',
+        'industry_id',
+        'customer_id',
         'status',
         'sales_manager_id',
         'account_manager_id',
@@ -27,4 +28,27 @@ class SocialMediaProject extends Model
         'payment_method',
         'handover_notes'
     ];
+    protected $casts = [
+        'contract_copy' => 'array',
+    ];
+
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class);
+    }
+
+    public function salesManager()
+    {
+        return $this->belongsTo(User::class, 'sales_manager_id');
+    }
+
+    public function accountManager()
+    {
+        return $this->belongsTo(User::class, 'account_manager_id');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

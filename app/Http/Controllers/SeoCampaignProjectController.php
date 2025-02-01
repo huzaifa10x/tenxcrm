@@ -15,7 +15,7 @@ class SeoCampaignProjectController extends Controller
 {
     public function index()
     {
-        $seoCampaigns = SeoCampaignProject::with(['salesManager', 'accountManager'])->paginate(10);
+        $seoCampaigns = SeoCampaignProject::with(['salesManager', 'accountManager'])->paginate(5);
         return view('seo_campaign.index', compact('seoCampaigns'));
     }
     public function show($id)

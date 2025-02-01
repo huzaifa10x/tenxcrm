@@ -32,6 +32,8 @@ class PermissionSeeder extends Seeder
             'can manage seo-campaign',
             'can view google-ads-projects',
             'can manage google-ads-projects',
+            'can manage social-media-projects',
+            'can view social-media-projects',
         ];
 
         // Create permissions

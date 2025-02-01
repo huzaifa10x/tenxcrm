@@ -1,36 +1,51 @@
 <x-app-layout>
     <x-slot name="header">
-        {{ 'USER - ' . $user->name }}
+        {{ __('USER - ' . $user->name) }}
     </x-slot>
-    <div class="row gy-4">
-        <div class="col-lg-6">
-            <div class="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
-                <img src="assets/images/user-grid/user-grid-bg1.png" alt="" class="w-100 object-fit-cover">
-                <div class="pb-24 ms-16 mb-24 me-16">
-                    <div class="mt-10">
-                        <h6 class="text-xl mb-16">Personal Info</h6>
-                        <ul>
-                            <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light">Full Name</span>
-                                <span class="w-70 text-secondary-light fw-medium">: {{ $user->name }}</span>
-                            </li>
-                            <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> Email</span>
-                                <span class="w-70 text-secondary-light fw-medium">: {{ $user->email }}</span>
-                            </li>
-                            <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> Phone</span>
-                                <span class="w-70 text-secondary-light fw-medium">: {{ $user->phone }}</span>
-                            </li>
-                            <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> Department</span>
-                                <span class="w-70 text-secondary-light fw-medium">: {{ $user->roles->pluck('name')->implode(', ') }}</span>
-                            </li>
-                        </ul>
+    @if ($userPermissions->contains('can manage users'))
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Name</label>
+                        <div class="icon-field has-validation">
+                            <span class="icon">
+                                <iconify-icon icon="f7:person"></iconify-icon>
+                            </span>
+                            <input readonly type="text" name="name" class="form-control"
+                                value="{{ $user->name }}" placeholder="Enter First Name" required="">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <div class="icon-field has-validation">
+                            <span class="icon">
+                                <iconify-icon icon="mage:email"></iconify-icon>
+                            </span>
+                            <input readonly type="email" name="email" class="form-control" placeholder="Enter Email"
+                                value="{{ $user->email }}" required="">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone</label>
+                        <div class="icon-field has-validation">
+                            <span class="icon">
+                                <iconify-icon icon="solar:phone-calling-linear"></iconify-icon>
+                            </span>
+                            <input readonly type="text" name="phone" class="form-control"
+                                value="{{ $user->phone }}" placeholder="+1 (555) 000-0000" required="">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Role</label>
+                        <input readonly type="text" name="phone" class="form-control"
+                            value="{{ $user->roles->pluck('name')->implode(', ') }}">
+
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
+    @else
+        @include('vendor.not-allowed')
+    @endif
 </x-app-layout>

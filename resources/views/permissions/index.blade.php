@@ -2,21 +2,26 @@
     <x-slot name="header">
         {{ __('Permissions') }}
     </x-slot>
-    <div class="container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($permissions as $permission)
+    <div class="card basic-data-table">
+        <div class="card-header">
+            <a class="btn btn-outline-primary" href="{{ route('customers.create') }}">Create New Customer</a>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+                <thead>
                     <tr>
-                        <td>{{ $permission->name }}</td>
+                        <th>Name</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-        {{ $permissions->links('vendor.pagination.custom') }}
+                </thead>
+                <tbody>
+                    @foreach ($permissions as $permission)
+                        <tr>
+                            <td>{{ $permission->name }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            {{ $permissions->links('vendor.pagination.custom') }}
+        </div>
     </div>
 </x-app-layout>

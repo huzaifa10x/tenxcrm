@@ -3,11 +3,13 @@
         {{ __('Roles') }}
     </x-slot>
     <div class="card basic-data-table">
-        <div class="card-header">
-            <a href="{{ route('roles.create') }}" class="btn btn-outline-primary">
-                Add New Role
-            </a>
-        </div>
+        @if ($userPermissions->contains('can manage roles'))
+            <div class="card-header">
+                <a href="{{ route('roles.create') }}" class="btn btn-outline-primary">
+                    Add New Role
+                </a>
+            </div>
+        @endif
         <div class="card-body table-responsive">
             <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
                 <thead>
@@ -15,7 +17,9 @@
                         <th>ID</th>
                         <th>Name</th>
                         <th>Permissions</th>
-                        <th>Actions</th>
+                        @if ($userPermissions->contains('can manage roles'))
+                            <th>Actions</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -32,25 +36,27 @@
                                     @endforeach
                                 </div>
                             </td>
-                            <td class="text-center">
-                                <div class="d-flex align-items-center gap-10 justify-content-center">
-                                    <a href="{{ route('roles.edit', $role->id) }}"
-                                        class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                        <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                    </a>
-                                    <form action="{{ route('roles.destroy', $role->id) }}" method="POST"
-                                        style="display: inline-block;"
-                                        onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                            <iconify-icon icon="fluent:delete-24-regular"
-                                                class="menu-icon"></iconify-icon>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                            @if ($userPermissions->contains('can manage roles'))
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center gap-10 justify-content-center">
+                                        <a href="{{ route('roles.edit', $role->id) }}"
+                                            class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                        </a>
+                                        <form action="{{ route('roles.destroy', $role->id) }}" method="POST"
+                                            style="display: inline-block;"
+                                            onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                                <iconify-icon icon="fluent:delete-24-regular"
+                                                    class="menu-icon"></iconify-icon>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

@@ -9,7 +9,7 @@ class IndustryController extends Controller
 {
     public function index()
     {
-        $industries = Industry::paginate(10);
+        $industries = Industry::paginate(5);
         return view('industries.index', compact('industries'));
     }
 

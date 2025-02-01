@@ -177,6 +177,21 @@
                 </li>
             @endif
 
+            @if ($userPermissions->contains('can view permissions'))
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
+                        <span>Permissions</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a href="{{ route('permissions.index') }}"><i
+                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Permissions List</a>
+                        </li>
+                    </ul>
+                </li>
+            @endif
+
             @if ($userPermissions->contains('can view companies'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">

@@ -5,9 +5,11 @@
     </x-slot>
 
     <div class="card basic-data-table">
-        <div class="card-header">
-            <a class="btn btn-outline-primary" href="{{ route('companies.create') }}">Create New Company</a>
-        </div>
+        @if ($userPermissions->contains('can manage companies'))
+            <div class="card-header">
+                <a class="btn btn-outline-primary" href="{{ route('companies.create') }}">Create New Company</a>
+            </div>
+        @endif
         <div class="card-body table-responsive">
             <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
                 <thead>
@@ -41,20 +43,23 @@
                                     class="w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center">
                                     <iconify-icon icon="iconamoon:eye-light"></iconify-icon>
                                 </a>
-                                <a href="{{ route('companies.edit', $company->id) }}"
-                                    class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                    <iconify-icon icon="lucide:edit"></iconify-icon>
-                                </a>
-                                <form action="{{ route('companies.destroy', $company->id) }}" method="POST"
-                                    style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" style="margin-top: -5px;"
-                                        onclick="return confirm('Are you sure you want to delete this company?')"
-                                        class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                        <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
-                                    </button>
-                                </form>
+                                @if ($userPermissions->contains('can manage companies'))
+                                    <a href="{{ route('companies.edit', $company->id) }}"
+                                        class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                        <iconify-icon icon="lucide:edit"></iconify-icon>
+                                    </a>
+                                    <form action="{{ route('companies.destroy', $company->id) }}" method="POST"
+                                        style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" style="margin-top: -5px;"
+                                            onclick="return confirm('Are you sure you want to delete this company?')"
+                                            class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                            <iconify-icon icon="fluent:delete-24-regular"
+                                                class="menu-icon"></iconify-icon>
+                                        </button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

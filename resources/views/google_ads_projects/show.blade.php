@@ -2,7 +2,7 @@
     <x-slot name="header">
         {{ __('Google Ads Project - ' . $googleAdsProject->name) }}
     </x-slot>
-    <div class="card">
+    <div class="card ">
         <div class="card-body">
             <div class="row gy-3">
                 <div class="col-lg-6">
@@ -96,7 +96,7 @@
                                     {{-- Image Files --}}
                                     <div class="col-lg-6 mb-3">
                                         <div class="card overflow-hidden d-flex justify-content-center align-items-center bg-light h-100 border shadow-sm">
-                                            <img style="width: 200px;" src="{{ $filePath }}" class="card-img-top img-fluid"
+                                            <img style="width: 100px;" src="{{ $filePath }}" class="card-img-top img-fluid"
                                                 alt="Contract Image">
                                             <div class="card-body text-center">
                                                 <a href="{{ $filePath }}" target="_blank"

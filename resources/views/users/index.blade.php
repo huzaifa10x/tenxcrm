@@ -3,11 +3,13 @@
         {{ __('Users') }}
     </x-slot>
     <div class="card basic-data-table">
-        <div class="card-header">
-            <a href="{{ route('users.create') }}" class="btn btn-outline-primary">
-                Add New User
-            </a>
-        </div>
+        @if ($userPermissions->contains('can manage users'))
+            <div class="card-header">
+                <a href="{{ route('users.create') }}" class="btn btn-outline-primary">
+                    Add New User
+                </a>
+            </div>
+        @endif
         <div class="card-body table-responsive">
             <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
                 <thead>
@@ -32,21 +34,23 @@
                                         class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
                                         <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                     </a>
-                                    <a href="{{ route('users.edit', $user->id) }}"
-                                        class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                        <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                    </a>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                        style="display: inline-block;"
-                                        onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                            <iconify-icon icon="fluent:delete-24-regular"
-                                                class="menu-icon"></iconify-icon>
-                                        </button>
-                                    </form>
+                                    @if ($userPermissions->contains('can manage users'))
+                                        <a href="{{ route('users.edit', $user->id) }}"
+                                            class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                            <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                        </a>
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                            style="display: inline-block;"
+                                            onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                                <iconify-icon icon="fluent:delete-24-regular"
+                                                    class="menu-icon"></iconify-icon>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
