@@ -13,7 +13,7 @@ class UserController extends Controller
     {
         $users = User::with('roles')->whereDoesntHave('roles', function ($query) {
             $query->where('name', 'CUSTOMER');
-        })->paginate(5);
+        })->paginate(15);
 
         return view('users.index', compact('users'));
     }
@@ -22,7 +22,7 @@ class UserController extends Controller
     {
         $users = User::with('roles')->whereDoesntHave('roles', function ($query) {
             $query->where('name', 'CUSTOMER');
-        })->paginate(5);
+        })->paginate(15);
 
         return view('users.users-grid-view', compact('users'));
     }

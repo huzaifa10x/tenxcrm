@@ -11,24 +11,8 @@ class Industry extends Model
 
     protected $fillable = ['industry'];
 
-    public function seoCampaignProjects()
+    public function Projects()
     {
-        return $this->hasMany(SeoCampaignProject::class);
-    }
-    public function googleAdsProject()
-    {
-        return $this->hasMany(GoogleAdsProject::class);
-    }
-    public function hostingProject()
-    {
-        return $this->hasMany(HostingProject::class);
-    }
-    public function socialMediaProject()
-    {
-        return $this->hasMany(SocialMediaProject::class);
-    }
-    public function webDevelopmentProject()
-    {
-        return $this->hasMany(WebDevelopmentProject::class);
+        return $this->hasMany(Project::class);
     }
 }

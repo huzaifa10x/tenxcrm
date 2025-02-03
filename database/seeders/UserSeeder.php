@@ -155,18 +155,34 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $userData) {
-            $role = Role::where('name', $userData['role'])->first();
-
-            if ($role) {
-                $user = User::updateOrCreate(
-                    ['email' => $userData['email']],
-                    [
-                        'name' => $userData['name'],
-                        'password' => $userData['password'],
-                        'phone' => $faker->phoneNumber,
-                    ]
-                );
-                $user->roles()->sync([$role->id]);
+            $user = User::updateOrCreate(
+                ['email' => $userData['email']],
+                [
+                    'name' => $userData['name'],
+                    'password' => $userData['password'],
+                    'phone' => $faker->phoneNumber,
+                ]
+            );
+            if ($userData['role'] == 'ADMIN') {
+                $user->roles()->sync(Role::where('name', 'ADMIN')->first());
+            } elseif ($userData['role'] == 'CONTENT') {
+                $user->roles()->sync(Role::where('name', 'CONTENT')->first());
+            } elseif ($userData['role'] == 'ONSITE') {
+                $user->roles()->sync(Role::where('name', 'ONSITE')->first());
+            } elseif ($userData['role'] == 'OFF SITE') {
+                $user->roles()->sync(Role::where('name', 'OFF SITE')->first());
+            } elseif ($userData['role'] == 'DESIGN') {
+                $user->roles()->sync(Role::where('name', 'DESIGN')->first());
+            } elseif ($userData['role'] == 'DEVELOPMENT') {
+                $user->roles()->sync(Role::where('name', 'DEVELOPMENT')->first());
+            } elseif ($userData['role'] == 'SEO ADMIN') {
+                $user->roles()->sync(Role::where('name', 'SEO ADMIN')->first());
+            } elseif ($userData['role'] == 'AM') {
+                $user->roles()->sync(Role::where('name', 'AM')->first());
+            } elseif ($userData['role'] == 'SM') {
+                $user->roles()->sync(Role::where('name', 'SM')->first());
+            } elseif ($userData['role'] == 'SALES') {
+                $user->roles()->sync(Role::where('name', 'SALES')->first());
             }
         }
     }

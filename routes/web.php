@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleAdsProjectController;
 use App\Http\Controllers\IndustryController;
+use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -43,11 +44,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can view industries')->group(function () {
         Route::resource('industries', IndustryController::class);
     });
-    Route::middleware('permission:can view seo-campaign')->group(function () {
-        Route::resource('seo-campaign', SeoCampaignProjectController::class);
+    Route::middleware('permission:can view payment methods')->group(function () {
+        Route::resource('payment-methods', PaymentMethodController::class);
     });
-    Route::middleware('permission:can view google-ads-projects')->group(function () {
-        Route::resource('google-ads-projects', GoogleAdsProjectController::class);
+    Route::middleware('permission:can view projects')->group(function () {
+        Route::resource('projects', ProjectController::class);
+        Route::get('projects-get-extra-fields', [ProjectController::class, 'getExtraFields'])->name('projects-get-extra-fields');
     });
 });
 

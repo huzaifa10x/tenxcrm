@@ -49,6 +49,9 @@
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
+    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
+
+
 </head>
 
 <body class="font-sans antialiased">
