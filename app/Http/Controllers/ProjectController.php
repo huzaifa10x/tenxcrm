@@ -12,6 +12,7 @@ use App\Models\SocialMediaProject;
 use App\Models\User;
 use App\Models\WebDevProject;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectController extends Controller
@@ -19,9 +20,342 @@ class ProjectController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        $projects = Project::all();
+        $projects = Project::paginate(10);
         return view('projects.index', compact('projects'));
     }
+
+    // Show the form for creating a new resource.
+    public function create()
+    {
+        $industries = Industry::all();
+        $users = User::all();
+        $paymentMethods = PaymentMethod::all();
+        return view('projects.create', compact('industries', 'users', 'paymentMethods'));
+    }
+
+    public function store(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'category' => 'required',
+            'status' => 'required',
+            'industry_id' => 'required|exists:industries,id',
+            'contract_start_date' => 'required|date',
+            'contract_term' => 'required|integer',
+            'contract_value' => 'required|numeric',
+            'free_months' => 'nullable|integer',
+            'contract_copy' => 'nullable|array',
+            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'handover_notes' => 'nullable|string',
+            'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $projectData = $validator->validated();
+        $project = Project::create($projectData);
+
+        $project->salesManagers()->sync($request->sales_manager_ids);
+        $project->accountManagers()->sync($request->account_manager_ids);
+        $project->techManagers()->sync($request->tech_manager_ids);
+
+        if ($request->hasFile('contract_copy')) {
+            foreach ($request->file('contract_copy') as $file) {
+                $path = $file->store('project_contracts', 'public');
+                $project->contractFiles()->create([
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                ]);
+            }
+        }
+        if ($request->project_type == 'SEO') {
+            $validator = Validator::make($request->all(), [
+                'number_of_keywords' => 'required|integer',
+                'milestone_1_percentage' => 'required|numeric',
+                'milestone_1_date' => 'required|date',
+                'milestone_2_percentage' => 'required|numeric',
+                'milestone_2_date' => 'required|date',
+                'milestone_3_percentage' => 'required|numeric',
+                'milestone_3_date' => 'required|date',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            SeoProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+        } elseif ($request->project_type == 'Social Media') {
+
+            $validator = Validator::make($request->all(), [
+                'channels' => 'required',
+                'video_shoots_per_month' => 'required|integer',
+                'static_posts' => 'required|integer',
+                'reels' => 'required|integer',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            SocialMediaProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+        } elseif ($request->project_type == 'Web Development') {
+            $validator = Validator::make($request->all(), [
+                'payment_type' => 'required|in:Partial,Full',
+                'remaining_payment' => 'required|numeric',
+                'site_condition' => 'required|in:New Project,Maintenance Project',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            WebDevProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+        } else {
+        }
+        return redirect()->route('projects.index')->with('success', 'Project created successfully');
+    }
+
+    // Display the specified resource.
+    public function show($id)
+    {
+        $project = Project::findOrFail($id);
+        $industries = Industry::all();
+        $users = User::all();
+        $paymentMethods = PaymentMethod::all();
+        return view('projects.show', compact('project', 'industries', 'users', 'paymentMethods'));
+    }
+
+    // Show the form for editing the specified resource.
+    public function edit($id)
+    {
+        $project = Project::findOrFail($id);
+        $industries = Industry::all();
+        $users = User::all();
+        $paymentMethods = PaymentMethod::all();
+        return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods'));
+    }
+
+    // Update the specified resource in storage.
+    public function update(Request $request, $id)
+    {
+        $project = Project::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'category' => 'required',
+            'status' => 'required',
+            'industry_id' => 'required|exists:industries,id',
+            'contract_start_date' => 'required|date',
+            'contract_term' => 'required|integer',
+            'contract_value' => 'required|numeric',
+            'free_months' => 'nullable|integer',
+            'contract_copy' => 'nullable|array',
+            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'handover_notes' => 'nullable|string',
+            'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $projectData = $validator->validated();
+        $project->update($projectData);
+
+        $project->salesManagers()->sync($request->sales_manager_ids);
+        $project->accountManagers()->sync($request->account_manager_ids);
+        $project->techManagers()->sync($request->tech_manager_ids);
+
+        if ($request->hasFile('contract_copy')) {
+            foreach ($request->file('contract_copy') as $file) {
+                $path = $file->store('project_contracts', 'public');
+                $project->contractFiles()->create([
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                ]);
+            }
+        }
+
+        if ($request->project_type == 'SEO') {
+            $validator = Validator::make($request->all(), [
+                'number_of_keywords' => 'required|integer',
+                'milestone_1_percentage' => 'required|numeric',
+                'milestone_1_date' => 'required|date',
+                'milestone_2_percentage' => 'required|numeric',
+                'milestone_2_date' => 'required|date',
+                'milestone_3_percentage' => 'required|numeric',
+                'milestone_3_date' => 'required|date',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $seoProject = SeoProject::where('project_id', $project->id)->first();
+            if ($seoProject) {
+                $seoProject->update($validator->validated());
+            } else {
+                SeoProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+            }
+        } elseif ($request->project_type == 'Social Media') {
+            $validator = Validator::make($request->all(), [
+                'channels' => 'required',
+                'video_shoots_per_month' => 'required|integer',
+                'static_posts' => 'required|integer',
+                'reels' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $socialMediaProject = SocialMediaProject::where('project_id', $project->id)->first();
+            if ($socialMediaProject) {
+                $socialMediaProject->update($validator->validated());
+            } else {
+                SocialMediaProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+            }
+        } elseif ($request->project_type == 'Web Development') {
+            $validator = Validator::make($request->all(), [
+                'payment_type' => 'required|in:Partial,Full',
+                'remaining_payment' => 'required|numeric',
+                'site_condition' => 'required|in:New Project,Maintenance Project',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $webDevProject = WebDevProject::where('project_id', $project->id)->first();
+            if ($webDevProject) {
+                $webDevProject->update($validator->validated());
+            } else {
+                WebDevProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+            }
+        }
+
+        return redirect()->route('projects.index')->with('success', 'Project updated successfully');
+    }
+
+    // Remove the specified resource from storage.
+    public function destroy($id)
+    {
+        $project = Project::findOrFail($id);
+
+        // Delete related contract files
+        foreach ($project->contractFiles as $file) {
+            Storage::disk('public')->delete($file->file_path);
+            $file->delete();
+        }
+
+        // Delete related project type specific data
+        if ($project->project_type == 'SEO') {
+            SeoProject::where('project_id', $project->id)->delete();
+        } elseif ($project->project_type == 'Social Media') {
+            SocialMediaProject::where('project_id', $project->id)->delete();
+        } elseif ($project->project_type == 'Web Development') {
+            WebDevProject::where('project_id', $project->id)->delete();
+        }
+
+        $project->delete();
+
+        return redirect()->route('projects.index')->with('success', 'Project deleted successfully');
+    }
+
+    public function uploadProjectFiles(Request $request, $projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        $validator = Validator::make($request->all(), [
+            'contract_copy' => 'required|array',
+            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        foreach ($request->file('contract_copy') as $file) {
+            $path = $file->store('project_contracts', 'public');
+            $project->contractFiles()->create([
+                'file_path' => $path,
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => $file->getClientMimeType(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Files uploaded successfully!'
+        ]);
+    }
+
+    public function deleteProjectFile($projectId, $fileId)
+    {
+        $project = Project::findOrFail($projectId);
+        $file = $project->contractFiles()->findOrFail($fileId);
+
+        // File ko storage se delete karo
+        Storage::disk('public')->delete($file->file_path);
+
+        // DB se bhi delete karo
+        $file->delete();
+
+        return response()->json(['success' => true, 'message' => 'File deleted successfully!']);
+    }
+    public function deleteAllProjectFiles($projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        if ($project->contractFiles()->count() == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No files found to delete.'
+            ]);
+        }
+
+        // Delete files from storage
+        foreach ($project->contractFiles as $file) {
+            Storage::disk('public')->delete($file->file_path);
+            $file->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All attachments deleted successfully.'
+        ]);
+    }
+
 
     public function getExtraFields(Request $request)
     {
@@ -124,150 +458,5 @@ class ProjectController extends Controller
         }
 
         return response()->json($fields); // Return fields as JSON response
-    }
-
-    // Show the form for creating a new resource.
-    public function create()
-    {
-        $industries = Industry::all();
-        $users = User::all();
-        $paymentMethods = PaymentMethod::all();
-        return view('projects.create', compact('industries', 'users', 'paymentMethods'));
-    }
-
-    public function store(Request $request)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
-            'description' => 'required|string',
-            'category' => 'required',
-            'status' => 'required',
-            'sales_manager_id' => 'required|exists:users,id',
-            'industry_id' => 'required|exists:industries,id',
-            'tech_manager_id' => 'required|exists:users,id',
-            'account_manager_id' => 'required|exists:users,id',
-            'contract_start_date' => 'required|date',
-            'contract_term' => 'required|integer',
-            'contract_value' => 'required|numeric',
-            'free_months' => 'nullable|integer',
-            'contract_copy' => 'nullable|array',
-            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png',
-            'payment_method_id' => 'required|exists:payment_methods,id',
-            'handover_notes' => 'nullable|string',
-            'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other'
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-        $projectData = $validator->validated();
-        $project = Project::create($projectData);
-        if ($request->hasFile('contract_copy')) {
-            foreach ($request->file('contract_copy') as $file) {
-                $path = $file->store('project_contracts', 'public');
-                $project->contractFiles()->create([
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $file->getClientMimeType(),
-                ]);
-            }
-        }
-        if ($request->project_type == 'SEO') {
-            $validator = Validator::make($request->all(), [
-                'number_of_keywords' => 'required|integer',
-                'milestone_1_percentage' => 'required|numeric',
-                'milestone_1_date' => 'required|date',
-                'milestone_2_percentage' => 'required|numeric',
-                'milestone_2_date' => 'required|date',
-                'milestone_3_percentage' => 'required|numeric',
-                'milestone_3_date' => 'required|date',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            SeoProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
-        } elseif ($request->project_type == 'Social Media') {
-
-            $validator = Validator::make($request->all(), [
-                'channels' => 'required',
-                'video_shoots_per_month' => 'required|integer',
-                'static_posts' => 'required|integer',
-                'reels' => 'required|integer',
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            SocialMediaProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
-        } elseif ($request->project_type == 'Web Development') {
-            $validator = Validator::make($request->all(), [
-                'payment_type' => 'required|in:Partial,Full',
-                'remaining_payment' => 'required|numeric',
-                'site_condition' => 'required|in:New Project,Maintenance Project',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            WebDevProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
-        } else {
-        }
-        return redirect()->route('projects.index')->with('success', 'Project created successfully');
-    }
-
-    // Display the specified resource.
-    public function show($id)
-    {
-        $project = Project::with('contractFiles')->findOrFail($id);
-        return view('projects.show', compact('project'));
-    }
-
-    // Show the form for editing the specified resource.
-    public function edit($id)
-    {
-        $project = Project::findOrFail($id);
-        return view('projects.edit', compact('project'));
-    }
-
-    // Update the specified resource in storage.
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'category' => 'required',
-            'status' => 'required',
-            'sales_manager_id' => 'required',
-            // Add other validation rules here
-        ]);
-
-        $project = Project::findOrFail($id);
-        $project->update([
-            'category' => $request->category,
-            'status' => $request->status,
-            'sales_manager_id' => $request->sales_manager_id,
-            // Update other fields here
-        ]);
-
-        return redirect()->route('projects.index')->with('success', 'Project updated successfully');
-    }
-
-    // Remove the specified resource from storage.
-    public function destroy($id)
-    {
-        $project = Project::findOrFail($id);
-        $project->delete();
-
-        return redirect()->route('projects.index')->with('success', 'Project deleted successfully');
     }
 }

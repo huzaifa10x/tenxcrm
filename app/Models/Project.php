@@ -14,9 +14,6 @@ class Project extends Model
         'category',
         'industry_id',
         'status',
-        'sales_manager_id',
-        'account_manager_id',
-        'tech_manager_id',
         'contract_start_date',
         'contract_term',
         'contract_value',
@@ -30,7 +27,14 @@ class Project extends Model
     {
         return $this->hasOne(SeoProject::class);
     }
-
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class);
+    }
+    public function paymentMethod()
+    {
+        return $this->belongsTo(PaymentMethod::class);
+    }
     public function socialMediaProject()
     {
         return $this->hasOne(SocialMediaProject::class);
@@ -44,5 +48,20 @@ class Project extends Model
     public function contractFiles()
     {
         return $this->hasMany(ProjectContractFile::class);
+    }
+
+    public function salesManagers()
+    {
+        return $this->belongsToMany(User::class, 'project_sales_manager');
+    }
+
+    public function accountManagers()
+    {
+        return $this->belongsToMany(User::class, 'project_account_manager');
+    }
+
+    public function techManagers()
+    {
+        return $this->belongsToMany(User::class, 'project_tech_manager');
     }
 }

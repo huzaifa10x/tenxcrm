@@ -15,9 +15,6 @@ return new class extends Migration
             $table->enum('category', ['PLATINUM', 'GOLD', 'SILVER']);
             $table->foreignId('industry_id')->constrained('industries')->onDelete('cascade');
             $table->enum('status', ['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled']);
-            $table->foreignId('sales_manager_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('account_manager_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('tech_manager_id')->constrained('users')->onDelete('cascade');
             $table->date('contract_start_date');
             $table->integer('contract_term');
             $table->float('contract_value');
@@ -27,10 +24,35 @@ return new class extends Migration
             $table->enum('project_type', ['SEO', 'Google Ads', 'Social Media', 'Web Development', 'Hosting', 'Other']);
             $table->timestamps();
         });
+
+        Schema::create('project_sales_manager', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('project_account_manager', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('project_tech_manager', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
+        });
+
     }
 
     public function down()
     {
+        Schema::dropIfExists('project_sales_manager');
+        Schema::dropIfExists('project_account_manager');
+        Schema::dropIfExists('project_tech_manager');
         Schema::dropIfExists('projects');
     }
 };

@@ -94,35 +94,35 @@ class UserSeeder extends Seeder
                 'email' => 'adnan@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'AM',
+                'role' => 'ACCOUNT MANAGER',
             ],
             [
                 'name' => 'FILZA',
                 'email' => 'filza@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'AM',
+                'role' => 'ACCOUNT MANAGER',
             ],
             [
                 'name' => 'RAHUL',
                 'email' => 'rahul@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'AM',
+                'role' => 'ACCOUNT MANAGER',
             ],
             [
                 'name' => 'SAMMAR',
                 'email' => 'sammar@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'AM',
+                'role' => 'ACCOUNT MANAGER',
             ],
             [
                 'name' => 'RAKHSHAAN',
                 'email' => 'rakhshaan@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'SM',
+                'role' => 'SOCIAL MEDIA MANAGER',
             ],
             [
                 'name' => 'BILAL',
@@ -139,7 +139,7 @@ class UserSeeder extends Seeder
                 'role' => 'ADMIN',
             ],
             [
-                'name' => 'ALI',
+                'name' => 'Muhammad ALI',
                 'email' => 'ali@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
@@ -150,7 +150,7 @@ class UserSeeder extends Seeder
                 'email' => 'anees@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'SALES',
+                'role' => 'SALES MANAGER',
             ],
         ];
 
@@ -177,9 +177,9 @@ class UserSeeder extends Seeder
                 $user->roles()->sync(Role::where('name', 'DEVELOPMENT')->first());
             } elseif ($userData['role'] == 'SEO ADMIN') {
                 $user->roles()->sync(Role::where('name', 'SEO ADMIN')->first());
-            } elseif ($userData['role'] == 'AM') {
-                $user->roles()->sync(Role::where('name', 'AM')->first());
-            } elseif ($userData['role'] == 'SM') {
+            } elseif ($userData['role'] == 'ACCOUNT MANAGER') {
+                $user->roles()->sync(Role::where('name', 'ACCOUNT MANAGER')->first());
+            } elseif ($userData['role'] == 'SALES MANAGER') {
                 $user->roles()->sync(Role::where('name', 'SM')->first());
             } elseif ($userData['role'] == 'SALES') {
                 $user->roles()->sync(Role::where('name', 'SALES')->first());

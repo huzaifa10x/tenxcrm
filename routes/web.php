@@ -22,9 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
     Route::middleware('permission:can view users')->group(function () {
         Route::resource('users', UserController::class);
         Route::get('/users-grid-view', [UserController::class, 'gridView'])->name('users.gridView');
@@ -47,10 +45,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can view payment methods')->group(function () {
         Route::resource('payment-methods', PaymentMethodController::class);
     });
-    Route::middleware('permission:can view projects')->group(function () {
+    Route::middleware('permission:can view all projects')->group(function () {
         Route::resource('projects', ProjectController::class);
-        Route::get('projects-get-extra-fields', [ProjectController::class, 'getExtraFields'])->name('projects-get-extra-fields');
     });
+    Route::middleware('permission:can add project files')->group(function () {
+        Route::post('/projects/{project}/files', [ProjectController::class, 'uploadProjectFiles'])->name('projects.uploadFiles');
+    });
+    Route::middleware('permission:can remove project files')->group(function () {
+        Route::delete('/projects/{project}/file/{file}', [ProjectController::class, 'deleteProjectFile'])->name('projects.deleteFile');
+        Route::delete('/projects/{project}/files', [ProjectController::class, 'deleteAllProjectFiles'])->name('projects.deleteAllFiles');
+    });
+    Route::get('projects-get-extra-fields', [ProjectController::class, 'getExtraFields'])->name('projects-get-extra-fields');
 });
 
 

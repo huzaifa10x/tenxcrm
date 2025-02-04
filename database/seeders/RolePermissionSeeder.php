@@ -16,7 +16,6 @@ class RolePermissionSeeder extends Seeder
             'can view users',
             'can manage users',
             'can view permissions',
-            'can manage permissions',
             'can view customers',
             'can manage customers',
             'can view roles',
@@ -25,7 +24,15 @@ class RolePermissionSeeder extends Seeder
             'can manage industries',
             'can view payment methods',
             'can manage payment methods',
-            'can view projects',
+            'can view all projects',
+            'can view own projects',
+            'can edit projects',
+            'can add projects',
+            'can add project files',
+            'can remove project files',
+            'can assign users to projects',
+            'can update project status',
+            'can view project reports',
         ];
 
         // Define Roles
@@ -37,10 +44,12 @@ class RolePermissionSeeder extends Seeder
             'DESIGN',
             'DEVELOPMENT',
             'SEO ADMIN',
-            'AM',
-            'SM',
             'SALES',
-            'CUSTOMER',
+            'TECH MANAGER',
+            'ACCOUNT MANAGER',
+            'SALES MANAGER',
+            'SOCIAL MEDIA MANAGER',
+            'FINANCE',
         ];
 
         // Insert Permissions

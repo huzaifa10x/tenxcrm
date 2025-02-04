@@ -49,8 +49,10 @@
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
-    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 
+    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
 
 </head>
 
@@ -121,7 +123,8 @@
                                                 <span class="text-md fw-semibold mb-0">Japan</span>
                                             </span>
                                         </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="japan">
+                                        <input class="form-check-input" type="radio" name="crypto"
+                                            id="japan">
                                     </div>
 
                                     <div
@@ -616,6 +619,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/homeOneChart.js') }}"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 </body>
 
 </html>

@@ -17,7 +17,6 @@
                     <span>Dashboard</span>
                 </a>
             </li>
-
             @if ($userPermissions->contains('can view users'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">
@@ -38,7 +37,6 @@
                     </ul>
                 </li>
             @endif
-
             @if ($userPermissions->contains('can view permissions'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">
@@ -53,7 +51,6 @@
                     </ul>
                 </li>
             @endif
-
             @if ($userPermissions->contains('can view companies'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">
@@ -74,7 +71,6 @@
                     </ul>
                 </li>
             @endif
-
             @if ($userPermissions->contains('can view roles'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">
@@ -95,7 +91,6 @@
                     </ul>
                 </li>
             @endif
-
             @if ($userPermissions->contains('can view industries'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">
@@ -132,6 +127,26 @@
                             <li>
                                 <a href="{{ route('payment-methods.create') }}"><i
                                         class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Method</a>
+                            </li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+            @if ($userPermissions->contains('can view all projects'))
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <iconify-icon icon="solar:document-text-outline" class="menu-icon"></iconify-icon>
+                        <span>Projects</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a href="{{ route('projects.index') }}"><i
+                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All projects</a>
+                        </li>
+                        @if ($userPermissions->contains('can add projects'))
+                            <li>
+                                <a href="{{ route('projects.create') }}"><i
+                                        class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Project</a>
                             </li>
                         @endif
                     </ul>
