@@ -51,6 +51,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can add project files')->group(function () {
         Route::post('/projects/{project}/files', [ProjectController::class, 'uploadProjectFiles'])->name('projects.uploadFiles');
     });
+    Route::middleware('permission:can update project status')->group(function () {
+        Route::post('/projects/{id}/update-status', [ProjectController::class, 'updateStatus'])->name('projects.updateStatus');
+    });
     Route::middleware('permission:can remove project files')->group(function () {
         Route::delete('/projects/{project}/file/{file}', [ProjectController::class, 'deleteProjectFile'])->name('projects.deleteFile');
         Route::delete('/projects/{project}/files', [ProjectController::class, 'deleteAllProjectFiles'])->name('projects.deleteAllFiles');

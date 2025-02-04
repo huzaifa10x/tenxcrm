@@ -356,6 +356,14 @@ class ProjectController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $project = Project::findOrFail($id);
+        $project->status = $request->status;
+        $project->save();
+
+        return response()->json(['success' => true, 'message' => 'Project status updated successfully!']);
+    }
 
     public function getExtraFields(Request $request)
     {

@@ -30,25 +30,37 @@
                             <td>{{ $project->status }}</td>
                             <td>{{ $project->project_type }}</td>
                             <td>
-                                <select class="form-control" id="status" name="status" required>
-                                    <option selected disabled value="">Select status</option>
-                                    <option value="Current" {{ $project->status == 'Current' ? 'selected' : '' }}>
-                                        Current
-                                    </option>
-                                    <option value="Paused" {{ $project->status == 'Paused' ? 'selected' : '' }}>Paused
-                                    </option>
-                                    <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>WFF
-                                    </option>
-                                    <option value="Expired" {{ $project->status == 'Expired' ? 'selected' : '' }}>
-                                        Expired
-                                    </option>
-                                    <option value="Debt Collection"
-                                        {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt Collection
-                                    </option>
-                                    <option value="Cancelled" {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
-                                        Cancelled
-                                    </option>
-                                </select>
+                                @if ($userPermissions->contains('can update project status'))
+                                    <select class="form-control project-status" data-project-id="{{ $project->id }}"
+                                        required>
+                                        <option selected disabled value="">Select status</option>
+                                        <option value="Current" {{ $project->status == 'Current' ? 'selected' : '' }}>
+                                            Current
+                                        </option>
+                                        <option value="Paused" {{ $project->status == 'Paused' ? 'selected' : '' }}>
+                                            Paused
+                                        </option>
+                                        <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>WFF
+                                        </option>
+                                        <option value="Expired" {{ $project->status == 'Expired' ? 'selected' : '' }}>
+                                            Expired
+                                        </option>
+                                        <option value="Debt Collection"
+                                            {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt
+                                            Collection
+                                        </option>
+                                        <option value="Cancelled"
+                                            {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
+                                            Cancelled
+                                        </option>
+                                        <option value="Completed"
+                                            {{ $project->status == 'Completed' ? 'selected' : '' }}>
+                                            Completed
+                                        </option>
+                                    </select>
+                                @else
+                                    {{ $project->status }}
+                                @endif
                             </td>
                             <td class="">
                                 <div class="d-flex align-items-center gap-10">
@@ -71,5 +83,37 @@
             {{ $projects->links('vendor.pagination.custom') }}
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".project-status").forEach(function(select) {
+                select.addEventListener("change", function() {
+                    let projectId = this.getAttribute("data-project-id");
+                    let newStatus = this.value;
+
+                    fetch("{{ route('projects.updateStatus', ':id') }}".replace(':id',
+                            projectId), {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector(
+                                    'meta[name="csrf-token"]').getAttribute("content"),
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                status: newStatus
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Project status updated successfully!");
+                            } else {
+                                alert("Error: " + data.message);
+                            }
+                        })
+                        .catch(error => console.error("Error:", error));
+                });
+            });
+        });
+    </script>
 
 </x-app-layout>

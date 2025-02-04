@@ -30,9 +30,7 @@ class RolePermissionSeeder extends Seeder
             'can add projects',
             'can add project files',
             'can remove project files',
-            'can assign users to projects',
             'can update project status',
-            'can view project reports',
         ];
 
         // Define Roles
