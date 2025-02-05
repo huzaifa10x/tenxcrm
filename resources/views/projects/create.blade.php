@@ -20,6 +20,15 @@
                             <textarea class="form-control" name="description" id="" cols="30" rows="10"></textarea>
                         </div>
 
+                        <div class="col-lg-4">
+                            <label class="form-label" for="customer_id">Customer</label>
+                            <select class="form-control w-100" name="customer_id" id="customer_id">
+                                @foreach ($customers as $customer)
+                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="row mt-3">
                             <div class="col-lg-4">
                                 <label class="form-label" for="sales_manager_ids">Sales Managers</label>
@@ -145,6 +154,8 @@
 
                         <div id="extra-fields-container">
                         </div>
+
+                        <input type="hidden" value="{{ auth()->user()->id }}" name="created_by">
 
                         <div class="col-lg-6 mt-3">
                             <button class="btn btn-primary" type="submit">Save Project</button>

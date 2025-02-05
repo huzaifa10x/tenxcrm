@@ -4,6 +4,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Industry;
 use App\Models\PaymentMethod;
 use App\Models\Project;
@@ -20,7 +21,28 @@ class ProjectController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        $projects = Project::paginate(10);
+        $user = auth()->user();
+        if ($user->hasPermission('can view all projects')) {
+            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers'])
+                ->paginate(10);
+        } elseif ($user->hasPermission('can view own projects')) {
+            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers'])
+                ->where(function ($query) use ($user) {
+                    $query->where('created_by', $user->id)
+                        ->orWhereHas('salesManagers', function ($q) use ($user) {
+                            $q->where('user_id', $user->id);
+                        })
+                        ->orWhereHas('accountManagers', function ($q) use ($user) {
+                            $q->where('user_id', $user->id);
+                        })
+                        ->orWhereHas('techManagers', function ($q) use ($user) {
+                            $q->where('user_id', $user->id);
+                        });
+                })
+                ->paginate(10);
+        } else {
+            abort(403, 'Unauthorized action.');
+        }
         return view('projects.index', compact('projects'));
     }
 
@@ -30,7 +52,8 @@ class ProjectController extends Controller
         $industries = Industry::all();
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
-        return view('projects.create', compact('industries', 'users', 'paymentMethods'));
+        $customers = Customer::all();
+        return view('projects.create', compact('industries', 'users', 'paymentMethods', 'customers'));
     }
 
     public function store(Request $request)
@@ -42,6 +65,8 @@ class ProjectController extends Controller
             'category' => 'required',
             'status' => 'required',
             'industry_id' => 'required|exists:industries,id',
+            'customer_id' => 'required|exists:customers,id',
+            'created_by' => 'required|exists:users,id',
             'contract_start_date' => 'required|date',
             'contract_term' => 'required|integer',
             'contract_value' => 'required|numeric',
@@ -144,7 +169,8 @@ class ProjectController extends Controller
         $industries = Industry::all();
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
-        return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods'));
+        $customers = Customer::all();
+        return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods','customers'));
     }
 
     // Update the specified resource in storage.
@@ -158,6 +184,7 @@ class ProjectController extends Controller
             'category' => 'required',
             'status' => 'required',
             'industry_id' => 'required|exists:industries,id',
+            'customer_id' => 'required|exists:customers,id',
             'contract_start_date' => 'required|date',
             'contract_term' => 'required|integer',
             'contract_value' => 'required|numeric',

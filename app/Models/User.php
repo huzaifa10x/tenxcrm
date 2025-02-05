@@ -65,8 +65,9 @@ class User extends Authenticatable
     }
     public function hasPermission($permission)
     {
-        return $this->permissions->contains('name', $permission);
+        return $this->roles->flatMap->permissions->pluck('name')->contains($permission);
     }
+    
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id');

@@ -3,14 +3,12 @@
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GoogleAdsProjectController;
 use App\Http\Controllers\IndustryController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SeoCampaignProjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can view users')->group(function () {
         Route::resource('users', UserController::class);
         Route::get('/users-grid-view', [UserController::class, 'gridView'])->name('users.gridView');
+        Route::post('/users/{id}/roles', [UserController::class, 'updateRoles'])->name('users.updateRoles');
     });
     Route::middleware('permission:can view companies')->group(function () {
         Route::resource('companies', CompanyController::class);
@@ -35,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::middleware('permission:can view roles')->group(function () {
         Route::resource('roles', RoleController::class);
+        Route::post('/roles/update-permissions', [RoleController::class, 'updatePermissions'])->name('roles.update.permissions');
     });
     Route::middleware('permission:can view permissions')->group(function () {
         Route::resource('permissions', PermissionController::class);
@@ -45,9 +45,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can view payment methods')->group(function () {
         Route::resource('payment-methods', PaymentMethodController::class);
     });
-    Route::middleware('permission:can view all projects')->group(function () {
-        Route::resource('projects', ProjectController::class);
-    });
+    // Route::middleware(['permission:can view all projects'])->group(function () {
+    Route::resource('projects', ProjectController::class);
+    // });
     Route::middleware('permission:can add project files')->group(function () {
         Route::post('/projects/{project}/files', [ProjectController::class, 'uploadProjectFiles'])->name('projects.uploadFiles');
     });
@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/projects/{project}/files', [ProjectController::class, 'deleteAllProjectFiles'])->name('projects.deleteAllFiles');
     });
     Route::get('projects-get-extra-fields', [ProjectController::class, 'getExtraFields'])->name('projects-get-extra-fields');
+
 });
 
 

@@ -20,8 +20,8 @@ class UserSeeder extends Seeder
 
         $users = [
             [
-                'name' => 'ADMIN',
-                'email' => 'admin@gmail.com',
+                'name' => 'Muhammad Ali',
+                'email' => 'muhammad.ali@10xdigital.ae',
                 'password' => Hash::make('12345678'),
                 'phone' => '1234567890',
                 'role' => 'ADMIN',
@@ -180,7 +180,9 @@ class UserSeeder extends Seeder
             } elseif ($userData['role'] == 'ACCOUNT MANAGER') {
                 $user->roles()->sync(Role::where('name', 'ACCOUNT MANAGER')->first());
             } elseif ($userData['role'] == 'SALES MANAGER') {
-                $user->roles()->sync(Role::where('name', 'SM')->first());
+                $user->roles()->sync(Role::where('name', 'SOCIAL MEDIA MANAGER')->first());
+            } elseif ($userData['role'] == 'SALES MANAGER') {
+                $user->roles()->sync(Role::where('name', 'SALES MANAGER')->first());
             } elseif ($userData['role'] == 'SALES') {
                 $user->roles()->sync(Role::where('name', 'SALES')->first());
             }

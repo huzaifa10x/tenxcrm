@@ -12,7 +12,8 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::with('permissions')->paginate(15);
-        return view('roles.index', compact('roles'));
+        $permissions = Permission::get();
+        return view('roles.index', compact('roles', 'permissions'));
     }
     public function create()
     {
@@ -60,5 +61,18 @@ class RoleController extends Controller
     {
         Role::findOrFail($id)->delete();
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully!');
+    }
+
+    public function updatePermissions(Request $request)
+    {
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'permissions' => 'nullable|array'
+        ]);
+
+        $role = Role::findOrFail($request->role_id);
+        $role->permissions()->sync($request->permissions);
+
+        return response()->json(['success' => true, 'message' => 'Permissions updated successfully!']);
     }
 }

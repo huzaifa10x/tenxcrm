@@ -14,12 +14,14 @@ return new class extends Migration
             $table->text('description');
             $table->enum('category', ['PLATINUM', 'GOLD', 'SILVER']);
             $table->foreignId('industry_id')->constrained('industries')->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->enum('status', ['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled','Completed']);
             $table->date('contract_start_date');
             $table->integer('contract_term');
             $table->float('contract_value');
             $table->float('free_months');
             $table->foreignId('payment_method_id')->constrained('payment_methods')->onDelete('cascade');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->text('handover_notes');
             $table->enum('project_type', ['SEO', 'Google Ads', 'Social Media', 'Web Development', 'Hosting', 'Other']);
             $table->timestamps();

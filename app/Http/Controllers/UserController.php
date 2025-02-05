@@ -14,8 +14,9 @@ class UserController extends Controller
         $users = User::with('roles')->whereDoesntHave('roles', function ($query) {
             $query->where('name', 'CUSTOMER');
         })->paginate(15);
+        $roles = Role::get();
 
-        return view('users.index', compact('users'));
+        return view('users.index', compact('users', 'roles'));
     }
 
     public function gridView()
@@ -25,6 +26,18 @@ class UserController extends Controller
         })->paginate(15);
 
         return view('users.users-grid-view', compact('users'));
+    }
+
+    public function updateRoles(Request $request, $id)
+    {
+        $request->validate([
+            'roles' => 'nullable|array',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->roles()->sync($request->roles);
+
+        return response()->json(['success' => true, 'message' => 'Roles updated successfully!']);
     }
 
     public function create()

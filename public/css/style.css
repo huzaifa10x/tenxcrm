@@ -15783,3 +15783,14 @@ td.fc-header-center {
 .select2-container--default .selection {
   width: 100% !important;
 }
+
+@media (min-width: 576px) {
+  .modal-dialog {
+    max-width: 800px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+.fs-7{
+  font-size: 0.8rem !important;
+}

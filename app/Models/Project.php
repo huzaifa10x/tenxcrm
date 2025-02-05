@@ -14,6 +14,8 @@ class Project extends Model
         'category',
         'industry_id',
         'status',
+        'created_by',
+        'customer_id',
         'contract_start_date',
         'contract_term',
         'contract_value',
@@ -34,6 +36,14 @@ class Project extends Model
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class);
+    }
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
     public function socialMediaProject()
     {

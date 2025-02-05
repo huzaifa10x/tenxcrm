@@ -9,7 +9,6 @@ class RolePermissionSeeder extends Seeder
 {
     public function run()
     {
-        // Define Permissions
         $permissions = [
             'can view companies',
             'can manage companies',

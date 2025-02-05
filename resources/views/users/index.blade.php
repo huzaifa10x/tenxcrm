@@ -30,6 +30,13 @@
                             <td>{{ $user->roles->pluck('name')->implode(', ') }}</td>
                             <td class="text-center">
                                 <div class="d-flex align-items-center gap-10 justify-content-center">
+                                    @if ($userPermissions->contains('can manage users'))
+                                        <button class="px-3 py-1 btn btn-sm btn-outline-warning"
+                                            onclick="openRolesModal({{ $user->id }}, {!! json_encode($user->roles->pluck('id')) !!})">
+                                            Roles
+                                        </button>
+                                    @endif
+
                                     <a href="{{ route('users.show', $user->id) }}"
                                         class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
                                         <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
@@ -60,4 +67,79 @@
             {{ $users->links('vendor.pagination.custom') }}
         </div>
     </div>
+    {{-- ROLES MANAGE MODAL --}}
+    <div class="modal fade" id="manageRolesModal" tabindex="-1" aria-labelledby="manageRolesLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p class="modal-title" id="manageRolesLabel">Manage Roles</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateRolesForm">
+                        <input type="hidden" id="userId">
+                        <div class="row">
+                            @foreach ($roles as $role)
+                                <div class="col-lg-4 mb-3">
+                                    <div class="form-check d-flex align-items-center gap-2">
+                                        <input class="form-check-input role-checkbox" type="checkbox" name="roles[]"
+                                            value="{{ $role->id }}" id="role_{{ $role->id }}">
+                                        <label class="form-check-label fs-7" for="role_{{ $role->id }}">
+                                            {{ $role->name }}
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Update Roles</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openRolesModal(userId, selectedRoles) {
+            $('#userId').val(userId);
+
+            // Uncheck all checkboxes first
+            $('.role-checkbox').prop('checked', false);
+
+            // Check roles assigned to the user
+            selectedRoles.forEach(roleId => {
+                $('#role_' + roleId).prop('checked', true);
+            });
+
+            // Show the modal
+            $('#manageRolesModal').modal('show');
+        }
+
+        $('#updateRolesForm').submit(function(e) {
+            e.preventDefault();
+
+            let userId = $('#userId').val();
+            let selectedRoles = $('.role-checkbox:checked').map(function() {
+                return $(this).val();
+            }).get();
+
+            $.ajax({
+                url: "{{ route('users.updateRoles', ['id' => '__USER_ID__']) }}".replace('__USER_ID__',
+                    userId),
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    roles: selectedRoles
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert("Roles updated successfully!");
+                        $('#manageRolesModal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                }
+            });
+        });
+    </script>
+
 </x-app-layout>
