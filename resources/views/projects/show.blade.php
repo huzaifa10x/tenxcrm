@@ -165,12 +165,14 @@
                                         <div class="col-lg-6">
                                             <div
                                                 class="flex-column h-100 position-relative card overflow-hidden d-flex justify-content-center align-items-center bg-light border  shadow-sm text-center p-3">
-                                                <button type="button"
-                                                    onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
-                                                    class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute top-0 end-0">
-                                                    <iconify-icon icon="fluent:delete-24-regular"
-                                                        class="menu-icon"></iconify-icon>
-                                                </button>
+                                                @if ($userPermissions->contains('can remove project files'))
+                                                    <button type="button"
+                                                        onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
+                                                        class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute top-0 end-0">
+                                                        <iconify-icon icon="fluent:delete-24-regular"
+                                                            class="menu-icon"></iconify-icon>
+                                                    </button>
+                                                @endif
                                                 <div
                                                     class="badge position-absolute top-0 start-0 bg-primary text-white">
                                                     {{ $extension }}
@@ -278,38 +280,12 @@
                         @elseif ($project->project_type == 'Social Media')
                             <div class="col-lg-6">
                                 <label class="form-label" for="channels">Channels</label>
-                                <select class="form-control" id="channels" name="channels" required>
-                                    <option value="Facebook"
-                                        {{ $project->socialMediaProject->channels == 'Facebook' ? 'selected' : '' }}>
-                                        Facebook</option>
-                                    <option value="Instagram"
-                                        {{ $project->socialMediaProject->channels == 'Instagram' ? 'selected' : '' }}>
-                                        Instagram</option>
-                                    <option value="LinkedIn"
-                                        {{ $project->socialMediaProject->channels == 'LinkedIn' ? 'selected' : '' }}>
-                                        LinkedIn</option>
-                                    <option value="Twitter"
-                                        {{ $project->socialMediaProject->channels == 'Twitter' ? 'selected' : '' }}>
-                                        Twitter</option>
-                                    <option value="YouTube"
-                                        {{ $project->socialMediaProject->channels == 'YouTube' ? 'selected' : '' }}>
-                                        YouTube</option>
-                                    <option value="TikTok"
-                                        {{ $project->socialMediaProject->channels == 'TikTok' ? 'selected' : '' }}>
-                                        TikTok</option>
-                                    <option value="Snapchat"
-                                        {{ $project->socialMediaProject->channels == 'Snapchat' ? 'selected' : '' }}>
-                                        Snapchat</option>
-                                    <option value="Pinterest"
-                                        {{ $project->socialMediaProject->channels == 'Pinterest' ? 'selected' : '' }}>
-                                        Pinterest</option>
-                                    <option value="Google My Business"
-                                        {{ $project->socialMediaProject->channels == 'Google My Business' ? 'selected' : '' }}>
-                                        Google My Business</option>
-                                    <option value="Other"
-                                        {{ $project->socialMediaProject->channels == 'Other' ? 'selected' : '' }}>Other
-                                    </option>
-                                </select>
+                                <ul>
+                                    @foreach ($project->socialMediaProject->channels as $channel)
+                                        <li class="badge bg-dark py-1 px-3 text-light d-inline-block">
+                                            {{ $channel }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                             <div class="col-lg-6">
                                 <label class="form-label" for="video_shoots_per_month">Video shoots Per Month</label>
@@ -389,7 +365,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert("File deleted successfully!");
+                                toastr.info("File deleted successfully!", "Info");
                                 location.reload();
                             } else {
                                 alert("Error: " + data.message);
@@ -402,7 +378,7 @@
             function uploadProjectFiles(projectId) {
                 let fileInput = document.getElementById("fileInput");
                 if (fileInput.files.length === 0) {
-                    alert("Please select at least one file to upload.");
+                    toastr.info("Please select at least one file!", "Info");
                     return;
                 }
 
@@ -420,7 +396,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert("Files uploaded successfully!");
+                            toastr.success("File Uploaded Successfully!", "Success");
                             location.reload();
                         } else {
                             alert("Error: " + data.message);
@@ -478,7 +454,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    alert("Project status updated successfully!");
+                                    toastr.success("Project Status Updated!", "Success");
                                 } else {
                                     alert("Error: " + data.message);
                                 }

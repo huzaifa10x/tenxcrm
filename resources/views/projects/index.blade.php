@@ -115,7 +115,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    alert("Project status updated successfully!");
+                                    toastr.success("Project status updated!", "Success");
                                 } else {
                                     alert("Error: " + data.message);
                                 }

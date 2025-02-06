@@ -177,12 +177,17 @@
                                 project_type: projectType
                             },
                             success: function(response) {
-                                $('#extra-fields-container').html(
-                                    response); // Populate extra fields
+                                $('#extra-fields-container').html(response);
+                                $('#channels').select2({
+                                    placeholder: 'Select Channels',
+                                    allowClear: true,
+                                    width: '100%',
+                                    closeOnSelect: false
+                                });
                             }
                         });
                     } else {
-                        $('#extra-fields-container').html(''); // Clear extra fields if no project type selected
+                        $('#extra-fields-container').html('');
                     }
                 });
             });

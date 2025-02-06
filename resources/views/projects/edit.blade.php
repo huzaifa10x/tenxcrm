@@ -325,38 +325,17 @@
                             @elseif ($project->project_type == 'Social Media')
                                 <div class="col-lg-6">
                                     <label class="form-label" for="channels">Channels</label>
-                                    <select class="form-control" id="channels" name="channels" required>
-                                        <option value="Facebook"
-                                            {{ $project->socialMediaProject->channels == 'Facebook' ? 'selected' : '' }}>
-                                            Facebook</option>
-                                        <option value="Instagram"
-                                            {{ $project->socialMediaProject->channels == 'Instagram' ? 'selected' : '' }}>
-                                            Instagram</option>
-                                        <option value="LinkedIn"
-                                            {{ $project->socialMediaProject->channels == 'LinkedIn' ? 'selected' : '' }}>
-                                            LinkedIn</option>
-                                        <option value="Twitter"
-                                            {{ $project->socialMediaProject->channels == 'Twitter' ? 'selected' : '' }}>
-                                            Twitter</option>
-                                        <option value="YouTube"
-                                            {{ $project->socialMediaProject->channels == 'YouTube' ? 'selected' : '' }}>
-                                            YouTube</option>
-                                        <option value="TikTok"
-                                            {{ $project->socialMediaProject->channels == 'TikTok' ? 'selected' : '' }}>
-                                            TikTok</option>
-                                        <option value="Snapchat"
-                                            {{ $project->socialMediaProject->channels == 'Snapchat' ? 'selected' : '' }}>
-                                            Snapchat</option>
-                                        <option value="Pinterest"
-                                            {{ $project->socialMediaProject->channels == 'Pinterest' ? 'selected' : '' }}>
-                                            Pinterest</option>
-                                        <option value="Google My Business"
-                                            {{ $project->socialMediaProject->channels == 'Google My Business' ? 'selected' : '' }}>
-                                            Google My Business</option>
-                                        <option value="Other"
-                                            {{ $project->socialMediaProject->channels == 'Other' ? 'selected' : '' }}>
-                                            Other
-                                        </option>
+                                    <select class="form-control" id="channels" name="channels[]" multiple required>
+                                        <option value="Facebook">Facebook</option>
+                                        <option value="Instagram">Instagram</option>
+                                        <option value="LinkedIn">LinkedIn</option>
+                                        <option value="Twitter">Twitter</option>
+                                        <option value="YouTube">YouTube</option>
+                                        <option value="TikTok">TikTok</option>
+                                        <option value="Snapchat">Snapchat</option>
+                                        <option value="Pinterest">Pinterest</option>
+                                        <option value="Google My Business">Google My Business</option>
+                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6">
@@ -496,7 +475,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert("File deleted successfully!");
+                                toastr.info("File deleted successfully!", "Info");
                                 location.reload();
                             } else {
                                 alert("Error: " + data.message);
@@ -509,7 +488,7 @@
             function uploadProjectFiles(projectId) {
                 let fileInput = document.getElementById("fileInput");
                 if (fileInput.files.length === 0) {
-                    alert("Please select at least one file to upload.");
+                    toastr.info("Please select at least one file!", "Info");
                     return;
                 }
 
@@ -527,7 +506,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert("Files uploaded successfully!");
+                            toastr.success("File uploaded successfully!", "Success");
                             location.reload();
                         } else {
                             alert("Error: " + data.message);
@@ -560,6 +539,20 @@
                             console.error('Error:', error);
                             alert('There was an error processing your request.');
                         });
+                }
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                $('#channels').select2({
+                    placeholder: 'Select Channels',
+                    allowClear: true,
+                    width: '100%',
+                    closeOnSelect: false
+                });
+                var selectedChannels = @json($project->socialMediaProject ? $project->socialMediaProject->channels : []);
+                if (selectedChannels.length > 0) {
+                    $('#channels').val(selectedChannels).trigger('change');
                 }
             });
         </script>

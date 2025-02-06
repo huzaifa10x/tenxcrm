@@ -133,7 +133,7 @@
                     permissions: selectedPermissions
                 },
                 success: function(response) {
-                    alert("Permissions updated successfully!");
+                    toastr.success("Permission Updated!", "Success");
                     $("#permissionsModal").modal("hide");
                     location.reload();
                 },

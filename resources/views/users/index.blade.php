@@ -131,7 +131,7 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert("Roles updated successfully!");
+                        toastr.success("Role Updated Successfully!", "Success");
                         $('#manageRolesModal').modal('hide');
                         location.reload();
                     } else {

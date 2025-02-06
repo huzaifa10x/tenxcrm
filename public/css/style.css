@@ -15791,6 +15791,17 @@ td.fc-header-center {
     margin-left: auto;
   }
 }
-.fs-7{
+
+.fs-7 {
   font-size: 0.8rem !important;
+}
+
+.offcanvas.offcanvas-end {
+  width: 80%;
+}
+
+@media screen and (max-width: 780px) {
+  .offcanvas.offcanvas-end {
+    width: 100%;
+  }
 }

@@ -119,9 +119,9 @@ class ProjectController extends Controller
             }
             SeoProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
         } elseif ($request->project_type == 'Social Media') {
-
             $validator = Validator::make($request->all(), [
-                'channels' => 'required',
+                'channels' => 'nullable|array',
+                'channels.*' => 'string|in:Facebook,Instagram,LinkedIn,Twitter,YouTube,TikTok,Snapchat,Pinterest,Google My Business,Other',
                 'video_shoots_per_month' => 'required|integer',
                 'static_posts' => 'required|integer',
                 'reels' => 'required|integer',
@@ -132,7 +132,9 @@ class ProjectController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-            SocialMediaProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+            $data = $validator->validated();
+            $data['channels'] = json_encode($data['channels']);
+            SocialMediaProject::create(array_merge(['project_id' => $project->id], $data));
         } elseif ($request->project_type == 'Web Development') {
             $validator = Validator::make($request->all(), [
                 'payment_type' => 'required|in:Partial,Full',
@@ -170,7 +172,7 @@ class ProjectController extends Controller
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
         $customers = Customer::all();
-        return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods','customers'));
+        return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods', 'customers'));
     }
 
     // Update the specified resource in storage.
@@ -247,24 +249,25 @@ class ProjectController extends Controller
             }
         } elseif ($request->project_type == 'Social Media') {
             $validator = Validator::make($request->all(), [
-                'channels' => 'required',
+                'channels' => 'required|array',
+                'channels.*' => 'string|in:Facebook,Instagram,LinkedIn,Twitter,YouTube,TikTok,Snapchat,Pinterest,Google My Business,Other',
                 'video_shoots_per_month' => 'required|integer',
                 'static_posts' => 'required|integer',
                 'reels' => 'required|integer',
             ]);
-
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+            $data = $validator->validated();
+            $data['channels'] = json_encode($data['channels']);
             $socialMediaProject = SocialMediaProject::where('project_id', $project->id)->first();
             if ($socialMediaProject) {
-                $socialMediaProject->update($validator->validated());
+                $socialMediaProject->update($data);
             } else {
-                SocialMediaProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+                SocialMediaProject::create(array_merge(['project_id' => $project->id], $data));
             }
         } elseif ($request->project_type == 'Web Development') {
             $validator = Validator::make($request->all(), [
@@ -435,7 +438,7 @@ class ProjectController extends Controller
                 $fields .= '
                 <div class="col-lg-6">
                     <label class="form-label" for="channels">Channels</label>
-                    <select class="form-control" id="channels" name="channels" required>
+                    <select class="form-control" id="channels" name="channels[]" multiple required>
                         <option value="Facebook">Facebook</option>
                         <option value="Instagram">Instagram</option>
                         <option value="LinkedIn">LinkedIn</option>

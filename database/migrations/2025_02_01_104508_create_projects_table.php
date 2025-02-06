@@ -52,6 +52,7 @@ return new class extends Migration
 
     public function down()
     {
+        Schema::dropIfExists('tasks');
         Schema::dropIfExists('project_sales_manager');
         Schema::dropIfExists('project_account_manager');
         Schema::dropIfExists('project_tech_manager');

@@ -9,6 +9,8 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +62,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::get('projects-get-extra-fields', [ProjectController::class, 'getExtraFields'])->name('projects-get-extra-fields');
 
+    Route::resource('tasks', TaskController::class);
+    Route::post('/tasks/{task}/add-attachment', [TaskController::class, 'addAttachment'])->name('tasks.addAttachment');
+    Route::delete('/tasks/{task}/attachments/{attachment}', [TaskController::class, 'removeAttachment'])->name('tasks.removeAttachment');
+    Route::post('tasks/{task}/complete', [TaskController::class, 'completeTask']);
+    Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
+    Route::post('/task/{id}/update-status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+    Route::delete('/attachments/{attachment}', [TaskController::class, 'deleteAttachment'])->name('tasks.attachments.destroy');
+    Route::post('/tasks/{task}/attachments', [TaskController::class, 'tasksAttachmentsStore'])->name('tasks.attachments.store');
+    Route::get('/tasks/{task}/attachments', [TaskController::class, 'jsonTaskAttachments'])->name('tasks.attachments.index');
+    Route::post('/tasks/update/{id}', [TaskController::class, 'updateTaskAjax'])->name('tasks.update.json'); 
 });
 
 

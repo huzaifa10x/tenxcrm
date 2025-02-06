@@ -87,7 +87,7 @@ class UserSeeder extends Seeder
                 'email' => 'waqar@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'SEO ADMIN',
+                'role' => 'TECH MANAGER',
             ],
             [
                 'name' => 'ADNAN',
@@ -115,7 +115,7 @@ class UserSeeder extends Seeder
                 'email' => 'sammar@10xdigital.ae',
                 'password' => Hash::make('password'),
                 'phone' => '1234567890',
-                'role' => 'ACCOUNT MANAGER',
+                'role' => 'SALES MANAGER',
             ],
             [
                 'name' => 'RAKHSHAAN',

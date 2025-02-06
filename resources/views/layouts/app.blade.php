@@ -48,6 +48,8 @@
     <link rel="stylesheet" href="{{ asset('css/lib/file-upload.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <!-- Select2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
@@ -618,8 +620,29 @@
     <script src="{{ asset('js/lib/audioplayer.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/homeOneChart.js') }}"></script>
+    <!-- jQuery & Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script>
+        @if (Session::has('success'))
+            toastr.success("{{ session('success') }}");
+        @endif
+
+        @if (Session::has('error'))
+            toastr.error("{{ session('error') }}");
+        @endif
+
+        @if (Session::has('warning'))
+            toastr.warning("{{ session('warning') }}");
+        @endif
+
+        @if (Session::has('info'))
+            toastr.info("{{ session('info') }}");
+        @endif
+    </script>
+
 </body>
 
 </html>

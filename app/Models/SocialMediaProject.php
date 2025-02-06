@@ -20,4 +20,8 @@ class SocialMediaProject extends Model
     {
         return $this->belongsTo(Project::class);
     }
+    public function getChannelsAttribute($value)
+    {
+        return json_decode($value, true) ?? [];
+    }
 }

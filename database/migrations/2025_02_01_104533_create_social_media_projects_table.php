@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('social_media_projects', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
-            $table->enum('channels', ['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'YouTube', 'TikTok', 'Snapchat', 'Pinterest', 'Google My Business', 'Other']);
+            $table->json('channels')->nullable();
             $table->integer('static_posts')->nullable();
             $table->integer('reels')->nullable();
             $table->integer('video_shoots_per_month')->nullable();
