@@ -13,14 +13,70 @@ use PhpParser\Node\Expr\FuncCall;
 
 class TaskController extends Controller
 {
-    // Display all tasks
     public function index()
     {
-        $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->paginate(10);
+        $user = auth()->user();
+
+        if ($user->hasPermission('can view all tasks')) {
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->paginate(10);
+        } elseif ($user->hasPermission('can view own tasks')) {
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+                ->where('assigned_to', $user->id)
+                ->paginate(10);
+        } else {
+            $tasks = collect();
+        }
+
         return view('tasks.index', compact('tasks'));
     }
 
-    // Show create task form
+    public function boardView()
+    {
+        $user = auth()->user();
+
+        if ($user->hasPermission('can view all tasks')) {
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->paginate(10);
+        } elseif ($user->hasPermission('can view own tasks')) {
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+                ->where('assigned_to', $user->id)
+                ->paginate(10);
+        } else {
+            $tasks = collect();
+        }
+
+        return view('tasks.board', compact('tasks'));
+    }
+
+    public function assignedTasks()
+    {
+        $user = auth()->user();
+
+        if (($user->hasPermission('can create tasks'))) {
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+                ->where('created_by', $user->id)
+                ->paginate(10);
+        } else {
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+                ->where('assigned_to', $user->id)
+                ->paginate(10);
+        }
+
+        return view('tasks.board', compact('tasks'));
+    }
+
+    public function formeTasks()
+    {
+        $user = auth()->user();
+
+        if (($user->hasPermission('can view own tasks'))) {
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+                ->where('assigned_to', $user->id)
+                ->paginate(10);
+        }
+
+        return view('tasks.board', compact('tasks'));
+    }
+
     public function create()
     {
         $projects = Project::all();
@@ -29,7 +85,6 @@ class TaskController extends Controller
         return view('tasks.create', compact('projects', 'users', 'departments'));
     }
 
-    // Store a new task
     public function store(Request $request)
     {
         $request->validate([
@@ -64,54 +119,25 @@ class TaskController extends Controller
             }
         }
 
-        return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
+        return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
     }
 
-    public function show(Task $task)
+    public function show(Request $request, Task $task)
     {
+        if (!$request->is_ajax) {
+            return redirect()->route('tasks.board.index');
+        }
         $users = User::all();
         $projects = Project::all();
         $departments = Role::all();
         return view('tasks.show', compact('task', 'projects', 'users', 'departments'));
-    }
-    // Show task edit form
-    public function edit(Task $task)
-    {
-        $projects = Project::all();
-        $users = User::all();
-        $departments = Role::all();
-        return view('tasks.edit', compact('task', 'projects', 'users', 'departments'));
-    }
-
-    // Update task
-    public function update(Request $request, Task $task)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'project_id' => 'required|exists:projects,id',
-            'created_by' => 'required|exists:users,id',
-            'assigned_to' => 'nullable|exists:users,id',
-            'department_id' => 'nullable|exists:roles,id',
-            'priority' => 'required|in:Low,Medium,High,Urgent',
-            'type' => 'required|in:CONTENT,ONSITE,OFFSITE,DESIGN,DEVELOPMENT,ACCOUNT MANAGER,SEO ADMIN,ADMIN,SALES',
-            'status' => 'required|in:Todo,In Progress,Review,Completed,Blocked',
-            'due_date' => 'nullable|date',
-            'start_date' => 'nullable|date',
-            'completed_date' => 'nullable|date',
-            'estimated_time' => 'nullable|integer',
-            'description' => 'required|string',
-        ]);
-
-        $task->update($request->all());
-
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
     }
 
     // Delete task
     public function destroy(Task $task)
     {
         $task->delete();
-        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
+        return redirect()->route('tasks.board.index')->with('success', 'Task deleted successfully!');
     }
 
     public function addAttachment(Request $request, Task $task)
@@ -144,13 +170,13 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Attachment deleted successfully!');
     }
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::findOrFail($request->task_id);
         $task->status = $request->status;
         $task->save();
 
-        return response()->json(['success' => true, 'message' => 'Task status updated successfully!', 'status' => $request->status]);
+        return response()->json(['message' => 'Task status updated successfully']);
     }
     public function deleteAttachment(TaskAttachment $attachment)
     {

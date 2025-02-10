@@ -13628,8 +13628,8 @@ html[data-theme=dark] .text-style .apexcharts-text.apexcharts-yaxis-label {
 /* === vector-map css end === */
 /* === scroll css start === */
 .scroll-sm::-webkit-scrollbar {
-  width: 4px !important;
-  height: 4px !important;
+  width: 10px !important;
+  height: 10px !important;
   border-radius: 40px;
 }
 
@@ -15793,7 +15793,7 @@ td.fc-header-center {
 }
 
 .fs-7 {
-  font-size: 0.8rem !important;
+  font-size: 0.6rem !important;
 }
 
 .offcanvas.offcanvas-end {
@@ -15804,4 +15804,9 @@ td.fc-header-center {
   .offcanvas.offcanvas-end {
     width: 100%;
   }
+}
+
+.kanban-item.kanban-column{
+  height: 55vh;
+  overflow: auto;
 }

@@ -50,6 +50,10 @@
     <link rel="stylesheet" href="{{ asset('css/lib/file-upload.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
+
 </head>
 
 <body class="font-sans text-gray-900 antialiased">
@@ -96,12 +100,10 @@
     'resources/js/homeOneChart.js'
     ]) --}}
 
-    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
     <script src="{{ asset('js/lib/dataTables.min.js') }}"></script>
     <script src="{{ asset('js/lib/iconify-icon.min.js') }}"></script>
-    <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
     <script src="{{ asset('js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
     <script src="{{ asset('js/lib/magnifc-popup.min.js') }}"></script>

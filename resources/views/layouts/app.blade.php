@@ -55,6 +55,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 
     <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
 
 </head>
 
@@ -605,12 +606,12 @@
     'resources/js/homeOneChart.js'
     ]) --}}
 
-    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
+
     <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
     <script src="{{ asset('js/lib/dataTables.min.js') }}"></script>
     <script src="{{ asset('js/lib/iconify-icon.min.js') }}"></script>
-    <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
+
     <script src="{{ asset('js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
     <script src="{{ asset('js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
     <script src="{{ asset('js/lib/magnifc-popup.min.js') }}"></script>

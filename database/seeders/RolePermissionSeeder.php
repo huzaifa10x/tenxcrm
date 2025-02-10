@@ -30,6 +30,13 @@ class RolePermissionSeeder extends Seeder
             'can add project files',
             'can remove project files',
             'can update project status',
+            'can create tasks',
+            'can change task status',
+            'can view all tasks',
+            'can view own tasks',
+            'can remove task files',
+            'can add task files',
+            'can edit task',
         ];
 
         // Define Roles

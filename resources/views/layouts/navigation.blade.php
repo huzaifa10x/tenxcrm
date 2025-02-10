@@ -172,6 +172,42 @@
                     </ul>
                 </li>
             @endif
+            <li class="dropdown">
+                <a href="javascript:void(0)">
+                    <i class="ri-news-line text-xl me-14 d-flex w-auto"></i>
+                    <span>Tasks</span>
+                </a>
+                <ul class="sidebar-submenu">
+                    @if ($userPermissions->contains('can view all tasks'))
+                        <li>
+                            <a href="{{ route('tasks.board.index') }}">
+                                <span>All Tasks</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if ($userPermissions->contains('can create tasks'))
+                        <li>
+                            <a href="{{ route('tasks.assigned.index') }}">
+                                <span>Created by Me</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if ($userPermissions->contains('can view own tasks'))
+                        <li>
+                            <a href="{{ route('tasks.forme.index') }}">
+                                <span>Tasks for Me</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if ($userPermissions->contains('can create tasks'))
+                        <li>
+                            <a href="{{ route('tasks.create') }}">
+                                <span>Create a Task</span>
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+            </li>
         </ul>
     </div>
 </aside>
