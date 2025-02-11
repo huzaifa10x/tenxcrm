@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\TaskAttachment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\FuncCall;
@@ -27,12 +28,15 @@ class TaskController extends Controller
             $tasks = collect();
         }
 
-        return view('tasks.index', compact('tasks'));
+        return view('tasks.board', compact('tasks'));
     }
 
     public function boardView()
     {
         $user = auth()->user();
+        $projects = Project::all();
+        $users = User::all();
+        $departments = Role::all();
 
         if ($user->hasPermission('can view all tasks')) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->paginate(10);
@@ -44,13 +48,15 @@ class TaskController extends Controller
             $tasks = collect();
         }
 
-        return view('tasks.board', compact('tasks'));
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 
     public function assignedTasks()
     {
         $user = auth()->user();
-
+        $projects = Project::all();
+        $users = User::all();
+        $departments = Role::all();
         if (($user->hasPermission('can create tasks'))) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('created_by', $user->id)
@@ -61,12 +67,15 @@ class TaskController extends Controller
                 ->paginate(10);
         }
 
-        return view('tasks.board', compact('tasks'));
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 
     public function formeTasks()
     {
         $user = auth()->user();
+        $projects = Project::all();
+        $users = User::all();
+        $departments = Role::all();
 
         if (($user->hasPermission('can view own tasks'))) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
@@ -74,7 +83,7 @@ class TaskController extends Controller
                 ->paginate(10);
         }
 
-        return view('tasks.board', compact('tasks'));
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 
     public function create()
@@ -82,7 +91,7 @@ class TaskController extends Controller
         $projects = Project::all();
         $users = User::all();
         $departments = Role::all();
-        return view('tasks.create', compact('projects', 'users', 'departments'));
+        return redirect()->route('tasks.board.index');
     }
 
     public function store(Request $request)
@@ -98,12 +107,16 @@ class TaskController extends Controller
             'type' => 'required|in:CONTENT,ONSITE,OFFSITE,DESIGN,DEVELOPMENT,ACCOUNT MANAGER,SEO ADMIN,ADMIN,SALES',
             'status' => 'required|in:Todo,In Progress,Review,Completed,Blocked',
             'due_date' => 'nullable|date',
-            'start_date' => 'nullable|date',
+            'start_date' => 'nullable|date_format:Y-m-d H:i:s',
             'completed_date' => 'nullable|date',
             'estimated_time' => 'nullable|integer',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|mimes:jpeg,png,pdf,docx,txt|max:2048',
         ]);
+
+        // $request->merge([
+        //     'start_date' => Carbon::now()->format('Y-m-d H:i:s'),
+        // ]);
 
         $task = Task::create($request->except('attachments'));
 

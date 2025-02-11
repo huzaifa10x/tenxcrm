@@ -199,13 +199,6 @@
                             </a>
                         </li>
                     @endif
-                    @if ($userPermissions->contains('can create tasks'))
-                        <li>
-                            <a href="{{ route('tasks.create') }}">
-                                <span>Create a Task</span>
-                            </a>
-                        </li>
-                    @endif
                 </ul>
             </li>
         </ul>

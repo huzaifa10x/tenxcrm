@@ -15786,7 +15786,7 @@ td.fc-header-center {
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 800px;
+    max-width: 1000px;
     margin-right: auto;
     margin-left: auto;
   }

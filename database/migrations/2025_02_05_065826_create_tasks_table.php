@@ -20,9 +20,8 @@ return new class extends Migration
             $table->enum('type', ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'ACCOUNT MANAGER', 'SEO ADMIN', 'ADMIN', 'SALES', 'ADHOC'])->default('ADHOC');
             $table->enum('status', ['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'])->default('Todo');
             $table->date('due_date')->nullable();
-            $table->date('start_date')->nullable();
+            $table->dateTime('start_date')->nullable();
             $table->date('completed_date')->nullable();
-            $table->integer('estimated_time')->nullable(); // in minutes
             $table->timestamps();
         });
     }

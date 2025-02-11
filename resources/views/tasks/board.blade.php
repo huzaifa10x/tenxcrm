@@ -5,14 +5,9 @@
     <div class="card mb-3 basic-data-table">
         <div class="card-header d-flex justify-content-between align-items-center">
             @if ($userPermissions->contains('can create tasks'))
-                <a href="{{ route('tasks.create') }}" class="btn btn-outline-primary">
+                <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-outline-primary">
                     Create Task
-                </a>
-            @endif
-            @if (!route('tasks.assigned.index'))
-                <a href="{{ route('tasks.index') }}" class="btn btn-outline-primary">
-                    Table View
-                </a>
+                </button>
             @endif
         </div>
     </div>
@@ -41,11 +36,11 @@
                                             <p class="kanban-desc text-secondary-light mb-10">{{ $task->description }}
                                             </p>
                                             <span
-                                                class="badge bg-dark-info-gradient fs-7 text-light mb-10 fw-light">created
+                                                class="badge text-capitalize bg-body fs-7 text-dark mb-10 fw-light">created
                                                 by: {{ $task->createdBy->name }}</span>
                                             @if ($userPermissions->contains('can create tasks'))
                                                 <span
-                                                    class="badge position-absolute top-0 end-0 bg-blue-light-two fs-7 text-dark mb-10 fw-light">assigned
+                                                    class="badge text-capitalize position-absolute top-0 end-0 bg-base fs-7 text-dark mb-10 fw-light">assigned
                                                     to: {{ $task->assignedTo->name }}</span>
                                             @endif
                                             <button type="button"
@@ -59,7 +54,7 @@
                                                     <iconify-icon icon="solar:calendar-outline"
                                                         class="text-primary-light"></iconify-icon>
                                                     <span
-                                                        class="start-date text-secondary-light">{{ $task->start_date }}</span>
+                                                        class="start-date text-secondary-light">{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('d-m-Y h:i A') : 'Not Set' }}</span>
                                                 </div>
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
                                                     <form action="{{ route('tasks.destroy', $task->id) }}"
@@ -81,11 +76,11 @@
                                 </div>
                                 <!-- Add Task Button -->
                                 @if ($userPermissions->contains('can create tasks'))
-                                    <button type="button" type="button" data-bs-toggle="offcanvas"
-                                        data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling"
-                                        class="d-flex align-items-center gap-2 fw-medium w-100 text-primary-600 justify-content-center text-hover-primary-800 add-task-button">
+                                    <button type="button"
+                                        class="d-flex fs-7 align-items-center gap-2 fw-medium w-100 text-primary-600 justify-content-center text-hover-primary-800 add-task-button"
+                                        data-bs-toggle="modal" data-bs-target="#taskCreateModal">
                                         <iconify-icon icon="ph:plus-circle" class="icon text-xl"></iconify-icon>
-                                        Add Task
+                                        Add {{ $status }} Task
                                     </button>
                                 @endif
                             </div>
@@ -99,7 +94,7 @@
 
     @if ($tasks->count() > 0)
         {{ $tasks->links('vendor.pagination.custom') }}
-        @include('vendor.task-script', ['tasks' => $tasks])
+        @include('vendor.task-script', ['tasks' => $tasks, 'projects' => $projects])
     @endif
 
 </x-app-layout>
