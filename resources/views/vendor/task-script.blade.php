@@ -85,7 +85,6 @@
             }
         }).disableSelection();
     });
-
     $(document).on("change", ".task-status", function() {
         let taskId = $(this).attr("data-task-id");
         let updateUrl = "{{ route('tasks.updateStatus', ':id') }}".replace(':id', taskId); // Laravel Route Fix
@@ -198,7 +197,6 @@
         `
         $("#taskAttachmentsContainer").html(html);
     }
-
     $("#uploadTaskAttachmentsForm").submit(function(event) {
         event.preventDefault();
 
@@ -235,7 +233,6 @@
             }
         });
     });
-
     $(document).on("click", ".delete-attachment", function() {
         let attachmentId = $(this).attr("data-attachment-id");
 
@@ -284,4 +281,5 @@
             });
         }, 500);
     });
+
 </script>

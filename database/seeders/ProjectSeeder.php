@@ -39,7 +39,7 @@ class ProjectSeeder extends Seeder
             'contract_start_date' => $faker->date(),
             'contract_term' => $faker->numberBetween(12, 36),
             'contract_value' => $faker->randomFloat(2, 1000, 50000),
-            'free_months' => $faker->optional()->numberBetween(1, 6),
+            'free_months' => 1,
             'payment_method_id' => $paymentMethod->id,
             'handover_notes' => $faker->paragraph,
             'project_type' => 'SEO',

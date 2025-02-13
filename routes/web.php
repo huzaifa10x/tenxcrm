@@ -10,7 +10,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -66,11 +65,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('tasks/board/index', [TaskController::class, 'boardView'])->name('tasks.board.index');
     Route::get('/tasks/{task}/attachments', [TaskController::class, 'jsonTaskAttachments'])->name('tasks.attachments.index');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
-    
+
     Route::middleware('permission:can create tasks')->group(function () {
         Route::get('/tasks/assigned/index', [TaskController::class, 'assignedTasks'])->name('tasks.assigned.index');
     });
-    
+
     Route::middleware('permission:can view own tasks')->group(function () {
         Route::get('/tasks/forme/index', [TaskController::class, 'formeTasks'])->name('tasks.forme.index');
     });
@@ -92,6 +91,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/tasks/update/{id}', [TaskController::class, 'updateTaskAjax'])->name('tasks.update.json');
     });
 });
--
-
-require __DIR__ . '/auth.php';
+-require __DIR__ . '/auth.php';

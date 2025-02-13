@@ -2,10 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminTask;
+use App\Models\AmTask;
+use App\Models\ContentTask;
+use App\Models\DesignTask;
+use App\Models\DevelopmentTask;
+use App\Models\OffsiteTask;
+use App\Models\OnsiteTask;
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\SalesTask;
+use App\Models\SeoAdminTask;
 use App\Models\TaskAttachment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -105,26 +114,97 @@ class TaskController extends Controller
             'assigned_to' => 'nullable|exists:users,id',
             'priority' => 'required|in:Low,Medium,High,Urgent',
             'type' => 'required|in:CONTENT,ONSITE,OFFSITE,DESIGN,DEVELOPMENT,ACCOUNT MANAGER,SEO ADMIN,ADMIN,SALES',
+            'subtype' => 'nullable|string|max:255',
             'status' => 'required|in:Todo,In Progress,Review,Completed,Blocked',
             'due_date' => 'nullable|date',
-            'start_date' => 'nullable|date_format:Y-m-d H:i:s',
+            'start_date' => 'required|date_format:Y-m-d H:i:s',
             'completed_date' => 'nullable|date',
             'estimated_time' => 'nullable|integer',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|mimes:jpeg,png,pdf,docx,txt|max:2048',
         ]);
 
-        // $request->merge([
-        //     'start_date' => Carbon::now()->format('Y-m-d H:i:s'),
-        // ]);
-
         $task = Task::create($request->except('attachments'));
+
+        // TYPE WISE INSERTION
+        switch ($task->type) {
+            case 'CONTENT':
+                ContentTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => $request->sub_type,
+                    'number_of_pages' => $request->number_of_pages,
+                    'no_of_words' => $request->no_of_words,
+                    'closing_input' => $request->closing_input,
+                ]);
+                break;
+
+            case 'ONSITE':
+                OnsiteTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => $request->sub_type,
+                    'closing_input' => $request->closing_input,
+                ]);
+                break;
+
+            case 'OFFSITE':
+                OffsiteTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => $request->sub_type,
+                    'kw_url' => json_encode($request->kw_url),
+                ]);
+                break;
+
+            case 'DESIGN':
+                DesignTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => $request->sub_type,
+                    'input_number' => $request->input_number,
+                    'closing_input' => $request->closing_input,
+                ]);
+                break;
+
+            case 'DEVELOPMENT':
+                DevelopmentTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => $request->sub_type,
+                    'closing_input' => $request->closing_input,
+                ]);
+                break;
+
+            case 'AM':
+                AmTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => $request->sub_type,
+                ]);
+                break;
+
+            case 'SEO ADMIN':
+                SeoAdminTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => 'ADHOC',
+                ]);
+                break;
+
+            case 'ADMIN':
+                AdminTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => 'ADHOC',
+                ]);
+                break;
+
+            case 'SALES':
+                SalesTask::create([
+                    'task_id' => $task->id,
+                    'sub_type' => 'ADHOC',
+                ]);
+                break;
+        }
+
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('task_attachments', 'public'); // Store file in storage
+                $path = $file->store('task_attachments', 'public');
 
-                // Create an attachment record in the database
                 TaskAttachment::create([
                     'task_id' => $task->id,
                     'file_path' => $path,

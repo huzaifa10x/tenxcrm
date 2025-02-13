@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up()
     {
         Schema::create('tasks', function (Blueprint $table) {
@@ -17,7 +20,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('set null');
             $table->enum('priority', ['Low', 'Medium', 'High', 'Urgent'])->default('Medium');
-            $table->enum('type', ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'ACCOUNT MANAGER', 'SEO ADMIN', 'ADMIN', 'SALES', 'ADHOC'])->default('ADHOC');
+            $table->enum('type', ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'SEO ADMIN', 'ADMIN', 'SALES', 'ADHOC'])->default('ADHOC');
             $table->enum('status', ['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'])->default('Todo');
             $table->date('due_date')->nullable();
             $table->dateTime('start_date')->nullable();
@@ -28,6 +31,17 @@ return new class extends Migration
 
     public function down()
     {
+        Schema::dropIfExists('seo_admin_tasks');
+        Schema::dropIfExists('admin_tasks');
+        Schema::dropIfExists('sales_tasks');
+        Schema::dropIfExists('am_tasks');
+        Schema::dropIfExists('offsite_tasks');
+        Schema::dropIfExists('development_tasks');
+        Schema::dropIfExists('design_tasks');
+        Schema::dropIfExists('content_tasks');
+        Schema::dropIfExists('onsite_tasks');
+        Schema::dropIfExists('task_attachments');
+        Schema::dropIfExists('task_completion_logs');
         Schema::dropIfExists('tasks');
     }
 };

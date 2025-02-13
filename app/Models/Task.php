@@ -26,10 +26,10 @@ class Task extends Model
         'labels',
         'priority',
         'project_id',
-        'repeating_task'
+        'repeating_task',
+        'task_subtype_id',
     ];
 
-    // Relationships
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -53,11 +53,6 @@ class Task extends Model
         return $this->hasMany(TaskAttachment::class);
     }
 
-    public function completionRequirements()
-    {
-        return $this->hasMany(TaskCompletionRequirement::class);
-    }
-
     public function completionLogs()
     {
         return $this->hasMany(TaskCompletionLog::class);
@@ -72,5 +67,70 @@ class Task extends Model
     public function scopeInProgress($query)
     {
         return $query->where('status', 'In Progress');
+    }
+
+    public function contentTask()
+    {
+        return $this->hasOne(ContentTask::class);
+    }
+
+    public function onsiteTask()
+    {
+        return $this->hasOne(OnsiteTask::class);
+    }
+
+    public function offsiteTask()
+    {
+        return $this->hasOne(OffsiteTask::class);
+    }
+
+    public function designTask()
+    {
+        return $this->hasOne(DesignTask::class);
+    }
+
+    public function developmentTask()
+    {
+        return $this->hasOne(DevelopmentTask::class);
+    }
+
+    public function amTask()
+    {
+        return $this->hasOne(AmTask::class);
+    }
+
+    public function seoAdminTask()
+    {
+        return $this->hasOne(SeoAdminTask::class);
+    }
+
+    public function adminTask()
+    {
+        return $this->hasOne(AdminTask::class);
+    }
+
+    public function salesTask()
+    {
+        return $this->hasOne(SalesTask::class);
+    }
+    public function getSubTypeAttribute()
+    {
+        if ($this->type === 'CONTENT') {
+            return $this->contentTask ? $this->contentTask->sub_type : null;
+        }
+
+        // Define static mappings for other types
+        $mapping = [
+            'ONSITE' => ['RE-ONSITE', 'CHANGES IN CONTENT', 'CREATE NEW PAGE', 'REPLACE/UPLOAD CONTENT', 'ONSITE AUDIT', 'ADHOC'],
+            'OFFSITE' => ['MANUAL LINKS', 'IH LINKS', 'OH LINKS', 'ADHOC'],
+            'DESIGN' => ['LP DESIGN', 'BANNERS', 'VIDEO', 'REVISIONS', 'ADHOC'],
+            'DEVELOPMENT' => ['WEB DESIGN IMPLEMENTATION', 'SITE SPEED AND RENDERING', 'SEO IMPLEMENTATION', 'WEBSITE MAINTENANCE', 'DEPLOYMENT & HOSTING', 'ADHOC'],
+            'AM' => ['CONTENT APPROVAL', 'REQUEST MEETING', 'PENDING PAYMENTS', 'ADHOC'],
+            'SEO ADMIN' => ['ADHOC'],
+            'ADMIN' => ['ADHOC'],
+            'SALES' => ['ADHOC'],
+        ];
+
+        return $mapping[$this->type][0] ?? null; // Return the first subtype if available
     }
 }

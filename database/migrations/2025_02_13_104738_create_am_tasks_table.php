@@ -6,18 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up()
     {
-        Schema::create('task_watchers', function (Blueprint $table) {
+        Schema::create('am_tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('task_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->enum('sub_type', ['CONTENT APPROVAL', 'REQUEST MEETING', 'PENDING PAYMENTS', 'ADHOC']);
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('task_watchers');
+        Schema::dropIfExists('am_tasks');
     }
 };

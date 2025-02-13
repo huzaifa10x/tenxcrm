@@ -607,7 +607,6 @@
     ]) --}}
 
 
-    <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
     <script src="{{ asset('js/lib/dataTables.min.js') }}"></script>
     <script src="{{ asset('js/lib/iconify-icon.min.js') }}"></script>
@@ -643,7 +642,8 @@
             toastr.info("{{ session('info') }}");
         @endif
     </script>
-
+    <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
+    
 </body>
 
 </html>

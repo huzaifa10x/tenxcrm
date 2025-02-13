@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TaskCompletionRequirement extends Model
+class AdminTask extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['task_id', 'requirement_type', 'value'];
+    protected $fillable = ['task_id', 'sub_type'];
 
-    // Relationship
-    public function task()
-    {
+    public function task() {
         return $this->belongsTo(Task::class);
     }
 }

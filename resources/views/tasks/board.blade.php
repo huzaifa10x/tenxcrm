@@ -47,7 +47,7 @@
                                                 class="btn btn-sm text-primary-600 rounded bg-hover-primary-600 text-hover-white d-flex align-items-center gap-2 p-1">
                                                 <iconify-icon icon="lucide:tag" class="icon"></iconify-icon>
                                                 <span
-                                                    class="kanban-tag fw-semibold fs-7">{{ $task->department->name }}</span>
+                                                    class="kanban-tag fw-semibold fs-7">{{ $task->type }} -> {{ $task->sub_type }}</span>
                                             </button>
                                             <div class="mt-12 d-flex align-items-center justify-content-between gap-10">
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
