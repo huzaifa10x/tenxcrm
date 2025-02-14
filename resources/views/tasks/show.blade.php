@@ -1,4 +1,4 @@
-div<div class="card">
+<div class="card">
     <div class="card-body">
         <div class="row gy-3">
             <div class="col-lg-12">
@@ -169,16 +169,13 @@ div<div class="card">
                                 <th>Keyword</th>
                                 <th>URL</th>
                                 <th>Domain</th>
+                                @if ($userPermissions->contains('can remove offsite links'))
+                                    <th>Action</th>
+                                @endif
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($relatedData->startingKwUrls as $kwUrl)
-                                <tr>
-                                    <td>{{ $kwUrl->keyword }}</td>
-                                    <td><a href="{{ $kwUrl->url }}" target="_blank">{{ $kwUrl->url }}</a></td>
-                                    <td>{{ $kwUrl->domain }}</td>
-                                </tr>
-                            @endforeach
+                        <tbody id="startingKwUrlsTable">
+                            <!-- Data will be loaded here via AJAX -->
                         </tbody>
                     </table>
                 @else
@@ -186,43 +183,135 @@ div<div class="card">
                 @endif
             @endif
 
-            <div class="col-lg-6">
-
-                @if ($task->type == 'DESIGN' && $relatedData)
-                    <label class="form-label" for="design_type">Design Type</label>
-                    <input type="text" class="form-control" name="design_type"
-                        value="{{ $relatedData->design_type }}">
+            @if ($task->type == 'DESIGN' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text" class="form-control" name="sub_type"
+                        value="{{ $relatedData->sub_type }}">
+                </div>
+                @if ($relatedData->closing_input)
+                    <div class="col-lg-6">
+                        <label class="form-label" for="input_number">Number Of Designs</label>
+                        <input type="text" class="form-control" name="input_number"
+                            value="{{ $relatedData->input_number }}">
+                    </div>
                 @endif
-
-                @if ($task->type == 'DEVELOPMENT' && $relatedData)
-                    <label class="form-label" for="feature_list">Feature List</label>
-                    <textarea class="form-control" name="feature_list">{{ $relatedData->feature_list }}</textarea>
+                @if ($relatedData->closing_input)
+                    <div class="col-lg-6">
+                        <label class="form-label d-block" for="closing_input">Closing Input</label>
+                        <img src="{{ asset('storage/') }}/{{ $relatedData->closing_input }}" class="img-fluid"
+                            alt="">
+                    </div>
                 @endif
+            @endif
 
-                @if ($task->type == 'AM' && $relatedData)
-                    <label class="form-label" for="team_size">Team Size</label>
-                    <input type="number" class="form-control" name="team_size"
-                        value="{{ $relatedData->team_size }}">
+            @if ($task->type == 'DEVELOPMENT' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text" class="form-control" name="sub_type"
+                        value="{{ $relatedData->sub_type }}">
+                </div>
+                @if ($relatedData->closing_input)
+                    <div class="col-lg-6">
+                        <label class="form-label d-block" for="closing_input">Closing Input</label>
+                        <img src="{{ asset('storage/') }}/{{ $relatedData->closing_input }}" class="img-fluid"
+                            alt="">
+                    </div>
                 @endif
+            @endif
 
-                @if ($task->type == 'ADMIN' && $relatedData)
-                    <label class="form-label" for="admin_notes">Admin Notes</label>
-                    <textarea class="form-control" name="admin_notes">{{ $relatedData->admin_notes }}</textarea>
-                @endif
+            @if ($task->type == 'AM' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text" class="form-control" name="sub_type"
+                        value="{{ $relatedData->sub_type }}">
+                </div>
+            @endif
 
-                @if ($task->type == 'SALES' && $relatedData)
-                    <label class="form-label" for="lead_source">Lead Source</label>
-                    <input type="text" class="form-control" name="lead_source"
-                        value="{{ $relatedData->lead_source }}">
-                @endif
+            @if ($task->type == 'ADMIN' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text" class="form-control" name="sub_type"
+                        value="{{ $relatedData->sub_type }}">
+                </div>
+            @endif
 
-                @if ($task->type == 'ADHOC' && $relatedData)
-                    <label class="form-label" for="task_details">Task Details</label>
-                    <textarea class="form-control" name="task_details">{{ $relatedData->task_details }}</textarea>
-                @endif
-
-            </div>
+            @if ($task->type == 'SALES' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text" class="form-control" name="sub_type"
+                        value="{{ $relatedData->sub_type }}">
+                </div>
+            @endif
 
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        var deleteUrlTemplate = '{{ route('starting_kw_url.delete', ['id' => ':id']) }}';
+
+        // Function to load data
+        function loadStartingKwUrls() {
+            $.ajax({
+                url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => $task->id]) }}',
+                type: "GET",
+                success: function(data) {
+                    var tableBody = $("#startingKwUrlsTable");
+                    tableBody.empty();
+
+                    var dataArray = Array.isArray(data) ? data : Object.values(data);
+
+                    if (dataArray.length === 0) {
+                        tableBody.append('<tr><td colspan="4">No Data Found</td></tr>');
+                    } else {
+                        dataArray.forEach(function(kwUrl) {
+                            tableBody.append(`
+                                <tr id="row-${kwUrl.id}">
+                                    <td>${kwUrl.keyword}</td>
+                                    <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
+                                    <td>${kwUrl.domain}</td>
+                                    @if ($userPermissions->contains('can remove offsite links'))
+                                      <td>
+                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
+                                        </td>
+                                    @endif
+                                </tr>
+                            `);
+                        });
+                    }
+                },
+                error: function() {
+                    $("#startingKwUrlsTable").html(
+                        '<tr><td colspan="4">Error Loading Data</td></tr>');
+                }
+            });
+        }
+
+        // Load Data on Page Load
+        loadStartingKwUrls();
+
+        // Delete Functionality
+        $(document).on("click", ".delete-btn", function(event) {
+            event.preventDefault();
+
+            var id = $(this).data("id");
+            var deleteUrl = deleteUrlTemplate.replace(":id", id); // Replace placeholder with actual ID
+
+            $.ajax({
+                url: deleteUrl,
+                type: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                success: function() {
+                    $("#row-" + id).fadeOut();
+                },
+                error: function() {
+                    alert("Failed to delete record!");
+                }
+            });
+        });
+    });
+</script>

@@ -4,6 +4,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IndustryController;
+use App\Http\Controllers\OffsiteTaskController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
@@ -90,5 +91,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can edit task')->group(function () {
         Route::post('/tasks/update/{id}', [TaskController::class, 'updateTaskAjax'])->name('tasks.update.json');
     });
+    Route::middleware('permission:can remove offsite links')->group(function () {
+        Route::delete('/starting-kw-url/{id}', [OffsiteTaskController::class, 'deleteStartingKwUrl'])->name('starting_kw_url.delete');
+    });
+    Route::get('/offsite-tasks/{task_id}/starting-kw-urls', [OffsiteTaskController::class, 'getStartingKwUrls'])->name('offsite.tasks.starting_kw_urls');
 });
 -require __DIR__ . '/auth.php';

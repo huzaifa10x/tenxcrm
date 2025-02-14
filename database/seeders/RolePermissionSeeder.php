@@ -37,6 +37,7 @@ class RolePermissionSeeder extends Seeder
             'can remove task files',
             'can add task files',
             'can edit task',
+            'can remove offsite links',
         ];
 
         // Define Roles

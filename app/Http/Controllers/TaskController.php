@@ -233,7 +233,6 @@ class TaskController extends Controller
         }
     }
 
-
     public function show(Request $request, Task $task)
     {
         if (!$request->is_ajax) {
