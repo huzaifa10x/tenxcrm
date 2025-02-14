@@ -151,7 +151,6 @@ class TaskController extends Controller
                         'sub_type' => $request->sub_type,
                     ]);
 
-                    // ✅ Insert kw_url data only if it's an array
                     if (!empty($kwUrls) && is_array($kwUrls)) {
                         foreach ($kwUrls as $kw) {
                             if (isset($kw['keyword']) && isset($kw['url'])) {

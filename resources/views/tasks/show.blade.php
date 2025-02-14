@@ -1,3 +1,6 @@
+<div class="d-flex justify-content-end mb-10">
+    <button type="button" class="btn-sm btn btn-success">Complete Task</button>
+</div>
 <div class="card">
     <div class="card-body">
         <div class="row gy-3">
@@ -178,6 +181,45 @@
                             <!-- Data will be loaded here via AJAX -->
                         </tbody>
                     </table>
+
+                    @if ($userPermissions->contains('can add offsite links'))
+                        <div class="d-flex justify-content-end align-items-center">
+                            <button class="btn btn-primary btn-sm open-add-more-links-wrapper">
+                                Add New Links
+                            </button>
+                        </div>
+                        <div class="col-lg-12 add-more-links-wrapper" style="display: none">
+                            <form id="addOffsiteLinkForm">
+                                @csrf
+
+                                <input type="hidden" id="offsite_task_id" name="offsite_task_id"
+                                    value="{{ $relatedData->id }}">
+
+                                <div class="col-lg-12 offsite-fields">
+                                    <div id="kw-url-container">
+                                        <div class="row mb-2 kw-url-input">
+                                            <div class="col">
+                                                <input type="text" class="form-control keyword"
+                                                    placeholder="Keyword">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" class="form-control url" placeholder="URL">
+                                            </div>
+                                            <div class="col-auto">
+                                                <button type="button" class="btn btn-danger remove-kw-url">X</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-100 mt-20 d-flex align-items-center justify-content-between">
+                                        <button type="button" id="add-kw-url" class="btn-sm btn btn-primary">+
+                                            Add More</button>
+                                        <button type="submit" class="btn-sm btn btn-success">Save Links</button>
+                                    </div>
+                                    <input type="hidden" name="kw_url" id="kw_url">
+                                </div>
+                            </form>
+                        </div>
+                    @endif
                 @else
                     <p>No Data Found</p>
                 @endif
@@ -252,7 +294,6 @@
     $(document).ready(function() {
         var deleteUrlTemplate = '{{ route('starting_kw_url.delete', ['id' => ':id']) }}';
 
-        // Function to load data
         function loadStartingKwUrls() {
             $.ajax({
                 url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => $task->id]) }}',
@@ -273,9 +314,9 @@
                                     <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
                                     <td>${kwUrl.domain}</td>
                                     @if ($userPermissions->contains('can remove offsite links'))
-                                      <td>
+                                    <td>
                                         <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
-                                        </td>
+                                    </td>
                                     @endif
                                 </tr>
                             `);
@@ -289,15 +330,96 @@
             });
         }
 
-        // Load Data on Page Load
         loadStartingKwUrls();
 
-        // Delete Functionality
+        $("#addNewLinkRow").click(function() {
+            $("#linksTableBody").append(`
+                <tr>
+                    <td><input type="text" class="form-control keyword" required></td>
+                    <td><input type="url" class="form-control url" required></td>
+                    <td><button type="button" class="btn btn-danger remove-link">X</button></td>
+                </tr>
+            `);
+        });
+
+        $(document).on("click", ".remove-link", function() {
+            $(this).closest("tr").remove();
+        });
+
+        $("#addOffsiteLinkForm").submit(function(event) {
+            event.preventDefault();
+
+            let offsite_task_id = $('#offsite_task_id').val()
+
+            let links = [];
+            $('.kw-url-input').each(function() {
+                let keyword = $(this).find('.keyword').val();
+                let url = $(this).find('.url').val();
+
+                if (keyword && url) {
+                    links.push({
+                        keyword,
+                        url
+                    });
+                }
+            });
+
+            $('#kw_url').val(JSON.stringify(links));
+
+            $("#linksTableBody tr").each(function() {
+                var keyword = $(this).find(".keyword").val();
+                var url = $(this).find(".url").val();
+
+                if (keyword && url) {
+                    links.push({
+                        keyword: keyword,
+                        url: url,
+                    });
+                }
+            });
+
+            if (links.length === 0) {
+                alert("Please add at least one valid link.");
+                return;
+            }
+
+            var formData = {
+                _token: "{{ csrf_token() }}",
+                kw_url: JSON.stringify(links),
+                task_id: "{{ $task->id }}",
+                project_id: "{{ $task->project_id }}",
+                offsite_task_id: offsite_task_id
+            };
+
+            $.ajax({
+                url: '{{ route('starting_kw_url.store') }}',
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    $("#addOffsiteLinkModal").modal("hide");
+                    $("#addOffsiteLinkForm")[0].reset();
+                    $("#linksTableBody").html(`
+                        <tr>
+                            <td><input type="text" class="form-control keyword" required></td>
+                            <td><input type="url" class="form-control url" required></td>
+                            <td><button type="button" class="btn btn-danger remove-link">X</button></td>
+                        </tr>
+                    `);
+                    loadStartingKwUrls();
+                    $('.add-more-links-wrapper').slideUp();
+                    toastr.success("Links Added!", "Success");
+                },
+                error: function() {
+                    alert("Failed to add links!");
+                }
+            });
+        });
+
         $(document).on("click", ".delete-btn", function(event) {
             event.preventDefault();
 
             var id = $(this).data("id");
-            var deleteUrl = deleteUrlTemplate.replace(":id", id); // Replace placeholder with actual ID
+            var deleteUrl = deleteUrlTemplate.replace(":id", id);
 
             $.ajax({
                 url: deleteUrl,
@@ -313,5 +435,30 @@
                 }
             });
         });
+
+        $(document).on('click', '#add-kw-url', function() {
+            $('#kw-url-container').append(`
+            <div class="row mb-2 kw-url-input">
+                <div class="col">
+                    <input type="text" class="form-control keyword" placeholder="Keyword">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control url" placeholder="URL">
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger remove-kw-url">X</button>
+                </div>
+            </div>
+        `);
+        });
+
+        $(document).on('click', '.remove-kw-url', function() {
+            $(this).closest('.kw-url-input').remove();
+        });
+
+        $(document).on('click', '.open-add-more-links-wrapper', function() {
+            $('.add-more-links-wrapper').slideDown()
+        });
+
     });
 </script>

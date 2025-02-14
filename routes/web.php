@@ -95,5 +95,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/starting-kw-url/{id}', [OffsiteTaskController::class, 'deleteStartingKwUrl'])->name('starting_kw_url.delete');
     });
     Route::get('/offsite-tasks/{task_id}/starting-kw-urls', [OffsiteTaskController::class, 'getStartingKwUrls'])->name('offsite.tasks.starting_kw_urls');
+    Route::post('/starting-kw-url/store', [OffsiteTaskController::class, 'store'])->name('starting_kw_url.store');
 });
 -require __DIR__ . '/auth.php';

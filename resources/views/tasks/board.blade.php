@@ -49,7 +49,7 @@
                                                 by: {{ $task->createdBy->name }}</span>
                                             @if ($userPermissions->contains('can create tasks'))
                                                 <span
-                                                    class="badge text-capitalize position-absolute top-0 end-0 bg-base fs-7 text-dark mb-10 fw-light">assigned
+                                                    class="badge text-capitalize position-absolute top-0 end-0 bg-base fs-7 text-black-50 mb-10 fw-light">assigned
                                                     to: {{ $task->assignedTo->name }}</span>
                                             @endif
                                             <button type="button"
@@ -100,10 +100,9 @@
         </div>
     </div>
 
-
     @if ($tasks->count() > 0)
         {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
         @include('vendor.task-script', ['tasks' => $tasks, 'projects' => $projects])
     @endif
-
+    
 </x-app-layout>
