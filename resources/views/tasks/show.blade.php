@@ -1,4 +1,4 @@
-<div class="card">
+div<div class="card">
     <div class="card-body">
         <div class="row gy-3">
             <div class="col-lg-12">
@@ -101,11 +101,128 @@
             </div>
 
             <div class="col-lg-12">
-                <label class="form-label" for="task_attachments">Current Task Files</label>
                 <div class="row" id="taskAttachmentsContainer">
+                    <label class="form-label" for="task_attachments">Current Task Files</label>
                     <!-- Attachments Will Load Here via AJAX -->
                 </div>
             </div>
+
+            @if ($task->type == 'CONTENT' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text"
+                        class="form-control  {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                        name="sub_type" value="{{ $relatedData->sub_type }}">
+                </div>
+                @if ($relatedData->number_of_pages)
+                    <div class="col-lg-6">
+                        <label class="form-label" for="number_of_pages">Number Of Pages</label>
+                        <input type="text"
+                            class="form-control  {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                            name="number_of_pages" value="{{ $relatedData->number_of_pages }}">
+                    </div>
+                @endif
+                @if ($relatedData->no_of_words)
+                    <div class="col-lg-6">
+                        <label class="form-label" for="no_of_words">Number Of Words</label>
+                        <input type="text"
+                            class="form-control  {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                            name="no_of_words" value="{{ $relatedData->no_of_words }}">
+                    </div>
+                @endif
+                @if ($relatedData->notes)
+                    <div class="col-lg-6">
+                        <label class="form-label" for="notes">Note</label>
+                        <textarea class="{{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }} form-control"
+                            name="notes" id="notes" cols="30" rows="10">{{ $relatedData->notes }}</textarea>
+                    </div>
+                @endif
+            @endif
+
+            @if ($task->type == 'ONSITE' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text" class="form-control" name="sub_type"
+                        value="{{ $relatedData->sub_type }}">
+                </div>
+                @if ($relatedData->closing_input)
+                    <div class="col-lg-6">
+                        <label class="form-label d-block" for="closing_input">Closing Input</label>
+                        <img src="{{ asset('storage/') }}/{{ $relatedData->closing_input }}" class="img-fluid"
+                            alt="">
+                    </div>
+                @endif
+            @endif
+
+
+            @if ($task->type == 'OFFSITE' && $relatedData)
+                <div class="col-lg-6">
+                    <label class="form-label" for="sub_type">Sub Type</label>
+                    <input type="text" class="form-control" name="sub_type"
+                        value="{{ $relatedData->sub_type }}">
+                </div>
+                @if ($relatedData && $relatedData->startingKwUrls->count())
+                    <span class="d-block text-dark p-0">Assigned Keywords & Urls</span>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Keyword</th>
+                                <th>URL</th>
+                                <th>Domain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($relatedData->startingKwUrls as $kwUrl)
+                                <tr>
+                                    <td>{{ $kwUrl->keyword }}</td>
+                                    <td><a href="{{ $kwUrl->url }}" target="_blank">{{ $kwUrl->url }}</a></td>
+                                    <td>{{ $kwUrl->domain }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p>No Data Found</p>
+                @endif
+            @endif
+
+            <div class="col-lg-6">
+
+                @if ($task->type == 'DESIGN' && $relatedData)
+                    <label class="form-label" for="design_type">Design Type</label>
+                    <input type="text" class="form-control" name="design_type"
+                        value="{{ $relatedData->design_type }}">
+                @endif
+
+                @if ($task->type == 'DEVELOPMENT' && $relatedData)
+                    <label class="form-label" for="feature_list">Feature List</label>
+                    <textarea class="form-control" name="feature_list">{{ $relatedData->feature_list }}</textarea>
+                @endif
+
+                @if ($task->type == 'AM' && $relatedData)
+                    <label class="form-label" for="team_size">Team Size</label>
+                    <input type="number" class="form-control" name="team_size"
+                        value="{{ $relatedData->team_size }}">
+                @endif
+
+                @if ($task->type == 'ADMIN' && $relatedData)
+                    <label class="form-label" for="admin_notes">Admin Notes</label>
+                    <textarea class="form-control" name="admin_notes">{{ $relatedData->admin_notes }}</textarea>
+                @endif
+
+                @if ($task->type == 'SALES' && $relatedData)
+                    <label class="form-label" for="lead_source">Lead Source</label>
+                    <input type="text" class="form-control" name="lead_source"
+                        value="{{ $relatedData->lead_source }}">
+                @endif
+
+                @if ($task->type == 'ADHOC' && $relatedData)
+                    <label class="form-label" for="task_details">Task Details</label>
+                    <textarea class="form-control" name="task_details">{{ $relatedData->task_details }}</textarea>
+                @endif
+
+            </div>
+
         </div>
     </div>
 </div>

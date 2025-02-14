@@ -12,22 +12,15 @@ class Task extends Model
     protected $fillable = [
         'title',
         'description',
-        'department',
-        'created_by',
-        'type',
-        'assigned_to',
+        'project_id',
         'department_id',
-        'brief',
+        'created_by',
+        'assigned_to',
+        'priority',
+        'type',
         'status',
         'due_date',
         'start_date',
-        'completed_date',
-        'estimated_time',
-        'labels',
-        'priority',
-        'project_id',
-        'repeating_task',
-        'task_subtype_id',
     ];
 
     public function createdBy()

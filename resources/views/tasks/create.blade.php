@@ -200,7 +200,7 @@
             $('.content-fields, .onsite-fields, .offsite-fields, .design-fields, .development-fields, .revision-fields, .adhoc-fields')
                 .hide();
 
-            if (selectedSubType === "SEO CONTENT") {
+            if (selectedSubType === "SEO CONTENT" || selectedSubType === "BLOG CONTENT") {
                 $('.content-fields').slideDown();
             } else if (selectedSubType === "REVISION" || selectedSubType === "ADHOC") {
                 $('.revision-fields, .adhoc-fields').slideDown();
@@ -232,9 +232,7 @@
         });
 
         $(document).on('click', '#save-kw-url', function() {
-            $('#kw-url-container').append(`
-            <small class="text-success">Links Has Been Saved</small>
-        `);
+            toastr.success('Links Saved');
             let kwUrlArray = [];
             $('.kw-url-input').each(function() {
                 let keyword = $(this).find('.keyword').val();

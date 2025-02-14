@@ -111,6 +111,7 @@
             }
         });
     });
+
     function loadTaskDetails(taskId) {
         $('#taskDetails').html(
             '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>');
@@ -129,6 +130,7 @@
             }
         });
     }
+
     function loadTaskAttachments() {
         let taskId = "{{ $task->id }}";
         $.ajax({
@@ -139,6 +141,7 @@
             }
         });
     }
+
     function renderAttachments(attachments) {
         let html = '';
         attachments.forEach(file => {
@@ -181,16 +184,20 @@
             }
         });
         html += `
+        @if ($userPermissions->contains('can add task files'))
         <div class="col-lg-4">
             <div style="height: 200px !important" class="p-3 d-flex align-items-center justify-content-center shadow card border w-100 h-100">
-                <button type="button" class="bg-transparent border-0 shadow-none outline-none" data-bs-toggle="modal"
-                    data-bs-target="#taskAttachmentsModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="#0d6efd" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                      <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-                    </svg>
+                <button type="button" class="text-center bg-transparent border-0 shadow-none outline-none" data-bs-toggle="modal"
+                data-bs-target="#taskAttachmentsModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
+                  <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                  <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/>
+                </svg>
+                <small class="tex-center text-dark w-100 d-block">Add Attachments</small>
                 </button>    
             </div>
         </div>
+        @endif
         `
         $("#taskAttachmentsContainer").html(html);
     }

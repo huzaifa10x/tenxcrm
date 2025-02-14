@@ -21,6 +21,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\FuncCall;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class TaskController extends Controller
 {
@@ -29,11 +31,11 @@ class TaskController extends Controller
         $user = auth()->user();
 
         if ($user->hasPermission('can view all tasks')) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->paginate(10);
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->get();
         } elseif ($user->hasPermission('can view own tasks')) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('assigned_to', $user->id)
-                ->paginate(10);
+                ->get();
         } else {
             $tasks = collect();
         }
@@ -49,11 +51,11 @@ class TaskController extends Controller
         $departments = Role::all();
 
         if ($user->hasPermission('can view all tasks')) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->paginate(10);
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->get();
         } elseif ($user->hasPermission('can view own tasks')) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('assigned_to', $user->id)
-                ->paginate(10);
+                ->get();
         } else {
             $tasks = collect();
         }
@@ -70,11 +72,11 @@ class TaskController extends Controller
         if (($user->hasPermission('can create tasks'))) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('created_by', $user->id)
-                ->paginate(10);
+                ->get();
         } else {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('assigned_to', $user->id)
-                ->paginate(10);
+                ->get();
         }
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
@@ -90,7 +92,7 @@ class TaskController extends Controller
         if (($user->hasPermission('can view own tasks'))) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('assigned_to', $user->id)
-                ->paginate(10);
+                ->get();
         }
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
@@ -106,129 +108,131 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'project_id' => 'required|exists:projects,id',
-            'created_by' => 'required|exists:users,id',
-            'department_id' => 'required|exists:roles,id',
-            'assigned_to' => 'nullable|exists:users,id',
-            'priority' => 'required|in:Low,Medium,High,Urgent',
-            'type' => 'required|in:CONTENT,ONSITE,OFFSITE,DESIGN,DEVELOPMENT,ACCOUNT MANAGER,SEO ADMIN,ADMIN,SALES',
-            'subtype' => 'nullable|string|max:255',
-            'status' => 'required|in:Todo,In Progress,Review,Completed,Blocked',
-            'due_date' => 'nullable|date',
-            'start_date' => 'required|date_format:Y-m-d H:i:s',
-            'completed_date' => 'nullable|date',
-            'estimated_time' => 'nullable|integer',
-            'attachments' => 'nullable|array',
-            'attachments.*' => 'file|mimes:jpeg,png,pdf,docx,txt|max:2048',
-        ]);
+        try {
 
-        $task = Task::create($request->except('attachments'));
+            $task = Task::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'project_id' => $request->project_id,
+                'department_id' => $request->department_id,
+                'created_by' => $request->created_by,
+                'assigned_to' => $request->assigned_to,
+                'priority' => $request->priority,
+                'type' => $request->type,
+                'status' => $request->status,
+                'due_date' => $request->due_date,
+                'start_date' => $request->start_date,
+            ]);
 
-        // TYPE WISE INSERTION
-        switch ($task->type) {
-            case 'CONTENT':
-                ContentTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => $request->sub_type,
-                    'number_of_pages' => $request->number_of_pages,
-                    'no_of_words' => $request->no_of_words,
-                    'closing_input' => $request->closing_input,
-                ]);
-                break;
+            $kwUrls = is_string($request->kw_url) ? json_decode($request->kw_url, true) : $request->kw_url;
 
-            case 'ONSITE':
-                OnsiteTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => $request->sub_type,
-                    'closing_input' => $request->closing_input,
-                ]);
-                break;
+            switch ($request->type) {
+                case 'CONTENT':
+                    ContentTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => $request->sub_type,
+                        'number_of_pages' => $request->number_of_pages,
+                        'no_of_words' => $request->no_of_words,
+                        'closing_input' => $request->closing_input,
+                    ]);
+                    break;
 
-            case 'OFFSITE':
-                $offsiteTask = OffsiteTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => $request->sub_type,
-                ]);
-                if ($request->has('kw_url')) {
-                    $kwUrls = json_decode($request->kw_url, true);
-                    if (is_array($kwUrls)) {
+                case 'ONSITE':
+                    OnsiteTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => $request->sub_type,
+                        'closing_input' => $request->closing_input,
+                    ]);
+                    break;
+
+                case 'OFFSITE':
+                    $offsiteTask = OffsiteTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => $request->sub_type,
+                    ]);
+
+                    // ✅ Insert kw_url data only if it's an array
+                    if (!empty($kwUrls) && is_array($kwUrls)) {
                         foreach ($kwUrls as $kw) {
-                            StartingKwUrl::create([
-                                'keyword' => $kw['keyword'],
-                                'url' => $kw['url'],
-                                'domain' => parse_url($kw['url'], PHP_URL_HOST),
-                                'task_id' => $task->id,
-                                'project_id' => $request->project_id,
-                                'offsite_task_id' => $offsiteTask->id,
-                            ]);
+                            if (isset($kw['keyword']) && isset($kw['url'])) {
+                                $domain = parse_url($kw['url'], PHP_URL_HOST); // Extract domain
+
+                                StartingKwUrl::create([
+                                    'keyword' => $kw['keyword'],
+                                    'url' => $kw['url'],
+                                    'domain' => $domain,
+                                    'task_id' => $task->id,
+                                    'project_id' => $request->project_id,
+                                    'offsite_task_id' => $offsiteTask->id,
+                                ]);
+                            }
                         }
                     }
-                }
-                break;
 
-            case 'DESIGN':
-                DesignTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => $request->sub_type,
-                    'input_number' => $request->input_number,
-                    'closing_input' => $request->closing_input,
-                ]);
-                break;
+                    break;
 
-            case 'DEVELOPMENT':
-                DevelopmentTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => $request->sub_type,
-                    'closing_input' => $request->closing_input,
-                ]);
-                break;
+                case 'DESIGN':
+                    DesignTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => $request->sub_type,
+                        'input_number' => $request->input_number,
+                        'closing_input' => $request->closing_input,
+                    ]);
+                    break;
 
-            case 'AM':
-                AmTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => $request->sub_type,
-                ]);
-                break;
+                case 'DEVELOPMENT':
+                    DevelopmentTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => $request->sub_type,
+                        'closing_input' => $request->closing_input,
+                    ]);
+                    break;
 
-            case 'SEO ADMIN':
-                SeoAdminTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => 'ADHOC',
-                ]);
-                break;
+                case 'AM':
+                    AmTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => $request->sub_type,
+                    ]);
+                    break;
 
-            case 'ADMIN':
-                AdminTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => 'ADHOC',
-                ]);
-                break;
+                case 'SEO ADMIN':
+                    SeoAdminTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => 'ADHOC',
+                    ]);
+                    break;
 
-            case 'SALES':
-                SalesTask::create([
-                    'task_id' => $task->id,
-                    'sub_type' => 'ADHOC',
-                ]);
-                break;
-        }
+                case 'ADMIN':
+                    AdminTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => 'ADHOC',
+                    ]);
+                    break;
 
-
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $path = $file->store('task_attachments', 'public');
-
-                TaskAttachment::create([
-                    'task_id' => $task->id,
-                    'file_path' => $path,
-                ]);
+                case 'SALES':
+                    SalesTask::create([
+                        'task_id' => $task->id,
+                        'sub_type' => 'ADHOC',
+                    ]);
+                    break;
             }
-        }
 
-        return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $path = $file->store('task_attachments', 'public');
+                    TaskAttachment::create([
+                        'task_id' => $task->id,
+                        'file_path' => $path,
+                    ]);
+                }
+            }
+
+            return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
 
     public function show(Request $request, Task $task)
     {
@@ -238,7 +242,43 @@ class TaskController extends Controller
         $users = User::all();
         $projects = Project::all();
         $departments = Role::all();
-        return view('tasks.show', compact('task', 'projects', 'users', 'departments'));
+
+        $relatedData = null;
+
+        switch ($task->type) {
+            case 'CONTENT':
+                $relatedData = ContentTask::where('task_id', $task->id)->first();
+                break;
+            case 'ONSITE':
+                $relatedData = OnsiteTask::where('task_id', $task->id)->first();
+                break;
+            case 'OFFSITE':
+                $relatedData = OffsiteTask::with('startingKwUrls')->where('task_id', $task->id)->first();
+                break;
+            case 'DESIGN':
+                $relatedData = DesignTask::where('task_id', $task->id)->first();
+                break;
+            case 'DEVELOPMENT':
+                $relatedData = DevelopmentTask::where('task_id', $task->id)->first();
+                break;
+            case 'AM':
+                $relatedData = AmTask::where('task_id', $task->id)->first();
+                break;
+            case 'ADMIN':
+                $relatedData = AdminTask::where('task_id', $task->id)->first();
+                break;
+            case 'SALES':
+                $relatedData = SalesTask::where('task_id', $task->id)->first();
+                break;
+            case 'ADHOC':
+                $relatedData = null;
+                break;
+            default:
+                $relatedData = null;
+                break;
+        }
+
+        return view('tasks.show', compact('task', 'projects', 'users', 'departments', 'relatedData'));
     }
 
     // Delete task

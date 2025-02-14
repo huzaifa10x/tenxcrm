@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class CompletionKwUrl extends Model
 {
     use HasFactory;
+
+    protected $table = 'completion_kw_url'; 
+
     protected $fillable = ['starting_keyword_id', 'url', 'domain', 'task_id', 'project_id', 'offsite_task_id'];
 
     public function startingKwUrl()

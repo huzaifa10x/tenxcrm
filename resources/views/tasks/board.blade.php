@@ -2,6 +2,15 @@
     <x-slot name="header">
         {{ __('Tasks Board') }}
     </x-slot>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="card mb-3 basic-data-table">
         <div class="card-header d-flex justify-content-between align-items-center">
             @if ($userPermissions->contains('can create tasks'))
@@ -46,8 +55,8 @@
                                             <button type="button"
                                                 class="btn btn-sm text-primary-600 rounded bg-hover-primary-600 text-hover-white d-flex align-items-center gap-2 p-1">
                                                 <iconify-icon icon="lucide:tag" class="icon"></iconify-icon>
-                                                <span
-                                                    class="kanban-tag fw-semibold fs-7">{{ $task->type }} -> {{ $task->sub_type }}</span>
+                                                <span class="kanban-tag fw-semibold fs-7">{{ $task->type }} ->
+                                                    {{ $task->sub_type }}</span>
                                             </button>
                                             <div class="mt-12 d-flex align-items-center justify-content-between gap-10">
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
@@ -93,7 +102,7 @@
 
 
     @if ($tasks->count() > 0)
-        {{ $tasks->links('vendor.pagination.custom') }}
+        {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
         @include('vendor.task-script', ['tasks' => $tasks, 'projects' => $projects])
     @endif
 

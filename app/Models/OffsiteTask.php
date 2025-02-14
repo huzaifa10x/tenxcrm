@@ -11,7 +11,12 @@ class OffsiteTask extends Model
 
     protected $fillable = ['task_id', 'sub_type'];
 
-    public function task() {
+    public function task()
+    {
         return $this->belongsTo(Task::class);
+    }
+    public function startingKwUrls()
+    {
+        return $this->hasMany(StartingKwUrl::class, 'offsite_task_id');
     }
 }

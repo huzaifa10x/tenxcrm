@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class StartingKwUrl extends Model
 {
     use HasFactory;
+    
+    protected $table = 'starting_kw_url'; 
     protected $fillable = ['keyword', 'url', 'domain', 'task_id', 'project_id', 'offsite_task_id'];
 
     public function task()
