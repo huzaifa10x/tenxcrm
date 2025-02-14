@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\SalesTask;
 use App\Models\SeoAdminTask;
+use App\Models\StartingKwUrl;
 use App\Models\TaskAttachment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -147,11 +148,25 @@ class TaskController extends Controller
                 break;
 
             case 'OFFSITE':
-                OffsiteTask::create([
+                $offsiteTask = OffsiteTask::create([
                     'task_id' => $task->id,
                     'sub_type' => $request->sub_type,
-                    'kw_url' => json_encode($request->kw_url),
                 ]);
+                if ($request->has('kw_url')) {
+                    $kwUrls = json_decode($request->kw_url, true);
+                    if (is_array($kwUrls)) {
+                        foreach ($kwUrls as $kw) {
+                            StartingKwUrl::create([
+                                'keyword' => $kw['keyword'],
+                                'url' => $kw['url'],
+                                'domain' => parse_url($kw['url'], PHP_URL_HOST),
+                                'task_id' => $task->id,
+                                'project_id' => $request->project_id,
+                                'offsite_task_id' => $offsiteTask->id,
+                            ]);
+                        }
+                    }
+                }
                 break;
 
             case 'DESIGN':

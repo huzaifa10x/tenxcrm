@@ -76,12 +76,12 @@
                                 </div>
                                 <!-- Add Task Button -->
                                 @if ($userPermissions->contains('can create tasks'))
-                                    <button type="button"
+                                    {{-- <button id="open-create-task-with-status" data-status="{{ $status }}" type="button"
                                         class="d-flex fs-7 align-items-center gap-2 fw-medium w-100 text-primary-600 justify-content-center text-hover-primary-800 add-task-button"
                                         data-bs-toggle="modal" data-bs-target="#taskCreateModal">
                                         <iconify-icon icon="ph:plus-circle" class="icon text-xl"></iconify-icon>
                                         Add {{ $status }} Task
-                                    </button>
+                                    </button> --}}
                                 @endif
                             </div>
                         </div>

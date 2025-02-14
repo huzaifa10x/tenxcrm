@@ -111,7 +111,6 @@
             }
         });
     });
-
     function loadTaskDetails(taskId) {
         $('#taskDetails').html(
             '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>');
@@ -130,7 +129,6 @@
             }
         });
     }
-
     function loadTaskAttachments() {
         let taskId = "{{ $task->id }}";
         $.ajax({
@@ -141,7 +139,6 @@
             }
         });
     }
-
     function renderAttachments(attachments) {
         let html = '';
         attachments.forEach(file => {
@@ -281,5 +278,7 @@
             });
         }, 500);
     });
-
+    $(document).on("click", "#open-create-task-with-status", function() {
+        $('#status').val($(this).data('status'));
+    })
 </script>

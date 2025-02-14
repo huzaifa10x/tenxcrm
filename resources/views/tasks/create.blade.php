@@ -51,16 +51,18 @@
             </select>
         </div>
 
-        <div class="col-lg-6">
+        {{-- <div class="col-lg-6">
             <label class="form-label" for="status">Status</label>
             <select class="form-control" id="status" name="status">
                 <option selected value="Todo">Todo</option>
-                {{-- <option value="In Progress">In Progress</option>
+                <option value="In Progress">In Progress</option>
                 <option value="Review">Review</option>
                 <option value="Completed">Completed</option>
-                <option value="Blocked">Blocked</option> --}}
+                <option value="Blocked">Blocked</option>
             </select>
-        </div>
+        </div> --}}
+
+        <input type="hidden" value="Todo" name="status">
 
         <div class="col-lg-6">
             <label class="form-label" for="due_date">Due Date</label>
@@ -89,16 +91,16 @@
                 <option value="ADHOC">ADHOC</option>
             </select>
         </div>
+
+        <div class="col-lg-6" id="subtype-container" style="display: none;">
+            <label class="form-label" for="sub_type">Sub Type</label>
+            <select class="form-control" id="sub_type" name="sub_type"></select>
+        </div>
+
     </div>
 
-    <hr>
 
-    <div class="col-lg-6" id="subtype-container" style="display: none;">
-        <label class="form-label" for="sub_type">Sub Type</label>
-        <select class="form-control" id="sub_type" name="sub_type"></select>
-    </div>
-
-    <div id="extra-fields" class="row gy-3" style="display: none;">
+    <div id="extra-fields" class="row gy-3 mt-3" style="display: none;">
         <!-- CONTENT Task Fields -->
         <div class="col-lg-6 content-fields">
             <label class="form-label" for="number_of_pages">Number of Pages</label>
@@ -113,21 +115,22 @@
 
         <!-- OFFSITE Task Fields -->
         <div class="col-lg-12 offsite-fields">
-            <label class="form-label">KW URLs</label>
             <div id="kw-url-container">
-                <div class="row kw-url-row mb-2">
-                    <div class="col-md-5">
-                        <input type="text" class="form-control keyword-input" placeholder="Enter Keyword">
+                <div class="row mb-2 kw-url-input">
+                    <div class="col">
+                        <input type="text" class="form-control keyword" placeholder="Keyword">
                     </div>
-                    <div class="col-md-5">
-                        <input type="text" class="form-control url-input" placeholder="Enter URL">
+                    <div class="col">
+                        <input type="text" class="form-control url" placeholder="URL">
                     </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-success add-kw-url">+</button>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-danger remove-kw-url">X</button>
                     </div>
                 </div>
             </div>
-            <input type="hidden" id="kw_url" name="kw_url">
+            <button type="button" id="add-kw-url" class="btn-sm btn btn-primary">+ Add More</button>
+            <button type="button" id="save-kw-url" class="btn-sm btn btn-info">Save Links</button>
+            <input type="hidden" name="kw_url" id="kw_url">
         </div>
 
         <!-- DESIGN Task Fields -->
@@ -212,41 +215,43 @@
             }
         });
 
-        $(document).on('click', '.add-kw-url', function() {
-            let newRow = `
-                <div class="row kw-url-row mb-2">
-                    <div class="col-md-5">
-                        <input type="text" class="form-control keyword-input" placeholder="Enter Keyword">
-                    </div>
-                    <div class="col-md-5">
-                        <input type="text" class="form-control url-input" placeholder="Enter URL">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger remove-kw-url">-</button>
-                    </div>
+        $(document).on('click', '#add-kw-url', function() {
+            $('#kw-url-container').append(`
+            <div class="row mb-2 kw-url-input">
+                <div class="col">
+                    <input type="text" class="form-control keyword" placeholder="Keyword">
                 </div>
-            `;
-            $('#kw-url-container').append(newRow);
-            // TEMP ON SUBMIT CODE FOR TESTING PUT IT HERE IN ON CLICK
+                <div class="col">
+                    <input type="text" class="form-control url" placeholder="URL">
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger remove-kw-url">X</button>
+                </div>
+            </div>
+        `);
+        });
+
+        $(document).on('click', '#save-kw-url', function() {
+            $('#kw-url-container').append(`
+            <small class="text-success">Links Has Been Saved</small>
+        `);
             let kwUrlArray = [];
-            $('.kw-url-row').each(function() {
-                let keyword = $(this).find('.keyword-input').val().trim();
-                let url = $(this).find('.url-input').val().trim();
+            $('.kw-url-input').each(function() {
+                let keyword = $(this).find('.keyword').val();
+                let url = $(this).find('.url').val();
                 if (keyword && url) {
                     kwUrlArray.push({
-                        keyword: keyword,
-                        url: url
+                        keyword,
+                        url
                     });
                 }
             });
-
             $('#kw_url').val(JSON.stringify(kwUrlArray));
         });
 
         $(document).on('click', '.remove-kw-url', function() {
-            $(this).closest('.kw-url-row').remove();
+            $(this).closest('.kw-url-input').remove();
         });
-
     </script>
 @else
     @include('vendor.not-allowed')

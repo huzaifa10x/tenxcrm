@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('task_id')->constrained()->onDelete('cascade');
             $table->enum('sub_type', ['MANUAL LINKS', 'IH LINKS', 'OH LINKS', 'ADHOC']);
-            $table->json('kw_url')->nullable();
             $table->timestamps();
         });
     }

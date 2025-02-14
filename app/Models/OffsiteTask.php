@@ -9,11 +9,7 @@ class OffsiteTask extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['task_id', 'sub_type', 'kw_url'];
-
-    protected $casts = [
-        'kw_url' => 'array', // Multi KW + URL JSON format
-    ];
+    protected $fillable = ['task_id', 'sub_type'];
 
     public function task() {
         return $this->belongsTo(Task::class);
