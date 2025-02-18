@@ -13,7 +13,7 @@
                         <div class="col-lg-12">
                             <label class="form-label" for="title">Project Title</label>
                             <input type="text" name="title" class="form-control">
-                        </div>
+                        </div> 
 
                         <div class="col-lg-12">
                             <label class="form-label" for="title">Project Description</label>
@@ -23,8 +23,8 @@
                         <div class="col-lg-4">
                             <label class="form-label" for="customer_id">Customer</label>
                             <select class="form-control w-100" name="customer_id" id="customer_id">
-                                @foreach ($customers as $customer)
-                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
                                 @endforeach
                             </select>
                         </div>

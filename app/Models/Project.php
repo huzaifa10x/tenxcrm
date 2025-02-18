@@ -15,7 +15,7 @@ class Project extends Model
         'industry_id',
         'status',
         'created_by',
-        'customer_id',
+        'company_id',
         'contract_start_date',
         'contract_term',
         'contract_value',
@@ -41,9 +41,9 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    public function customer()
+    public function companies()
     {
-        return $this->belongsTo(Customer::class, 'customer_id');
+        return $this->belongsTo(Company::class, 'company_id');
     }
     public function socialMediaProject()
     {

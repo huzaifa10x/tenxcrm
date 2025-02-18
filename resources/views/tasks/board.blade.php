@@ -41,6 +41,11 @@
                                             data-task-id="{{ $task->id }}" data-status="{{ $status }}">
                                             <span
                                                 class="fs-7 mb-10 bg-primary-600 badge rounded text-light">#{{ $task->id }}</span>
+                                            @if ($userPermissions->contains('can create tasks'))
+                                                <small class="w-100 d-block fs-7">
+                                                    {{ $task->repeatingTask ? 'Recurring Task' : '' }}
+                                                </small>
+                                            @endif
                                             <h6 class="kanban-title text-lg fw-semibold mb-8">{{ $task->title }}</h6>
                                             <p class="kanban-desc text-secondary-light mb-10">{{ $task->description }}
                                             </p>
@@ -50,7 +55,8 @@
                                             @if ($userPermissions->contains('can create tasks'))
                                                 <span
                                                     class="badge text-capitalize position-absolute top-0 end-0 bg-base fs-7 text-black-50 mb-10 fw-light">assigned
-                                                    to: {{ $task->assignedTo->name }}</span>
+                                                    to:
+                                                    {{ $task->assignedTo ? $task->assignedTo->name : 'n/a' }}</span>
                                             @endif
                                             <button type="button"
                                                 class="btn btn-sm text-primary-600 rounded bg-hover-primary-600 text-hover-white d-flex align-items-center gap-2 p-1">
@@ -83,15 +89,6 @@
                                         </div>
                                     @endforeach
                                 </div>
-                                <!-- Add Task Button -->
-                                @if ($userPermissions->contains('can create tasks'))
-                                    {{-- <button id="open-create-task-with-status" data-status="{{ $status }}" type="button"
-                                        class="d-flex fs-7 align-items-center gap-2 fw-medium w-100 text-primary-600 justify-content-center text-hover-primary-800 add-task-button"
-                                        data-bs-toggle="modal" data-bs-target="#taskCreateModal">
-                                        <iconify-icon icon="ph:plus-circle" class="icon text-xl"></iconify-icon>
-                                        Add {{ $status }} Task
-                                    </button> --}}
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -104,5 +101,5 @@
         {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
         @include('vendor.task-script', ['tasks' => $tasks, 'projects' => $projects])
     @endif
-    
+
 </x-app-layout>

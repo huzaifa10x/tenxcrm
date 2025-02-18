@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IndustryController;
 use App\Http\Controllers\OffsiteTaskController;
@@ -12,10 +12,17 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
+});
+
+Route::get('/live-time', function () {
+    return response()->json([
+        'time' => Carbon::now('Asia/Dubai')->format('H:i:s') // Current time in UAE timezone
+    ]);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -30,9 +37,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::middleware('permission:can view companies')->group(function () {
         Route::resource('companies', CompanyController::class);
-    });
-    Route::middleware('permission:can view customers')->group(function () {
-        Route::resource('customers', CustomerController::class);
+
+        Route::get('/company/{company}/details', [CompanyDetailsController::class, 'index'])->name('company.details.index');
+        Route::post('/company/details/store', [CompanyDetailsController::class, 'store'])->name('company.details.store');
+        Route::post('/company/details/update/{id}', [CompanyDetailsController::class, 'update'])->name('company.details.update');
+        Route::delete('/company/details/destroy/{id}', [CompanyDetailsController::class, 'destroy'])->name('company.details.destroy');
     });
     Route::middleware('permission:can view roles')->group(function () {
         Route::resource('roles', RoleController::class);
@@ -61,6 +70,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/projects/{project}/files', [ProjectController::class, 'deleteAllProjectFiles'])->name('projects.deleteAllFiles');
     });
     Route::get('projects-get-extra-fields', [ProjectController::class, 'getExtraFields'])->name('projects-get-extra-fields');
+    Route::get('/users-by-department/{department}', [UserController::class, 'getUsersByDepartment'])->name('users.by.department');
 
     Route::resource('tasks', TaskController::class);
     Route::get('tasks/board/index', [TaskController::class, 'boardView'])->name('tasks.board.index');
@@ -96,5 +106,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::get('/offsite-tasks/{task_id}/starting-kw-urls', [OffsiteTaskController::class, 'getStartingKwUrls'])->name('offsite.tasks.starting_kw_urls');
     Route::post('/starting-kw-url/store', [OffsiteTaskController::class, 'store'])->name('starting_kw_url.store');
+
+    Route::post('/tasks/add-custom-period', [TaskController::class, 'addCustomPeriod'])->name('tasks.addCustomPeriod');
+    Route::get('/tasks/fetch-custom-periods', [TaskController::class, 'fetchCustomPeriods'])->name('tasks.fetchCustomPeriods');
+    Route::post('/tasks/delete-custom-period', [TaskController::class, 'deleteCustomPeriod'])->name('tasks.deleteCustomPeriod');
+    
 });
 -require __DIR__ . '/auth.php';

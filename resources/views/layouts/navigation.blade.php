@@ -71,26 +71,6 @@
                     </ul>
                 </li>
             @endif
-            @if ($userPermissions->contains('can view customers'))
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
-                        <span>Customers</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="{{ route('customers.index') }}"><i
-                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Customers List</a>
-                        </li>
-                        @if ($userPermissions->contains('can manage customers'))
-                            <li>
-                                <a href="{{ route('customers.create') }}"><i
-                                        class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Customer</a>
-                            </li>
-                        @endif
-                    </ul>
-                </li>
-            @endif
             @if ($userPermissions->contains('can view roles'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">

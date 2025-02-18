@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
+use App\Models\CompanyDetail;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Project;
@@ -9,7 +11,6 @@ use App\Models\SeoProject;
 use App\Models\SocialMediaProject;
 use App\Models\WebDevProject;
 use App\Models\Industry;
-use App\Models\Customer;
 use App\Models\User;
 use App\Models\PaymentMethod;
 use Faker\Factory as Faker;
@@ -23,7 +24,7 @@ class ProjectSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        $customer = Customer::first();
+        $company = Company::first();
         $user = User::first();
         $paymentMethod = PaymentMethod::first();
         $industry = Industry::first();
@@ -34,7 +35,7 @@ class ProjectSeeder extends Seeder
             'category' => 'PLATINUM',
             'status' => 'Current',
             'industry_id' => $industry->id,
-            'customer_id' => $customer->id,
+            'company_id' => $company->id,
             'created_by' => $user->id,
             'contract_start_date' => $faker->date(),
             'contract_term' => $faker->numberBetween(12, 36),

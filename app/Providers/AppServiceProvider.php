@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\App;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,5 +33,10 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('userPermissions', $permissions);
             }
         });
+        if (App::runningInConsole()) {
+            $this->app->resolving(Schedule::class, function (Schedule $schedule) {
+                $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
+            });
+        }
     }
 }

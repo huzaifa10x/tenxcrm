@@ -7,16 +7,16 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class CustomerTableSeeder extends Seeder
+class CompnayDetailTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run()
     {
-        DB::table('customers')->insert([
+        DB::table('company_details')->insert([
             [
-                'name' => 'demo customer',
+                'name' => 'Roma',
                 'email' => 'demo@10xdigital.ae',
                 'phone' => '03123454545',
                 'city' => 'Sharjah',

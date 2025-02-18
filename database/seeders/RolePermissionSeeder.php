@@ -15,8 +15,6 @@ class RolePermissionSeeder extends Seeder
             'can view users',
             'can manage users',
             'can view permissions',
-            'can view customers',
-            'can manage customers',
             'can view roles',
             'can manage roles',
             'can view industries',
@@ -46,18 +44,18 @@ class RolePermissionSeeder extends Seeder
             'ADMIN',
             'CONTENT',
             'ONSITE',
-            'OFF SITE',
+            'OFFSITE',
             'DESIGN',
             'DEVELOPMENT',
             'SEO ADMIN',
             'SALES',
             'TECH MANAGER',
-            'ACCOUNT MANAGER',
+            'AM',
             'SALES MANAGER',
             'SOCIAL MEDIA MANAGER',
             'FINANCE',
+            'SOCIAL MEDIA MANAGER'
         ];
-
         // Insert Permissions
         foreach ($permissions as $permission) {
             DB::table('permissions')->insert([

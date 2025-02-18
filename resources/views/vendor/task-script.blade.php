@@ -37,11 +37,12 @@
 
 <!-- Modal -->
 <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
-    <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <h1 class="modal-title fs-5" id="taskCreateModalLabel">Create Task</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -123,7 +124,7 @@
             },
             success: function(response) {
                 $('#taskDetails').html(response);
-                loadTaskAttachments();
+                loadTaskAttachments(taskId);
             },
             error: function() {
                 $('#taskDetails').html('<p class="text-danger">Error fetching task details.</p>');
@@ -131,10 +132,11 @@
         });
     }
 
-    function loadTaskAttachments() {
+    function loadTaskAttachments(taskIdParam) {
         let taskId = "{{ $task->id }}";
         $.ajax({
-            url: "{{ route('tasks.attachments.index', ':id') }}".replace(':id', taskId),
+            url: "{{ route('tasks.attachments.index', ':id') }}".replace(':id', taskIdParam ? taskIdParam :
+                taskId),
             type: "GET",
             success: function(response) {
                 renderAttachments(response.attachments);

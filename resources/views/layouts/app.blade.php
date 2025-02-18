@@ -74,10 +74,24 @@
                         <button type="button" class="sidebar-mobile-toggle">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
-                        <form class="navbar-search">
-                            <input type="text" name="search" placeholder="Search">
-                            <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                        </form>
+                        <div id="live-time"></div>
+                        <script>
+                            function updateTime() {
+                                const options = {
+                                    timeZone: 'Asia/Dubai',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: true
+                                };
+                                const currentTime = new Date().toLocaleTimeString('en-US', options);
+                                document.getElementById('live-time').innerText = "CRM TIME:  "+currentTime;
+                            }
+
+                            setInterval(updateTime, 1000);
+
+                            updateTime();
+                        </script>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -126,8 +140,7 @@
                                                 <span class="text-md fw-semibold mb-0">Japan</span>
                                             </span>
                                         </label>
-                                        <input class="form-check-input" type="radio" name="crypto"
-                                            id="japan">
+                                        <input class="form-check-input" type="radio" name="crypto" id="japan">
                                     </div>
 
                                     <div
@@ -643,7 +656,7 @@
         @endif
     </script>
     <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
-    
+
 </body>
 
 </html>

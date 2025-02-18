@@ -12,7 +12,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles')->whereDoesntHave('roles', function ($query) {
-            $query->where('name', 'CUSTOMER');
+            $query->where('name', 'COMPANY');
         })->paginate(15);
         $roles = Role::get();
 
@@ -22,7 +22,7 @@ class UserController extends Controller
     public function gridView()
     {
         $users = User::with('roles')->whereDoesntHave('roles', function ($query) {
-            $query->where('name', 'CUSTOMER');
+            $query->where('name', 'COMPANY');
         })->paginate(15);
 
         return view('users.users-grid-view', compact('users'));
@@ -118,5 +118,14 @@ class UserController extends Controller
     {
         User::findOrFail($id)->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+    }
+
+    public function getUsersByDepartment($department)
+    {
+        $users = User::whereHas('roles', function ($query) use ($department) {
+            $query->where('name', $department);
+        })->get();
+
+        return response()->json($users);
     }
 }

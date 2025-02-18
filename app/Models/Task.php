@@ -50,8 +50,11 @@ class Task extends Model
     {
         return $this->hasMany(TaskCompletionLog::class);
     }
-
-    // Scopes or Additional Functions
+    public function repeatingTask()
+    {
+        return $this->hasOne(RepeatingTask::class, 'task_id');
+    }
+    
     public function scopeCompleted($query)
     {
         return $query->where('status', 'Completed');

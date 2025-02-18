@@ -1,7 +1,7 @@
 <!-- resources/views/companies/edit.blade.php -->
 <x-app-layout>
     <x-slot name="header">
-        {{ __('EDIT COMPNAY - ') . $company->name }}
+        {{ __('EDIT COMPANY - ') . $company->name }}
     </x-slot>
     @if ($userPermissions->contains('can manage companies'))
         <form method="POST" action="{{ route('companies.update', $company->id) }}">

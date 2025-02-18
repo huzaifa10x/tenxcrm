@@ -1,5 +1,5 @@
 <div class="d-flex justify-content-end mb-10">
-    <button type="button" class="btn-sm btn btn-success">Complete Task</button>
+    <button type="button" class="btn-sm btn btn-neutral-900">Complete Task</button>
 </div>
 <div class="card">
     <div class="card-body">

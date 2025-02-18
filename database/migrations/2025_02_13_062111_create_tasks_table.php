@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('set null');
             $table->enum('priority', ['Low', 'Medium', 'High', 'Urgent'])->default('Medium');
-            $table->enum('type', ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'SEO ADMIN', 'ADMIN', 'SALES', 'ADHOC'])->default('ADHOC');
+            $table->enum('type', ['CONTENT', 'ONSITE', 'TECH MANAGER', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'SEO ADMIN', 'ADMIN', 'SALES MANAGER', 'SALES', 'ADHOC', 'SOCIAL MEDIA MANAGER'])->default('ADHOC');
             $table->enum('status', ['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'])->default('Todo');
             $table->date('due_date')->nullable();
             $table->dateTime('start_date')->nullable();

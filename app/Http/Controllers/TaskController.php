@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CreateRecurringTaskJob;
 use App\Models\AdminTask;
 use App\Models\AmTask;
 use App\Models\ContentTask;
+use App\Models\CustomPeriod;
 use App\Models\DesignTask;
 use App\Models\DevelopmentTask;
 use App\Models\OffsiteTask;
 use App\Models\OnsiteTask;
 use App\Models\Task;
 use App\Models\Project;
+use App\Models\RepeatingTask;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\SalesTask;
@@ -122,6 +125,9 @@ class TaskController extends Controller
                 'status' => $request->status,
                 'due_date' => $request->due_date,
                 'start_date' => $request->start_date,
+                'is_recurring' => $request->is_recurring ? 1 : 0,
+                'repeat_interval' => $request->is_recurring ? $request->repeat_interval : null,
+                'repeat_count' => $request->is_recurring ? $request->repeat_count : null,
             ]);
 
             $kwUrls = is_string($request->kw_url) ? json_decode($request->kw_url, true) : $request->kw_url;
@@ -226,12 +232,23 @@ class TaskController extends Controller
                 }
             }
 
+            if ($request->has('repeat_task') && $request->repeat_task) {
+                $repeatEvery = (int)$request->repeat_every; 
+                $nextRunAt = Carbon::now()->addHours($repeatEvery);
+
+                RepeatingTask::create([
+                    'task_id' => $task->id,
+                    'repeat_every' => $repeatEvery,
+                    'next_run_at' => $nextRunAt,
+                ]);
+            }
+
+
             return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     public function show(Request $request, Task $task)
     {
         if (!$request->is_ajax) {

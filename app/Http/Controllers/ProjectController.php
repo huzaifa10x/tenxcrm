@@ -4,7 +4,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
+use App\Models\Company;
 use App\Models\Industry;
 use App\Models\PaymentMethod;
 use App\Models\Project;
@@ -52,8 +52,8 @@ class ProjectController extends Controller
         $industries = Industry::all();
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
-        $customers = Customer::all();
-        return view('projects.create', compact('industries', 'users', 'paymentMethods', 'customers'));
+        $companies = Company::all();
+        return view('projects.create', compact('industries', 'users', 'paymentMethods', 'companies'));
     }
 
     public function store(Request $request)
@@ -65,7 +65,7 @@ class ProjectController extends Controller
             'category' => 'required',
             'status' => 'required',
             'industry_id' => 'required|exists:industries,id',
-            'customer_id' => 'required|exists:customers,id',
+            'company_id' => 'required|exists:companies,id',
             'created_by' => 'required|exists:users,id',
             'contract_start_date' => 'required|date',
             'contract_term' => 'required|integer',
@@ -171,8 +171,8 @@ class ProjectController extends Controller
         $industries = Industry::all();
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
-        $customers = Customer::all();
-        return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods', 'customers'));
+        $companies = Company::all();
+        return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods', 'companies'));
     }
 
     // Update the specified resource in storage.
@@ -186,7 +186,7 @@ class ProjectController extends Controller
             'category' => 'required',
             'status' => 'required',
             'industry_id' => 'required|exists:industries,id',
-            'customer_id' => 'required|exists:customers,id',
+            'company_id' => 'required|exists:companies,id',
             'contract_start_date' => 'required|date',
             'contract_term' => 'required|integer',
             'contract_value' => 'required|numeric',

@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CompaniesTableSeeder::class,
             IndustrySeeder::class,
-            CustomerTableSeeder::class,
+            CompnayDetailTableSeeder::class,
             PaymentMethodsSeeder::class,
             ProjectSeeder::class,
             TaskSeeder::class,

@@ -11,9 +11,9 @@ class Company extends Model
 
     protected $fillable = ['name', 'website', 'city', 'country'];
 
-    public function customers()
+    public function details()
     {
-        return $this->hasMany(User::class, 'company_id');
+        return $this->hasMany(CompanyDetail::class, 'company_id');
     }
     
 }
