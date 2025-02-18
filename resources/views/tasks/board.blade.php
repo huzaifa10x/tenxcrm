@@ -43,7 +43,7 @@
                                                 class="fs-7 mb-10 bg-primary-600 badge rounded text-light">#{{ $task->id }}</span>
                                             @if ($userPermissions->contains('can create tasks'))
                                                 <small class="w-100 d-block fs-7">
-                                                    {{ $task->repeatingTask ? 'Recurring Task' : '' }}
+                                                    {{ $task->repeatingTask ? 'Recurring Task' : '' }} {{ $task->repeatingTask ? ($task->repeat_task ? ' - Enabled' : ' - Disabled') : '' }}
                                                 </small>
                                             @endif
                                             <h6 class="kanban-title text-lg fw-semibold mb-8">{{ $task->title }}</h6>
@@ -68,8 +68,13 @@
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
                                                     <iconify-icon icon="solar:calendar-outline"
                                                         class="text-primary-light"></iconify-icon>
-                                                    <span
-                                                        class="start-date text-secondary-light">{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('d-m-Y h:i A') : 'Not Set' }}</span>
+                                                        <span class="start-date text-secondary-light">
+                                                            {{ $task->start_date 
+                                                                ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A') 
+                                                                : 'Not Set' 
+                                                            }}
+                                                        </span>
+                                                        
                                                 </div>
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
                                                     <form action="{{ route('tasks.destroy', $task->id) }}"

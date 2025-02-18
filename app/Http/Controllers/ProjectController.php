@@ -10,8 +10,10 @@ use App\Models\PaymentMethod;
 use App\Models\Project;
 use App\Models\SeoProject;
 use App\Models\SocialMediaProject;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\WebDevProject;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -496,5 +498,28 @@ class ProjectController extends Controller
         }
 
         return response()->json($fields); // Return fields as JSON response
+    }
+    public function loadMoreTasks(Request $request)
+    {
+        $page = $request->get('page', 1);
+        $projectId = $request->get('project_id');
+
+        $tasks = Task::where('project_id', $projectId)
+            ->orderBy('id', 'desc')
+            ->with('assignedTo')
+            ->paginate(5, ['*'], 'page', $page);
+
+        return response()->json([
+            'tasks' => $tasks->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'assigned_to_name' => $task->assignedTo->name ?? 'Unassigned',
+                    'start_date' => $task->start_date ? Carbon::parse($task->start_date)->format('d-m-Y h:i A') : '',
+                    'due_date' => $task->due_date ? Carbon::parse($task->due_date)->format('d-m-Y') : '',
+                    'status' => $task->status,
+                ];
+            }),
+        ]);
     }
 }

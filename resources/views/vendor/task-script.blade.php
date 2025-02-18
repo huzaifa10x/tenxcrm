@@ -20,7 +20,7 @@
             <div class="modal-body">
                 <form id="uploadTaskAttachmentsForm" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="task_id" value="{{ $task->id }}">
+                    <input type="hidden" name="task_id" value="">
                     <div class="mb-3">
                         <label for="taskAttachments" class="form-label">Select Files</label>
                         <input type="file" name="attachments[]" id="taskAttachments" class="form-control" multiple
@@ -37,8 +37,7 @@
 
 <!-- Modal -->
 <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
-    <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -112,8 +111,8 @@
             }
         });
     });
-
     function loadTaskDetails(taskId) {
+        $("input[name='task_id']").val(taskId);
         $('#taskDetails').html(
             '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>');
         $.ajax({
@@ -124,26 +123,23 @@
             },
             success: function(response) {
                 $('#taskDetails').html(response);
-                loadTaskAttachments(taskId);
+                loadTaskAttachments();
             },
             error: function() {
                 $('#taskDetails').html('<p class="text-danger">Error fetching task details.</p>');
             }
         });
     }
-
-    function loadTaskAttachments(taskIdParam) {
-        let taskId = "{{ $task->id }}";
+    function loadTaskAttachments() {
+        let taskId = $("input[name='task_id']").val();
         $.ajax({
-            url: "{{ route('tasks.attachments.index', ':id') }}".replace(':id', taskIdParam ? taskIdParam :
-                taskId),
+            url: "{{ route('tasks.attachments.index', ':id') }}".replace(':id', taskId),
             type: "GET",
             success: function(response) {
                 renderAttachments(response.attachments);
             }
         });
     }
-
     function renderAttachments(attachments) {
         let html = '';
         attachments.forEach(file => {
@@ -266,7 +262,7 @@
         }
     });
     $(document).on("change", ".task-update-field", function() {
-        let taskId = $("#task_id").val();
+        let taskId = $("input[name='task_id']").val();
         let fieldName = $(this).attr("name");
         let fieldValue = $(this).val();
         setTimeout(() => {
@@ -287,7 +283,4 @@
             });
         }, 500);
     });
-    $(document).on("click", "#open-create-task-with-status", function() {
-        $('#status').val($(this).data('status'));
-    })
 </script>

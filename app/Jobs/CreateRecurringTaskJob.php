@@ -64,14 +64,12 @@ class CreateRecurringTaskJob implements ShouldQueue
 
             $this->createTaskTypeEntry($this->task);
 
-            if ($this->task->attachments && count($this->task->attachments) > 0) {
+            if ($this->task->attachments) {
                 foreach ($this->task->attachments as $file) {
-
-                    $filePath = asset('storage/' . $file->file_path);
-
+                    $path = $file->store('task_attachments', 'public');
                     TaskAttachment::create([
                         'task_id' => $newTask->id,
-                        'file_path' => $filePath,
+                        'file_path' => $path,
                     ]);
                 }
             }

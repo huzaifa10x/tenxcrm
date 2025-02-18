@@ -129,7 +129,10 @@
         <!-- Repeat Task Checkbox -->
         <div class="form-group">
             <label for="repeat_task">Repeat Task</label>
-            <input type="checkbox" class="form-check" id="repeat_task" name="repeat_task">
+            <select name="repeat_task" id="repeat_task">
+                <option selected value="0">In Not Repeated</option>
+                <option value="1">Is Repeated</option>
+            </select>
         </div>
 
         <!-- Repeat Every Dropdown -->
@@ -146,7 +149,11 @@
         <script>
             $(document).ready(function() {
                 $('#repeat_task').change(function() {
-                    $('#repeat_every_group').toggle(this.checked);
+                    if($(this).val() == 1){
+                        $('#repeat_every_group').slideDown();
+                    }else{
+                        $('#repeat_every_group').slideUp();
+                    }
                 });
             });
         </script>
@@ -194,10 +201,10 @@
                     .hide();
                 $('#title').val(selectedType);
                 if (selectedType === "ADHOC") {
-                    $('#task-title-wrapper').slideDown();
+                    $('.task-title-wrapper').slideDown();
                     $('#taskCreateModalLabel').text("ADHOC TASK");
                 } else {
-                    $('#task-title-wrapper').slideUp();
+                    $('.task-title-wrapper').slideUp();
                     $('#taskCreateModalLabel').text(`${selectedType} TASK`);
                 }
                 if (subTypeOptions[selectedType]) {
@@ -211,9 +218,16 @@
             $(document).on('change', '#sub_type', function() {
                 let selectedSubType = $(this).val();
                 var TitleValue = $('#title').val();
-                var finalTitle = TitleValue + " - " + selectedSubType;
-                $('#title').val(finalTitle);
-                $('#taskCreateModalLabel').text(finalTitle + " TASK");
+
+                // Check if there's already a hyphen to prevent multiple hyphens
+                if (selectedSubType && !TitleValue.includes(" - ")) {
+                    $('#title').val(TitleValue + " - " + selectedSubType);
+                    $('#taskCreateModalLabel').text(TitleValue + " - " + selectedSubType + " TASK");
+                } else if (selectedSubType && TitleValue.includes(" - ")) {
+                    // If hyphen is already present, just append the subtype after the hyphen
+                    $('#title').val(TitleValue.split(" - ")[0] + " - " + selectedSubType);
+                    $('#taskCreateModalLabel').text(TitleValue.split(" - ")[0] + " - " + selectedSubType + " Task");
+                }
                 $('#extra-fields').slideDown();
                 $('.content-fields, .onsite-fields, .offsite-fields, .design-fields, .development-fields, .revision-fields, .adhoc-fields')
                     .hide();

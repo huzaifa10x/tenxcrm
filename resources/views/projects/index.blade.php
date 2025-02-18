@@ -19,7 +19,7 @@
                             <th>Category</th>
                             <th>Status</th>
                             <th>Project Type</th>
-                            <th>Customer</th>
+                            <th>Company</th>
                             <th>Project Status</th>
                             <th>Created By</th>
                             <th>Actions</th>
@@ -32,7 +32,7 @@
                                 <td>{{ $project->category }}</td>
                                 <td>{{ $project->status }}</td>
                                 <td>{{ $project->project_type }}</td>
-                                <td>{{ $project->customer->name }}</td>
+                                <td>{{ $project->companies->name }}</td>
                                 <td>
                                     @if ($userPermissions->contains('can update project status'))
                                         <select class="form-control project-status" data-project-id="{{ $project->id }}"

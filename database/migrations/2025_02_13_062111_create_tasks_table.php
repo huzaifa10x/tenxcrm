@@ -25,6 +25,8 @@ return new class extends Migration
             $table->date('due_date')->nullable();
             $table->dateTime('start_date')->nullable();
             $table->date('completed_date')->nullable();
+            $table->boolean('repeat_task')->default(false);
+            $table->foreignId('parent_task_id')->nullable()->constrained('tasks')->onDelete('cascade');
             $table->timestamps();
         });
     }

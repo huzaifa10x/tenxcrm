@@ -1,6 +1,15 @@
 <div class="d-flex justify-content-end mb-10">
     <button type="button" class="btn-sm btn btn-neutral-900">Complete Task</button>
+    @if ($userPermissions->contains('can create tasks'))
+        @if ($task->repeatingTask && $task->repeat_task)
+            <button class="btn btn-danger disable-repeating" data-task-id="{{ $task->id }}">Disable Repeat</button>
+        @endif
+        @if ($task->repeatingTask && !$task->repeat_task)
+            <button class="btn btn-success enable-repeating" data-task-id="{{ $task->id }}">Enable Repeat</button>
+        @endif
+    @endif
 </div>
+
 <div class="card">
     <div class="card-body">
         <div class="row gy-3">
@@ -460,5 +469,31 @@
             $('.add-more-links-wrapper').slideDown()
         });
 
+        function toggleRepeatStatus(taskId, action) {
+            $.ajax({
+                url: "{{ url('/tasks') }}/" + taskId + "/" + action,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    alert(response.message);
+                    location.reload();
+                },
+                error: function() {
+                    alert('Something went wrong. Try again.');
+                }
+            });
+        }
+
+        $(document).on('click', '.disable-repeating', function() {
+            let taskId = $(this).data('task-id');
+            toggleRepeatStatus(taskId, "disable-repeating");
+        });
+
+        $(document).on('click', '.enable-repeating', function() {
+            let taskId = $(this).data('task-id');
+            toggleRepeatStatus(taskId, "enable-repeating");
+        });
     });
 </script>

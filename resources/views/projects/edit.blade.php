@@ -23,12 +23,11 @@
                         </div>
 
                         <div class="col-lg-4">
-                            <label class="form-label" for="customer_id">Customer</label>
-                            <select class="form-control w-100" name="customer_id" id="customer_id">
-                                @foreach ($customers as $customer)
-                                    {{ $project->customer->id }}
-                                    <option {{ $project->customer->id == $customer->id ? 'selected' : '' }}
-                                        value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            <label class="form-label" for="company_id">Company</label>
+                            <select class="form-control w-100" name="company_id" id="company_id">
+                                @foreach ($companies as $company)
+                                    <option {{ $project->companies->id == $company->id ? 'selected' : '' }}
+                                        value="{{ $company->id }}">{{ $company->name }}</option>
                                 @endforeach
                             </select>
                         </div>

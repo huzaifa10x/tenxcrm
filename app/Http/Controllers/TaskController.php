@@ -125,9 +125,7 @@ class TaskController extends Controller
                 'status' => $request->status,
                 'due_date' => $request->due_date,
                 'start_date' => $request->start_date,
-                'is_recurring' => $request->is_recurring ? 1 : 0,
-                'repeat_interval' => $request->is_recurring ? $request->repeat_interval : null,
-                'repeat_count' => $request->is_recurring ? $request->repeat_count : null,
+                'repeat_task' => $request->repeat_task ?? false,
             ]);
 
             $kwUrls = is_string($request->kw_url) ? json_decode($request->kw_url, true) : $request->kw_url;
@@ -233,7 +231,7 @@ class TaskController extends Controller
             }
 
             if ($request->has('repeat_task') && $request->repeat_task) {
-                $repeatEvery = (int)$request->repeat_every; 
+                $repeatEvery = (int)$request->repeat_every;
                 $nextRunAt = Carbon::now()->addHours($repeatEvery);
 
                 RepeatingTask::create([
@@ -242,7 +240,6 @@ class TaskController extends Controller
                     'next_run_at' => $nextRunAt,
                 ]);
             }
-
 
             return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
@@ -384,6 +381,25 @@ class TaskController extends Controller
 
         return response()->json([
             "message" => ucfirst($request->field) . " updated successfully!"
+        ]);
+    }
+    public function disableRepeating(Task $task)
+    {
+        $task->update(['repeat_task' => 0]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Task repeating has been disabled.'
+        ]);
+    }
+
+    public function enableRepeating(Task $task)
+    {
+        $task->update(['repeat_task' => 1]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Task repeating has been enabled.'
         ]);
     }
 }

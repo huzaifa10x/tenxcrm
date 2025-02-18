@@ -12,6 +12,8 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
+use App\Jobs\CreateRecurringTaskJob;
+use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can add project files')->group(function () {
         Route::post('/projects/{project}/files', [ProjectController::class, 'uploadProjectFiles'])->name('projects.uploadFiles');
     });
+    Route::get('/tasks/load-more', [ProjectController::class, 'loadMoreTasks'])->name('tasks.loadMore');
     Route::middleware('permission:can update project status')->group(function () {
         Route::post('/projects/{id}/update-status', [ProjectController::class, 'updateStatus'])->name('projects.updateStatus');
     });
@@ -100,6 +103,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::middleware('permission:can edit task')->group(function () {
         Route::post('/tasks/update/{id}', [TaskController::class, 'updateTaskAjax'])->name('tasks.update.json');
+        Route::post('/tasks/{task}/disable-repeating', [TaskController::class, 'disableRepeating'])->name('tasks.disableRepeating');
+        Route::post('/tasks/{task}/enable-repeating', [TaskController::class, 'enableRepeating'])->name('tasks.enableRepeating');
     });
     Route::middleware('permission:can remove offsite links')->group(function () {
         Route::delete('/starting-kw-url/{id}', [OffsiteTaskController::class, 'deleteStartingKwUrl'])->name('starting_kw_url.delete');
@@ -110,6 +115,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/tasks/add-custom-period', [TaskController::class, 'addCustomPeriod'])->name('tasks.addCustomPeriod');
     Route::get('/tasks/fetch-custom-periods', [TaskController::class, 'fetchCustomPeriods'])->name('tasks.fetchCustomPeriods');
     Route::post('/tasks/delete-custom-period', [TaskController::class, 'deleteCustomPeriod'])->name('tasks.deleteCustomPeriod');
-    
 });
 -require __DIR__ . '/auth.php';

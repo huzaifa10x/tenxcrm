@@ -21,6 +21,8 @@ class Task extends Model
         'status',
         'due_date',
         'start_date',
+        'parent_task_id',
+        'repeat_task',
     ];
 
     public function createdBy()
@@ -54,7 +56,7 @@ class Task extends Model
     {
         return $this->hasOne(RepeatingTask::class, 'task_id');
     }
-    
+
     public function scopeCompleted($query)
     {
         return $query->where('status', 'Completed');
@@ -108,6 +110,15 @@ class Task extends Model
     public function salesTask()
     {
         return $this->hasOne(SalesTask::class);
+    }
+    public function parentTask()
+    {
+        return $this->belongsTo(Task::class, 'parent_task_id');
+    }
+
+    public function subTasks()
+    {
+        return $this->hasMany(Task::class, 'parent_task_id');
     }
     public function getSubTypeAttribute()
     {
