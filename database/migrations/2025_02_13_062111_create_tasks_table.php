@@ -33,6 +33,8 @@ return new class extends Migration
 
     public function down()
     {
+        Schema::dropIfExists('task_histories');
+        Schema::dropIfExists('task_comments');
         Schema::dropIfExists('seo_admin_tasks');
         Schema::dropIfExists('admin_tasks');
         Schema::dropIfExists('sales_tasks');

@@ -162,7 +162,7 @@ class UserSeeder extends Seeder
                 $user->roles()->sync(Role::where('name', 'CONTENT')->first());
             } elseif ($userData['role'] == 'ONSITE') {
                 $user->roles()->sync(Role::where('name', 'ONSITE')->first());
-            } elseif ($userData['role'] == 'OFF SITE') {
+            } elseif ($userData['role'] == 'OFFSITE') {
                 $user->roles()->sync(Role::where('name', 'OFFSITE')->first());
             } elseif ($userData['role'] == 'DESIGN') {
                 $user->roles()->sync(Role::where('name', 'DESIGN')->first());
@@ -170,9 +170,9 @@ class UserSeeder extends Seeder
                 $user->roles()->sync(Role::where('name', 'DEVELOPMENT')->first());
             } elseif ($userData['role'] == 'SEO ADMIN') {
                 $user->roles()->sync(Role::where('name', 'SEO ADMIN')->first());
-            } elseif ($userData['role'] == 'ACCOUNT MANAGER') {
+            } elseif ($userData['role'] == 'AM') {
                 $user->roles()->sync(Role::where('name', 'AM')->first());
-            } elseif ($userData['role'] == 'SALES MANAGER') {
+            } elseif ($userData['role'] == 'SOCIAL MEDIA MANAGER') {
                 $user->roles()->sync(Role::where('name', 'SOCIAL MEDIA MANAGER')->first());
             } elseif ($userData['role'] == 'SALES MANAGER') {
                 $user->roles()->sync(Role::where('name', 'SALES MANAGER')->first());

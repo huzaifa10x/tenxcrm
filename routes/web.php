@@ -10,6 +10,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Jobs\CreateRecurringTaskJob;
@@ -112,8 +113,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/offsite-tasks/{task_id}/starting-kw-urls', [OffsiteTaskController::class, 'getStartingKwUrls'])->name('offsite.tasks.starting_kw_urls');
     Route::post('/starting-kw-url/store', [OffsiteTaskController::class, 'store'])->name('starting_kw_url.store');
 
-    Route::post('/tasks/add-custom-period', [TaskController::class, 'addCustomPeriod'])->name('tasks.addCustomPeriod');
-    Route::get('/tasks/fetch-custom-periods', [TaskController::class, 'fetchCustomPeriods'])->name('tasks.fetchCustomPeriods');
-    Route::post('/tasks/delete-custom-period', [TaskController::class, 'deleteCustomPeriod'])->name('tasks.deleteCustomPeriod');
+    Route::get('/task/{task}/comments', [TaskCommentController::class, 'index'])->name('comments.index');
+    Route::post('/task/comments', [TaskCommentController::class, 'store'])->name('comments.store');
+    Route::put('/task/comments/{id}', [TaskCommentController::class, 'update'])->name('comments.update');
+    Route::delete('/task/comments/{id}', [TaskCommentController::class, 'destroy'])->name('comments.destroy');
+    
 });
 -require __DIR__ . '/auth.php';

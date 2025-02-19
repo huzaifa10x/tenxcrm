@@ -118,7 +118,7 @@
                         </div>
 
                         <div class="col-lg-6">
-                            <label class="form-label" for="contract_term">contract term</label>
+                            <label class="form-label" for="contract_term">contract term (in months)</label>
                             <input type="number" class="form-control" id="contract_term" name="contract_term"
                                 required>
                         </div>

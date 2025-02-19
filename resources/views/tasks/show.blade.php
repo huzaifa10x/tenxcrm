@@ -1,13 +1,17 @@
-<div class="d-flex justify-content-end mb-10">
-    <button type="button" class="btn-sm btn btn-neutral-900">Complete Task</button>
-    @if ($userPermissions->contains('can create tasks'))
-        @if ($task->repeatingTask && $task->repeat_task)
-            <button class="btn btn-danger disable-repeating" data-task-id="{{ $task->id }}">Disable Repeat</button>
+<div class="d-flex w-100 justify-content-between align-items-center mb-10">
+    <div>
+        @if ($userPermissions->contains('can create tasks'))
+            @if ($task->repeatingTask && $task->repeat_task)
+                <button class="btn btn-sm fs-7 btn-danger disable-repeating" data-task-id="{{ $task->id }}">Disable
+                    Repeat</button>
+            @endif
+            @if ($task->repeatingTask && !$task->repeat_task)
+                <button class="btn btn-sm fs-7 btn-success enable-repeating" data-task-id="{{ $task->id }}">Enable
+                    Repeat</button>
+            @endif
         @endif
-        @if ($task->repeatingTask && !$task->repeat_task)
-            <button class="btn btn-success enable-repeating" data-task-id="{{ $task->id }}">Enable Repeat</button>
-        @endif
-    @endif
+    </div>
+    <button type="button" class="btn-sm fs-7 btn btn-neutral-900">Complete Task</button>
 </div>
 
 <div class="card">
@@ -297,6 +301,42 @@
 
         </div>
     </div>
+
+    {{-- COMMENTS --}}
+    <div class="col-lg-12">
+        <div class="card h-100 p-0 email-card overflow-x-auto d-block">
+            <div class="min-w-450-px d-flex flex-column justify-content-between h-100">
+                <div
+                    class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center gap-3 justify-content-between flex-wrap">
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="text-secondary-light d-flex me-8"><iconify-icon icon="mingcute:arrow-left-line"
+                                class="icon fs-3 line-height-1"></iconify-icon></button>
+                        <h6 class="mb-0 text-lg">Task Comments</h6>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <ul id="comment-list" class="list-group mb-3"></ul>
+                </div>
+                <div class="card-footer py-16 px-24 bg-base shadow-top">
+                    <form action="#">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <textarea id="comment-text" class="textarea-max-height form-control p-0 border-0 py-8 pe-16 resize-none scroll-sm"
+                                oninput="adjustHeight(this)" placeholder="Write massage"></textarea>
+                            <div class="d-flex align-items-center gap-4 ms-16">
+                                <button type="button" id="add-comment"
+                                    class="btn btn-primary text-sm btn-sm px-12 py-12 w-100 radius-8 d-flex align-items-center justify-content-center gap-1 h-44-px">
+                                    <iconify-icon icon="ion:paper-plane-outline"
+                                        class="icon text-lg line-height-1"></iconify-icon>
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>

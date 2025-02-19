@@ -37,7 +37,8 @@
 
 <!-- Modal -->
 <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
-    <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel" aria-hidden="true">
+    <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -111,6 +112,7 @@
             }
         });
     });
+
     function loadTaskDetails(taskId) {
         $("input[name='task_id']").val(taskId);
         $('#taskDetails').html(
@@ -124,12 +126,14 @@
             success: function(response) {
                 $('#taskDetails').html(response);
                 loadTaskAttachments();
+                loadComments();
             },
             error: function() {
                 $('#taskDetails').html('<p class="text-danger">Error fetching task details.</p>');
             }
         });
     }
+
     function loadTaskAttachments() {
         let taskId = $("input[name='task_id']").val();
         $.ajax({
@@ -140,6 +144,7 @@
             }
         });
     }
+
     function renderAttachments(attachments) {
         let html = '';
         attachments.forEach(file => {
@@ -282,5 +287,66 @@
                 }
             });
         }, 500);
+    });
+
+    function loadComments() {
+        let taskId = $("input[name='task_id']").val();
+        $.get("{{ route('comments.index', ['task' => ':taskId']) }}".replace(':taskId', taskId), function(data) {
+            $('#comment-list').empty();
+            data.forEach(comment => {
+                $('#comment-list').append(
+                    `
+  <div class="py-16 px-24 border-bottom ${comment.user_id === {{ auth()->id() }} ? 'bg-primary-50' : ''}">
+    <div class="d-flex align-items-start gap-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" class="w-40-px h-40-px rounded-pill">
+        <div class="w-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <h6 class="mb-0 fs-6">${comment.user.name}</h6>
+                    ${comment.user_id === {{ auth()->id() }} ? `<span class="badge fs-7 bg-success-600 text-white text-xs">You</span>` : ''}
+                </div>
+                ${comment.user_id === {{ auth()->id() }} ? `
+                <button class="text-danger-600 delete-comment" data-id="${comment.id}">
+                    <iconify-icon icon="fluent:delete-24-regular" class="icon text-lg line-height-1"></iconify-icon>
+                </button>` : ''}
+            </div>
+            <div class="mt-10">
+                <p class="mb-0 text-primary-light">${comment.comment}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    `
+                );
+            });
+        });
+    }
+
+    $(document).on('click', '#add-comment', function() {
+        let taskId = $("input[name='task_id']").val();
+        let commentText = $('#comment-text').val();
+        $.post("{{ route('comments.store') }}", {
+            task_id: taskId,
+            comment: commentText,
+            _token: "{{ csrf_token() }}"
+        }, function() {
+            $('#comment-text').val('');
+            loadComments();
+        });
+    });
+
+    $(document).on('click', '.delete-comment', function() {
+        let commentId = $(this).data('id');
+        $.ajax({
+            url: "{{ route('comments.destroy', ['id' => ':id']) }}".replace(':id', commentId),
+            type: "DELETE",
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            success: function() {
+                loadComments();
+            }
+        });
     });
 </script>

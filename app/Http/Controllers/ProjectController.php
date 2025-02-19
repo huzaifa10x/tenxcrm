@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Industry;
 use App\Models\PaymentMethod;
 use App\Models\Project;
+use App\Models\Role;
 use App\Models\SeoProject;
 use App\Models\SocialMediaProject;
 use App\Models\Task;
@@ -163,7 +164,8 @@ class ProjectController extends Controller
         $industries = Industry::all();
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
-        return view('projects.show', compact('project', 'industries', 'users', 'paymentMethods'));
+        $departments = Role::all();
+        return view('projects.show', compact('project', 'industries', 'users', 'paymentMethods', 'departments'));
     }
 
     // Show the form for editing the specified resource.

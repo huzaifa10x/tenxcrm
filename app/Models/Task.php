@@ -120,6 +120,15 @@ class Task extends Model
     {
         return $this->hasMany(Task::class, 'parent_task_id');
     }
+    public function comments()
+    {
+        return $this->hasMany(TaskComment::class);
+    }
+
+    public function history()
+    {
+        return $this->hasMany(TaskHistory::class);
+    }
     public function getSubTypeAttribute()
     {
         if ($this->type === 'CONTENT') {

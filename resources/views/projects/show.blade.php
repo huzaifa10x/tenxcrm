@@ -4,12 +4,20 @@
     </x-slot>
     @if ($userPermissions->contains('can view all projects') || $userPermissions->contains('can view own projects'))
         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                @if ($userPermissions->contains('can create tasks'))
+                    <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-outline-primary">
+                        Create Task
+                    </button>
+                @endif
+            </div>
             <div class="card-body">
                 <div class="row gy-3">
 
                     <div class="col-lg-12">
                         <label class="form-label" for="title">Project Title</label>
-                        <input readonly type="text" name="title" class="form-control" value="{{ $project->title }}">
+                        <input readonly type="text" name="title" class="form-control"
+                            value="{{ $project->title }}">
                     </div>
 
                     <div class="col-lg-12">
@@ -342,19 +350,32 @@
                         <th>Start Date</th>
                         <th>Due Date</th>
                         <th>Status</th>
+                        <th>ACTION</th>
                     </tr>
                 </thead>
                 <tbody id="taskList">
                     @foreach ($project->tasks as $task)
-                        <tr>
+                        <tr data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                            aria-controls="offcanvasRight" onclick="loadTaskDetails({{ $task->id }})">
                             <td>{{ $task->id }}</td>
-                            <td> <a href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-                                    aria-controls="offcanvasRight" onclick="loadTaskDetails({{ $task->id }})">
-                                    {{ $task->title }}</a></td>
+                            <td>{{ $task->title }}</td>
                             <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
                             <td>{{ $task->start_date }}</td>
                             <td>{{ $task->due_date }}</td>
                             <td>{{ $task->status }}</td>
+                            <td>
+                                <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                                    style="display: inline-block;"
+                                    onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="card-delete-button text-danger-600">
+                                        <iconify-icon icon="fluent:delete-24-regular"
+                                            class="icon text-lg line-height-1">
+                                        </iconify-icon>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -401,6 +422,33 @@
             </div>
         </div>
 
+        <!-- Modal -->
+        <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="taskCreateModalLabel">Create Task</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            @csrf
+                            @include('tasks.create', [
+                                'projectId' => $project->id,
+                                'departments' => $departments,
+                            ])
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
         <script>
             $(document).on("change", ".task-status", function() {
                 let taskId = $(this).attr("data-task-id");
@@ -442,6 +490,7 @@
                     success: function(response) {
                         $('#taskDetails').html(response);
                         loadTaskAttachments();
+                        loadComments()
                     },
                     error: function() {
                         $('#taskDetails').html('<p class="text-danger">Error fetching task details.</p>');
@@ -607,8 +656,9 @@
                 var deleteUrlTemplate = '{{ route('starting_kw_url.delete', ['id' => ':id']) }}';
 
                 function loadStartingKwUrls() {
+                    let taskId = $("input[name='task_id']").val();
                     $.ajax({
-                        url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => $task->id]) }}',
+                        url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => 'taskId']) }}',
                         type: "GET",
                         success: function(data) {
                             var tableBody = $("#startingKwUrlsTable");
@@ -660,7 +710,7 @@
 
                 $("#addOffsiteLinkForm").submit(function(event) {
                     event.preventDefault();
-
+                    let taskId = $("input[name='task_id']").val();
                     let offsite_task_id = $('#offsite_task_id').val()
 
                     let links = [];
@@ -698,8 +748,8 @@
                     var formData = {
                         _token: "{{ csrf_token() }}",
                         kw_url: JSON.stringify(links),
-                        task_id: "{{ $task->id }}",
-                        project_id: "{{ $task->project_id }}",
+                        task_id: taskId,
+                        project_id: "{{ $project->id }}",
                         offsite_task_id: offsite_task_id
                     };
 
@@ -799,6 +849,67 @@
                     toggleRepeatStatus(taskId, "enable-repeating");
                 });
             });
+
+            function loadComments() {
+        let taskId = $("input[name='task_id']").val();
+        $.get("{{ route('comments.index', ['task' => ':taskId']) }}".replace(':taskId', taskId), function(data) {
+            $('#comment-list').empty();
+            data.forEach(comment => {
+                $('#comment-list').append(
+                    `
+  <div class="py-16 px-24 border-bottom ${comment.user_id === {{ auth()->id() }} ? 'bg-primary-50' : ''}">
+    <div class="d-flex align-items-start gap-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" class="w-40-px h-40-px rounded-pill">
+        <div class="w-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <h6 class="mb-0 fs-6">${comment.user.name}</h6>
+                    ${comment.user_id === {{ auth()->id() }} ? `<span class="badge fs-7 bg-success-600 text-white text-xs">You</span>` : ''}
+                </div>
+                ${comment.user_id === {{ auth()->id() }} ? `
+                <button class="text-danger-600 delete-comment" data-id="${comment.id}">
+                    <iconify-icon icon="fluent:delete-24-regular" class="icon text-lg line-height-1"></iconify-icon>
+                </button>` : ''}
+            </div>
+            <div class="mt-10">
+                <p class="mb-0 text-primary-light">${comment.comment}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    `
+                );
+            });
+        });
+    }
+
+    $(document).on('click', '#add-comment', function() {
+        let taskId = $("input[name='task_id']").val();
+        let commentText = $('#comment-text').val();
+        $.post("{{ route('comments.store') }}", {
+            task_id: taskId,
+            comment: commentText,
+            _token: "{{ csrf_token() }}"
+        }, function() {
+            $('#comment-text').val('');
+            loadComments();
+        });
+    });
+
+    $(document).on('click', '.delete-comment', function() {
+        let commentId = $(this).data('id');
+        $.ajax({
+            url: "{{ route('comments.destroy', ['id' => ':id']) }}".replace(':id', commentId),
+            type: "DELETE",
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            success: function() {
+                loadComments();
+            }
+        });
+    });
         </script>
 
         {{-- TASKS --}}

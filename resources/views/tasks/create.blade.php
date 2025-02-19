@@ -20,25 +20,10 @@
             </select>
         </div>
 
-        <div class="col-lg-6">
-            <label class="form-label" for="type">Type</label>
-            <select class="form-control" id="type" name="type">
-                <option value="-" disabled selected>Select Type</option>
-                <option value="CONTENT">CONTENT</option>
-                <option value="ONSITE">ONSITE</option>
-                <option value="OFFSITE">OFFSITE</option>
-                <option value="DESIGN">DESIGN</option>
-                <option value="DEVELOPMENT">DEVELOPMENT</option>
-                <option value="AM">AM</option>
-                <option value="ADMIN">ADMIN</option>
-                <option value="SEO ADMIN">SEO ADMIN</option>
-                <option value="SALES">SALES</option>
-                <option value="ADHOC">ADHOC</option>
-            </select>
-        </div>
+        <input type="hidden" name="type" id="type">
 
         <div class="col-lg-6" id="subtype-container" style="display: none;">
-            <label class="form-label" for="sub_type">Sub Type</label>
+            <label class="form-label" for="sub_type">Type</label>
             <select class="form-control" id="sub_type" name="sub_type"></select>
         </div>
 
@@ -94,14 +79,18 @@
             <textarea class="form-control" name="description" id="" cols="30" rows="10"></textarea>
         </div>
 
-        <div class="col-lg-6">
-            <label class="form-label" for="project_id">Project</label>
-            <select class="form-control" id="project_id" name="project_id" required>
-                @foreach ($projects as $project)
-                    <option value="{{ $project->id }}">{{ $project->title }}</option>
-                @endforeach
-            </select>
-        </div>
+        @if (isset($projects) && $projects->count() > 0)
+            <div class="col-lg-6">
+                <label class="form-label" for="project_id">Project</label>
+                <select class="form-control" id="project_id" name="project_id" required>
+                    @foreach ($projects as $project)
+                        <option value="{{ $project->id }}">{{ $project->title }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @elseif (isset($projectId))
+            <input type="hidden" name="project_id" value="{{ $projectId }}">
+        @endif
 
         <div class="col-lg-6">
             <label class="form-label" for="priority">Priority</label>
@@ -128,10 +117,9 @@
 
         <!-- Repeat Task Checkbox -->
         <div class="form-group">
-            <label for="repeat_task">Repeat Task</label>
-            <select name="repeat_task" id="repeat_task">
-                <option selected value="0">In Not Repeated</option>
-                <option value="1">Is Repeated</option>
+            <select name="repeat_task" id="repeat_task" class="form-control">
+                <option selected value="0">Not a recurring task</option>
+                <option value="1">Recurring task</option>
             </select>
         </div>
 
@@ -149,9 +137,9 @@
         <script>
             $(document).ready(function() {
                 $('#repeat_task').change(function() {
-                    if($(this).val() == 1){
+                    if ($(this).val() == 1) {
                         $('#repeat_every_group').slideDown();
-                    }else{
+                    } else {
                         $('#repeat_every_group').slideUp();
                     }
                 });
@@ -192,29 +180,6 @@
                 "ADMIN": ["ADHOC"],
                 "SALES": ["ADHOC"]
             };
-            $(document).on('change', '#type', function() {
-                let selectedType = $(this).val();
-                $('#subtype-container').hide();
-                $('#sub_type').empty();
-                $('#extra-fields').hide();
-                $('.content-fields, .onsite-fields, .offsite-fields, .design-fields, .development-fields, .revision-fields, .adhoc-fields')
-                    .hide();
-                $('#title').val(selectedType);
-                if (selectedType === "ADHOC") {
-                    $('.task-title-wrapper').slideDown();
-                    $('#taskCreateModalLabel').text("ADHOC TASK");
-                } else {
-                    $('.task-title-wrapper').slideUp();
-                    $('#taskCreateModalLabel').text(`${selectedType} TASK`);
-                }
-                if (subTypeOptions[selectedType]) {
-                    $('#subtype-container').slideDown();
-                    $('#sub_type').append('<option value="-" disabled selected>Select Sub Type</option>');
-                    subTypeOptions[selectedType].forEach(subType => {
-                        $('#sub_type').append(`<option value="${subType}">${subType}</option>`);
-                    });
-                }
-            });
             $(document).on('change', '#sub_type', function() {
                 let selectedSubType = $(this).val();
                 var TitleValue = $('#title').val();
@@ -283,6 +248,38 @@
             $('#department_id').change(function() {
                 let departmentName = $("#department_id option:selected").text();
                 if (departmentName) {
+                    $('#title').val(departmentName);
+                    if (['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'SEO ADMIN', 'ADMIN', 'SALES',
+                            'ADHOC'
+                        ].includes(departmentName)) {
+                        $('#type').val(departmentName);
+                        $('.task-title-wrapper').slideUp();
+                        $('#taskCreateModalLabel').text(`${departmentName} TASK`);
+                        $('#sub_type').empty();
+                    } else {
+                        $('#subtype-container').slideDown();
+                        $('#title').val(departmentName + " - ADHOC TASK");
+                        $('#type').val("ADHOC");
+                        $('.task-title-wrapper').slideDown();
+                        $('#sub_type').empty();
+                        $('#sub_type').append('<option value="ADHOC" selected>ADHOC</option>');
+                        $('#taskCreateModalLabel').text("ADHOC TASK");
+                    }
+
+                    // $('#subtype-container').hide();
+                    // $('#sub_type').empty();
+                    $('#extra-fields').hide();
+                    $('.content-fields, .onsite-fields, .offsite-fields, .design-fields, .development-fields, .revision-fields, .adhoc-fields')
+                        .hide();
+
+                    if (subTypeOptions[departmentName]) {
+                        $('#subtype-container').slideDown();
+                        $('#sub_type').append('<option value="-" disabled selected>Select Sub Type</option>');
+                        subTypeOptions[departmentName].forEach(subType => {
+                            $('#sub_type').append(`<option value="${subType}">${subType}</option>`);
+                        });
+                    }
+                    // TYPE WORK
                     $.ajax({
                         url: "{{ route('users.by.department', '') }}/" + encodeURIComponent(departmentName),
                         type: "GET",

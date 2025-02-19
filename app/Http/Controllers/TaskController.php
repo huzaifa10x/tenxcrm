@@ -241,7 +241,8 @@ class TaskController extends Controller
                 ]);
             }
 
-            return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
+            // return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
+            return redirect()->back()->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -297,7 +298,7 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         $task->delete();
-        return redirect()->route('tasks.board.index')->with('success', 'Task deleted successfully!');
+        return redirect()->back()->with('success', 'Task deleted successfully!');
     }
 
     public function addAttachment(Request $request, Task $task)
@@ -315,7 +316,6 @@ class TaskController extends Controller
             'file_path' => $filePath,
         ]);
 
-        // Return the attachment data
         return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task Attachment Added!');
     }
     public function removeAttachment(Task $task, TaskAttachment $attachment)

@@ -16,11 +16,11 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Project Type</th>
+                            <th>Title</th>
                             <th>Company</th>
-                            <th>Project Status</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Started at</th>
                             <th>Created By</th>
                             <th>Actions</th>
                         </tr>
@@ -29,10 +29,9 @@
                         @foreach ($projects as $project)
                             <tr>
                                 <td>{{ $project->id }}</td>
-                                <td>{{ $project->category }}</td>
-                                <td>{{ $project->status }}</td>
-                                <td>{{ $project->project_type }}</td>
+                                <td>{{ $project->title }}</td>
                                 <td>{{ $project->companies->name }}</td>
+                                <td>{{ $project->project_type }}</td>
                                 <td>
                                     @if ($userPermissions->contains('can update project status'))
                                         <select class="form-control project-status" data-project-id="{{ $project->id }}"
@@ -45,7 +44,8 @@
                                             <option value="Paused" {{ $project->status == 'Paused' ? 'selected' : '' }}>
                                                 Paused
                                             </option>
-                                            <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>WFF
+                                            <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>
+                                                WFF
                                             </option>
                                             <option value="Expired"
                                                 {{ $project->status == 'Expired' ? 'selected' : '' }}>
@@ -68,6 +68,7 @@
                                         {{ $project->status }}
                                     @endif
                                 </td>
+                                <td>{{ $project->contract_start_date }}</td>
                                 <td>
                                     {{ $project->createdBy->name }}
                                 </td>
