@@ -15,7 +15,7 @@ return new class extends Migration
             $table->enum('category', ['PLATINUM', 'GOLD', 'SILVER']);
             $table->foreignId('industry_id')->constrained('industries')->onDelete('cascade');
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
-            $table->enum('status', ['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled','Completed']);
+            $table->enum('status', ['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed']);
             $table->date('contract_start_date');
             $table->integer('contract_term');
             $table->float('contract_value');
@@ -47,11 +47,31 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
-
+        Schema::create('project_seo_tech', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
+        });
+        Schema::create('project_content_writer', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
+        });
+        Schema::create('project_seo_admin', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     public function down()
     {
+        Schema::dropIfExists('project_seo_tech');
+        Schema::dropIfExists('project_content_writers');
+        Schema::dropIfExists('project_seo_admins');
         Schema::dropIfExists('starting_kw_url');
         Schema::dropIfExists('completion_kw_url');
         Schema::dropIfExists('tasks');

@@ -58,6 +58,31 @@
                             </ul>
                         </div>
 
+                        <div class="col-lg-4">
+                            <label class="form-label" for="tech_manager_ids">Seo Admin</label>
+                            <ul>
+                                @foreach ($project->seoAdmins as $seoAdmin)
+                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $seoAdmin->name }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="form-label" for="tech_manager_ids">Seo Tech</label>
+                            <ul>
+                                @foreach ($project->seoTechs as $seoTech)
+                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $seoTech->name }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="form-label" for="tech_manager_ids">Content Writers</label>
+                            <ul>
+                                @foreach ($project->contentWriters as $contentWriter)
+                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $contentWriter->name }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+
                     </div>
 
                     <div class="col-lg-6">

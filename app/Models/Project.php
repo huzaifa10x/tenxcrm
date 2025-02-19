@@ -78,4 +78,19 @@ class Project extends Model
     {
         return $this->hasMany(Task::class, 'project_id', 'id');
     }
+
+    public function seoTechs()
+    {
+        return $this->belongsToMany(User::class, 'project_tech_manager');
+    }
+
+    public function seoAdmins()
+    {
+        return $this->belongsToMany(User::class, 'project_seo_admin');
+    }
+
+    public function contentWriters()
+    {
+        return $this->belongsToMany(User::class, 'project_content_writer');
+    }
 }

@@ -44,7 +44,7 @@
                                 <label class="form-label" for="account_manager_ids">Account Managers</label>
                                 <select class="form-control w-100" name="account_manager_ids[]" id="account_manager_ids"
                                     multiple>
-                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('ACCOUNT MANAGER')) as $user)
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('AM')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
                                 </select>
@@ -55,6 +55,33 @@
                                 <select class="form-control w-100" name="tech_manager_ids[]" id="tech_manager_ids"
                                     multiple>
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('TECH MANAGER')) as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label" for="seo_tech_ids">Seo Tech</label>
+                                <select class="form-control w-100" name="seo_tech_ids[]" id="seo_tech_ids"
+                                    multiple>
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('ONSITE')) as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label" for="seo_admin_ids">Seo Admin</label>
+                                <select class="form-control w-100" name="seo_admin_ids[]" id="seo_admin_ids"
+                                    multiple>
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SEO ADMIN')) as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label" for="content_writers_ids">Content Writer</label>
+                                <select class="form-control w-100" name="content_writers_ids[]" id="content_writers_ids"
+                                    multiple>
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('CONTENT')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
                                 </select>
@@ -208,6 +235,24 @@
                 });
                 $('#tech_manager_ids').select2({
                     placeholder: 'Select Tech Managers',
+                    allowClear: true,
+                    width: '100%', // Full width
+                    closeOnSelect: false // Prevent closing on select
+                });
+                $('#seo_tech_ids').select2({
+                    placeholder: 'Select Seo Tech',
+                    allowClear: true,
+                    width: '100%', // Full width
+                    closeOnSelect: false // Prevent closing on select
+                });
+                $('#seo_admin_ids').select2({
+                    placeholder: 'Select Seo Admin',
+                    allowClear: true,
+                    width: '100%', // Full width
+                    closeOnSelect: false // Prevent closing on select
+                });
+                $('#content_writers_ids').select2({
+                    placeholder: 'Select content Writers',
                     allowClear: true,
                     width: '100%', // Full width
                     closeOnSelect: false // Prevent closing on select

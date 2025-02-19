@@ -92,6 +92,9 @@ class ProjectController extends Controller
         $project->salesManagers()->sync($request->sales_manager_ids);
         $project->accountManagers()->sync($request->account_manager_ids);
         $project->techManagers()->sync($request->tech_manager_ids);
+        $project->seoTechs()->sync($request->seo_tech_ids);
+        $project->seoAdmins()->sync($request->seo_admin_ids);
+        $project->contentWriters()->sync($request->content_writers_ids);
 
         if ($request->hasFile('contract_copy')) {
             foreach ($request->file('contract_copy') as $file) {
