@@ -48,11 +48,11 @@ class RolePermissionSeeder extends Seeder
             'DESIGN',
             'DEVELOPMENT',
             'SEO ADMIN',
+            'SEO TECH',
             'SALES',
             'TECH MANAGER',
             'AM',
             'SALES MANAGER',
-            'SOCIAL MEDIA MANAGER',
             'FINANCE',
             'SOCIAL MEDIA MANAGER'
         ];

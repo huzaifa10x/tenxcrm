@@ -117,6 +117,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/task/comments', [TaskCommentController::class, 'store'])->name('comments.store');
     Route::put('/task/comments/{id}', [TaskCommentController::class, 'update'])->name('comments.update');
     Route::delete('/task/comments/{id}', [TaskCommentController::class, 'destroy'])->name('comments.destroy');
+    Route::patch('/tasks/{id}/complete', [TaskController::class, 'markAsCompleted'])->name('task.markAsCompleted');
     
 });
 -require __DIR__ . '/auth.php';

@@ -11,7 +11,18 @@
             @endif
         @endif
     </div>
-    <button type="button" class="btn-sm fs-7 btn btn-neutral-900">Complete Task</button>
+    @if (!$task->status == 'Completed')
+        <form id="task-complete-form-{{ $task->id }}" action="{{ route('task.markAsCompleted', $task->id) }}"
+            method="POST" style="display: inline-block;">
+            @csrf
+            @method('PATCH')
+            <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn"
+                data-task-id="{{ $task->id }}">Complete Task</button>
+        </form>
+    @else
+        <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn" disabled>Completed</button>
+    @endif
+
 </div>
 
 <div class="card">
@@ -534,6 +545,38 @@
         $(document).on('click', '.enable-repeating', function() {
             let taskId = $(this).data('task-id');
             toggleRepeatStatus(taskId, "enable-repeating");
+        });
+    });
+</script>
+<script>
+    $('.complete-task-btn').on('click', function() {
+        let button = $(this);
+        let taskId = button.data('task-id');
+        let form = $(`#task-complete-form-${taskId}`);
+        let url = form.attr('action');
+
+        if (!confirm('Are you sure you want to complete this task?')) return;
+
+        $.ajax({
+            url: url,
+            type: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    button.text("Completed")
+                        .removeClass("btn-neutral-900")
+                        .addClass("btn-success")
+                        .prop("disabled", true);
+                } else {
+                    alert(response.message || "Something went wrong!");
+                }
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr);
+                alert("Something went wrong!");
+            }
         });
     });
 </script>

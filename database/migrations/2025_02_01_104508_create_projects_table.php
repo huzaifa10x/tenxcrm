@@ -69,15 +69,40 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('project_seo_tech');
-        Schema::dropIfExists('project_content_writers');
-        Schema::dropIfExists('project_seo_admins');
         Schema::dropIfExists('starting_kw_url');
         Schema::dropIfExists('completion_kw_url');
+        Schema::dropIfExists('task_histories');
+        Schema::dropIfExists('task_comments');
+        Schema::dropIfExists('repeating_tasks');
+        Schema::dropIfExists('seo_admin_tasks');
+        Schema::dropIfExists('task_histories');
+        Schema::dropIfExists('task_comments');
+        Schema::dropIfExists('seo_admin_tasks');
+        Schema::dropIfExists('admin_tasks');
+        Schema::dropIfExists('sales_tasks');
+        Schema::dropIfExists('am_tasks');
+        Schema::dropIfExists('offsite_tasks');
+        Schema::dropIfExists('development_tasks');
+        Schema::dropIfExists('design_tasks');
+        Schema::dropIfExists('content_tasks');
+        Schema::dropIfExists('onsite_tasks');
+        Schema::dropIfExists('task_attachments');
+        Schema::dropIfExists('task_completion_logs');
         Schema::dropIfExists('tasks');
         Schema::dropIfExists('project_sales_manager');
         Schema::dropIfExists('project_account_manager');
         Schema::dropIfExists('project_tech_manager');
+        Schema::dropIfExists('project_sales_manager');
+        Schema::dropIfExists('project_account_manager');
+        Schema::dropIfExists('project_tech_manager');
+        Schema::dropIfExists('project_seo_tech');
+        Schema::dropIfExists('project_content_writer');
+        Schema::dropIfExists('project_seo_admin');
+        Schema::dropIfExists('project_seo_techs');
+        Schema::dropIfExists('seo_projects');
+        Schema::dropIfExists('social_media_projects');
+        Schema::dropIfExists('web_dev_projects');
+        Schema::dropIfExists('project_contract_files');
         Schema::dropIfExists('projects');
     }
 };

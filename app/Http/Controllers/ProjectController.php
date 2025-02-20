@@ -124,6 +124,34 @@ class ProjectController extends Controller
                 ], 422);
             }
             SeoProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
+
+            $initialTasks = [
+                'Handover Meet with The Sales Manager',
+                'Intro Call',
+                'First Client Meeting',
+                'Onboarding Email',
+                'Upload the Content Intake Form',
+                'Upload the Local Listing Form',
+                'Add the Client Credentials',
+                'Connect the GA, GSC, GTM, and GMB'
+            ];
+
+            foreach ($initialTasks as $taskTitle) {
+                Task::create([
+                    'title' => $taskTitle,
+                    'description' => null,
+                    'project_id' => $project->id,
+                    'department_id' => null,
+                    'created_by' => auth()->id(),
+                    'assigned_to' => $request->account_manager_ids[0],
+                    'priority' => 'Medium',
+                    'type' => 'SEO ADMIN',
+                    'status' => 'Todo',
+                    'due_date' => Carbon::now()->addDays(7),
+                    'start_date' => Carbon::now(),
+                    'repeat_task' => false,
+                ]);
+            }
         } elseif ($request->project_type == 'Social Media') {
             $validator = Validator::make($request->all(), [
                 'channels' => 'nullable|array',

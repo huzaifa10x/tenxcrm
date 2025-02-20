@@ -63,7 +63,7 @@
                                 <label class="form-label" for="seo_tech_ids">Seo Tech</label>
                                 <select class="form-control w-100" name="seo_tech_ids[]" id="seo_tech_ids"
                                     multiple>
-                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('ONSITE')) as $user)
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SEO TECH')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
                                 </select>

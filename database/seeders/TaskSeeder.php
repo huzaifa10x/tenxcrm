@@ -13,7 +13,7 @@ class TaskSeeder extends Seeder
 {
     public function run()
     {
-        $users = User::all();
+        $users = User::take(3)->get();
         foreach ($users as $user) {
             Task::create([
                 'project_id' => 1,

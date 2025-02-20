@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use SeoTaskSeeder;
 
 class DatabaseSeeder extends Seeder
 {

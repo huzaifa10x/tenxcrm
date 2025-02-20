@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TaskCompleted;
+use App\Jobs\CreateDelayedTask;
 use App\Jobs\CreateRecurringTaskJob;
 use App\Models\AdminTask;
 use App\Models\AmTask;
@@ -31,19 +33,7 @@ class TaskController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
-
-        if ($user->hasPermission('can view all tasks')) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->get();
-        } elseif ($user->hasPermission('can view own tasks')) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
-                ->where('assigned_to', $user->id)
-                ->get();
-        } else {
-            $tasks = collect();
-        }
-
-        return view('tasks.board', compact('tasks'));
+        return redirect()->route('tasks.board.index');
     }
 
     public function boardView()
@@ -401,5 +391,121 @@ class TaskController extends Controller
             'success' => true,
             'message' => 'Task repeating has been enabled.'
         ]);
+    }
+    public function markAsCompleted($id)
+    {
+        $task = Task::findOrFail($id);
+        $project = $task->project;
+
+        $task->update(['status' => 'Completed', 'completed_date' => now()]);
+        $accountManager = $project->accountManagers[0]->id;
+        $seoTech = $project->seoTechs[0]->id ?? null;
+        $seoAdmin = $project->seoAdmins[0]->id ?? null;
+        $contentWriter = $project->contentWriters[0]->id ?? null;
+
+        $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
+
+        switch ($task->title) {
+            case 'First Client Meeting':
+                Task::insert([
+                    [
+                        'created_by' => 1,
+                        'project_id' => $project->id,
+                        'title' => 'Keywords Approval',
+                        'assigned_to' => $accountManager,
+                        'status' => 'Todo',
+                        'start_date' => $dubaiTime,
+                        'type' => 'ADHOC',
+                        'description' => 'system generated task'
+                    ],
+                ]);
+                break;
+
+            case 'Keywords Approval':
+                Task::insert([
+                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Create the Project on SE Ranking', 'assigned_to' => $seoTech, 'status' => 'Todo'],
+                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Send SEO Benchmark Report to client', 'assigned_to' => $accountManager, 'status' => 'Todo'],
+                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'First On-site', 'assigned_to' => $seoTech, 'status' => 'Todo'],
+                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Add KW Mapping', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'On-site Audit (from SE ranking)', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Content Audit', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Backlink Audit & DISAVOW', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                ]);
+
+                Task::where('project_id', $project->id)->update([
+                    'start_date' => $dubaiTime,
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
+                break;
+
+            case 'Content Audit':
+                Task::create([
+                    'created_by' => 1,
+                    'project_id' => $project->id,
+                    'title' => 'SEO Content Request',
+                    'description' => 'SEO Content Request ( CONTENT AUDIT+ KW MAPPING +CONTENT INTAKE FORM)',
+                    'assigned_to' => $contentWriter,
+                    'status' => 'Todo',
+                    'start_date' => $dubaiTime,
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
+                break;
+
+            case 'SEO Content Request':
+                Task::create([
+                    'created_by' => 1,
+                    'project_id' => $project->id,
+                    'title' => 'PUBLISH CONTENT',
+                    'assigned_to' => $accountManager,
+                    'status' => 'Todo',
+                    'start_date' => $dubaiTime,
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
+                break;
+
+            case 'First On-site':
+                $task = Task::create([
+                    'created_by' => 1,
+                    'project_id' => $project->id,
+                    'title' => 'Schedule R1',
+                    'assigned_to' => $seoAdmin,
+                    'status' => 'Todo',
+                    'start_date' => $dubaiTime,
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
+
+                CreateDelayedTask::dispatch($project->id, 'Schedule R2', $seoAdmin)
+                    ->delay($dubaiTime->addDays(30));
+                CreateDelayedTask::dispatch($project->id, 'Schedule R3', $seoAdmin)
+                    ->delay($dubaiTime->addDays(60));
+                break;
+
+            case 'Create the Project on SE Ranking':
+                Task::create([
+                    'created_by' => 1,
+                    'project_id' => $project->id,
+                    'title' => 'Request Local Listing',
+                    'assigned_to' => $seoAdmin,
+                    'status' => 'Todo',
+                    'start_date' => $dubaiTime,
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
+                break;
+
+            case 'Intro Call':
+                CreateDelayedTask::dispatch($project->id, 'Request Backlinks', $seoAdmin)
+                    ->delay($dubaiTime->addDays(30));
+                break;
+
+            default:
+                break;
+        }
+
+        return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
     }
 }

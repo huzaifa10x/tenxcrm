@@ -9,6 +9,7 @@ use App\Models\DesignTask;
 use App\Models\DevelopmentTask;
 use App\Models\OffsiteTask;
 use App\Models\OnsiteTask;
+use App\Models\Project;
 use Illuminate\Console\Command;
 use App\Models\RepeatingTask;
 use App\Models\SalesTask;
@@ -29,6 +30,7 @@ class ProcessRepeatingTasks extends Command
         // Get all repeating tasks that need to be processed
         $repeatingTasks = RepeatingTask::where('next_run_at', '<=', now())->get();
         $now = Carbon::now('Asia/Dubai');  // Set current time in Asia/Dubai timezone
+        $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
 
         foreach ($repeatingTasks as $repeatingTask) {
             // Set the next due date based on the repeating task's due date
@@ -51,7 +53,7 @@ class ProcessRepeatingTasks extends Command
                 'due_date' => $nextDueDate,
                 'start_date' => $nextStartDate,
                 'repeat_task' => 0,
-                'parent_task_id' => $repeatingTask->task->id,  // Associate with the parent task
+                'parent_task_id' => $repeatingTask->task->id,
             ]);
 
             if ($repeatingTask->task->attachments()->exists()) {
@@ -67,6 +69,55 @@ class ProcessRepeatingTasks extends Command
 
             $repeatingTask->next_run_at = now()->addHours($repeatingTask->repeat_every);  // Set the next time for this task to repeat
             $repeatingTask->save();
+        }
+
+        if ($now->day == 1) {
+            $projects = Project::where("project_type", "SEO")->get();
+
+            foreach ($projects as $project) {
+                $accountManager = $project->accountManagers[0]->id;
+
+                $expiryDate = Carbon::parse($project->contract_start_date)->addMonths($project->contract_term);
+
+                $reminderDates = [
+                    '1 Month Before Expiry' => $expiryDate->copy()->subMonth(),
+                    '15 Days Before Expiry' => $expiryDate->copy()->subDays(15),
+                    'Day of Expiry' => $expiryDate
+                ];
+
+                foreach ($reminderDates as $title => $date) {
+                    if ($date->isToday()) {
+                        Task::create([
+                            'project_id' => $project->id,
+                            'title' => "Renewal Reminder - $title",
+                            'assigned_to' => $accountManager,
+                            'status' => 'Todo',
+                            'due_date' => $date,
+                            'created_by' => 1,
+                            'start_date' => $dubaiTime,
+                        ]);
+                    }
+                }
+
+                Task::insert([
+                    [
+                        'project_id' => $project->id,
+                        'title' => 'Performance Report',
+                        'assigned_to' => $accountManager,
+                        'status' => 'Todo',
+                        'created_by' => 1,
+                        'start_date' => $dubaiTime,
+                    ],
+                    [
+                        'project_id' => $project->id,
+                        'title' => 'Campaign Meeting (Deep-dive) with Tech',
+                        'assigned_to' => $accountManager,
+                        'status' => 'Todo',
+                        'created_by' => 1,
+                        'start_date' => $dubaiTime,
+                    ],
+                ]);
+            }
         }
 
         $this->info('Repeating tasks processed successfully.');

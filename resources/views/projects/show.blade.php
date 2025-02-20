@@ -378,7 +378,7 @@
                         <th>ACTION</th>
                     </tr>
                 </thead>
-                <tbody id="taskList">
+                <tbody>
                     @foreach ($project->tasks as $task)
                         <tr data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                             aria-controls="offcanvasRight" onclick="loadTaskDetails({{ $task->id }})">
