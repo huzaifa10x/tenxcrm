@@ -69,6 +69,8 @@ return new class extends Migration
 
     public function down()
     {
+        Schema::dropIfExists('project_keywords');
+        Schema::dropIfExists('client_credentials');
         Schema::dropIfExists('starting_kw_url');
         Schema::dropIfExists('completion_kw_url');
         Schema::dropIfExists('task_histories');

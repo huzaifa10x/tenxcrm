@@ -26,6 +26,7 @@ return new class extends Migration
             $table->dateTime('start_date')->nullable();
             $table->date('completed_date')->nullable();
             $table->boolean('repeat_task')->default(false);
+            $table->boolean('is_automated')->default(false);
             $table->foreignId('parent_task_id')->nullable()->constrained('tasks')->onDelete('cascade');
             $table->timestamps();
         });
@@ -35,6 +36,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('task_histories');
         Schema::dropIfExists('task_comments');
+        Schema::dropIfExists('task_completions');
         Schema::dropIfExists('seo_admin_tasks');
         Schema::dropIfExists('admin_tasks');
         Schema::dropIfExists('sales_tasks');

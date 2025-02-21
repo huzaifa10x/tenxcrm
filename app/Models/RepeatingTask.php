@@ -10,9 +10,11 @@ class RepeatingTask extends Model
     use HasFactory;
 
     protected $fillable = [
-        'task_id', 
-        'repeat_every', 
+        'task_id',
+        'repeat_every',
         'next_run_at',
+        'repeat_count',
+        'completed_repeats'
     ];
 
     /**

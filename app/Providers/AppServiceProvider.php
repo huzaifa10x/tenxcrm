@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Middleware\CheckPermission;
+use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
@@ -36,7 +37,12 @@ class AppServiceProvider extends ServiceProvider
         if (App::runningInConsole()) {
             $this->app->resolving(Schedule::class, function (Schedule $schedule) {
                 $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
+                $schedule->command('assign:monthly-tasks')->monthlyOn(1, '00:00');
+                $schedule->command('tasks:contract-renewal')->everyMinute()->withoutOverlapping();
             });
         }
+        Carbon::setTestNow(Carbon::now());
+        // Carbon::setTestNow(Carbon::now()->startOfMonth());
+        // Carbon::setTestNow(Carbon::now()->addDays(30));
     }
 }

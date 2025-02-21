@@ -1,8 +1,214 @@
+{{-- COMPLETION FORM --}}
+<form id="taskForm" enctype="multipart/form-data">
+    @csrf
+    <input type="hidden" name="task_id" value="{{ $task->id }}">
+
+    @if ($task->title === 'Handover Meet with The Sales Manager')
+        <input type="hidden" name="fields[0][name]" value="handover_meeting">
+        <label class="form-label" for="handover_meeting">Have you done Handover Meet with The Sales Manager</label>
+        <input id="handover_meeting" class="form-check-input" type="checkbox" required name="fields[0][value]">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title === 'Connect the GA, GSC, GTM, and GMB')
+        <span class="d-block fw-bold">Connect the GA, GSC, GTM, and GMB</span>
+
+        <label for="GA" form="label">GA</label>
+        <input type="hidden" name="fields[0][name]" value="GA">
+        <input type="checkbox" id="GA" class="form-check-input" required name="fields[0][value]">
+        <label for="GSC" form="label">GSC</label>
+        <input type="hidden" name="fields[1][name]" value="GSC">
+        <input type="checkbox" id="GSC" class="form-check-input" required name="fields[1][value]">
+        <label for="GTM" form="label">GTM</label>
+        <input type="hidden" name="fields[2][name]" value="GTM">
+        <input type="checkbox" id="GTM" class="form-check-input" required name="fields[2][value]">
+        <label for="GMB" form="label">GMB</label>
+        <input type="hidden" name="fields[3][name]" value="GMB">
+        <input type="checkbox" id="GMB" class="form-check-input" required name="fields[3][value]">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title === 'Keywords Approval')
+        <span class="d-block fw-bold">Keywords Approval</span>
+
+        <label for="seo_admin_approval" form="label">SEO ADMIN APPROVAL</label>
+        <input type="hidden" name="fields[0][name]" value="seo_admin_approval">
+        <input type="checkbox" class="form-check-input" id="seo_admin_approval" required name="fields[0][value]">
+
+        <label for="client_approval" form="label">CLIENT APPROVAL</label>
+        <input type="hidden" name="fields[1][name]" value="client_approval">
+        <input type="checkbox" class="form-check-input" id="client_approval" required name="fields[1][value]">
+
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title === 'Intro Call')
+        <input type="hidden" name="fields[0][name]" value="intro_call">
+        <label class="form-label" for="intro_call">Have you done Intro Call</label>
+        <input id="intro_call" class="form-check-input" type="checkbox" required name="fields[0][value]">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title === 'Onboarding Email')
+        <input type="hidden" name="fields[0][name]" value="onboarding_email">
+        <label class="form-label" for="onboarding_email">Have you done Onboarding Email</label>
+        <input id="onboarding_email" class="form-check-input" type="checkbox" required name="fields[0][value]">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title === 'Send SEO Benchmark Report to client')
+        <input type="hidden" name="fields[0][name]" value="benchmark_report_to_client">
+        <label class="form-label" for="benchmark_report_to_client">Have you set benchmark report to client</label>
+        <input id="benchmark_report_to_client" class="form-check-input" type="checkbox" required
+            name="fields[0][value]">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'First Client Meeting')
+        <label class="form-label">Location</label>
+        <input type="text" name="fields[0][name]" value="location" hidden>
+        <select name="fields[0][value]">
+            <option value="Zoom">Zoom</option>
+            <option value="10X Office">10X Office</option>
+            <option value="Client Office">Client Office</option>
+        </select>
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'Upload the Content Intake Form')
+        <label class="form-label">Upload the Content Intake Form</label>
+        <input type="text" name="fields[0][name]" value="content_intake_form" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'Upload the Local Listing Form')
+        <label class="form-label">Upload the Local Listing Form</label>
+        <input type="text" name="fields[0][name]" value="local_listing_form" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'On-site Audit (from SE ranking)')
+        <label class="form-label">On-site Audit (from SE ranking)</label>
+        <input type="text" name="fields[0][name]" value="onsite_from_se_ranking" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'PUBLISH CONTENT')
+        <label class="form-label" for="publish_content">Have you published content</label>
+        <input type="hidden" name="fields[0][name]" value="publish_content">
+        <input id="publish_content" class="form-check-input" type="checkbox" required name="fields[0][value]">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'Backlink Audit & DISAVOW')
+        <label class="form-label">Document of Backlink Audit & DISAVOW</label>
+        <input type="text" name="fields[0][name]" value="backlink_audit_and_disavow" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'SEO Content Request')
+        <label class="form-label">Upload SEO Content Request Document</label>
+        <input type="text" name="fields[0][name]" value="seo_content_request_document" hidden>
+        <input type="file" name="file">
+
+        <label class="form-label" for="content_completion_word_count">content completion word count</label>
+        <input type="hidden" name="fields[1][name]" value="content_completion_word_count">
+        <input id="content_completion_word_count" class="form-control" type="number" required
+            name="fields[1][value]">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'Content Audit')
+        <label class="form-label">Content Audit</label>
+        <input type="text" name="fields[0][name]" value="content_audit" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'First On-site')
+        <label class="form-label">First On-site Report</label>
+        <input type="text" name="fields[0][name]" value="first_onsite_report" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'Request Local Listing')
+        <label class="form-label">Upload Request Local Listing Doc</label>
+        <input type="text" name="fields[0][name]" value="request_local_listing" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'Create the Project on SE Ranking')
+        <label class="form-label">Attach Benchmark Report</label>
+        <input type="text" name="fields[0][name]" value="benchmark_report" hidden>
+        <input type="file" name="file">
+        <button type="submit">Submit</button>
+    @endif
+
+    @if ($task->title == 'Performance Report')
+        <label class="form-label">Performance</label>
+        <input type="text" name="fields[0][name]" value="Performance" hidden>
+        <select name="fields[0][value]">
+            <option value="Excellent">Excellent</option>
+            <option value="Needs Improvement">Needs Improvement</option>
+            <option value="Unsatisfactory">Unsatisfactory</option>
+        </select>
+        <button type="submit">Submit</button>
+    @endif
+
+</form>
+
+@if (
+    $task->title == 'Add KW Mapping' ||
+        $task->title == 'Schedule R1' ||
+        $task->title == 'Schedule R2' ||
+        $task->title == 'Schedule R3' ||
+        $task->title == 'Request Backlinks')
+    <form id="keywordForm">
+        @csrf
+        <div id="keywordFields">
+            <div class="keyword-group">
+                <input type="text" name="keywords[0][keyword]" placeholder="Keyword" required>
+                <input type="text" name="keywords[0][url]" placeholder="URL" required>
+                <button type="button" class="remove-btn">Remove</button>
+            </div>
+        </div>
+        <button type="button" id="addKeyword">Add More</button>
+        <button type="submit">Save Keywords</button>
+    </form>
+@endif
+
+@if ($task->title == 'Add the Client Credentials')
+    <form id="clientCredentialsForm">
+        @csrf
+        <input type="hidden" name="project_id" value="{{ $task->project_id }}">
+        <div id="credentialsContainer">
+            <div class="credentialRow">
+                <input type="url" name="credentials[0][url]" placeholder="Website URL" required>
+                <input type="text" name="credentials[0][username]" placeholder="Username/Email" required>
+                <input type="password" name="credentials[0][password]" placeholder="Password" required>
+                <button type="button" class="removeCredential">Remove</button>
+            </div>
+        </div>
+        <button type="button" id="addCredential">Add More</button>
+        <button type="submit">Submit</button>
+    </form>
+@endif
+
+<div id="responseMessage"></div>
+
+{{-- COMPLETION FORM --}}
 <div class="d-flex w-100 justify-content-between align-items-center mb-10">
     <div>
         @if ($userPermissions->contains('can create tasks'))
             @if ($task->repeatingTask && $task->repeat_task)
-                <button class="btn btn-sm fs-7 btn-danger disable-repeating" data-task-id="{{ $task->id }}">Disable
+                <button class="btn btn-sm fs-7 btn-danger disable-repeating"
+                    data-task-id="{{ $task->id }}">Disable
                     Repeat</button>
             @endif
             @if ($task->repeatingTask && !$task->repeat_task)
@@ -11,7 +217,9 @@
             @endif
         @endif
     </div>
-    @if (!$task->status == 'Completed')
+    @if ($task->status === 'Completed')
+        <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn" disabled>Completed</button>
+    @else
         <form id="task-complete-form-{{ $task->id }}" action="{{ route('task.markAsCompleted', $task->id) }}"
             method="POST" style="display: inline-block;">
             @csrf
@@ -19,8 +227,6 @@
             <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn"
                 data-task-id="{{ $task->id }}">Complete Task</button>
         </form>
-    @else
-        <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn" disabled>Completed</button>
     @endif
 
 </div>
@@ -30,9 +236,14 @@
         <div class="row gy-3">
             <div class="col-lg-12">
                 <label class="form-label" for="title">Title</label>
-                <input type="text"
-                    class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    id="title" name="title" value="{{ $task->title }}" required>
+                @if ($task->is_automated)
+                    <input type="text" class="form-control" id="title" name="title" readonly
+                        value="{{ $task->title }}" required>
+                @else
+                    <input type="text"
+                        class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                        id="title" name="title" value="{{ $task->title }}" required>
+                @endif
             </div>
             <div class="col-lg-12">
                 <label class="form-label" for="description">Description</label>
@@ -577,6 +788,111 @@
                 console.error('Error:', xhr);
                 alert("Something went wrong!");
             }
+        });
+    });
+    $(document).ready(function() {
+        $("#taskForm").submit(function(e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+
+            $.ajax({
+                url: "{{ route('tasks.complete') }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $("#responseMessage").html("<p style='color:green;'>" + response
+                        .message + "</p>");
+                },
+                error: function(xhr) {
+                    $("#responseMessage").html("<p style='color:red;'>Error: " + xhr
+                        .responseText + "</p>");
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        let credentialIndex = 1;
+
+        // Add more credentials
+        $("#addCredential").click(function() {
+            $("#credentialsContainer").append(`
+                <div class="credentialRow">
+                    <input type="url" name="credentials[${credentialIndex}][url]" placeholder="Website URL" required>
+                    <input type="text" name="credentials[${credentialIndex}][username]" placeholder="Username/Email" required>
+                    <input type="password" name="credentials[${credentialIndex}][password]" placeholder="Password" required>
+                    <button type="button" class="removeCredential">Remove</button>
+                </div>
+            `);
+            credentialIndex++;
+        });
+
+        // Remove credential row
+        $(document).on("click", ".removeCredential", function() {
+            $(this).closest(".credentialRow").remove();
+        });
+
+        // Submit form via AJAX
+        $("#clientCredentialsForm").submit(function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            $.ajax({
+                url: "{{ route('projects.storeClientCredentials', $task->project_id) }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+
+        });
+    });
+    $(document).ready(function() {
+        $("#keywordForm").submit(function(e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+            formData.append("task_id", "{{ $task->id }}");
+
+            $.ajax({
+                url: "{{ route('projects.storeKeywords', $task->project->id) }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+    });
+    $(document).ready(function() {
+        let index = 1;
+
+        $("#addKeyword").click(function() {
+            $("#keywordFields").append(`
+        <div class="keyword-group">
+            <input type="text" name="keywords[${index}][keyword]" placeholder="Keyword" required>
+            <input type="text" name="keywords[${index}][url]" placeholder="URL" required>
+            <button type="button" class="remove-btn">Remove</button>
+        </div>
+    `);
+            index++;
+        });
+
+        $(document).on("click", ".remove-btn", function() {
+            $(this).parent().remove();
         });
     });
 </script>

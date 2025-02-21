@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,6 +24,7 @@ class Task extends Model
         'start_date',
         'parent_task_id',
         'repeat_task',
+        'is_automated',
     ];
 
     public function createdBy()
@@ -129,11 +131,26 @@ class Task extends Model
     {
         return $this->hasMany(TaskComment::class);
     }
+    public function projectKeywords()
+    {
+        return $this->hasMany(ProjectKeyword::class);
+    }
 
     public function history()
     {
         return $this->hasMany(TaskHistory::class);
     }
+    public function scopeVisibleTasks($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNotNull('parent_task_id')
+                ->orWhere(function ($q) {
+                    $q->where('is_automated', 0)
+                        ->orWhere('start_date', '<=', Carbon::now());
+                });
+        });
+    }
+
     public function getSubTypeAttribute()
     {
         if ($this->type === 'CONTENT') {

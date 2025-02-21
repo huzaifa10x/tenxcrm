@@ -13,6 +13,18 @@
             </div>
             <div class="card-body">
                 <div class="row gy-3">
+                    @php
+                        $startDate = \Carbon\Carbon::parse($project->contract_start_date);
+                        $endDate = $startDate->copy()->addMonths($project->contract_term);
+                        $totalMonths = $startDate->diffInMonths($endDate);
+                        $now = \Carbon\Carbon::now();
+                        $remainingMonths = max(floor($now->diffInMonths($endDate, false)), 0);
+                    @endphp
+
+                    <div class="d-flex align-items-center gap-10">
+                        <p class="m-0">Contract Term: <div class="badge bg-gradient-end-1 text-cyan">{{ $totalMonths }}</div></p>
+                        <p class="m-0">Remaining Months: <div class="badge bg-gradient-end-1 text-cyan">{{ $remainingMonths }}</div></p>
+                    </div>
 
                     <div class="col-lg-12">
                         <label class="form-label" for="title">Project Title</label>
@@ -876,12 +888,12 @@
             });
 
             function loadComments() {
-        let taskId = $("input[name='task_id']").val();
-        $.get("{{ route('comments.index', ['task' => ':taskId']) }}".replace(':taskId', taskId), function(data) {
-            $('#comment-list').empty();
-            data.forEach(comment => {
-                $('#comment-list').append(
-                    `
+                let taskId = $("input[name='task_id']").val();
+                $.get("{{ route('comments.index', ['task' => ':taskId']) }}".replace(':taskId', taskId), function(data) {
+                    $('#comment-list').empty();
+                    data.forEach(comment => {
+                        $('#comment-list').append(
+                            `
   <div class="py-16 px-24 border-bottom ${comment.user_id === {{ auth()->id() }} ? 'bg-primary-50' : ''}">
     <div class="d-flex align-items-start gap-3">
         <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" class="w-40-px h-40-px rounded-pill">
@@ -892,9 +904,9 @@
                     ${comment.user_id === {{ auth()->id() }} ? `<span class="badge fs-7 bg-success-600 text-white text-xs">You</span>` : ''}
                 </div>
                 ${comment.user_id === {{ auth()->id() }} ? `
-                <button class="text-danger-600 delete-comment" data-id="${comment.id}">
-                    <iconify-icon icon="fluent:delete-24-regular" class="icon text-lg line-height-1"></iconify-icon>
-                </button>` : ''}
+                                                                                                                        <button class="text-danger-600 delete-comment" data-id="${comment.id}">
+                                                                                                                            <iconify-icon icon="fluent:delete-24-regular" class="icon text-lg line-height-1"></iconify-icon>
+                                                                                                                        </button>` : ''}
             </div>
             <div class="mt-10">
                 <p class="mb-0 text-primary-light">${comment.comment}</p>
@@ -904,37 +916,37 @@
 </div>
 
                     `
-                );
-            });
-        });
-    }
-
-    $(document).on('click', '#add-comment', function() {
-        let taskId = $("input[name='task_id']").val();
-        let commentText = $('#comment-text').val();
-        $.post("{{ route('comments.store') }}", {
-            task_id: taskId,
-            comment: commentText,
-            _token: "{{ csrf_token() }}"
-        }, function() {
-            $('#comment-text').val('');
-            loadComments();
-        });
-    });
-
-    $(document).on('click', '.delete-comment', function() {
-        let commentId = $(this).data('id');
-        $.ajax({
-            url: "{{ route('comments.destroy', ['id' => ':id']) }}".replace(':id', commentId),
-            type: "DELETE",
-            data: {
-                _token: "{{ csrf_token() }}"
-            },
-            success: function() {
-                loadComments();
+                        );
+                    });
+                });
             }
-        });
-    });
+
+            $(document).on('click', '#add-comment', function() {
+                let taskId = $("input[name='task_id']").val();
+                let commentText = $('#comment-text').val();
+                $.post("{{ route('comments.store') }}", {
+                    task_id: taskId,
+                    comment: commentText,
+                    _token: "{{ csrf_token() }}"
+                }, function() {
+                    $('#comment-text').val('');
+                    loadComments();
+                });
+            });
+
+            $(document).on('click', '.delete-comment', function() {
+                let commentId = $(this).data('id');
+                $.ajax({
+                    url: "{{ route('comments.destroy', ['id' => ':id']) }}".replace(':id', commentId),
+                    type: "DELETE",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function() {
+                        loadComments();
+                    }
+                });
+            });
         </script>
 
         {{-- TASKS --}}

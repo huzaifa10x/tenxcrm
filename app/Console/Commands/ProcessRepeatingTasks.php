@@ -9,7 +9,6 @@ use App\Models\DesignTask;
 use App\Models\DevelopmentTask;
 use App\Models\OffsiteTask;
 use App\Models\OnsiteTask;
-use App\Models\Project;
 use Illuminate\Console\Command;
 use App\Models\RepeatingTask;
 use App\Models\SalesTask;
@@ -27,20 +26,20 @@ class ProcessRepeatingTasks extends Command
 
     public function handle()
     {
-        // Get all repeating tasks that need to be processed
         $repeatingTasks = RepeatingTask::where('next_run_at', '<=', now())->get();
-        $now = Carbon::now('Asia/Dubai');  // Set current time in Asia/Dubai timezone
-        $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
+        $now = Carbon::now('Asia/Dubai');
 
         foreach ($repeatingTasks as $repeatingTask) {
-            // Set the next due date based on the repeating task's due date
+            if (!is_null($repeatingTask->repeat_count) && $repeatingTask->completed_repeats >= $repeatingTask->repeat_count) {
+                $repeatingTask->delete();
+                continue;
+            }
+
             $nextDueDate = Carbon::parse($repeatingTask->task->due_date)->setTimezone('Asia/Dubai');
+            $nextStartDate = $now->copy()->addHours($repeatingTask->repeat_every); // Increment by the interval
 
-            // Calculate the next start date (start date is a similar concept, based on repeat interval)
-            $nextStartDate = $now->copy()->addHours($repeatingTask->repeat_every);  // Increment by the interval for the next start date
-
-            // Create a new task based on the parent task (repeating task's associated task)
             $newTask = Task::create([
+                'is_automated' => 1,
                 'title' => $repeatingTask->task->title,
                 'description' => $repeatingTask->task->description,
                 'project_id' => $repeatingTask->task->project_id,
@@ -67,57 +66,13 @@ class ProcessRepeatingTasks extends Command
 
             $this->createTaskTypeEntry($repeatingTask->task, $newTask->id);
 
-            $repeatingTask->next_run_at = now()->addHours($repeatingTask->repeat_every);  // Set the next time for this task to repeat
-            $repeatingTask->save();
-        }
+            $repeatingTask->next_run_at = now()->addHours($repeatingTask->repeat_every);
 
-        if ($now->day == 1) {
-            $projects = Project::where("project_type", "SEO")->get();
-
-            foreach ($projects as $project) {
-                $accountManager = $project->accountManagers[0]->id;
-
-                $expiryDate = Carbon::parse($project->contract_start_date)->addMonths($project->contract_term);
-
-                $reminderDates = [
-                    '1 Month Before Expiry' => $expiryDate->copy()->subMonth(),
-                    '15 Days Before Expiry' => $expiryDate->copy()->subDays(15),
-                    'Day of Expiry' => $expiryDate
-                ];
-
-                foreach ($reminderDates as $title => $date) {
-                    if ($date->isToday()) {
-                        Task::create([
-                            'project_id' => $project->id,
-                            'title' => "Renewal Reminder - $title",
-                            'assigned_to' => $accountManager,
-                            'status' => 'Todo',
-                            'due_date' => $date,
-                            'created_by' => 1,
-                            'start_date' => $dubaiTime,
-                        ]);
-                    }
-                }
-
-                Task::insert([
-                    [
-                        'project_id' => $project->id,
-                        'title' => 'Performance Report',
-                        'assigned_to' => $accountManager,
-                        'status' => 'Todo',
-                        'created_by' => 1,
-                        'start_date' => $dubaiTime,
-                    ],
-                    [
-                        'project_id' => $project->id,
-                        'title' => 'Campaign Meeting (Deep-dive) with Tech',
-                        'assigned_to' => $accountManager,
-                        'status' => 'Todo',
-                        'created_by' => 1,
-                        'start_date' => $dubaiTime,
-                    ],
-                ]);
+            if (!is_null($repeatingTask->repeat_count)) {
+                $repeatingTask->completed_repeats += 1;
             }
+
+            $repeatingTask->save();
         }
 
         $this->info('Repeating tasks processed successfully.');

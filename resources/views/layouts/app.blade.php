@@ -85,13 +85,14 @@
                                     hour12: true
                                 };
                                 const currentTime = new Date().toLocaleTimeString('en-US', options);
-                                document.getElementById('live-time').innerText = "CRM TIME:  "+currentTime;
+                                document.getElementById('live-time').innerText = "CRM TIME:  " + currentTime;
                             }
 
                             setInterval(updateTime, 1000);
 
                             updateTime();
                         </script>
+                        {{ \Carbon\Carbon::now()->timezone('Asia/Dubai')->format('Y-m-d H:i:s') }}
                     </div>
                 </div>
                 <div class="col-auto">

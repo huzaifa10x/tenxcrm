@@ -76,9 +76,16 @@ class Project extends Model
     }
     public function tasks()
     {
-        return $this->hasMany(Task::class, 'project_id', 'id');
+        return $this->hasMany(Task::class, 'project_id', 'id')->visibleTasks();
     }
-
+    public function credentials()
+    {
+        return $this->hasMany(ClientCredential::class, 'project_id');
+    }
+    public function keywords()
+    {
+        return $this->hasMany(ProjectKeyword::class, 'project_id');
+    }
     public function seoTechs()
     {
         return $this->belongsToMany(User::class, 'project_tech_manager');

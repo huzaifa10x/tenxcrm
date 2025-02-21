@@ -49,7 +49,7 @@
                                 <label class="form-label" for="account_manager_ids">Account Managers</label>
                                 <select class="form-control w-100" name="account_manager_ids[]" id="account_manager_ids"
                                     multiple>
-                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('ACCOUNT MANAGER')) as $user)
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('AM')) as $user)
                                         <option value="{{ $user->id }}"
                                             {{ in_array($user->id, $project->accountManagers->pluck('id')->toArray()) ? 'selected' : '' }}>
                                             {{ $user->name }}</option>

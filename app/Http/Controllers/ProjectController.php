@@ -4,6 +4,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClientCredential;
 use App\Models\Company;
 use App\Models\Industry;
 use App\Models\PaymentMethod;
@@ -26,7 +27,7 @@ class ProjectController extends Controller
     {
         $user = auth()->user();
         if ($user->hasPermission('can view all projects')) {
-            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers'])
+            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins'])
                 ->paginate(10);
         } elseif ($user->hasPermission('can view own projects')) {
             $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers'])
@@ -138,6 +139,7 @@ class ProjectController extends Controller
 
             foreach ($initialTasks as $taskTitle) {
                 Task::create([
+                    'is_automated' => 1,
                     'title' => $taskTitle,
                     'description' => null,
                     'project_id' => $project->id,
@@ -444,7 +446,7 @@ class ProjectController extends Controller
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_1_percentage">Guarantee for 1st Milestone %</label>
-                    <input required class="form-control" type="text" id="milestone_1_percentage" name="milestone_1_percentage">
+                    <input required class="form-control" type="number" id="milestone_1_percentage" name="milestone_1_percentage">
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_1_date">Guarantee for 1st Milestone Date</label>
@@ -452,7 +454,7 @@ class ProjectController extends Controller
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_2_percentage">Guarantee for 2nd Milestone %</label>
-                    <input required class="form-control" type="text" id="milestone_2_percentage" name="milestone_2_percentage">
+                    <input required class="form-control" type="number" id="milestone_2_percentage" name="milestone_2_percentage">
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_2_date">Guarantee for 2nd Milestone Date</label>
@@ -460,7 +462,7 @@ class ProjectController extends Controller
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_3_percentage">Guarantee for 3rd Milestone %</label>
-                    <input required class="form-control" type="text" id="milestone_3_percentage" name="milestone_3_percentage">
+                    <input required class="form-control" type="number" id="milestone_3_percentage" name="milestone_3_percentage">
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_3_date">Guarantee for 3rd Milestone Date</label>
@@ -554,5 +556,26 @@ class ProjectController extends Controller
                 ];
             }),
         ]);
+    }
+
+    public function storeClientCredentials(Request $request, Project $project)
+    {
+        $request->validate([
+            'credentials' => 'required|array',
+            'credentials.*.url' => 'required|url',
+            'credentials.*.username' => 'required|string',
+            'credentials.*.password' => 'required|string',
+        ]);
+
+        foreach ($request->credentials as $cred) {
+            ClientCredential::create([
+                'project_id' => $project->id,
+                'url' => $cred['url'],
+                'username' => $cred['username'],
+                'password' => encrypt($cred['password']), // Encrypt for security
+            ]);
+        }
+
+        return response()->json(['message' => 'Client credentials saved successfully.']);
     }
 }

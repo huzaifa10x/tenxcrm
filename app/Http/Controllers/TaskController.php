@@ -22,8 +22,10 @@ use App\Models\SalesTask;
 use App\Models\SeoAdminTask;
 use App\Models\StartingKwUrl;
 use App\Models\TaskAttachment;
+use App\Models\TaskCompletion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Support\Facades\Validator;
@@ -44,11 +46,11 @@ class TaskController extends Controller
         $departments = Role::all();
 
         if ($user->hasPermission('can view all tasks')) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->get();
+            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks()->get();
         } elseif ($user->hasPermission('can view own tasks')) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('assigned_to', $user->id)
-                ->get();
+                ->visibleTasks()->get();
         } else {
             $tasks = collect();
         }
@@ -65,11 +67,11 @@ class TaskController extends Controller
         if (($user->hasPermission('can create tasks'))) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('created_by', $user->id)
-                ->get();
+                ->visibleTasks()->get();
         } else {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('assigned_to', $user->id)
-                ->get();
+                ->visibleTasks()->get();
         }
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
@@ -85,7 +87,7 @@ class TaskController extends Controller
         if (($user->hasPermission('can view own tasks'))) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
                 ->where('assigned_to', $user->id)
-                ->get();
+                ->visibleTasks()->get();
         }
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
@@ -222,12 +224,14 @@ class TaskController extends Controller
 
             if ($request->has('repeat_task') && $request->repeat_task) {
                 $repeatEvery = (int)$request->repeat_every;
+                $repeat_count = (int)$request->repeat_count;
                 $nextRunAt = Carbon::now()->addHours($repeatEvery);
 
                 RepeatingTask::create([
                     'task_id' => $task->id,
                     'repeat_every' => $repeatEvery,
                     'next_run_at' => $nextRunAt,
+                    'repeat_count' => $repeat_count ? $repeat_count : null,
                 ]);
             }
 
@@ -392,6 +396,39 @@ class TaskController extends Controller
             'message' => 'Task repeating has been enabled.'
         ]);
     }
+
+    public function completeTask(Request $request)
+    {
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'fields' => 'required|array',
+            'fields.*.name' => 'required|string',
+            'fields.*.value' => 'nullable|string',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+        ]);
+
+        $filePath = null;
+
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('task_attachments', 'public');
+        }
+
+        foreach ($request->fields as $index => $field) {
+            TaskCompletion::create([
+                'task_id' => $request->task_id,
+                'field_name' => $field['name'],
+                'field_value' => ($index === 0 && $filePath)
+                    ? $filePath
+                    : $field['value'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Task fields saved successfully',
+            'file_path' => $filePath,
+        ], 200);
+    }
+
     public function markAsCompleted($id)
     {
         $task = Task::findOrFail($id);
@@ -409,6 +446,7 @@ class TaskController extends Controller
             case 'First Client Meeting':
                 Task::insert([
                     [
+                        'is_automated' => 1,
                         'created_by' => 1,
                         'project_id' => $project->id,
                         'title' => 'Keywords Approval',
@@ -423,24 +461,20 @@ class TaskController extends Controller
 
             case 'Keywords Approval':
                 Task::insert([
-                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Create the Project on SE Ranking', 'assigned_to' => $seoTech, 'status' => 'Todo'],
-                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Send SEO Benchmark Report to client', 'assigned_to' => $accountManager, 'status' => 'Todo'],
-                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'First On-site', 'assigned_to' => $seoTech, 'status' => 'Todo'],
-                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Add KW Mapping', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
-                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'On-site Audit (from SE ranking)', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
-                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Content Audit', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
-                    ['created_by' => 1, 'project_id' => $project->id, 'title' => 'Backlink Audit & DISAVOW', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Create the Project on SE Ranking', 'assigned_to' => $seoTech, 'status' => 'Todo'],
+                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Send SEO Benchmark Report to client', 'assigned_to' => $accountManager, 'status' => 'Todo'],
+                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'First On-site', 'assigned_to' => $seoTech, 'status' => 'Todo'],
+                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Add KW Mapping', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'On-site Audit (from SE ranking)', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Content Audit', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
+                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Backlink Audit & DISAVOW', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
                 ]);
 
-                Task::where('project_id', $project->id)->update([
-                    'start_date' => $dubaiTime,
-                    'type' => 'ADHOC',
-                    'description' => 'system generated task'
-                ]);
                 break;
 
             case 'Content Audit':
                 Task::create([
+                    'is_automated' => 1,
                     'created_by' => 1,
                     'project_id' => $project->id,
                     'title' => 'SEO Content Request',
@@ -455,6 +489,7 @@ class TaskController extends Controller
 
             case 'SEO Content Request':
                 Task::create([
+                    'is_automated' => 1,
                     'created_by' => 1,
                     'project_id' => $project->id,
                     'title' => 'PUBLISH CONTENT',
@@ -468,6 +503,7 @@ class TaskController extends Controller
 
             case 'First On-site':
                 $task = Task::create([
+                    'is_automated' => 1,
                     'created_by' => 1,
                     'project_id' => $project->id,
                     'title' => 'Schedule R1',
@@ -478,14 +514,35 @@ class TaskController extends Controller
                     'description' => 'system generated task'
                 ]);
 
-                CreateDelayedTask::dispatch($project->id, 'Schedule R2', $seoAdmin)
-                    ->delay($dubaiTime->addDays(30));
-                CreateDelayedTask::dispatch($project->id, 'Schedule R3', $seoAdmin)
-                    ->delay($dubaiTime->addDays(60));
+                Task::create([
+                    'is_automated' => 1,
+                    'created_by' => 1,
+                    'project_id' => $project->id,
+                    'title' => 'Schedule R2',
+                    'assigned_to' => $seoAdmin,
+                    'status' => 'Todo',
+                    'start_date' => now()->addDays(30),
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
+
+                Task::create([
+                    'is_automated' => 1,
+                    'created_by' => 1,
+                    'project_id' => $project->id,
+                    'title' => 'Schedule R3',
+                    'assigned_to' => $seoAdmin,
+                    'status' => 'Todo',
+                    'start_date' => now()->addDays(60),
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
+
                 break;
 
             case 'Create the Project on SE Ranking':
                 Task::create([
+                    'is_automated' => 1,
                     'created_by' => 1,
                     'project_id' => $project->id,
                     'title' => 'Request Local Listing',
@@ -498,8 +555,17 @@ class TaskController extends Controller
                 break;
 
             case 'Intro Call':
-                CreateDelayedTask::dispatch($project->id, 'Request Backlinks', $seoAdmin)
-                    ->delay($dubaiTime->addDays(30));
+                Task::create([
+                    'is_automated' => 1,
+                    'created_by' => 1,
+                    'project_id' => $project->id,
+                    'title' => 'Request Backlinks',
+                    'assigned_to' => $seoAdmin,
+                    'status' => 'Todo',
+                    'start_date' => now()->addDays(30),
+                    'type' => 'ADHOC',
+                    'description' => 'system generated task'
+                ]);
                 break;
 
             default:

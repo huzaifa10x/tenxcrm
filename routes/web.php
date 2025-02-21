@@ -9,6 +9,7 @@ use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectKeywordController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
@@ -118,6 +119,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/task/comments/{id}', [TaskCommentController::class, 'update'])->name('comments.update');
     Route::delete('/task/comments/{id}', [TaskCommentController::class, 'destroy'])->name('comments.destroy');
     Route::patch('/tasks/{id}/complete', [TaskController::class, 'markAsCompleted'])->name('task.markAsCompleted');
-    
+    Route::post('/tasks/complete', [TaskController::class, 'completeTask'])->name('tasks.complete');
+    Route::post('/projects/{project}/credentials', [ProjectController::class, 'storeClientCredentials'])->name('projects.storeClientCredentials');
+    Route::post('/projects/{project}/keywords', [ProjectKeywordController::class, 'store'])
+    ->name('projects.storeKeywords');
+
+
 });
 -require __DIR__ . '/auth.php';

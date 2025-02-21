@@ -124,15 +124,21 @@
         </div>
 
         <!-- Repeat Every Dropdown -->
-        <div class="form-group" id="repeat_every_group" style="display: none;">
-            <label for="repeat_every">Repeat Every</label>
-            <select id="repeat_every" name="repeat_every" class="form-control">
-                <option value="1">Every Hour</option>
-                <option value="24">Every Day</option>
-                <option value="168">Every Week</option>
-                <option value="720">Every Month</option>
-                <option value="8760">Every Year</option>
-            </select>
+        <div class="row" id="repeat_every_group" style="display: none;">
+            <div class="form-group">
+                <label for="repeat_every">Repeat Every</label>
+                <select id="repeat_every" name="repeat_every" class="form-control">
+                    <option value="1">Every Hour</option>
+                    <option value="24">Every Day</option>
+                    <option value="168">Every Week</option>
+                    <option value="720">Every Month</option>
+                    <option value="8760">Every Year</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="repeat_count">Repeat Count <span class="fs-7">(leave blank if its infinite)</span></label>
+                <input type="number" name="repeat_count" class="form-control">
+            </div>
         </div>
         <script>
             $(document).ready(function() {

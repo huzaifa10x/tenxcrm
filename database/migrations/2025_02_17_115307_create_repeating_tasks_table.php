@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('repeating_tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('task_id')->constrained()->onDelete('cascade');
-            $table->integer('repeat_every'); 
+            $table->integer('repeat_every');
+            $table->integer('repeat_count')->nullable();
             $table->timestamp('next_run_at')->nullable();
+            $table->integer('completed_repeats')->default(0); 
             $table->timestamps();
         });
     }
