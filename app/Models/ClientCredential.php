@@ -10,7 +10,7 @@ class ClientCredential extends Model
     use HasFactory;
 
     use HasFactory;
-    protected $fillable = ['project_id', 'url', 'username', 'password'];
+    protected $fillable = ['project_id', 'url', 'username', 'password', 'platform_name'];
 
     public function project()
     {

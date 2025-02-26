@@ -17,6 +17,7 @@ return new class extends Migration
                 $table->string('name');
                 $table->string('website');
                 $table->string('city');
+                $table->string('logo')->nullable()->after('country');
                 $table->string('country');
                 $table->timestamps();
             });

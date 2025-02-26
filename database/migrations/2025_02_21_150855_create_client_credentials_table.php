@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('client_credentials', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained()->onDelete('cascade'); // Project Relationship
+            $table->string('platform_name');
             $table->string('url');
-            $table->string('username'); // Can be email or username
+            $table->string('username');
             $table->string('password');
             $table->timestamps();
         });

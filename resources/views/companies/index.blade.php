@@ -29,7 +29,8 @@
                             <td>
                                 <div class="form-check style-check d-flex align-items-center">
                                     <label class="form-check-label">
-                                        {{ $company->name }}
+                                        <img src="{{ asset('storage/') }}/{{ $company->logo }}" class="img-fluid"
+                                            alt="Logo" width="50"> {{ $company->name }}
                                     </label>
                                 </div>
                             </td>

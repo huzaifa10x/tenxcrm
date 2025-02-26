@@ -54,12 +54,12 @@
                                 <label class="form-label" for="tech_manager_ids">Tech Managers</label>
                                 <select class="form-control w-100" name="tech_manager_ids[]" id="tech_manager_ids"
                                     multiple>
-                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('TECH MANAGER')) as $user)
+                                    @foreach ($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-lg-4">
+                            {{-- <div class="col-lg-4">
                                 <label class="form-label" for="seo_tech_ids">Seo Tech</label>
                                 <select class="form-control w-100" name="seo_tech_ids[]" id="seo_tech_ids"
                                     multiple>
@@ -67,7 +67,7 @@
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="col-lg-4">
                                 <label class="form-label" for="seo_admin_ids">Seo Admin</label>
                                 <select class="form-control w-100" name="seo_admin_ids[]" id="seo_admin_ids"

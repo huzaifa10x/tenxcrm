@@ -15924,3 +15924,14 @@ ul#comment-list {
   position: sticky;
   top: 0;
 }
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #1B2431;
+  border-radius: 7px;
+}

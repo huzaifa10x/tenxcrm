@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
@@ -21,7 +22,6 @@ class CompanyController extends Controller
         return view('companies.create');
     }
 
-    // Store a newly created company
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -29,10 +29,12 @@ class CompanyController extends Controller
             'website' => 'required|url',
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:255',
+            'logo' => 'nullable',
         ]);
-
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+        }
         Company::create($validated);
-
         return redirect()->route('companies.index')->with('success', 'Company created successfully!');
     }
 
@@ -58,9 +60,18 @@ class CompanyController extends Controller
             'website' => 'required|url',
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:255',
+            'logo' => 'nullable',
         ]);
 
         $company = Company::findOrFail($id);
+
+        if ($request->hasFile('logo')) {
+            if ($company->logo) {
+                Storage::disk('public')->delete($company->logo);
+            }
+            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
         $company->update($validated);
 
         return redirect()->route('companies.index')->with('success', 'Company updated successfully!');
@@ -70,8 +81,10 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         $company = Company::findOrFail($id);
+        if ($company->logo) {
+            Storage::disk('public')->delete($company->logo);
+        }
         $company->delete();
-
         return redirect()->route('companies.index')->with('success', 'Company deleted successfully!');
     }
 }

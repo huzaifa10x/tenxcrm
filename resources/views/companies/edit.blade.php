@@ -4,7 +4,7 @@
         {{ __('EDIT COMPANY - ') . $company->name }}
     </x-slot>
     @if ($userPermissions->contains('can manage companies'))
-        <form method="POST" action="{{ route('companies.update', $company->id) }}">
+        <form method="POST" action="{{ route('companies.update', $company->id) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="card">
@@ -25,6 +25,13 @@
                         <div class="col-lg-6">
                             <label class="form-label">Company Country</label>
                             <input value="{{ $company->country }}" type="text" name="country" class="form-control">
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="form-label" for="logo">
+                                <img src="{{ asset('storage/') }}/{{ $company->logo }}" class="img-fluid" alt="Logo"
+                                    width="50"> {{ $company->name }}
+                            </label>
+                            <input type="file" name="logo" id="logo" class="form-control">
                         </div>
                         <div class="col-lg-6">
                             <button type="submit" class="btn btn-primary-600 radius-8">Update Company</button>

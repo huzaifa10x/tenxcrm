@@ -444,6 +444,7 @@
             <input type="hidden" name="project_id" value="{{ $task->project_id }}">
             <div id="credentialsContainer">
                 <div class="credentialRow">
+                    <input type="text" name="credentials[0][platform_name]" placeholder="Platform Name" required>
                     <input type="url" name="credentials[0][url]" placeholder="Website URL" required>
                     <input type="text" name="credentials[0][username]" placeholder="Username/Email" required>
                     <input type="password" name="credentials[0][password]" placeholder="Password" required>
@@ -492,23 +493,28 @@
                 <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
                     value="In Progress" {{ $task->status == 'In Progress' ? 'selected' : '' }}>In
                     Progress</option>
+                <option disabled {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
+                    value="Completed" {{ $task->status == 'Completed' ? 'selected' : '' }}>Completed</option>
                 <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }} value="Review"
                     {{ $task->status == 'Review' ? 'selected' : '' }}>Review</option>
                 <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
                     value="Blocked" {{ $task->status == 'Blocked' ? 'selected' : '' }}>Blocked</option>
             </select>
         </div>
-        <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
-            <label class="form-label fs-7" for="department_id">Department</label>
-            <select name="department_id" class="form-control fs-7 h-auto" id="department_id">
-                <option value="" disabled>Select Department</option>
-                @foreach ($departments as $depart)
-                    <option value="{{ $depart->id }}" {{ $task->department_id == $depart->id ? 'selected' : '' }}>
-                        {{ $depart->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+        @if ($task->department_id)
+            <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
+                <label class="form-label fs-7" for="department_id">Department</label>
+                <select name="department_id" class="form-control fs-7 h-auto" id="department_id">
+                    <option value="" disabled>Select Department</option>
+                    @foreach ($departments as $depart)
+                        <option value="{{ $depart->id }}"
+                            {{ $task->department_id == $depart->id ? 'selected' : '' }}>
+                            {{ $depart->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
         <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
             @if ($relatedData)
                 <label class="form-label fs-7" for="sub_type">Type</label>
@@ -1059,6 +1065,7 @@
         $("#addCredential").click(function() {
             $("#credentialsContainer").append(`
                 <div class="credentialRow">
+                    <input type="text" name="credentials[${credentialIndex}][platform_name]" placeholder="Platform Name" required>
                     <input type="url" name="credentials[${credentialIndex}][url]" placeholder="Website URL" required>
                     <input type="text" name="credentials[${credentialIndex}][username]" placeholder="Username/Email" required>
                     <input type="password" name="credentials[${credentialIndex}][password]" placeholder="Password" required>

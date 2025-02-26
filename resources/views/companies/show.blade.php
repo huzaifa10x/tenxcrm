@@ -7,6 +7,9 @@
         <div class="card-body">
             <div class="row gy-3">
                 <div class="col-lg-12">
+                    <img src="{{ asset('storage/' . $company->logo) }}" class="img-fluid" alt="Logo" width="50">
+                </div>
+                <div class="col-lg-12">
                     <label class="form-label">Company Name</label>
                     <input readonly value="{{ $company->name }}" type="text" name="name" class="form-control">
                 </div>

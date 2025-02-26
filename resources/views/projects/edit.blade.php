@@ -61,10 +61,28 @@
                                 <label class="form-label" for="tech_manager_ids">Tech Managers</label>
                                 <select class="form-control w-100" name="tech_manager_ids[]" id="tech_manager_ids"
                                     multiple>
-                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('TECH MANAGER')) as $user)
+                                    @foreach ($users as $user)
                                         <option value="{{ $user->id }}"
                                             {{ in_array($user->id, $project->techManagers->pluck('id')->toArray()) ? 'selected' : '' }}>
                                             {{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label class="form-label" for="seo_admin_ids">Seo Admin</label>
+                                <select class="form-control w-100" name="seo_admin_ids[]" id="seo_admin_ids" multiple>
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SEO ADMIN')) as $user)
+                                        <option value="{{ $user->id }}" {{ in_array($user->id, $project->seoAdmins->pluck('id')->toArray()) ? 'selected' : '' }}>{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label" for="content_writers_ids">Content Writer</label>
+                                <select class="form-control w-100" name="content_writers_ids[]" id="content_writers_ids"
+                                    multiple>
+                                    @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('CONTENT')) as $user)
+                                        <option value="{{ $user->id }}" {{ in_array($user->id, $project->contentWriters->pluck('id')->toArray()) ? 'selected' : '' }}>{{ $user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -453,6 +471,18 @@
                     closeOnSelect: false
                 });
                 $('#tech_manager_ids').select2({
+                    placeholder: 'Select Tech Managers',
+                    allowClear: true,
+                    width: '100%',
+                    closeOnSelect: false
+                });
+                $('#seo_admin_ids').select2({
+                    placeholder: 'Select Tech Managers',
+                    allowClear: true,
+                    width: '100%',
+                    closeOnSelect: false
+                });
+                $('#content_writers_ids').select2({
                     placeholder: 'Select Tech Managers',
                     allowClear: true,
                     width: '100%',

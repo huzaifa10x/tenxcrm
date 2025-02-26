@@ -201,7 +201,28 @@ class ProjectController extends Controller
         $taskCounts = Task::selectRaw('type, COUNT(*) as count')
             ->groupBy('type')
             ->pluck('count', 'type');
-        return view('projects.show', compact('project', 'industries', 'users', 'paymentMethods', 'departments', 'taskCounts'));
+
+        $regularTasks = $project->tasks()->where('is_automated', 0)->where('repeat_task', 0)->get();
+        $sequenceTasks = $project->tasks()->where('is_automated', 1)->get();
+        $repeatingTasks = Task::where('project_id', $id)
+            ->where(function ($query) {
+                $query->whereIn('id', function ($subQuery) {
+                    $subQuery->select('task_id')->from('repeating_tasks');
+                })->orWhere('repeat_task', 1);
+            })
+            ->get();
+
+        return view('projects.show', compact(
+            'project',
+            'industries',
+            'users',
+            'paymentMethods',
+            'departments',
+            'taskCounts',
+            'regularTasks',
+            'sequenceTasks',
+            'repeatingTasks',
+        ));
     }
 
     // Show the form for editing the specified resource.
@@ -543,6 +564,7 @@ class ProjectController extends Controller
         $request->validate([
             'credentials' => 'required|array',
             'credentials.*.url' => 'required|url',
+            'credentials.*.platform_name' => 'required|string',
             'credentials.*.username' => 'required|string',
             'credentials.*.password' => 'required|string',
         ]);
@@ -551,8 +573,9 @@ class ProjectController extends Controller
             ClientCredential::create([
                 'project_id' => $project->id,
                 'url' => $cred['url'],
+                'platform_name' => $cred['platform_name'],
                 'username' => $cred['username'],
-                'password' => encrypt($cred['password']), // Encrypt for security
+                'password' => $cred['password'], // Encrypt for security
             ]);
         }
 
