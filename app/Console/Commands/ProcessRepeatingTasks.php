@@ -9,11 +9,11 @@ use App\Models\DesignTask;
 use App\Models\DevelopmentTask;
 use App\Models\OffsiteTask;
 use App\Models\OnsiteTask;
+use App\Models\ProjectKeyword;
 use Illuminate\Console\Command;
 use App\Models\RepeatingTask;
 use App\Models\SalesTask;
 use App\Models\SeoAdminTask;
-use App\Models\StartingKwUrl;
 use App\Models\Task;
 use App\Models\TaskAttachment;
 use Carbon\Carbon;
@@ -134,31 +134,22 @@ class ProcessRepeatingTasks extends Command
                 break;
 
             case 'OFFSITE':
-
                 $offsiteTask = OffsiteTask::create([
                     'task_id' => $newTaskID,
                     'sub_type' => $relatedData->sub_type,
                 ]);
-
-                $kwUrls = $relatedData->startingKwUrls()->get();
-
-                if ($kwUrls instanceof \Illuminate\Support\Collection && $kwUrls->isNotEmpty()) {
-                    foreach ($kwUrls as $kw) {
-                        if (!empty($kw->keyword) && !empty($kw->url)) {
-                            $domain = parse_url($kw->url, PHP_URL_HOST);
-
-                            $startingKwUrl = StartingKwUrl::create([
-                                'keyword' => $kw->keyword,
-                                'url' => $kw->url,
-                                'domain' => $domain,
-                                'task_id' => $newTaskID,
-                                'project_id' => $task->project_id ?? null,
-                                'offsite_task_id' => $offsiteTask->id,
-                            ]);
-                        }
-                    }
+                $startingKeywords = ProjectKeyword::where('task_id', $task->id)
+                    ->where('type', 'starting')
+                    ->get();
+                foreach ($startingKeywords as $data) {
+                    ProjectKeyword::create([
+                        'project_id' => $task->project->id,
+                        'task_id' => $newTaskID,
+                        'keyword' => $data->keyword,
+                        'url' => $data->url,
+                        'type' => 'starting',
+                    ]);
                 }
-
                 break;
 
             case 'DESIGN':

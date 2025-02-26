@@ -17,6 +17,6 @@ class OffsiteTask extends Model
     }
     public function startingKwUrls()
     {
-        return $this->hasMany(StartingKwUrl::class, 'offsite_task_id');
+        return $this->hasMany(ProjectKeyword::class, 'task_id');
     }
 }

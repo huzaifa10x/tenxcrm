@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('task_id')->constrained('tasks')->onDelete('cascade');
             $table->string('keyword');
             $table->string('url');
+            $table->enum('type', ['closing', 'starting']);
             $table->timestamps();
         });
     }

@@ -108,6 +108,10 @@ class Task extends Model
     {
         return $this->hasOne(AdminTask::class);
     }
+    public function collaborators()
+    {
+        return $this->hasMany(TaskCollaborator::class, 'task_id');
+    }
 
     public function salesTask()
     {
@@ -127,6 +131,10 @@ class Task extends Model
     {
         return $this->hasMany(Task::class, 'parent_task_id');
     }
+    public function completions()
+    {
+        return $this->hasMany(TaskCompletion::class, 'task_id');
+    }
     public function comments()
     {
         return $this->hasMany(TaskComment::class);
@@ -138,7 +146,7 @@ class Task extends Model
 
     public function history()
     {
-        return $this->hasMany(TaskHistory::class);
+        return $this->hasMany(TaskHistory::class, 'task_id');
     }
     public function scopeVisibleTasks($query)
     {

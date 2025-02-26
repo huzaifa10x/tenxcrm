@@ -198,7 +198,10 @@ class ProjectController extends Controller
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
         $departments = Role::all();
-        return view('projects.show', compact('project', 'industries', 'users', 'paymentMethods', 'departments'));
+        $taskCounts = Task::selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->pluck('count', 'type');
+        return view('projects.show', compact('project', 'industries', 'users', 'paymentMethods', 'departments', 'taskCounts'));
     }
 
     // Show the form for editing the specified resource.
@@ -533,29 +536,6 @@ class ProjectController extends Controller
         }
 
         return response()->json($fields); // Return fields as JSON response
-    }
-    public function loadMoreTasks(Request $request)
-    {
-        $page = $request->get('page', 1);
-        $projectId = $request->get('project_id');
-
-        $tasks = Task::where('project_id', $projectId)
-            ->orderBy('id', 'desc')
-            ->with('assignedTo')
-            ->paginate(5, ['*'], 'page', $page);
-
-        return response()->json([
-            'tasks' => $tasks->map(function ($task) {
-                return [
-                    'id' => $task->id,
-                    'title' => $task->title,
-                    'assigned_to_name' => $task->assignedTo->name ?? 'Unassigned',
-                    'start_date' => $task->start_date ? Carbon::parse($task->start_date)->format('d-m-Y h:i A') : '',
-                    'due_date' => $task->due_date ? Carbon::parse($task->due_date)->format('d-m-Y') : '',
-                    'status' => $task->status,
-                ];
-            }),
-        ]);
     }
 
     public function storeClientCredentials(Request $request, Project $project)

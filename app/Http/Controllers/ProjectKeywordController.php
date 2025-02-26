@@ -15,6 +15,7 @@ class ProjectKeywordController extends Controller
             'keywords.*.keyword' => 'required|string',
             'keywords.*.url' => 'required|url',
             'task_id' => 'required|exists:tasks,id',
+            'type' => 'required',
         ]);
 
         foreach ($request->keywords as $data) {
@@ -23,9 +24,22 @@ class ProjectKeywordController extends Controller
                 'task_id' => $request->task_id,
                 'keyword' => $data['keyword'],
                 'url' => $data['url'],
+                'type' => $request->type,
             ]);
         }
 
-        return response()->json(['message' => 'Keywords saved successfully']);
+        return response()->json(['message' => 'Keywords saved successfully', 'data' => ProjectKeyword::where('task_id', $request->task_id)->where('type', 'starting')->get()]);
+    }
+    public function delete($id)
+    {
+        $keyword = ProjectKeyword::find($id);
+
+        if (!$keyword) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
+        $keyword->delete();
+
+        return response()->json(['message' => 'Keyword deleted successfully']);
     }
 }

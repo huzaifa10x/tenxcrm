@@ -15,14 +15,15 @@ use App\Models\OffsiteTask;
 use App\Models\OnsiteTask;
 use App\Models\Task;
 use App\Models\Project;
+use App\Models\ProjectKeyword;
 use App\Models\RepeatingTask;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\SalesTask;
 use App\Models\SeoAdminTask;
-use App\Models\StartingKwUrl;
 use App\Models\TaskAttachment;
 use App\Models\TaskCompletion;
+use App\Models\TaskHistory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
@@ -86,12 +87,28 @@ class TaskController extends Controller
 
         if (($user->hasPermission('can view own tasks'))) {
             $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
-                ->where('assigned_to', $user->id)
-                ->visibleTasks()->get();
+                ->where('assigned_to', $user->id)->visibleTasks()->get();
         }
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
+
+    public function collaboratedTasks()
+    {
+        $user = auth()->user();
+        $projects = Project::all();
+        $users = User::all();
+        $departments = Role::all();
+        $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+            ->whereHas('collaborators', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->visibleTasks()
+            ->get();
+
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
+    }
+
 
     public function create()
     {
@@ -147,20 +164,15 @@ class TaskController extends Controller
                         'sub_type' => $request->sub_type,
                     ]);
 
-                    if (!empty($kwUrls) && is_array($kwUrls)) {
-                        foreach ($kwUrls as $kw) {
-                            if (isset($kw['keyword']) && isset($kw['url'])) {
-                                $domain = parse_url($kw['url'], PHP_URL_HOST); // Extract domain
-
-                                StartingKwUrl::create([
-                                    'keyword' => $kw['keyword'],
-                                    'url' => $kw['url'],
-                                    'domain' => $domain,
-                                    'task_id' => $task->id,
-                                    'project_id' => $request->project_id,
-                                    'offsite_task_id' => $offsiteTask->id,
-                                ]);
-                            }
+                    foreach ($request->keywords as $data) {
+                        if (!empty($data['keyword']) && !empty($data['url'])) {
+                            ProjectKeyword::create([
+                                'project_id' => $task->project->id,
+                                'task_id' => $task->id,
+                                'keyword' => $data['keyword'],
+                                'url' => $data['url'],
+                                'type' => $request->oflinktype,
+                            ]);
                         }
                     }
 
@@ -235,7 +247,12 @@ class TaskController extends Controller
                 ]);
             }
 
-            // return redirect()->route('tasks.board.index')->with('success', 'Task created successfully!');
+            TaskHistory::create([
+                'task_id' => $task->id,
+                'user_id' => auth()->user()->id,
+                'action' => "Task Created By " . auth()->user()->name,
+            ]);
+
             return redirect()->back()->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -260,7 +277,7 @@ class TaskController extends Controller
                 $relatedData = OnsiteTask::where('task_id', $task->id)->first();
                 break;
             case 'OFFSITE':
-                $relatedData = OffsiteTask::with('startingKwUrls')->where('task_id', $task->id)->first();
+                $relatedData = OffsiteTask::where('task_id', $task->id)->first();
                 break;
             case 'DESIGN':
                 $relatedData = DesignTask::where('task_id', $task->id)->first();
@@ -310,6 +327,12 @@ class TaskController extends Controller
             'file_path' => $filePath,
         ]);
 
+        TaskHistory::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'action' => "Task Attachment Added By " . auth()->user()->name,
+        ]);
+
         return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task Attachment Added!');
     }
     public function removeAttachment(Task $task, TaskAttachment $attachment)
@@ -322,11 +345,22 @@ class TaskController extends Controller
         // Delete the attachment record from the database
         $attachment->delete();
 
+        TaskHistory::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'action' => "Task Attachment Deleted By " . auth()->user()->name,
+        ]);
+
         return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Attachment deleted successfully!');
     }
     public function updateStatus(Request $request)
     {
         $task = Task::findOrFail($request->task_id);
+        TaskHistory::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'action' => "Status Changed From " . $task->status . " To " . $request->status . " By " . auth()->user()->name,
+        ]);
         $task->status = $request->status;
         $task->save();
 
@@ -336,6 +370,13 @@ class TaskController extends Controller
     {
         Storage::disk('public')->delete($attachment->file_path);
         $attachment->delete();
+
+        TaskHistory::create([
+            'task_id' => $attachment->task->id,
+            'user_id' => auth()->user()->id,
+            'action' => "Task Attachment Deleted By " . auth()->user()->name,
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Attachment deleted successfully!'
@@ -347,7 +388,7 @@ class TaskController extends Controller
             'attachments' => 'required|array',
             'attachments.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
-
+        $uploadedCount = 0;
         foreach ($request->file('attachments') as $file) {
             $path = $file->store('task_attachments', 'public');
 
@@ -355,9 +396,18 @@ class TaskController extends Controller
                 'file_path' => $path,
                 'file_type' => $file->getClientMimeType(),
             ]);
+            $uploadedCount++;
         }
 
         $attachments = $task->attachments()->get();
+
+        if ($uploadedCount > 0) {
+            TaskHistory::create([
+                'task_id' => $task->id,
+                'user_id' => auth()->user()->id,
+                'action' => "$uploadedCount Attachment(s) Added by " . auth()->user()->name,
+            ]);
+        }
 
         return response()->json(['success' => true, 'message' => 'Attachments uploaded successfully.', 'attachments' => $attachments]);
     }
@@ -370,8 +420,14 @@ class TaskController extends Controller
     public function updateTaskAjax(Request $request, $id)
     {
         $task = Task::findOrFail($id);
+        TaskHistory::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'action' => "Task " . $request->field . " updated from " . $task->{$request->field} . " to " . $request->value . " By " . auth()->user()->name,
+        ]);
         $task->{$request->field} = $request->value;
         $task->save();
+
 
         return response()->json([
             "message" => ucfirst($request->field) . " updated successfully!"
@@ -380,6 +436,12 @@ class TaskController extends Controller
     public function disableRepeating(Task $task)
     {
         $task->update(['repeat_task' => 0]);
+
+        TaskHistory::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'action' => auth()->user()->name . " has been stopped repeating of this task",
+        ]);
 
         return response()->json([
             'success' => true,
@@ -390,6 +452,12 @@ class TaskController extends Controller
     public function enableRepeating(Task $task)
     {
         $task->update(['repeat_task' => 1]);
+
+        TaskHistory::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'action' => auth()->user()->name . " has been start repeating of this task",
+        ]);
 
         return response()->json([
             'success' => true,
@@ -571,6 +639,12 @@ class TaskController extends Controller
             default:
                 break;
         }
+
+        TaskHistory::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'action' => auth()->user()->name . " marked this task completed",
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
     }

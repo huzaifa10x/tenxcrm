@@ -43,12 +43,15 @@
                                                 class="fs-7 mb-10 bg-primary-600 badge rounded text-light">#{{ $task->id }}</span>
                                             @if ($userPermissions->contains('can create tasks'))
                                                 <small class="w-100 d-block fs-7">
-                                                    {{ $task->repeatingTask ? 'Recurring Task' : '' }} {{ $task->repeatingTask ? ($task->repeat_task ? ' - Enabled' : ' - Disabled') : '' }}
+                                                    {{ $task->repeatingTask ? 'Recurring Task' : '' }}
+                                                    {{ $task->repeatingTask ? ($task->repeat_task ? ' - Enabled' : ' - Disabled') : '' }}
                                                 </small>
                                             @endif
                                             <h6 class="kanban-title text-lg fw-semibold mb-8">{{ $task->title }}</h6>
                                             <p class="kanban-desc text-secondary-light mb-10">{{ $task->description }}
                                             </p>
+                                            <span
+                                                class="badge text-capitalize bg-danger-surface fs-7 text-dark mb-10 fw-light">{{ $task->status }}</span>
                                             <span
                                                 class="badge text-capitalize bg-body fs-7 text-dark mb-10 fw-light">created
                                                 by: {{ $task->createdBy->name }}</span>
@@ -68,13 +71,12 @@
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
                                                     <iconify-icon icon="solar:calendar-outline"
                                                         class="text-primary-light"></iconify-icon>
-                                                        <span class="start-date text-secondary-light">
-                                                            {{ $task->start_date 
-                                                                ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A') 
-                                                                : 'Not Set' 
-                                                            }}
-                                                        </span>
-                                                        
+                                                    <span class="start-date text-secondary-light">
+                                                        {{ $task->start_date
+                                                            ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
+                                                            : 'Not Set' }}
+                                                    </span>
+
                                                 </div>
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
                                                     <form action="{{ route('tasks.destroy', $task->id) }}"
@@ -102,9 +104,120 @@
         </div>
     </div>
 
-    @if ($tasks->count() > 0)
-        {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
-        @include('vendor.task-script', ['tasks' => $tasks, 'projects' => $projects])
-    @endif
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <span class="offcanvas-title" id="offcanvasRightLabel">Task Detail</span>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" id="taskDetails">
+            ...
+        </div>
+    </div>
+    <div class="modal fade" id="taskAttachmentsModal" tabindex="-1" aria-labelledby="taskAttachmentsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title" id="taskAttachmentsModalLabel">Upload Task Attachments</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadTaskAttachmentsForm" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="task_id" value="">
+                        <div class="mb-3">
+                            <label for="taskAttachments" class="form-label">Select Files</label>
+                            <input type="file" name="attachments[]" id="taskAttachments" class="form-control"
+                                multiple required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Upload Files</button>
+                    </form>
+                    <div id="taskUploadStatus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
+        <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="taskCreateModalLabel">Create Task</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @csrf
+                        @include('tasks.create', ['projects' => $projects])
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script>
+        $(document).ready(function() {
+            $(".kanban-items").sortable({
+                connectWith: ".kanban-items",
+                placeholder: "ui-state-highlight",
+                stop: function(event, ui) {
+                    let taskId = ui.item.attr("data-task-id");
+                    let newStatus = ui.item.parent().attr("data-status");
+
+                    if (newStatus == "Completed") {
+                        toastr.error(
+                            "You can't complete the task without attaching the required closing inputs."
+                        );
+                        setTimeout(() => {
+                            toastr.info("Please open the task and complete it properly.");
+                        }, 3000);
+                        return false;
+                    }
+
+                    $.ajax({
+                        url: "{{ route('tasks.updateStatus') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            task_id: taskId,
+                            status: newStatus
+                        },
+                        success: function(response) {
+                            toastr.success("Task status updated!");
+                        },
+                        error: function() {
+                            toastr.error("Error updating task status");
+                        }
+                    });
+                }
+            }).disableSelection();
+        });
+
+        function loadTaskDetails(taskId) {
+            $("input[name='task_id']").val(taskId);
+            $('#taskDetails').html(
+                '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>');
+            $.ajax({
+                url: '{{ route('tasks.show', ':id') }}'.replace(':id', taskId),
+                method: 'GET',
+                data: {
+                    is_ajax: true
+                },
+                success: function(response) {
+                    $('#taskDetails').html(response);
+                    loadTaskAttachments();
+                    loadComments();
+                },
+                error: function() {
+                    $('#taskDetails').html('<p class="text-danger">Error fetching task details.</p>');
+                }
+            });
+        }
+    </script>
 
 </x-app-layout>

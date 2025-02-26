@@ -59,8 +59,6 @@
                             <option value="In Progress" {{ $task->status == 'In Progress' ? 'selected' : '' }}>In
                                 Progress</option>
                             <option value="Review" {{ $task->status == 'Review' ? 'selected' : '' }}>Review</option>
-                            <option value="Completed" {{ $task->status == 'Completed' ? 'selected' : '' }}>Completed
-                            </option>
                             <option value="Blocked" {{ $task->status == 'Blocked' ? 'selected' : '' }}>Blocked</option>
                         </select>
                     </div>

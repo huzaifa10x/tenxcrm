@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->text('title');
-            $table->text('description');
+            $table->longText('description');
             $table->enum('category', ['PLATINUM', 'GOLD', 'SILVER']);
             $table->foreignId('industry_id')->constrained('industries')->onDelete('cascade');
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->float('free_months');
             $table->foreignId('payment_method_id')->constrained('payment_methods')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->text('handover_notes');
+            $table->longText('handover_notes');
             $table->enum('project_type', ['SEO', 'Google Ads', 'Social Media', 'Web Development', 'Hosting', 'Other']);
             $table->timestamps();
         });
@@ -69,10 +69,9 @@ return new class extends Migration
 
     public function down()
     {
+        Schema::dropIfExists('task_collaborators');
         Schema::dropIfExists('project_keywords');
         Schema::dropIfExists('client_credentials');
-        Schema::dropIfExists('starting_kw_url');
-        Schema::dropIfExists('completion_kw_url');
         Schema::dropIfExists('task_histories');
         Schema::dropIfExists('task_comments');
         Schema::dropIfExists('repeating_tasks');

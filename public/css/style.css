@@ -15806,7 +15806,121 @@ td.fc-header-center {
   }
 }
 
-.kanban-item.kanban-column{
+.kanban-item.kanban-column {
   height: 55vh;
   overflow: auto;
+}
+
+.completion-anim-wrapper {
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  background: #ffffff54;
+  top: 0;
+  z-index: 999;
+  backdrop-filter: blur(3px);
+  left: 0;
+  display: none;
+}
+
+.completion-anim-wrapper #completion {
+  width: 20%;
+  height: 20%;
+  position: relative;
+  display: block;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes hideshow {
+  0% {
+    opacity: 0.2;
+  }
+
+  10% {
+    opacity: 0.2;
+  }
+
+  15% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.completion-anim-wrapper #cirkel {
+  animation: hideshow 0.4s ease;
+}
+
+.completion-anim-wrapper #check {
+  animation: hideshow 0.4s ease;
+}
+
+.completion-anim-wrapper #stars {
+  animation: hideshow 1.0s ease;
+  opacity: 0.9;
+}
+
+@keyframes hideshow {
+  0% {
+    transform: scale(0.2);
+    transform-origin: initial;
+
+  }
+
+  100% {
+    transform: scale(1.0);
+    transform-origin: initial;
+  }
+}
+
+@keyframes draaien {
+  0% {
+    transform: rotate(40deg);
+    transform-origin: initial;
+
+  }
+
+  100% {
+    transform: scale(0deg);
+    transform-origin: initial;
+  }
+}
+
+.completion-anim-wrapper #check {
+  animation: draaien 0.8s ease;
+}
+
+@keyframes transparant {
+  0% {
+    opacity: 0;
+
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.completion-anim-wrapper #check {
+  animation: transparant 2s;
+}
+
+#collaborators-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+ul#comment-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.table>thead {
+  vertical-align: bottom;
+  position: sticky;
+  top: 0;
 }

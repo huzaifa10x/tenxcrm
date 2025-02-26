@@ -9,10 +9,15 @@ class ProjectKeyword extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['project_id', 'keyword', 'url', 'task_id'];
+    protected $fillable = ['project_id', 'keyword', 'url', 'task_id', 'type'];
 
     public function project()
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class, 'task_id');
     }
 }

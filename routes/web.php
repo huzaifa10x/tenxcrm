@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectKeywordController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TaskCollaboratorController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
@@ -66,7 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can add project files')->group(function () {
         Route::post('/projects/{project}/files', [ProjectController::class, 'uploadProjectFiles'])->name('projects.uploadFiles');
     });
-    Route::get('/tasks/load-more', [ProjectController::class, 'loadMoreTasks'])->name('tasks.loadMore');
+
     Route::middleware('permission:can update project status')->group(function () {
         Route::post('/projects/{id}/update-status', [ProjectController::class, 'updateStatus'])->name('projects.updateStatus');
     });
@@ -88,6 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('permission:can view own tasks')->group(function () {
         Route::get('/tasks/forme/index', [TaskController::class, 'formeTasks'])->name('tasks.forme.index');
+        Route::get('/tasks/collaborated/index', [TaskController::class, 'collaboratedTasks'])->name('tasks.collaborated.index');
     });
 
     Route::middleware('permission:can add task files')->group(function () {
@@ -109,9 +111,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/tasks/{task}/enable-repeating', [TaskController::class, 'enableRepeating'])->name('tasks.enableRepeating');
     });
     Route::middleware('permission:can remove offsite links')->group(function () {
-        Route::delete('/starting-kw-url/{id}', [OffsiteTaskController::class, 'deleteStartingKwUrl'])->name('starting_kw_url.delete');
+        Route::delete('/project-keyword/{id}', [ProjectKeywordController::class, 'delete'])->name('project-keyword.delete');
     });
     Route::get('/offsite-tasks/{task_id}/starting-kw-urls', [OffsiteTaskController::class, 'getStartingKwUrls'])->name('offsite.tasks.starting_kw_urls');
+    Route::get('/offsite-tasks/{task_id}/closing-kw-urls', [OffsiteTaskController::class, 'getClosingKwUrls'])->name('offsite.tasks.closing_kw_urls');
     Route::post('/starting-kw-url/store', [OffsiteTaskController::class, 'store'])->name('starting_kw_url.store');
 
     Route::get('/task/{task}/comments', [TaskCommentController::class, 'index'])->name('comments.index');
@@ -122,8 +125,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/tasks/complete', [TaskController::class, 'completeTask'])->name('tasks.complete');
     Route::post('/projects/{project}/credentials', [ProjectController::class, 'storeClientCredentials'])->name('projects.storeClientCredentials');
     Route::post('/projects/{project}/keywords', [ProjectKeywordController::class, 'store'])
-    ->name('projects.storeKeywords');
+        ->name('projects.storeKeywords');
 
-
+    Route::middleware('permission:can create tasks')->group(function () {
+        Route::get('/task/{task}/collaborators', [TaskCollaboratorController::class, 'index'])->name('task.collaborators');
+        Route::post('/task/collaborators/store', [TaskCollaboratorController::class, 'store'])->name('task.collaborators.store');
+        Route::delete('/task/collaborators/{collaborator}', [TaskCollaboratorController::class, 'destroy'])->name('task.collaborators.destroy');
+    });
 });
 -require __DIR__ . '/auth.php';

@@ -179,6 +179,11 @@
                             </a>
                         </li>
                     @endif
+                    <li>
+                        <a href="{{ route('tasks.collaborated.index') }}">
+                            <span>Tasks I'm a Collaborator In</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
         </ul>

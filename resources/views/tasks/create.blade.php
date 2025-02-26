@@ -40,22 +40,19 @@
 
             <!-- OFFSITE Task Fields -->
             <div class="col-lg-12 offsite-fields">
-                <div id="kw-url-container">
-                    <div class="row mb-2 kw-url-input">
-                        <div class="col">
-                            <input type="text" class="form-control keyword" placeholder="Keyword">
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control url" placeholder="URL">
-                        </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-danger remove-kw-url">X</button>
-                        </div>
+                <input type="hidden" name="oflinktype" value="starting">
+                <div id="keywordFields">
+                    <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
+                        <input class="form-control" type="text" name="keywords[0][keyword]" placeholder="Keyword">
+                        <input class="form-control" type="text" name="keywords[0][url]" placeholder="URL">
+                        <button type="button"
+                            class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
+                            <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                        </button>
                     </div>
                 </div>
-                <button type="button" id="add-kw-url" class="btn-sm btn btn-primary">+ Add More</button>
-                <button type="button" id="save-kw-url" class="btn-sm btn btn-info">Save Links</button>
-                <input type="hidden" name="kw_url" id="kw_url">
+                <button class="btn bnt-sm btn-outline-info-900 addKeyword" type="button">Add
+                    More</button>
             </div>
 
             <!-- DESIGN Task Fields -->
@@ -136,7 +133,8 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="repeat_count">Repeat Count <span class="fs-7">(leave blank if its infinite)</span></label>
+                <label for="repeat_count">Repeat Count <span class="fs-7">(leave blank if its
+                        infinite)</span></label>
                 <input type="number" name="repeat_count" class="form-control">
             </div>
         </div>
@@ -153,6 +151,7 @@
         </script>
 
         <script>
+            
             document.addEventListener('DOMContentLoaded', function() {
                 const options = {
                     timeZone: 'Asia/Dubai'
@@ -218,39 +217,30 @@
                 }
 
             });
-            $(document).on('click', '#add-kw-url', function() {
-                $('#kw-url-container').append(`
-            <div class="row mb-2 kw-url-input">
-                <div class="col">
-                    <input type="text" class="form-control keyword" placeholder="Keyword">
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control url" placeholder="URL">
-                </div>
-                <div class="col-auto">
-                    <button type="button" class="btn btn-danger remove-kw-url">X</button>
-                </div>
-            </div>
-        `);
-            });
-            $(document).on('click', '#save-kw-url', function() {
-                toastr.success('Links Saved');
-                let kwUrlArray = [];
-                $('.kw-url-input').each(function() {
-                    let keyword = $(this).find('.keyword').val();
-                    let url = $(this).find('.url').val();
-                    if (keyword && url) {
-                        kwUrlArray.push({
-                            keyword,
-                            url
-                        });
-                    }
+
+            $(document).ready(function() {
+                let index = 1;
+
+                $(".addKeyword").click(function() {
+                    $("#keywordFields").append(`
+                        <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
+                            <input class="form-control" type="text" name="keywords[${index}][keyword]" placeholder="Keyword"
+                                required>
+                            <input class="form-control" type="text" name="keywords[${index}][url]" placeholder="URL" required>
+                            <button type="button"
+                                class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
+                                <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                            </button>
+                        </div>
+                    `);
+                    index++;
                 });
-                $('#kw_url').val(JSON.stringify(kwUrlArray));
+
+                $(document).on("click", ".remove-btn", function() {
+                    $(this).parent().remove();
+                });
             });
-            $(document).on('click', '.remove-kw-url', function() {
-                $(this).closest('.kw-url-input').remove();
-            });
+
             $('#department_id').change(function() {
                 let departmentName = $("#department_id option:selected").text();
                 if (departmentName) {

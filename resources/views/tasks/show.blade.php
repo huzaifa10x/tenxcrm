@@ -1,210 +1,537 @@
-{{-- COMPLETION FORM --}}
-<form id="taskForm" enctype="multipart/form-data">
-    @csrf
-    <input type="hidden" name="task_id" value="{{ $task->id }}">
+<div class="completion-anim-wrapper">
+    <svg id="completion" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 101">
+        <style>
+            .st0 {
+                fill: #51BBA0;
+                fill-opacity: 0.4;
+            }
 
-    @if ($task->title === 'Handover Meet with The Sales Manager')
-        <input type="hidden" name="fields[0][name]" value="handover_meeting">
-        <label class="form-label" for="handover_meeting">Have you done Handover Meet with The Sales Manager</label>
-        <input id="handover_meeting" class="form-check-input" type="checkbox" required name="fields[0][value]">
-        <button type="submit">Submit</button>
-    @endif
+            .st1 {
+                fill: #51BBA0;
+                fill-opacity: 0.1;
+            }
 
-    @if ($task->title === 'Connect the GA, GSC, GTM, and GMB')
-        <span class="d-block fw-bold">Connect the GA, GSC, GTM, and GMB</span>
-
-        <label for="GA" form="label">GA</label>
-        <input type="hidden" name="fields[0][name]" value="GA">
-        <input type="checkbox" id="GA" class="form-check-input" required name="fields[0][value]">
-        <label for="GSC" form="label">GSC</label>
-        <input type="hidden" name="fields[1][name]" value="GSC">
-        <input type="checkbox" id="GSC" class="form-check-input" required name="fields[1][value]">
-        <label for="GTM" form="label">GTM</label>
-        <input type="hidden" name="fields[2][name]" value="GTM">
-        <input type="checkbox" id="GTM" class="form-check-input" required name="fields[2][value]">
-        <label for="GMB" form="label">GMB</label>
-        <input type="hidden" name="fields[3][name]" value="GMB">
-        <input type="checkbox" id="GMB" class="form-check-input" required name="fields[3][value]">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title === 'Keywords Approval')
-        <span class="d-block fw-bold">Keywords Approval</span>
-
-        <label for="seo_admin_approval" form="label">SEO ADMIN APPROVAL</label>
-        <input type="hidden" name="fields[0][name]" value="seo_admin_approval">
-        <input type="checkbox" class="form-check-input" id="seo_admin_approval" required name="fields[0][value]">
-
-        <label for="client_approval" form="label">CLIENT APPROVAL</label>
-        <input type="hidden" name="fields[1][name]" value="client_approval">
-        <input type="checkbox" class="form-check-input" id="client_approval" required name="fields[1][value]">
-
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title === 'Intro Call')
-        <input type="hidden" name="fields[0][name]" value="intro_call">
-        <label class="form-label" for="intro_call">Have you done Intro Call</label>
-        <input id="intro_call" class="form-check-input" type="checkbox" required name="fields[0][value]">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title === 'Onboarding Email')
-        <input type="hidden" name="fields[0][name]" value="onboarding_email">
-        <label class="form-label" for="onboarding_email">Have you done Onboarding Email</label>
-        <input id="onboarding_email" class="form-check-input" type="checkbox" required name="fields[0][value]">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title === 'Send SEO Benchmark Report to client')
-        <input type="hidden" name="fields[0][name]" value="benchmark_report_to_client">
-        <label class="form-label" for="benchmark_report_to_client">Have you set benchmark report to client</label>
-        <input id="benchmark_report_to_client" class="form-check-input" type="checkbox" required
-            name="fields[0][value]">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'First Client Meeting')
-        <label class="form-label">Location</label>
-        <input type="text" name="fields[0][name]" value="location" hidden>
-        <select name="fields[0][value]">
-            <option value="Zoom">Zoom</option>
-            <option value="10X Office">10X Office</option>
-            <option value="Client Office">Client Office</option>
-        </select>
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'Upload the Content Intake Form')
-        <label class="form-label">Upload the Content Intake Form</label>
-        <input type="text" name="fields[0][name]" value="content_intake_form" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'Upload the Local Listing Form')
-        <label class="form-label">Upload the Local Listing Form</label>
-        <input type="text" name="fields[0][name]" value="local_listing_form" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'On-site Audit (from SE ranking)')
-        <label class="form-label">On-site Audit (from SE ranking)</label>
-        <input type="text" name="fields[0][name]" value="onsite_from_se_ranking" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'PUBLISH CONTENT')
-        <label class="form-label" for="publish_content">Have you published content</label>
-        <input type="hidden" name="fields[0][name]" value="publish_content">
-        <input id="publish_content" class="form-check-input" type="checkbox" required name="fields[0][value]">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'Backlink Audit & DISAVOW')
-        <label class="form-label">Document of Backlink Audit & DISAVOW</label>
-        <input type="text" name="fields[0][name]" value="backlink_audit_and_disavow" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'SEO Content Request')
-        <label class="form-label">Upload SEO Content Request Document</label>
-        <input type="text" name="fields[0][name]" value="seo_content_request_document" hidden>
-        <input type="file" name="file">
-
-        <label class="form-label" for="content_completion_word_count">content completion word count</label>
-        <input type="hidden" name="fields[1][name]" value="content_completion_word_count">
-        <input id="content_completion_word_count" class="form-control" type="number" required
-            name="fields[1][value]">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'Content Audit')
-        <label class="form-label">Content Audit</label>
-        <input type="text" name="fields[0][name]" value="content_audit" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'First On-site')
-        <label class="form-label">First On-site Report</label>
-        <input type="text" name="fields[0][name]" value="first_onsite_report" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'Request Local Listing')
-        <label class="form-label">Upload Request Local Listing Doc</label>
-        <input type="text" name="fields[0][name]" value="request_local_listing" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'Create the Project on SE Ranking')
-        <label class="form-label">Attach Benchmark Report</label>
-        <input type="text" name="fields[0][name]" value="benchmark_report" hidden>
-        <input type="file" name="file">
-        <button type="submit">Submit</button>
-    @endif
-
-    @if ($task->title == 'Performance Report')
-        <label class="form-label">Performance</label>
-        <input type="text" name="fields[0][name]" value="Performance" hidden>
-        <select name="fields[0][value]">
-            <option value="Excellent">Excellent</option>
-            <option value="Needs Improvement">Needs Improvement</option>
-            <option value="Unsatisfactory">Unsatisfactory</option>
-        </select>
-        <button type="submit">Submit</button>
-    @endif
-
-</form>
-
-@if (
-    $task->title == 'Add KW Mapping' ||
-        $task->title == 'Schedule R1' ||
-        $task->title == 'Schedule R2' ||
-        $task->title == 'Schedule R3' ||
-        $task->title == 'Request Backlinks')
-    <form id="keywordForm">
+            .st2 {
+                fill: #51BBA0;
+            }
+        </style>
+        <title>
+            C1DBEBC0-CF7A-42D3-B615-1AB5DE73C3E9
+        </title>
+        <g id="configurator">
+            <g id="configurator_completion">
+                <g id="stars">
+                    <circle id="Oval" class="st0" cx="14" cy="18" r="1" />
+                    <circle id="Oval-Copy-4" class="st0" cx="27" cy="20" r="1" />
+                    <circle id="Oval-Copy-10" class="st0" cx="76" cy="20" r="1" />
+                    <circle id="Oval-Copy-2" class="st0" cx="61.5" cy="12.5" r="1.5" />
+                    <circle id="Oval-Copy-9" class="st0" cx="94" cy="53" r="1" />
+                    <circle id="Oval-Copy-6" class="st0" cx="88" cy="14" r="1" />
+                    <circle id="Oval-Copy-7" class="st0" cx="59" cy="1" r="1" />
+                    <circle id="Oval_1_" class="st0" cx="43" cy="9" r="2" />
+                    <path id="ster-01" class="st0" d="M28.5 3.8L26 6l2.2-2.5L26 1l2.5 2.2L31 1l-2.2 2.5L31 6z" />
+                    <path id="ster-01" class="st0"
+                        d="M3.5 50.9l-2.1 2.4 1.7-2.7-2.9-1.2 3.1.8.2-3.2.2 3.2 3.1-.8-2.9 1.2 1.7 2.7z" />
+                    <path id="ster-01" class="st0"
+                        d="M93.5 27.8L91 30l2.2-2.5L91 25l2.5 2.2L96 25l-2.2 2.5L96 30z" />
+                    <circle id="Oval-Copy-5" class="st0" cx="91" cy="40" r="2" />
+                    <circle id="Oval-Copy-3" class="st0" cx="7" cy="36" r="2" />
+                    <circle id="Oval-Copy-8" class="st0" cx="7.5" cy="5.5" r=".5" />
+                </g>
+            </g>
+        </g>
+        <g id="cirkel">
+            <g id="Mask">
+                <path id="path-1_1_" class="st1"
+                    d="M49 21c22.1 0 40 17.9 40 40s-17.9 40-40 40S9 83.1 9 61s17.9-40 40-40z" />
+            </g>
+        </g>
+        <path id="check" class="st2"
+            d="M31.3 64.3c-1.2-1.5-3.4-1.9-4.9-.7-1.5 1.2-1.9 3.4-.7 4.9l7.8 10.4c1.3 1.7 3.8 1.9 5.3.4L71.1 47c1.4-1.4 1.4-3.6 0-5s-3.6-1.4-5 0L36.7 71.5l-5.4-7.2z" />
+    </svg>
+</div>
+<div class="completion-form-wrapper mb-10" style="display: none;">
+    {{-- COMPLETION FORM --}}
+    <form id="taskForm" enctype="multipart/form-data">
         @csrf
-        <div id="keywordFields">
-            <div class="keyword-group">
-                <input type="text" name="keywords[0][keyword]" placeholder="Keyword" required>
-                <input type="text" name="keywords[0][url]" placeholder="URL" required>
-                <button type="button" class="remove-btn">Remove</button>
+        <input type="hidden" name="task_id" value="{{ $task->id }}">
+        <div class="card border border-secondary">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        @if ($task->title === 'Handover Meet with The Sales Manager')
+                            <input type="hidden" name="fields[0][name]" value="handover_meeting">
+                            <label class="form-label" for="handover_meeting">Have you done Handover Meet with The Sales
+                                Manager</label>
+                            <input id="handover_meeting" class="form-check-input" type="checkbox" required
+                                name="fields[0][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title === 'Connect the GA, GSC, GTM, and GMB')
+                            <span class="d-block fw-bold">Connect the GA, GSC, GTM, and GMB</span>
+                            <label for="GA" form="label">GA</label>
+                            <input type="hidden" name="fields[0][name]" value="GA">
+                            <input type="checkbox" id="GA" class="form-check-input" required
+                                name="fields[0][value]">
+                            <label for="GSC" form="label">GSC</label>
+                            <input type="hidden" name="fields[1][name]" value="GSC">
+                            <input type="checkbox" id="GSC" class="form-check-input" required
+                                name="fields[1][value]">
+                            <label for="GTM" form="label">GTM</label>
+                            <input type="hidden" name="fields[2][name]" value="GTM">
+                            <input type="checkbox" id="GTM" class="form-check-input" required
+                                name="fields[2][value]">
+                            <label for="GMB" form="label">GMB</label>
+                            <input type="hidden" name="fields[3][name]" value="GMB">
+                            <input type="checkbox" id="GMB" class="form-check-input" required
+                                name="fields[3][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title === 'Keywords Approval')
+                            <span class="d-block fw-bold">Keywords Approval</span>
+
+                            <label for="seo_admin_approval" form="label">SEO ADMIN APPROVAL</label>
+                            <input type="hidden" name="fields[0][name]" value="seo_admin_approval">
+                            <input type="checkbox" class="form-check-input" id="seo_admin_approval" required
+                                name="fields[0][value]">
+
+                            <label for="client_approval" form="label">CLIENT APPROVAL</label>
+                            <input type="hidden" name="fields[1][name]" value="client_approval">
+                            <input type="checkbox" class="form-check-input" id="client_approval" required
+                                name="fields[1][value]">
+
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title === 'Intro Call')
+                            <input type="hidden" name="fields[0][name]" value="intro_call">
+                            <label class="form-label" for="intro_call">Have you done Intro Call</label>
+                            <input id="intro_call" class="form-check-input" type="checkbox" required
+                                name="fields[0][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title === 'Onboarding Email')
+                            <input type="hidden" name="fields[0][name]" value="onboarding_email">
+                            <label class="form-label" for="onboarding_email">Have you sent Onboarding Email</label>
+                            <input id="onboarding_email" class="form-check-input" type="checkbox" required
+                                name="fields[0][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title === 'Send SEO Benchmark Report to client')
+                            <input type="hidden" name="fields[0][name]" value="benchmark_report_to_client">
+                            <label class="form-label" for="benchmark_report_to_client">Have you set benchmark report
+                                to
+                                client</label>
+                            <input id="benchmark_report_to_client" class="form-check-input" type="checkbox" required
+                                name="fields[0][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'First Client Meeting')
+                            <label class="form-label">Location</label>
+                            <input type="text" name="fields[0][name]" value="location" hidden>
+                            <select name="fields[0][value]">
+                                <option value="Zoom">Zoom</option>
+                                <option value="10X Office">10X Office</option>
+                                <option value="Client Office">Client Office</option>
+                            </select>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Upload the Content Intake Form')
+                            <label class="form-label">Upload the Content Intake Form</label>
+                            <input type="text" name="fields[0][name]" value="content_intake_form" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Upload the Local Listing Form')
+                            <label class="form-label">Upload the Local Listing Form</label>
+                            <input type="text" name="fields[0][name]" value="local_listing_form" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'On-site Audit (from SE ranking)')
+                            <label class="form-label">On-site Audit (from SE ranking)</label>
+                            <input type="text" name="fields[0][name]" value="onsite_from_se_ranking" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'PUBLISH CONTENT')
+                            <label class="form-label" for="publish_content">Have you published content</label>
+                            <input type="hidden" name="fields[0][name]" value="publish_content">
+                            <input id="publish_content" class="form-check-input" type="checkbox" required
+                                name="fields[0][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Backlink Audit & DISAVOW')
+                            <label class="form-label">Document of Backlink Audit & DISAVOW</label>
+                            <input type="text" name="fields[0][name]" value="backlink_audit_and_disavow" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($relatedData && in_array($relatedData->sub_type, ['SEO CONTENT', 'BLOG CONTENT']))
+                            <label class="form-label">Number Of Words</label>
+                            <input type="text" name="fields[0][name]" value="number_of_words" hidden>
+                            <input class="form-control" type="number" name="fields[0][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($relatedData && in_array($relatedData->sub_type, ['ADHOC', 'REVISION']))
+                            <label class="form-label">Notes</label>
+                            <input type="text" name="fields[0][name]" value="notes" hidden>
+                            <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
+                                placeholder="Enter Notes"></textarea>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if (
+                            $relatedData &&
+                                in_array($relatedData->sub_type, [
+                                    'RE-ONSITE',
+                                    'CHANGES IN CONTENT',
+                                    'CREATE NEW PAGE',
+                                    'REPLACE/UPLOAD CONTENT',
+                                    'ONSITE AUDIT',
+                                    'LP DESIGN',
+                                    'BANNERS',
+                                    'VIDEO',
+                                    'REVISIONS',
+                                    'SITE SPEED AND RENDERING',
+                                ]))
+                            <label class="form-label">Attachment</label>
+                            <input type="text" name="fields[0][name]" value="attachment" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'SEO Content Request')
+                            <label class="form-label">Upload SEO Content Request Document</label>
+                            <input type="text" name="fields[0][name]" value="seo_content_request_document" hidden>
+                            <input type="file" name="file" required class="form-control">
+
+                            <label class="form-label" for="content_completion_word_count">content completion word
+                                count</label>
+                            <input type="hidden" name="fields[1][name]" value="content_completion_word_count">
+                            <input id="content_completion_word_count" class="form-control" type="number" required
+                                name="fields[1][value]">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Content Audit')
+                            <label class="form-label">Content Audit</label>
+                            <input type="text" name="fields[0][name]" value="content_audit" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'First On-site')
+                            <label class="form-label">First On-site Report</label>
+                            <input type="text" name="fields[0][name]" value="first_onsite_report" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Request Local Listing')
+                            <label class="form-label">Upload Request Local Listing Doc</label>
+                            <input type="text" name="fields[0][name]" value="request_local_listing" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Create the Project on SE Ranking')
+                            <label class="form-label">Attach Benchmark Report</label>
+                            <input type="text" name="fields[0][name]" value="benchmark_report" hidden>
+                            <input type="file" name="file" required class="form-control">
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Performance Report')
+                            <label class="form-label">Performance</label>
+                            <input type="text" name="fields[0][name]" value="performance" hidden>
+                            <select name="fields[0][value]">
+                                <option value="Excellent">Excellent</option>
+                                <option value="Needs Improvement">Needs Improvement</option>
+                                <option value="Unsatisfactory">Unsatisfactory</option>
+                            </select>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Campaign Meeting (Deep-dive) with Tech')
+                            <label class="form-label">MINUTES OF MEETINGS</label>
+                            <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
+                            <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
+                            <label class="form-label">Status</label>
+                            <input type="hidden" name="fields[0][name]" value="expectations" hidden>
+                            <select name="fields[0][value]">
+                                <option value="Exceeds Expectations">Exceeds Expectations</option>
+                                <option value="Meets Expectations">Meets Expectations</option>
+                                <option value="Below Expectations">Below Expectations</option>
+                            </select>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Campaign Meeting (Deep-dive) with Client')
+                            <label class="form-label">MINUTES OF MEETINGS</label>
+                            <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
+                            <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
+                            <label class="form-label">Status</label>
+                            <input type="hidden" name="fields[0][name]" value="status" hidden>
+                            <select name="fields[0][value]">
+                                <option value="Very Satisfied">Very Satisfied</option>
+                                <option value="Neutral">Neutral</option>
+                                <option value="Dissatisfied">Dissatisfied</option>
+                            </select>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Renewal Reminder')
+                            <input type="hidden" name="fields[0][name]" value="renewal_reminder_status">
+                            <label class="form-label" for="renewal_reminder_status">Have you sent Renewal
+                                Reminder</label>
+                            <input id="renewal_reminder_status" class="form-check-input" type="checkbox" required
+                                name="fields[0][value]">
+                            {{--  --}}
+                            <label class="form-label">Feeling</label>
+                            <input type="hidden" name="fields[1][name]" value="feeling" hidden>
+                            <select name="fields[1][value]">
+                                <option value="Confident">Confident</option>
+                                <option value="Unsure">Unsure</option>
+                                <option value="No Renewal">No Renewal</option>
+                            </select>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Renewal Contract')
+                            <input type="hidden" name="fields[0][name]" value="renewal_contract_status">
+                            <label class="form-label" for="renewal_contract_status">Have you sent Follow-Up</label>
+                            <input id="renewal_contract_status" class="form-check-input" type="checkbox" required
+                                name="fields[0][value]">
+                            {{--  --}}
+                            <label class="form-label">Feeling</label>
+                            <input type="hidden" name="fields[1][name]" value="feeling" hidden>
+                            <select name="fields[1][value]">
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Awaiting Response">Awaiting Response</option>
+                                <option value="Unlikely">Unlikely</option>
+                            </select>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+
+                    <div class="col-lg-12">
+                        @if ($task->title == 'Renewal Status')
+                            <label class="form-label">Renewal Status</label>
+                            <input type="hidden" name="fields[0][name]" value="status" hidden>
+                            <select name="fields[0][value]">
+                                <option value="Pending">Pending</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
-        <button type="button" id="addKeyword">Add More</button>
-        <button type="submit">Save Keywords</button>
     </form>
-@endif
-
-@if ($task->title == 'Add the Client Credentials')
-    <form id="clientCredentialsForm">
-        @csrf
-        <input type="hidden" name="project_id" value="{{ $task->project_id }}">
-        <div id="credentialsContainer">
-            <div class="credentialRow">
-                <input type="url" name="credentials[0][url]" placeholder="Website URL" required>
-                <input type="text" name="credentials[0][username]" placeholder="Username/Email" required>
-                <input type="password" name="credentials[0][password]" placeholder="Password" required>
-                <button type="button" class="removeCredential">Remove</button>
+    @if (in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) ||
+            ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
+        <form id="keywordForm">
+            @csrf
+            <input type="hidden" name="type" value="closing">
+            <div class="keywordFields">
+                <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
+                    <input class="form-control" type="text" name="keywords[0][keyword]" placeholder="Keyword"
+                        required>
+                    <input class="form-control" type="text" name="keywords[0][url]" placeholder="URL" required>
+                    <button type="button"
+                        class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
+                        <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                    </button>
+                </div>
             </div>
+            <div class="d-flex align-items-center justify-content-end gap-10">
+                <button class="btn bnt-sm btn-outline-info-900 addKeyword" type="button">Add More</button>
+                <button class="btn bnt-sm btn-info-900" type="submit">Complete Task</button>
+            </div>
+        </form>
+    @endif
+    @if ($task->title == 'Add the Client Credentials')
+        <form id="clientCredentialsForm">
+            @csrf
+            <input type="hidden" name="project_id" value="{{ $task->project_id }}">
+            <div id="credentialsContainer">
+                <div class="credentialRow">
+                    <input type="url" name="credentials[0][url]" placeholder="Website URL" required>
+                    <input type="text" name="credentials[0][username]" placeholder="Username/Email" required>
+                    <input type="password" name="credentials[0][password]" placeholder="Password" required>
+                    <button type="button" class="removeCredential">Remove</button>
+                </div>
+            </div>
+            <button type="button" id="addCredential">Add More</button>
+            <button type="submit">Submit</button>
+        </form>
+    @endif
+    <div id="responseMessage"></div>
+    {{-- COMPLETION FORM --}}
+</div>
+<div class="card border border-secondary mb-10">
+    <div class="card-body gap-10 d-flex flex-wrap align-items-center">
+        <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
+            <label class="form-label fs-7" for="assigned_to">Assignee</label>
+            <select
+                class="form-control fs-7 h-auto {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                id="assigned_to" name="assigned_to">
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}" {{ $task->assigned_to == $user->id ? 'selected' : '' }}>
+                        {{ $user->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
-        <button type="button" id="addCredential">Add More</button>
-        <button type="submit">Submit</button>
-    </form>
-@endif
-
-<div id="responseMessage"></div>
-
-{{-- COMPLETION FORM --}}
-<div class="d-flex w-100 justify-content-between align-items-center mb-10">
-    <div>
+        <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
+            <label class="form-label fs-7" for="priority">Priority</label>
+            <select
+                class="form-control fs-7 h-auto {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                id="priority" name="priority">
+                <option value="Low" {{ $task->priority == 'Low' ? 'selected' : '' }}>Low</option>
+                <option value="Medium" {{ $task->priority == 'Medium' ? 'selected' : '' }}>Medium</option>
+                <option value="High" {{ $task->priority == 'High' ? 'selected' : '' }}>High</option>
+                <option value="Urgent" {{ $task->priority == 'Urgent' ? 'selected' : '' }}>Urgent</option>
+            </select>
+        </div>
+        <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
+            <label class="form-label fs-7" for="status">Status</label>
+            <select
+                class="form-control fs-7 h-auto {{ auth()->user()->hasPermission('can change task status') ? 'task-status' : '' }}"
+                data-task-id="{{ $task->id }}" required name="status">
+                <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }} value="Todo"
+                    {{ $task->status == 'Todo' ? 'selected' : '' }}>Todo</option>
+                <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
+                    value="In Progress" {{ $task->status == 'In Progress' ? 'selected' : '' }}>In
+                    Progress</option>
+                <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }} value="Review"
+                    {{ $task->status == 'Review' ? 'selected' : '' }}>Review</option>
+                <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
+                    value="Blocked" {{ $task->status == 'Blocked' ? 'selected' : '' }}>Blocked</option>
+            </select>
+        </div>
+        <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
+            <label class="form-label fs-7" for="department_id">Department</label>
+            <select name="department_id" class="form-control fs-7 h-auto" id="department_id">
+                <option value="" disabled>Select Department</option>
+                @foreach ($departments as $depart)
+                    <option value="{{ $depart->id }}" {{ $task->department_id == $depart->id ? 'selected' : '' }}>
+                        {{ $depart->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="d-flex align-items-baseline gap-10" style="white-space: nowrap;">
+            @if ($relatedData)
+                <label class="form-label fs-7" for="sub_type">Type</label>
+                <input readonly type="text" class="form-control fs-7 h-auto"
+                    value="{{ $task->type }} -> {{ $relatedData->sub_type }}">
+            @else
+                <label class="form-label fs-7" for="sub_type">Type</label>
+                <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->type }}">
+            @endif
+        </div>
+        @if ($task->status === 'Completed')
+            <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn"
+                disabled>Completed</button>
+        @else
+            <form id="task-complete-form-{{ $task->id }}"
+                action="{{ route('task.markAsCompleted', $task->id) }}" method="POST"
+                style="display: inline-block;">
+                @csrf
+                @method('PATCH')
+                <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn"
+                    data-task-id="{{ $task->id }}">Complete Task</button>
+            </form>
+        @endif
         @if ($userPermissions->contains('can create tasks'))
             @if ($task->repeatingTask && $task->repeat_task)
                 <button class="btn btn-sm fs-7 btn-danger disable-repeating"
@@ -212,359 +539,347 @@
                     Repeat</button>
             @endif
             @if ($task->repeatingTask && !$task->repeat_task)
-                <button class="btn btn-sm fs-7 btn-success enable-repeating" data-task-id="{{ $task->id }}">Enable
+                <button class="btn btn-sm fs-7 btn-success enable-repeating"
+                    data-task-id="{{ $task->id }}">Enable
                     Repeat</button>
             @endif
         @endif
     </div>
-    @if ($task->status === 'Completed')
-        <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn" disabled>Completed</button>
-    @else
-        <form id="task-complete-form-{{ $task->id }}" action="{{ route('task.markAsCompleted', $task->id) }}"
-            method="POST" style="display: inline-block;">
-            @csrf
-            @method('PATCH')
-            <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn"
-                data-task-id="{{ $task->id }}">Complete Task</button>
-        </form>
-    @endif
-
 </div>
-
-<div class="card">
-    <div class="card-body">
-        <div class="row gy-3">
-            <div class="col-lg-12">
-                <label class="form-label" for="title">Title</label>
-                @if ($task->is_automated)
-                    <input type="text" class="form-control" id="title" name="title" readonly
-                        value="{{ $task->title }}" required>
-                @else
+<div class="row gy-3 mb-10">
+    <div class="col-xxl-6 col-md-6">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Title</span>
+            </div>
+            <div class="card-body">
+                @if ($relatedData && $relatedData->sub_type == 'ADHOC')
                     <input type="text"
-                        class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                        class="m-0 p-0 border-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
                         id="title" name="title" value="{{ $task->title }}" required>
+                @else
+                    <input type="text" class="m-0 p-0 border-0 w-100 h-100" id="title" name="title"
+                        readonly value="{{ $task->title }}" required>
                 @endif
             </div>
-            <div class="col-lg-12">
-                <label class="form-label" for="description">Description</label>
-                <textarea class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+        </div>
+    </div>
+    <div class="col-xxl-6 col-md-6">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header bg-danger-50 py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Due Date</span>
+            </div>
+            <div class="card-body bg-danger-50">
+                <input type="date"
+                    class="m-0 p-0 border-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                    name="due_date" id="due_date" value="{{ $task->due_date }}" required>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row gy-3 mb-10">
+    <div class="col-lg-8">
+        <div class="card border border-secondary" style="height: 500px; overflow-y: auto">
+            <div class="card-header position-sticky top-0">
+                <span class="fw-bold">Description</span>
+            </div>
+            <div class="card-body">
+                <textarea
+                    class="border-0 p-0 m-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
                     name="description" id="description" cols="30" rows="10">{{ $task->description }}</textarea>
             </div>
-
-            <input type="hidden" id="task_id" value="{{ $task->id }}">
-            <input type="hidden" name="created_by" value="{{ auth()->user()->id }}">
-
-            <div class="col-lg-6">
-                <label class="form-label" for="assigned_to">Assigned To</label>
-                <select
-                    class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    id="assigned_to" name="assigned_to">
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}" {{ $task->assigned_to == $user->id ? 'selected' : '' }}>
-                            {{ $user->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-lg-6">
-                <label class="form-label" for="priority">Priority</label>
-                <select
-                    class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    id="priority" name="priority">
-                    <option value="Low" {{ $task->priority == 'Low' ? 'selected' : '' }}>Low</option>
-                    <option value="Medium" {{ $task->priority == 'Medium' ? 'selected' : '' }}>Medium</option>
-                    <option value="High" {{ $task->priority == 'High' ? 'selected' : '' }}>High</option>
-                    <option value="Urgent" {{ $task->priority == 'Urgent' ? 'selected' : '' }}>Urgent</option>
-                </select>
-            </div>
-
-            <div class="col-lg-6">
-                <label class="form-label" for="status">Status</label>
-                <select
-                    class="form-control {{ auth()->user()->hasPermission('can change task status') ? 'task-status' : '' }}"
-                    data-task-id="{{ $task->id }}" required name="status">
-                    <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
-                        value="Todo" {{ $task->status == 'Todo' ? 'selected' : '' }}>Todo</option>
-                    <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
-                        value="In Progress" {{ $task->status == 'In Progress' ? 'selected' : '' }}>In
-                        Progress</option>
-                    <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
-                        value="Review" {{ $task->status == 'Review' ? 'selected' : '' }}>Review</option>
-                    <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
-                        value="Completed" {{ $task->status == 'Completed' ? 'selected' : '' }}>Completed
-                    </option>
-                    <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }}
-                        value="Blocked" {{ $task->status == 'Blocked' ? 'selected' : '' }}>Blocked</option>
-                </select>
-            </div>
-
-            <div class="col-lg-6">
-                <label class="form-label" for="type">Type</label>
-                <select
-                    class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    id="type" name="type">
-                    <option value="CONTENT" {{ $task->type == 'CONTENT' ? 'selected' : '' }}>CONTENT</option>
-                    <option value="ONSITE" {{ $task->type == 'ONSITE' ? 'selected' : '' }}>ONSITE</option>
-                    <option value="OFFSITE" {{ $task->type == 'OFFSITE' ? 'selected' : '' }}>OFFSITE</option>
-                    <option value="DESIGN" {{ $task->type == 'DESIGN' ? 'selected' : '' }}>DESIGN</option>
-                    <option value="DEVELOPMENT" {{ $task->type == 'DEVELOPMENT' ? 'selected' : '' }}>
-                        DEVELOPMENT</option>
-                    <option value="MANAGER" {{ $task->type == 'MANAGER' ? 'selected' : '' }}>MANAGER</option>
-                    <option value="ADMIN" {{ $task->type == 'ADMIN' ? 'selected' : '' }}>ADMIN</option>
-                    <option value="SALES" {{ $task->type == 'SALES' ? 'selected' : '' }}>SALES</option>
-                    <option value="ADHOC" {{ $task->type == 'ADHOC' ? 'selected' : '' }}>ADHOC</option>
-                </select>
-            </div>
-
-            <div class="col-lg-6">
-                <label class="form-label" for="due_date">Due Date</label>
-                <input type="date"
-                    class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    id="due_date" name="due_date" value="{{ $task->due_date }}">
-            </div>
-
-            <div class="col-lg-6">
-                <label class="form-label" for="department_id">Department</label>
-                <select name="department_id"
-                    class="form-control {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    id="department_id">
-                    <option value="" disabled>Select Department</option>
-                    @foreach ($departments as $depart)
-                        <option value="{{ $depart->id }}"
-                            {{ $task->department_id == $depart->id ? 'selected' : '' }}>{{ $depart->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-lg-12">
-                <div class="row" id="taskAttachmentsContainer">
-                    <label class="form-label" for="task_attachments">Current Task Files</label>
-                    <!-- Attachments Will Load Here via AJAX -->
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border border-secondary" style="height: 500px; overflow-y: auto">
+            <div class="card-header position-sticky top-0">
+                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                    <span class="fw-bold">Task Files</span>
+                    @if ($userPermissions->contains('can add task files'))
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#taskAttachmentsModal"
+                            class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                            Add More
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
+                                <path
+                                    d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                                <path
+                                    d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+                            </svg>
+                        </button>
+                    @endif
                 </div>
             </div>
-
-            @if ($task->type == 'CONTENT' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text"
-                        class="form-control  {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                        name="sub_type" value="{{ $relatedData->sub_type }}">
+            <div class="card-body">
+                <div class="mt-32" id="taskAttachmentsContainer">
                 </div>
-                @if ($relatedData->number_of_pages)
-                    <div class="col-lg-6">
-                        <label class="form-label" for="number_of_pages">Number Of Pages</label>
-                        <input type="text"
-                            class="form-control  {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                            name="number_of_pages" value="{{ $relatedData->number_of_pages }}">
-                    </div>
-                @endif
-                @if ($relatedData->no_of_words)
-                    <div class="col-lg-6">
-                        <label class="form-label" for="no_of_words">Number Of Words</label>
-                        <input type="text"
-                            class="form-control  {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                            name="no_of_words" value="{{ $relatedData->no_of_words }}">
-                    </div>
-                @endif
-                @if ($relatedData->notes)
-                    <div class="col-lg-6">
-                        <label class="form-label" for="notes">Note</label>
-                        <textarea class="{{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }} form-control"
-                            name="notes" id="notes" cols="30" rows="10">{{ $relatedData->notes }}</textarea>
-                    </div>
-                @endif
-            @endif
-
-            @if ($task->type == 'ONSITE' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text" class="form-control" name="sub_type"
-                        value="{{ $relatedData->sub_type }}">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row gy-3 mb-10">
+    @if ($task->completions->count())
+        <div class="col-lg-4">
+            <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                    <span class="fw-bold">Closing Inputs</span>
                 </div>
-                @if ($relatedData->closing_input)
-                    <div class="col-lg-6">
-                        <label class="form-label d-block" for="closing_input">Closing Input</label>
-                        <img src="{{ asset('storage/') }}/{{ $relatedData->closing_input }}" class="img-fluid"
-                            alt="">
-                    </div>
-                @endif
-            @endif
-
-
-            @if ($task->type == 'OFFSITE' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text" class="form-control" name="sub_type"
-                        value="{{ $relatedData->sub_type }}">
-                </div>
-                @if ($relatedData && $relatedData->startingKwUrls->count())
-                    <span class="d-block text-dark p-0">Assigned Keywords & Urls</span>
-                    <table class="table table-bordered">
-                        <thead>
+                <div class="card-body p-0 table-responsive" style="height: 500px; overflow: auto;">
+                    <table class="table table-striped table-bordered">
+                        <thead class="position-static">
                             <tr>
-                                <th>Keyword</th>
-                                <th>URL</th>
-                                <th>Domain</th>
-                                @if ($userPermissions->contains('can remove offsite links'))
-                                    <th>Action</th>
-                                @endif
+                                <th class="fw-light">Field Name</th>
+                                <th class="fw-light">Field Value</th>
                             </tr>
                         </thead>
-                        <tbody id="startingKwUrlsTable">
-                            <!-- Data will be loaded here via AJAX -->
+                        <tbody>
+                            @foreach ($task->completions as $completion)
+                                <tr>
+                                    @if ($completion->field_value === 'on')
+                                        <td class="fs-7">
+                                            {{ str_replace('_', ' ', ucfirst($completion->field_name)) }}
+                                        </td>
+                                        <td class="fs-7">
+                                            <span class="text-success ms-2">
+                                                <iconify-icon icon="mdi:check-circle" width="20"
+                                                    height="20"></iconify-icon>
+                                            </span>
+                                        </td>
+                                    @endif
+                                    @if (Str::startsWith($completion->field_value, 'task_attachments/'))
+                                        <td class="fs-7">Attachment</td>
+                                        <td class="fs-7">
+                                            @php
+                                                $filePath = 'storage/' . $completion->field_value;
+                                            @endphp
+
+                                            <a href="{{ asset($filePath) }}" target="_blank"
+                                                class="fs-7 text-primary d-block mt-1">
+                                                Download File
+                                            </a>
+                                        </td>
+                                    @elseif ($completion->field_value != 'on' && !Str::startsWith($completion->field_value, 'task_attachments/'))
+                                        <td class="fs-7">
+                                            {{ str_replace('_', ' ', ucfirst($completion->field_name)) }}
+                                        </td>
+                                        <td class="fs-7">{{ $completion->field_value }}</td>
+                                    @endif
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
-
-                    @if ($userPermissions->contains('can add offsite links'))
-                        <div class="d-flex justify-content-end align-items-center">
-                            <button class="btn btn-primary btn-sm open-add-more-links-wrapper">
-                                Add New Links
-                            </button>
-                        </div>
-                        <div class="col-lg-12 add-more-links-wrapper" style="display: none">
-                            <form id="addOffsiteLinkForm">
-                                @csrf
-
-                                <input type="hidden" id="offsite_task_id" name="offsite_task_id"
-                                    value="{{ $relatedData->id }}">
-
-                                <div class="col-lg-12 offsite-fields">
-                                    <div id="kw-url-container">
-                                        <div class="row mb-2 kw-url-input">
-                                            <div class="col">
-                                                <input type="text" class="form-control keyword"
-                                                    placeholder="Keyword">
-                                            </div>
-                                            <div class="col">
-                                                <input type="text" class="form-control url" placeholder="URL">
-                                            </div>
-                                            <div class="col-auto">
-                                                <button type="button" class="btn btn-danger remove-kw-url">X</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="w-100 mt-20 d-flex align-items-center justify-content-between">
-                                        <button type="button" id="add-kw-url" class="btn-sm btn btn-primary">+
-                                            Add More</button>
-                                        <button type="submit" class="btn-sm btn btn-success">Save Links</button>
-                                    </div>
-                                    <input type="hidden" name="kw_url" id="kw_url">
-                                </div>
-                            </form>
-                        </div>
-                    @endif
-                @else
-                    <p>No Data Found</p>
-                @endif
-            @endif
-
-            @if ($task->type == 'DESIGN' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text" class="form-control" name="sub_type"
-                        value="{{ $relatedData->sub_type }}">
                 </div>
-                @if ($relatedData->closing_input)
-                    <div class="col-lg-6">
-                        <label class="form-label" for="input_number">Number Of Designs</label>
-                        <input type="text" class="form-control" name="input_number"
-                            value="{{ $relatedData->input_number }}">
-                    </div>
-                @endif
-                @if ($relatedData->closing_input)
-                    <div class="col-lg-6">
-                        <label class="form-label d-block" for="closing_input">Closing Input</label>
-                        <img src="{{ asset('storage/') }}/{{ $relatedData->closing_input }}" class="img-fluid"
-                            alt="">
-                    </div>
-                @endif
-            @endif
-
-            @if ($task->type == 'DEVELOPMENT' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text" class="form-control" name="sub_type"
-                        value="{{ $relatedData->sub_type }}">
-                </div>
-                @if ($relatedData->closing_input)
-                    <div class="col-lg-6">
-                        <label class="form-label d-block" for="closing_input">Closing Input</label>
-                        <img src="{{ asset('storage/') }}/{{ $relatedData->closing_input }}" class="img-fluid"
-                            alt="">
-                    </div>
-                @endif
-            @endif
-
-            @if ($task->type == 'AM' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text" class="form-control" name="sub_type"
-                        value="{{ $relatedData->sub_type }}">
-                </div>
-            @endif
-
-            @if ($task->type == 'ADMIN' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text" class="form-control" name="sub_type"
-                        value="{{ $relatedData->sub_type }}">
-                </div>
-            @endif
-
-            @if ($task->type == 'SALES' && $relatedData)
-                <div class="col-lg-6">
-                    <label class="form-label" for="sub_type">Sub Type</label>
-                    <input type="text" class="form-control" name="sub_type"
-                        value="{{ $relatedData->sub_type }}">
-                </div>
-            @endif
-
+            </div>
         </div>
-    </div>
-
-    {{-- COMMENTS --}}
-    <div class="col-lg-12">
-        <div class="card h-100 p-0 email-card overflow-x-auto d-block">
-            <div class="min-w-450-px d-flex flex-column justify-content-between h-100">
-                <div
-                    class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center gap-3 justify-content-between flex-wrap">
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="text-secondary-light d-flex me-8"><iconify-icon icon="mingcute:arrow-left-line"
-                                class="icon fs-3 line-height-1"></iconify-icon></button>
-                        <h6 class="mb-0 text-lg">Task Comments</h6>
-                    </div>
-                </div>
-                <div class="card-body p-0">
+    @endif
+    <div class="col-lg-8">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Task Comments</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="row gy-3 p-10">
                     <ul id="comment-list" class="list-group mb-3"></ul>
                 </div>
-                <div class="card-footer py-16 px-24 bg-base shadow-top">
-                    <form action="#">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <textarea id="comment-text" class="textarea-max-height form-control p-0 border-0 py-8 pe-16 resize-none scroll-sm"
-                                oninput="adjustHeight(this)" placeholder="Write massage"></textarea>
-                            <div class="d-flex align-items-center gap-4 ms-16">
-                                <button type="button" id="add-comment"
-                                    class="btn btn-primary text-sm btn-sm px-12 py-12 w-100 radius-8 d-flex align-items-center justify-content-center gap-1 h-44-px">
-                                    <iconify-icon icon="ion:paper-plane-outline"
-                                        class="icon text-lg line-height-1"></iconify-icon>
-                                    Send
-                                </button>
-                            </div>
+                <form action="#" class="row gy-3 p-10">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <textarea id="comment-text" class="textarea-max-height form-control border resize-none scroll-sm"
+                            placeholder="Write massage"></textarea>
+                        <div class="d-flex align-items-center gap-4 ms-16">
+                            <button type="button" id="add-comment"
+                                class="btn btn-primary text-sm btn-sm px-12 py-12 w-100 radius-8 d-flex align-items-center justify-content-center gap-1 h-44-px">
+                                <iconify-icon icon="ion:paper-plane-outline"
+                                    class="icon text-lg line-height-1"></iconify-icon>
+                                Send
+                            </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row gy-3 mb-10">
+
+    <div class="col-lg-6 starting-kw-url-wrapper" style="display: none">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Assigned Keywords & Urls</span>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-bordered m-0">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>URL</th>
+                            @if ($userPermissions->contains('can remove offsite links'))
+                                <th>Action</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody id="startingKwUrlsTable">
+                        <!-- Data will be loaded here via AJAX -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
+    <div class="col-lg-6 closing-kw-url-wrapper" style="display: none">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Closing Keywords & Urls</span>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-bordered m-0">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>URL</th>
+                            @if ($userPermissions->contains('can remove offsite links'))
+                                <th>Action</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody id="closingKwUrlsTable">
+                        <!-- Data will be loaded here via AJAX -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if ($userPermissions->contains('can add offsite links'))
+        @if (in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) ||
+                ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
+            <div class="d-flex justify-content-end align-items-center">
+                <button class="btn btn-primary btn-sm open-add-more-links-wrapper">
+                    Add more kw/urls
+                </button>
+            </div>
+        @endif
+        <div class="col-lg-12 add-more-links-wrapper" style="display: none">
+            <form id="keywordForm2">
+                @csrf
+                <input type="hidden" name="type" value="starting">
+                <div class="keywordFields">
+                    <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
+                        <input class="form-control" type="text" name="keywords[0][keyword]" placeholder="Keyword"
+                            required>
+                        <input class="form-control" type="text" name="keywords[0][url]" placeholder="URL"
+                            required>
+                        <button type="button"
+                            class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
+                            <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-end gap-10">
+                    <button class="btn bnt-sm btn-outline-info-900 addKeyword" type="button">Add
+                        More</button>
+                    <button class="btn bnt-sm btn-info-900" type="submit">Save Keywords</button>
+                </div>
+            </form>
+        </div>
+    @endif
+
+    <input type="hidden" id="task_id" value="{{ $task->id }}">
+    <input type="hidden" name="created_by" value="{{ auth()->user()->id }}">
+
+</div>
+<div class="row my-10">
+    <div class="col-xxl-6 col-md-6">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div
+                class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Collaborators</span>
+                <select onchange="addCollaborator('{{ $task->id }}')" id="user_id" class="form-select w-auto">
+                    <option value="">Select User</option>
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="card-body p-24">
+                <div class="row gy-3 mb-10" id="collaborators-list">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xxl-6 col-md-6">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Task Activity</span>
+            </div>
+            <div class="card-body p-24">
+                <div class="row gy-3 mb-10" id="collaborators-list">
+                    @foreach ($task->history as $history)
+                        <div class="timeline-item mb-6">
+                            <div class="timeline-content d-flex align-items-center gap-10">
+                                <iconify-icon icon="mdi:history" width="12" height="12"></iconify-icon>
+                                <span class="fw-semibold fs-7">
+                                    {{ ucwords(str_replace('_', ' ', $history->action)) }}
+                                </span>
+                                <small class="text-muted fs-7">{{ $history->created_at->diffForHumans() }}</small>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    $(document).ready(function() {
-        var deleteUrlTemplate = '{{ route('starting_kw_url.delete', ['id' => ':id']) }}';
+    function fetchCollaborators(taskId) {
+        $.get("{{ route('task.collaborators', ['task' => ':id']) }}".replace(':id', taskId), function(response) {
+            $('#collaborators-list').empty();
+            response.forEach(collaborator => {
+                $('#collaborators-list').append(`
+                <div class="col-sm-6">
+                    <div class="d-flex align-items-start gap-2">
+                        <button onclick="removeCollaborator(${collaborator.id}, ${taskId})" type="button" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle"> 
+                            <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                        </button>
+                        <div class="flex-grow-1 d-inline-flex flex-column">
+                            <h6 class="text-sm mb-0">${collaborator.user.name}</h6>
+                            <span class="text-xs text-secondary-light">${collaborator.user.email}</span>
+                        </div>
+                    </div>
+                </div>
+            `);
+            });
+        });
+    }
 
+    function addCollaborator(taskId) {
+        $.post("{{ route('task.collaborators.store') }}", {
+            task_id: taskId,
+            user_id: $('#user_id').val(),
+            _token: "{{ csrf_token() }}"
+        }, function(response) {
+            fetchCollaborators(taskId);
+            toastr.success(response.message)
+        });
+    }
+
+    function removeCollaborator(id, taskId) {
+        $.ajax({
+            url: "{{ route('task.collaborators.destroy', ['collaborator' => ':id']) }}".replace(':id', id),
+            type: 'DELETE',
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                fetchCollaborators(taskId);
+                toastr.success(response.message)
+            }
+        });
+    }
+    $(document).ready(() => {
+        fetchCollaborators("{{ $task->id }}");
+    });
+    $(document).ready(function() {
         function loadStartingKwUrls() {
             $.ajax({
                 url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => $task->id]) }}',
@@ -572,26 +887,21 @@
                 success: function(data) {
                     var tableBody = $("#startingKwUrlsTable");
                     tableBody.empty();
-
-                    var dataArray = Array.isArray(data) ? data : Object.values(data);
-
-                    if (dataArray.length === 0) {
-                        tableBody.append('<tr><td colspan="4">No Data Found</td></tr>');
-                    } else {
-                        dataArray.forEach(function(kwUrl) {
-                            tableBody.append(`
-                                <tr id="row-${kwUrl.id}">
-                                    <td>${kwUrl.keyword}</td>
-                                    <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                                    <td>${kwUrl.domain}</td>
-                                    @if ($userPermissions->contains('can remove offsite links'))
-                                    <td>
-                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
-                                    </td>
-                                    @endif
+                    data.forEach(function(kwUrl) {
+                        tableBody.append(`
+                        <tr id="row-${kwUrl.id}">
+                            <td>${kwUrl.keyword}</td>
+                            <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
+                            @if ($userPermissions->contains('can remove offsite links'))
+                            <td>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
+                                </td>
+                                @endif
                                 </tr>
-                            `);
-                        });
+                                `);
+                    });
+                    if (data.length > 0) {
+                        $('.starting-kw-url-wrapper').slideDown()
                     }
                 },
                 error: function() {
@@ -601,92 +911,42 @@
             });
         }
 
-        loadStartingKwUrls();
-
-        $("#addNewLinkRow").click(function() {
-            $("#linksTableBody").append(`
-                <tr>
-                    <td><input type="text" class="form-control keyword" required></td>
-                    <td><input type="url" class="form-control url" required></td>
-                    <td><button type="button" class="btn btn-danger remove-link">X</button></td>
-                </tr>
-            `);
-        });
-
-        $(document).on("click", ".remove-link", function() {
-            $(this).closest("tr").remove();
-        });
-
-        $("#addOffsiteLinkForm").submit(function(event) {
-            event.preventDefault();
-
-            let offsite_task_id = $('#offsite_task_id').val()
-
-            let links = [];
-            $('.kw-url-input').each(function() {
-                let keyword = $(this).find('.keyword').val();
-                let url = $(this).find('.url').val();
-
-                if (keyword && url) {
-                    links.push({
-                        keyword,
-                        url
-                    });
-                }
-            });
-
-            $('#kw_url').val(JSON.stringify(links));
-
-            $("#linksTableBody tr").each(function() {
-                var keyword = $(this).find(".keyword").val();
-                var url = $(this).find(".url").val();
-
-                if (keyword && url) {
-                    links.push({
-                        keyword: keyword,
-                        url: url,
-                    });
-                }
-            });
-
-            if (links.length === 0) {
-                alert("Please add at least one valid link.");
-                return;
-            }
-
-            var formData = {
-                _token: "{{ csrf_token() }}",
-                kw_url: JSON.stringify(links),
-                task_id: "{{ $task->id }}",
-                project_id: "{{ $task->project_id }}",
-                offsite_task_id: offsite_task_id
-            };
-
+        function loadClosingKwUrls() {
             $.ajax({
-                url: '{{ route('starting_kw_url.store') }}',
-                type: "POST",
-                data: formData,
-                success: function(response) {
-                    $("#addOffsiteLinkModal").modal("hide");
-                    $("#addOffsiteLinkForm")[0].reset();
-                    $("#linksTableBody").html(`
-                        <tr>
-                            <td><input type="text" class="form-control keyword" required></td>
-                            <td><input type="url" class="form-control url" required></td>
-                            <td><button type="button" class="btn btn-danger remove-link">X</button></td>
-                        </tr>
-                    `);
-                    loadStartingKwUrls();
-                    $('.add-more-links-wrapper').slideUp();
-                    toastr.success("Links Added!", "Success");
+                url: '{{ route('offsite.tasks.closing_kw_urls', ['task_id' => $task->id]) }}',
+                type: "GET",
+                success: function(data) {
+                    var tableBody = $("#closingKwUrlsTable");
+                    tableBody.empty();
+                    data.forEach(function(kwUrl) {
+                        tableBody.append(`
+                            <tr id="row-${kwUrl.id}">
+                                <td>${kwUrl.keyword}</td>
+                                <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
+                                @if ($userPermissions->contains('can remove offsite links'))
+                                <td>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
+                                </td>
+                                @endif
+                            </tr>
+                        `);
+                    });
+                    if (data.length > 0) {
+                        $('.closing-kw-url-wrapper').slideDown()
+                    }
                 },
                 error: function() {
-                    alert("Failed to add links!");
+                    $("#closingKwUrlsTable").html(
+                        '<tr><td colspan="4">Error Loading Data</td></tr>');
                 }
             });
-        });
-
-        $(document).on("click", ".delete-btn", function(event) {
+        }
+        setTimeout(() => {
+            loadStartingKwUrls();
+            loadClosingKwUrls();
+        }, 2000);
+        var deleteUrlTemplate = '{{ route('project-keyword.delete', ['id' => ':id']) }}';
+        $(document).off("click", ".delete-btn").on("click", ".delete-btn", function(event) {
             event.preventDefault();
 
             var id = $(this).data("id");
@@ -698,35 +958,15 @@
                 headers: {
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
-                success: function() {
+                success: function(response) {
                     $("#row-" + id).fadeOut();
+                    toastr.success("Keyword deleted successfully!");
                 },
-                error: function() {
-                    alert("Failed to delete record!");
+                error: function(xhr) {
+                    alert(xhr.responseJSON?.error || "Failed to delete record!");
                 }
             });
         });
-
-        $(document).on('click', '#add-kw-url', function() {
-            $('#kw-url-container').append(`
-            <div class="row mb-2 kw-url-input">
-                <div class="col">
-                    <input type="text" class="form-control keyword" placeholder="Keyword">
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control url" placeholder="URL">
-                </div>
-                <div class="col-auto">
-                    <button type="button" class="btn btn-danger remove-kw-url">X</button>
-                </div>
-            </div>
-        `);
-        });
-
-        $(document).on('click', '.remove-kw-url', function() {
-            $(this).closest('.kw-url-input').remove();
-        });
-
         $(document).on('click', '.open-add-more-links-wrapper', function() {
             $('.add-more-links-wrapper').slideDown()
         });
@@ -747,53 +987,53 @@
                 }
             });
         }
-
         $(document).on('click', '.disable-repeating', function() {
             let taskId = $(this).data('task-id');
             toggleRepeatStatus(taskId, "disable-repeating");
         });
-
         $(document).on('click', '.enable-repeating', function() {
             let taskId = $(this).data('task-id');
             toggleRepeatStatus(taskId, "enable-repeating");
         });
     });
-</script>
-<script>
     $('.complete-task-btn').on('click', function() {
-        let button = $(this);
-        let taskId = button.data('task-id');
-        let form = $(`#task-complete-form-${taskId}`);
-        let url = form.attr('action');
+        $('.completion-form-wrapper').slideDown();
+        $(this).fadeOut();
+    });
 
-        if (!confirm('Are you sure you want to complete this task?')) return;
-
+    function triggerCompletionSubmit() {
+        let button = $('.complete-task-btn');
         $.ajax({
-            url: url,
-            type: 'PATCH',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            url: "{{ route('task.markAsCompleted', $task->id) }}",
+            type: "PATCH",
+            data: {
+                _token: "{{ csrf_token() }}"
             },
             success: function(response) {
                 if (response.success) {
-                    button.text("Completed")
-                        .removeClass("btn-neutral-900")
-                        .addClass("btn-success")
-                        .prop("disabled", true);
+                    button.fadeIn()
+                    button.text("Completed").removeClass("btn-neutral-900").addClass("btn-success").prop(
+                        "disabled", true);
+                    toastr.success("Task marked as completed!", "Success");
+                    $('.completion-form-wrapper').slideUp();
+                    $('.completion-anim-wrapper').fadeIn();
+                    setTimeout(() => {
+                        $('.completion-anim-wrapper').fadeOut();
+                    }, 4000);
                 } else {
-                    alert(response.message || "Something went wrong!");
+                    toastr.error(response.message || "Something went wrong!");
                 }
             },
             error: function(xhr) {
-                console.error('Error:', xhr);
-                alert("Something went wrong!");
+                toastr.error(
+                    "Failed to mark task as completed.",
+                    "Error");
             }
         });
-    });
+    }
     $(document).ready(function() {
         $("#taskForm").submit(function(e) {
             e.preventDefault();
-
             let formData = new FormData(this);
 
             $.ajax({
@@ -802,22 +1042,20 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    $("#responseMessage").html("<p style='color:green;'>" + response
-                        .message + "</p>");
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message, "Success");
+                    if (xhr.status === 200) {
+                        triggerCompletionSubmit();
+                    }
                 },
                 error: function(xhr) {
-                    $("#responseMessage").html("<p style='color:red;'>Error: " + xhr
-                        .responseText + "</p>");
+                    toastr.error("Error: " + xhr.responseText, "Error");
                 }
             });
         });
     });
-
     $(document).ready(function() {
         let credentialIndex = 1;
-
-        // Add more credentials
         $("#addCredential").click(function() {
             $("#credentialsContainer").append(`
                 <div class="credentialRow">
@@ -829,13 +1067,9 @@
             `);
             credentialIndex++;
         });
-
-        // Remove credential row
         $(document).on("click", ".removeCredential", function() {
             $(this).closest(".credentialRow").remove();
         });
-
-        // Submit form via AJAX
         $("#clientCredentialsForm").submit(function(e) {
             e.preventDefault();
             let formData = new FormData(this);
@@ -845,31 +1079,68 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    alert(response.message);
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message);
+                    if (xhr.status === 200) {
+                        triggerCompletionSubmit();
+                    }
                 },
                 error: function(xhr) {
                     alert("Error: " + xhr.responseText);
                 }
             });
-
         });
     });
     $(document).ready(function() {
         $("#keywordForm").submit(function(e) {
             e.preventDefault();
-
             let formData = new FormData(this);
             formData.append("task_id", "{{ $task->id }}");
-
             $.ajax({
                 url: "{{ route('projects.storeKeywords', $task->project->id) }}",
                 type: "POST",
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    alert(response.message);
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message);
+                    if (xhr.status === 200) {
+                        triggerCompletionSubmit();
+                    }
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+        $("#keywordForm2").submit(function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            formData.append("task_id", "{{ $task->id }}");
+            $.ajax({
+                url: "{{ route('projects.storeKeywords', $task->project->id) }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message);
+                    var tableBody = $("#startingKwUrlsTable");
+                    tableBody.empty();
+                    response.data.forEach(function(kwUrl) {
+                        tableBody.append(`
+                            <tr id="row-${kwUrl.id}">
+                                <td>${kwUrl.keyword}</td>
+                                <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
+                                @if ($userPermissions->contains('can remove offsite links'))
+                                <td>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
+                                </td>
+                                @endif
+                            </tr>
+                        `);
+                    });
+                    $('.add-more-links-wrapper').fadeOut();
                 },
                 error: function(xhr) {
                     alert("Error: " + xhr.responseText);
@@ -879,20 +1150,291 @@
     });
     $(document).ready(function() {
         let index = 1;
-
-        $("#addKeyword").click(function() {
-            $("#keywordFields").append(`
-        <div class="keyword-group">
-            <input type="text" name="keywords[${index}][keyword]" placeholder="Keyword" required>
-            <input type="text" name="keywords[${index}][url]" placeholder="URL" required>
-            <button type="button" class="remove-btn">Remove</button>
-        </div>
-    `);
+        $(".addKeyword").click(function() {
+            $(".keywordFields").append(`
+                <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
+                   <input class="form-control" type="text" name="keywords[${index}][keyword]" placeholder="Keyword"
+                       required>
+                   <input class="form-control" type="text" name="keywords[${index}][url]" placeholder="URL" required>
+                   <button type="button"
+                       class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
+                       <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                   </button>
+                </div>
+            `);
             index++;
         });
-
         $(document).on("click", ".remove-btn", function() {
             $(this).parent().remove();
+        });
+    });
+
+    function timeAgo(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        const intervals = [{
+                label: "year",
+                seconds: 31536000
+            },
+            {
+                label: "month",
+                seconds: 2592000
+            },
+            {
+                label: "week",
+                seconds: 604800
+            },
+            {
+                label: "day",
+                seconds: 86400
+            },
+            {
+                label: "hour",
+                seconds: 3600
+            },
+            {
+                label: "minute",
+                seconds: 60
+            },
+        ];
+
+        for (const interval of intervals) {
+            const count = Math.floor(seconds / interval.seconds);
+            if (count > 0) {
+                return `${count} ${interval.label}${count !== 1 ? "s" : ""} ago`;
+            }
+        }
+        return seconds < 10 ? "Just now" : `${seconds} seconds ago`;
+    }
+
+    function loadComments() {
+        let taskId = $("input[name='task_id']").val();
+        $.get("{{ route('comments.index', $task->id) }}", function(data) {
+            $('#comment-list').empty();
+            data.forEach(comment => {
+                $('#comment-list').append(
+                    `
+                <div class="position-relative p-1 px-24 border-bottom">
+                    <div class="d-flex align-items-start gap-3">
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" class="w-40-px h-40-px rounded-pill">
+                        <div class="w-100">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="mb-0 fs-7">${comment.user.name} ${comment.user_id == {{ auth()->id() }} ? '(you)' : ''}</span>
+                                </div>
+                                ${comment.user_id === {{ auth()->id() }} ? `
+                                <button type="button" data-id="${comment.id}" class="position-absolute top-0 end-0 m-10 remove-item-btn delete-comment bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle"> 
+                                    <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                                </button>
+                                ` : ''}
+                            </div>
+                            <p class="mb-0 text-primary-light">${comment.comment}</p>
+                            <span class="comment-time d-block fs-7" data-time="${comment.created_at}"></span>
+                        </div>
+                    </div>
+                </div>
+                `
+                );
+            });
+            updateTimestamps();
+        });
+    }
+
+    function updateTimestamps() {
+        document.querySelectorAll(".comment-time").forEach(element => {
+            const timestamp = element.getAttribute("data-time");
+            element.textContent = timeAgo(timestamp);
+        });
+    }
+    setInterval(updateTimestamps, 30000);
+    $(document).on('click', '#add-comment', function() {
+        let taskId = "{{ $task->id }}";
+        let commentText = $('#comment-text').val();
+        $.post("{{ route('comments.store') }}", {
+            task_id: taskId,
+            comment: commentText,
+            _token: "{{ csrf_token() }}"
+        }, function() {
+            $('#comment-text').val('');
+            loadComments();
+        });
+    });
+    $(document).on('click', '.delete-comment', function() {
+        let commentId = $(this).data('id');
+        $.ajax({
+            url: "{{ route('comments.destroy', ['id' => ':id']) }}".replace(':id', commentId),
+            type: "DELETE",
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            success: function() {
+                loadComments();
+            }
+        });
+    });
+
+    function loadTaskAttachments() {
+        let taskId = "{{ $task->id }}";
+        $.ajax({
+            url: "{{ route('tasks.attachments.index', ':id') }}".replace(':id', taskId),
+            type: "GET",
+            success: function(response) {
+                renderAttachments(response.attachments);
+            }
+        });
+    }
+
+    function renderAttachments(attachments) {
+        let html = '';
+        attachments.forEach(file => {
+            let filePath = "{{ asset('storage/') }}/" + file.file_path;
+            let fileName = file.file_path.slice(-10);
+            let extension = file.file_path.split('.').pop();
+            let imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+            if (imageExtensions.includes(extension)) {
+                html += `
+                <span class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                    <div class="d-flex align-items-center">
+                        <a href="${filePath}" target="_blank">
+                            <img src="${filePath}" alt=""
+                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
+                        </a>
+                        <div class="flex-grow-1">
+                            <h6 class="text-md mb-0 fw-medium">${fileName}</h6>
+                        </div>
+                    </div>
+                     <button type="button" class="m-2 delete-attachment border-0 btn p-0 m-0"
+                        data-attachment-id="${file.id}"
+                        data-delete-url="{{ route('tasks.attachments.destroy', ':id') }}".replace(':id', file.id)">
+                        <iconify-icon icon="material-symbols:delete-outline" class="icon line-height-1"></iconify-icon>
+                    </button>
+                </span>`;
+            } else {
+                html += `
+                 <span class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ asset('/images/doc.png') }}" alt=""
+                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
+                        <div class="flex-grow-1">
+                            <h6 class="text-md mb-0 fw-medium">${fileName}</h6>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-10 align-items-baseline">
+                         <button type="button" class="m-2 delete-attachment border-0 btn p-0 m-0"
+                            data-attachment-id="${file.id}"
+                            data-delete-url="{{ route('tasks.attachments.destroy', ':id') }}".replace(':id', file.id)">
+                            <iconify-icon icon="material-symbols:delete-outline" class="icon line-height-1"></iconify-icon>
+                        </button>
+                        <a href="${filePath}" download class="class="btn border-0 m-0 p-0""><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon></a> 
+                    </div>
+                </span>`;
+            }
+        });
+        $("#taskAttachmentsContainer").html(html);
+    }
+    $("#uploadTaskAttachmentsForm").submit(function(event) {
+        event.preventDefault();
+        let formData = new FormData(this);
+        let taskId = "{{ $task->id }}";
+        let uploadUrl = "{{ route('tasks.attachments.store', ':id') }}".replace(':id', taskId);
+        $.ajax({
+            url: uploadUrl,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function() {
+                $("#taskUploadStatus").html("<p class='text-info'>Uploading...</p>");
+            },
+            success: function(response) {
+                if (response.success) {
+                    $("#taskUploadStatus").html(
+                        "<p class='text-success'>Files uploaded successfully!</p>");
+                    loadTaskAttachments();
+                    $('#taskAttachmentsModal').modal('hide');
+                    toastr.success("Task attachment added!", "Success");
+                } else {
+                    $("#taskUploadStatus").html("<p class='text-danger'>Error: " +
+                        response.message + "</p>");
+                }
+            },
+            error: function(xhr) {
+                console.error("Upload Error:", xhr);
+                $("#taskUploadStatus").html(
+                    "<p class='text-danger'>Something went wrong!</p>");
+            }
+        });
+    });
+    $(document).on("click", ".delete-attachment", function() {
+        let attachmentId = $(this).attr("data-attachment-id");
+        if (confirm("Are you sure you want to delete this attachment?")) {
+            $.ajax({
+                url: "{{ route('tasks.attachments.destroy', ':id') }}".replace(':id', attachmentId),
+                type: "DELETE",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr("content") // CSRF Token
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $("#attachment-" + attachmentId).remove();
+                        toastr.info("Task attachment deleted!", "Info");
+                        loadTaskAttachments()
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Error:", xhr);
+                    alert("Something went wrong!");
+                }
+            });
+        }
+    });
+    $(document).on("change", ".task-update-field", function() {
+        let taskId = "{{ $task->id }}";
+        let fieldName = $(this).attr("name");
+        let fieldValue = $(this).val();
+        setTimeout(() => {
+            $.ajax({
+                url: "{{ route('tasks.update.json', ':id') }}".replace(':id', taskId),
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    field: fieldName,
+                    value: fieldValue
+                },
+                success: function(response) {
+                    toastr.success(`${response.message}`, "Success");
+                },
+                error: function(xhr) {
+                    toastr.error("Update failed. Please try again.");
+                }
+            });
+        }, 500);
+    });
+    $(document).on("change", ".task-status", function() {
+        let taskId = "{{ $task->id }}";
+        let updateUrl = "{{ route('tasks.updateStatus', ':id') }}".replace(':id', taskId);
+        let newStatus = $(this).val();
+        $.ajax({
+            url: updateUrl,
+            type: "POST",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr("content"), // CSRF Token
+                status: newStatus,
+                task_id: taskId,
+            },
+            success: function(response) {
+                if (response) {
+                    toastr.success(response.message);
+                } else {
+                    toastr.error("Task status can't change!", "Error");
+                }
+            },
+            error: function(xhr) {
+                console.error("Error:", xhr);
+                toastr.error("Task status can't change!", "Error");
+            }
         });
     });
 </script>
