@@ -4,6 +4,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IndustryController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OffsiteTaskController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\UserController;
 use App\Jobs\CreateRecurringTaskJob;
 use App\Models\Task;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,6 +32,10 @@ Route::get('/live-time', function () {
         'time' => Carbon::now('Asia/Dubai')->format('H:i:s') // Current time in UAE timezone
     ]);
 });
+
+Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread.count');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

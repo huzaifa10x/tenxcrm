@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Models\TaskComment;
+use App\Models\User;
+use App\Notifications\CustomNotification;
 
 class TaskCommentController extends Controller
 {
@@ -20,12 +23,13 @@ class TaskCommentController extends Controller
             'comment' => 'required|string'
         ]);
 
+        
         $comment = TaskComment::create([
             'task_id' => $request->task_id,
             'user_id' => auth()->id(),
             'comment' => $request->comment
         ]);
-
+        
         return response()->json(['success' => true, 'comment' => $comment]);
     }
 

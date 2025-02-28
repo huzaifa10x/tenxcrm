@@ -15935,3 +15935,27 @@ ul#comment-list {
   background-color: #1B2431;
   border-radius: 7px;
 }
+
+/* Bell Animation */
+@keyframes bell-shake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-10deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(5deg); }
+}
+
+.animate-bell iconify-icon {
+  animation: bell-shake 0.6s ease-in-out infinite;
+}
+
+/* Notification Dot */
+.notification-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+}

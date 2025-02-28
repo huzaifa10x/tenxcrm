@@ -93,6 +93,17 @@ class DashboardController extends Controller
 
         $role = $user->roles->first()->name;
 
+        if ($role == 'AM') {
+            $projects = Project::whereHas('accountManagers', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+            $currentPortfolio = $projects->sum(function ($project) {
+                return ($project->contract_value && $project->contract_term) ?
+                    ($project->contract_value / $project->contract_term) : 0;
+            });
+            return view('dashboard', compact('role', 'currentPortfolio', 'projects'));
+        }
+
         return view('dashboard', compact('role'));
     }
 }

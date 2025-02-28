@@ -39,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
                 $schedule->command('assign:monthly-tasks')->monthlyOn(1, '00:00');
                 $schedule->command('tasks:contract-renewal')->everyMinute()->withoutOverlapping();
+                $schedule->command('notifications:check')->everyTenSeconds()->withoutOverlapping();
             });
         }
         Carbon::setTestNow(Carbon::now());

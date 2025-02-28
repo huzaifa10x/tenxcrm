@@ -24,6 +24,7 @@ use App\Models\SeoAdminTask;
 use App\Models\TaskAttachment;
 use App\Models\TaskCompletion;
 use App\Models\TaskHistory;
+use App\Notifications\CustomNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
@@ -31,6 +32,8 @@ use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\TaskAssigned;
+use App\Notifications\TaskCreatedNotification;
 
 class TaskController extends Controller
 {
@@ -121,7 +124,6 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         try {
-
             $task = Task::create([
                 'title' => $request->title,
                 'description' => $request->description,
@@ -253,6 +255,10 @@ class TaskController extends Controller
                 'action' => "Task Created By " . auth()->user()->name,
             ]);
 
+            $user = User::find($request->assigned_to);
+
+            $user->notify(new CustomNotification("New Task Added By " . auth()->user()->name, $request->title));
+
             return redirect()->back()->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -308,6 +314,8 @@ class TaskController extends Controller
     // Delete task
     public function destroy(Task $task)
     {
+        $user = User::find($task->assigned_to);
+        $user->notify(new CustomNotification("Task deleted by " . auth()->user()->name, $task->title . " deleted"));
         $task->delete();
         return redirect()->back()->with('success', 'Task deleted successfully!');
     }
@@ -362,6 +370,10 @@ class TaskController extends Controller
             'action' => "Status Changed From " . $task->status . " To " . $request->status . " By " . auth()->user()->name,
         ]);
         $task->status = $request->status;
+
+        $user = User::find($task->assigned_to);
+        $user->notify(new CustomNotification("Task status updated by " . auth()->user()->name, $task->title . " status updated"));
+
         $task->save();
 
         return response()->json(['message' => 'Task status updated successfully']);
@@ -427,7 +439,6 @@ class TaskController extends Controller
         ]);
         $task->{$request->field} = $request->value;
         $task->save();
-
 
         return response()->json([
             "message" => ucfirst($request->field) . " updated successfully!"
@@ -645,6 +656,9 @@ class TaskController extends Controller
             'user_id' => auth()->user()->id,
             'action' => auth()->user()->name . " marked this task completed",
         ]);
+
+        $user = User::find($task->assigned_to);
+        $user->notify(new CustomNotification("Task status updated by " . auth()->user()->name, $task->title . " marked as completed"));
 
         return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
     }

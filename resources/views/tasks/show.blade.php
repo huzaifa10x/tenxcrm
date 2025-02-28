@@ -844,13 +844,12 @@
                 $('#collaborators-list').append(`
                 <div class="col-sm-6">
                     <div class="d-flex align-items-start gap-2">
-                        <button onclick="removeCollaborator(${collaborator.id}, ${taskId})" type="button" class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle"> 
-                            <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
-                        </button>
+                        <img src="{{ asset('storage') }}/${collaborator.user.img}" class="w-40-px h-40-px rounded-pill" /> 
                         <div class="flex-grow-1 d-inline-flex flex-column">
                             <h6 class="text-sm mb-0">${collaborator.user.name}</h6>
                             <span class="text-xs text-secondary-light">${collaborator.user.email}</span>
                         </div>
+                        <iconify-icon onclick="removeCollaborator(${collaborator.id}, ${taskId})" icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
                     </div>
                 </div>
             `);
@@ -1222,7 +1221,7 @@
                     `
                 <div class="position-relative p-1 px-24 border-bottom">
                     <div class="d-flex align-items-start gap-3">
-                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" class="w-40-px h-40-px rounded-pill">
+                        <img src="{{ asset('storage') }}/${comment.user.img}" alt="" class="w-40-px h-40-px rounded-pill">
                         <div class="w-100">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">

@@ -25,7 +25,14 @@
                     @foreach ($users as $user)
                         <tr>
                             <td> {{ $user->id }}</td>
-                            <td>{{ $user->name }}</td>
+                            <td>
+                                <div class="form-check style-check d-flex align-items-center">
+                                    <label class="form-check-label">
+                                        <img src="{{ asset('storage/') }}/{{ $user->img }}" class="rounded-pill me-1 w-40-px h-40-px img-fluid"
+                                            alt="Logo" width="50"> {{ $user->name }}
+                                    </label>
+                                </div>
+                            </td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->roles->pluck('name')->implode(', ') }}</td>
                             <td class="text-center">

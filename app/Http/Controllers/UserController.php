@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Exists;
 
 class UserController extends Controller
 {
@@ -69,10 +71,23 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8|confirmed',
             'roles' => 'nullable|array',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Update user details
         $user->update($request->only('name', 'email', 'phone'));
+
+        // Handle image upload
+        if ($request->hasFile('img')) {
+            // Delete old image if exists
+            if ($user->img) {
+                Storage::disk('public')->delete($user->img);
+            }
+
+            // Upload new image
+            $imgPath = $request->file('img')->store('user-images', 'public');
+            $user->update(['img' => $imgPath]);  // Save new image path in DB
+        }
 
         // Update password if provided
         if ($request->filled('password')) {
@@ -87,6 +102,7 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User updated successfully!');
     }
 
+
     public function store(Request $request)
     {
         // Validate the request
@@ -96,7 +112,14 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'roles' => 'nullable|array',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Handle image upload
+        $imgPath = null;
+        if ($request->hasFile('img')) {
+            $imgPath = $request->file('img')->store('user-images', 'public');
+        }
 
         // Create a new user
         $user = User::create([
@@ -104,6 +127,7 @@ class UserController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
+            'img' => $imgPath,
         ]);
 
         // Assign roles if provided
@@ -114,9 +138,13 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User created successfully!');
     }
 
+
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id)->delete();
+        if (file_exists($user->img)) {
+            Storage::disk('public')->delete($user->img);
+        }
         return redirect()->route('users.index')->with('success', 'User deleted successfully!');
     }
 

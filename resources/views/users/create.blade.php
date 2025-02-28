@@ -5,7 +5,7 @@
     @if ($userPermissions->contains('can manage users'))
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('users.store') }}" method="POST">
+                <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
@@ -72,6 +72,12 @@
                                     Please confirm password
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="form-label" for="img">
+                                Image
+                            </label>
+                            <input type="file" name="img" id="img" class="form-control">
                         </div>
                         <div class="col-md-12 mt-3">
                             <label class="form-label">Roles</label>

@@ -3,18 +3,56 @@
         {{ __('Project - ' . $project->title) }}
     </x-slot>
     @if ($userPermissions->contains('can view all projects') || $userPermissions->contains('can view own projects'))
-        <div class="card">
+        <div class="card border">
             <div class="card-header d-flex justify-content-between align-items-center">
-                @if ($userPermissions->contains('can create tasks'))
-                    <button data-bs-toggle="modal" data-bs-target="#taskCreateModal"
-                        class="btn-sm btn btn-outline-primary">
-                        Create Task
-                    </button>
-                @endif
+                <div class="d-flex align-items-center gap-3">
+                    @if ($userPermissions->contains('can create tasks'))
+                        <button data-bs-toggle="modal" data-bs-target="#taskCreateModal"
+                            class="btn-sm btn btn-outline-primary">
+                            Create Task
+                        </button>
+                    @endif
+                    @if ($userPermissions->contains('can update project status'))
+                        <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
+                            <label class="form-label fs-7 m-0">Project Status</label>
+                            <select class="form-control fs-7 h-auto project-status"
+                                data-project-id="{{ $project->id }}" required>
+                                <option selected disabled value="">Select status</option>
+                                <option value="Current" {{ $project->status == 'Current' ? 'selected' : '' }}>
+                                    Current
+                                </option>
+                                <option value="Paused" {{ $project->status == 'Paused' ? 'selected' : '' }}>
+                                    Paused
+                                </option>
+                                <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>
+                                    WFF
+                                </option>
+                                <option value="Expired" {{ $project->status == 'Expired' ? 'selected' : '' }}>
+                                    Expired
+                                </option>
+                                <option value="Debt Collection"
+                                    {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt
+                                    Collection
+                                </option>
+                                <option value="Cancelled" {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
+                                    Cancelled
+                                </option>
+                                <option value="Completed" {{ $project->status == 'Completed' ? 'selected' : '' }}>
+                                    Completed
+                                </option>
+                            </select>
+                        </div>
+                    @else
+                        <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
+                            <label class="form-label fs-7 m-0">Project Status</label>
+                            <input type="text" readonly class="form-control fs-7 h-auto"
+                                value="{{ $project->status }}">
+                        </div>
+                    @endif
+                </div>
                 @php
                     $taskTypes = ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM'];
                 @endphp
-
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     @foreach ($taskTypes as $type)
                         @php
@@ -42,10 +80,8 @@
                         </div>
                     @endforeach
                 </div>
-
             </div>
             <div class="card-body">
-
                 <div class="row gy-3 mb-10">
                     <div class="col-lg-3">
                         <div class="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
@@ -54,7 +90,7 @@
                             <div class="pb-24 ms-16 mb-24 me-16  mt--100">
                                 <div class="text-center border border-top-0 border-start-0 border-end-0">
                                     <img src="{{ asset('storage/') }}/{{ $project->companies->logo }}" alt=""
-                                        class="w-200-p p-10 h-200-px rounded object-fit-cover"
+                                        class="mt-10 w-200-p p-10 h-200-px rounded object-fit-cover"
                                         style="backdrop-filter: blur(9px);">
                                     <h6 class="mb-0 mt-16">{{ $project->companies->name }}</h6>
                                     <span
@@ -102,6 +138,15 @@
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Project Type</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->project_type }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
                                                 <h6 class="text-md mb-0 fw-medium">Sales Manger</h6>
                                                 <span
                                                     class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->salesManagers->pluck('name')->first() }}</span>
@@ -123,6 +168,15 @@
                                                 <h6 class="text-md mb-0 fw-medium">Tech Manger</h6>
                                                 <span
                                                     class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">{{ $project->techManagers->pluck('name')->first() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Industry</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -307,7 +361,9 @@
                                             <div class="flex-grow-1">
                                                 <h6 class="text-md mb-0 fw-medium">Contract Start</h6>
                                                 <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->contract_start_date }}</span>
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $project->contract_start_date }}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -317,8 +373,9 @@
                                             <div class="flex-grow-1">
                                                 <h6 class="text-md mb-0 fw-medium">Contract End</h6>
                                                 <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white"
-                                                    id="contract_end_date">end</span>
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $contractEndDate->toDateString() }}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -328,295 +385,118 @@
                                             <div class="flex-grow-1">
                                                 <h6 class="text-md mb-0 fw-medium">Contract Value</h6>
                                                 <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white"
-                                                    id="contract_end_date">value="{{ $project->contract_value }}"</span>
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ number_format($project->contract_value, 2) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Contract Term (Months)</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $project->contract_term }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Payment Method</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $project->paymentMethod->name }}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Contract Value</h6>
+                                                <h6 class="text-md mb-0 fw-medium">Free Months</h6>
                                                 <span
-                                                id="contract_value"
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white"
-                                                    id="contract_end_date">value="{{ $project->contract_value }}"</span>
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $project->free_months }}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-lg-6">
-                                        <label class="form-label" for="contract_term">Contract Term (Months)</label>
-                                        <input readonly type="text" class="form-control" id="contract_term"
-                                            name="contract_term" value="{{ $project->contract_term }}" required>
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Monthly Invoice</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ number_format($monthlyInvoice, 2) }}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="col-lg-6">
-                                        <label class="form-label" for="monthly_invoice">Monthly Invoice</label>
-                                        <input readonly type="text" class="form-control" id="monthly_invoice">
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Next Invoice Date</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $nextInvoiceDate->toDateString() }}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <div class="col-lg-6">
-                                        <label class="form-label" for="next_invoice_date">Next Invoice Date</label>
-                                        <input readonly type="date" class="form-control" id="next_invoice_date">
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Client Category:</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $project->category }}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-
+                                    @php
+                                        $startDate = \Carbon\Carbon::parse($project->contract_start_date);
+                                        $endDate = $startDate->copy()->addMonths($project->contract_term);
+                                        $now = \Carbon\Carbon::now();
+                                        $remainingMonths = max(floor($now->diffInMonths($endDate, false)), 0);
+                                    @endphp
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Remaining Months:</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                    {{ $remainingMonths }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="row gy-3 mb-10">
-                    @php
-                        $startDate = \Carbon\Carbon::parse($project->contract_start_date);
-                        $endDate = $startDate->copy()->addMonths($project->contract_term);
-                        $totalMonths = $startDate->diffInMonths($endDate);
-                        $now = \Carbon\Carbon::now();
-                        $remainingMonths = max(floor($now->diffInMonths($endDate, false)), 0);
-                    @endphp
-
-                    <div class="d-flex align-items-center gap-10">
-                        <p class="m-0">Contract Term:
-                        <div class="badge bg-gradient-end-1 text-cyan">{{ $totalMonths }}</div>
-                        </p>
-                        <p class="m-0">Remaining Months:
-                        <div class="badge bg-gradient-end-1 text-cyan">{{ $remainingMonths }}</div>
-                        </p>
-                    </div>
-
                     <div class="col-lg-12">
-                        <label class="form-label" for="title">Project Title</label>
-                        <input readonly type="text" name="title" class="form-control"
-                            value="{{ $project->title }}">
-                    </div>
-
-                    <div class="col-lg-12">
-                        <label class="form-label" for="description">Project Description</label>
-                        <textarea readonly class="form-control" name="description" id="description" cols="30" rows="10">{{ $project->description }}</textarea>
-                    </div>
-
-                    <div class="row mt-3">
-                        <div class="col-lg-4">
-                            <label class="form-label" for="account_manager_ids">Company</label>
-                            <ul>
-                                <li class="badge bg-dark px-3 py-2 mb-2">{{ $project->companies->name }}</li>
-                            </ul>
-                        </div>
-                        <div class="col-lg-4">
-                            <label class="form-label" for="sales_manager_ids">Sales Managers</label>
-                            <ul>
-                                @foreach ($project->salesManagers as $salesManager)
-                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $salesManager->name }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <div class="col-lg-4">
-                            <label class="form-label" for="account_manager_ids">Account Managers</label>
-                            <ul>
-                                @foreach ($project->accountManagers as $accountManager)
-                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $accountManager->name }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-
-                        <div class="col-lg-4">
-                            <label class="form-label" for="tech_manager_ids">Tech Managers</label>
-                            <ul>
-                                @foreach ($project->techManagers as $techManager)
-                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $techManager->name }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-
-                        <div class="col-lg-4">
-                            <label class="form-label" for="tech_manager_ids">Seo Admin</label>
-                            <ul>
-                                @foreach ($project->seoAdmins as $seoAdmin)
-                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $seoAdmin->name }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <div class="col-lg-4">
-                            <label class="form-label" for="tech_manager_ids">Seo Tech</label>
-                            <ul>
-                                @foreach ($project->seoTechs as $seoTech)
-                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $seoTech->name }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <div class="col-lg-4">
-                            <label class="form-label" for="tech_manager_ids">Content Writers</label>
-                            <ul>
-                                @foreach ($project->contentWriters as $contentWriter)
-                                    <li class="badge bg-dark px-3 py-2 mb-2">{{ $contentWriter->name }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-
-                    </div>
-
-                    <div class="col-lg-6">
-                        <label class="form-label" for="category">Category</label>
-                        <input type="text" class="form-control" readonly value="{{ $project->category }}">
-                    </div>
-
-                    <div class="col-lg-6">
-                        @if ($userPermissions->contains('can update project status'))
-                            <label class="form-label">Project Status</label>
-                            <select class="form-control project-status" data-project-id="{{ $project->id }}"
-                                required>
-                                <option selected disabled value="">Select status</option>
-                                <option value="Current" {{ $project->status == 'Current' ? 'selected' : '' }}>
-                                    Current
-                                </option>
-                                <option value="Paused" {{ $project->status == 'Paused' ? 'selected' : '' }}>
-                                    Paused
-                                </option>
-                                <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>WFF
-                                </option>
-                                <option value="Expired" {{ $project->status == 'Expired' ? 'selected' : '' }}>
-                                    Expired
-                                </option>
-                                <option value="Debt Collection"
-                                    {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt
-                                    Collection
-                                </option>
-                                <option value="Cancelled" {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
-                                    Cancelled
-                                </option>
-                                <option value="Completed" {{ $project->status == 'Completed' ? 'selected' : '' }}>
-                                    Completed
-                                </option>
-                            </select>
-                        @else
-                            <label class="form-label">Project Status</label>
-                            <input type="text" readonly class="form-control" value="{{ $project->status }}">
-                        @endif
-                    </div>
-
-                    <div class="col-lg-6">
-                        <label class="form-label" for="industry">Industry</label>
-                        <input type="text" class="form-control" readonly
-                            value="{{ $project->industry->industry }}">
-                        </select>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <label class="form-label" for="payment_method_id">Payment Method</label>
-                        <input type="text" class="form-control" readonly
-                            value="{{ $project->paymentMethod->name }}">
-                    </div>
-
-
-                    <div class="col-lg-6">
-                        <label class="form-label" for="free_months">Free Months</label>
-                        <input readonly type="text" class="form-control" id="free_months" name="free_months"
-                            value="{{ $project->free_months }}" required>
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if (!empty($project->contractFiles) && count($project->contractFiles) > 0)
-                            <label class="form-label" for="contract_copy">Contract Files</label>
-                            <div class="row">
-                                @foreach ($project->contractFiles as $file)
-                                    @php
-                                        $filePath = asset('storage/' . $file->file_path);
-                                        $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
-                                        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                                    @endphp
-                                    @if (in_array($extension, $imageExtensions))
-                                        <div class="col-lg-6">
-                                            <div
-                                                class="flex-column h-100 position-relative card overflow-hidden
-                                             d-flex justify-content-center align-items-center bg-light border 
-                                             shadow-sm text-center p-3">
-                                                <button type="button"
-                                                    onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
-                                                    class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute top-0 end-0">
-                                                    <iconify-icon icon="fluent:delete-24-regular"
-                                                        class="menu-icon"></iconify-icon>
-                                                </button>
-                                                <div
-                                                    class="badge position-absolute top-0 start-0 bg-primary text-white">
-                                                    {{ $extension }}
-                                                </div>
-                                                <img style="width: 100px;" src="{{ $filePath }}"
-                                                    class="card-img-top img-fluid" alt="Contract Image">
-                                                <p class="mb-1 mt-3 text-dark">{{ $file->file_name }}</p>
-                                                <div class="card-body text-center">
-                                                    <a href="{{ $filePath }}" target="_blank"
-                                                        class="btn fs-6 px-3 py-2 btn-sm btn-primary">View Full</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div class="col-lg-6">
-                                            <div
-                                                class="flex-column h-100 position-relative card overflow-hidden d-flex justify-content-center align-items-center bg-light border  shadow-sm text-center p-3">
-                                                @if ($userPermissions->contains('can remove project files'))
-                                                    <button type="button"
-                                                        onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
-                                                        class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute top-0 end-0">
-                                                        <iconify-icon icon="fluent:delete-24-regular"
-                                                            class="menu-icon"></iconify-icon>
-                                                    </button>
-                                                @endif
-                                                <div
-                                                    class="badge position-absolute top-0 start-0 bg-primary text-white">
-                                                    {{ $extension }}
-                                                </div>
-                                                <div class="mb-2">
-                                                    <img src="{{ asset('/images/doc.png') }}" width="50"
-                                                        height="50" alt="{{ $extension }} File">
-                                                </div>
-                                                <p class="mb-1 text-dark">{{ $file->file_name }}</p>
-                                                <div class="d-flex gap-2 align-items-center">
-                                                    <a href="{{ $filePath }}" target="_blank"
-                                                        class="btn fs-6 px-3 py-2 btn-sm btn-primary">View</a>
-                                                    <a href="{{ $filePath }}" download
-                                                        class="btn fs-6 px-3 py-2 btn-sm btn-success">Download</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endforeach
+                        <div class="card border">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                                    <h6 class="mb-2 fw-bold text-lg mb-0">Project Description</h6>
+                                </div>
                             </div>
-                        @else
-                            <p class="text-danger">No contract files attached.</p>
-                        @endif
-                        <div class="col-lg-12 d-flex justify-content-between align-items-center">
-                            @if ($userPermissions->contains('can remove project files'))
-                                @if (!empty($project->contractFiles) && count($project->contractFiles) > 0)
-                                    <button class="btn btn-sm btn-danger mt-3" type="button"
-                                        id="deleteAllAttachmentsBtn">
-                                        Delete All Attachments
-                                    </button>
-                                @endif
-                            @endif
-                            @if ($userPermissions->contains('can add project files'))
-                                <button type="button" class="btn btn-sm btn-primary mt-3" data-bs-toggle="modal"
-                                    data-bs-target="#projectAttachmentsModal">
-                                    Add
-                                    {{ !empty($project->contractFiles) && count($project->contractFiles) ? 'More' : '' }}
-                                    Project Files
-                                </button>
-                            @endif
+                            <div class="card-body">
+                                <textarea readonly class="border-0 bg-transparent p-0 m-0 w-100 h-100" name="description" id="description"x>{{ $project->description }}</textarea>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="col-lg-12">
-                        <label class="form-label" for="handover_notes">Handover Notes</label>
-                        <textarea readonly required class="form-control" name="handover_notes" id="handover_notes" cols="30"
-                            rows="10">{{ $project->handover_notes }}</textarea>
-                    </div>
-
-                    <div class="col-lg-12">
-                        <label class="form-label" for="project_type">Project Type</label>
-                        <input type="text" class="form-control" readonly value="{{ $project->project_type }}">
                     </div>
                 </div>
-
                 <div class="row gy-3 mb-10">
                     <div class="col-lg-12">
                         <div
@@ -667,10 +547,8 @@
                                     </li>
                                 </ul>
                             </div>
-
-                            <div class="card-body p-24 pt-10">
+                            <div class="card-body p-0">
                                 <div class="tab-content" id="task-tabContent">
-
                                     <!-- Regular Tasks -->
                                     <div style="max-height: 500px; overflow-y: auto;"
                                         class="tab-pane fade show active" id="regular-task" role="tabpanel">
@@ -700,14 +578,35 @@
                                                             <td><x-badge :text="$task->priority" type="priority" /></td>
                                                             <td><x-badge :text="$task->status" type="status" /></td>
                                                         </tr>
-                                                        <tr>
-                                                            <td colspan="7" class="bg-info-50 text-muted">
-                                                                <strong>Latest Comment:</strong>
-                                                                <div style="max-width: 50%;">
-                                                                    {{ $task->comments()->latest()->first()->comment ?? '-' }}
-                                                                </div>
-                                                            </td>
-                                                        </tr>
+                                                        @if ($task->comments()->latest()->first())
+                                                            <tr>
+                                                                <td colspan="7" class="bg-info-50 text-muted">
+                                                                    <div style="max-width: 50%;">
+                                                                        <div class="d-flex align-items-start gap-3">
+                                                                            <img src="{{ asset('storage/' . $task->comments()->latest()->first()->user->img) }}"
+                                                                                alt=""
+                                                                                class="w-40-px h-40-px rounded-pill">
+                                                                            <div class="w-100">
+                                                                                <div
+                                                                                    class="d-flex align-items-center justify-content-between">
+                                                                                    <div
+                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        <span
+                                                                                            class="mb-0 fs-7">{{ $task->comments()->latest()->first()->user->name }}
+                                                                                            {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p class="mb-0 text-primary-light">
+                                                                                    {{ $task->comments()->latest()->first()->comment }}
+                                                                                </p>
+                                                                                <span class="comment-time d-block fs-7"
+                                                                                    data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
                                                     @endforeach
                                                 </tbody>
                                             </table>
@@ -715,7 +614,6 @@
                                             <p class="text-secondary-light">No Regular Tasks Available.</p>
                                         @endif
                                     </div>
-
                                     <!-- Sequence Tasks -->
                                     <div style="max-height: 500px; overflow-y: auto;" class="tab-pane fade"
                                         id="sequence-task" role="tabpanel">
@@ -745,14 +643,35 @@
                                                             <td><x-badge :text="$task->priority" type="priority" /></td>
                                                             <td><x-badge :text="$task->status" type="status" /></td>
                                                         </tr>
-                                                        <tr>
-                                                            <td colspan="7" class="bg-info-50 text-muted">
-                                                                <strong>Latest Comment:</strong>
-                                                                <div style="max-width: 50%;">
-                                                                    {{ $task->comments()->latest()->first()->comment ?? '-' }}
-                                                                </div>
-                                                            </td>
-                                                        </tr>
+                                                        @if ($task->comments()->latest()->first())
+                                                            <tr>
+                                                                <td colspan="7" class="bg-info-50 text-muted">
+                                                                    <div style="max-width: 50%;">
+                                                                        <div class="d-flex align-items-start gap-3">
+                                                                            <img src="{{ asset('storage/' . $task->comments()->latest()->first()->user->img) }}"
+                                                                                alt=""
+                                                                                class="w-40-px h-40-px rounded-pill">
+                                                                            <div class="w-100">
+                                                                                <div
+                                                                                    class="d-flex align-items-center justify-content-between">
+                                                                                    <div
+                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        <span
+                                                                                            class="mb-0 fs-7">{{ $task->comments()->latest()->first()->user->name }}
+                                                                                            {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p class="mb-0 text-primary-light">
+                                                                                    {{ $task->comments()->latest()->first()->comment }}
+                                                                                </p>
+                                                                                <span class="comment-time d-block fs-7"
+                                                                                    data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
                                                     @endforeach
                                                 </tbody>
                                             </table>
@@ -793,14 +712,35 @@
                                                             <td><x-badge :text="$task->priority" type="priority" /></td>
                                                             <td><x-badge :text="$task->status" type="status" /></td>
                                                         </tr>
-                                                        <tr>
-                                                            <td colspan="7" class="bg-info-50 text-muted">
-                                                                <strong>Latest Comment:</strong>
-                                                                <div style="max-width: 50%;">
-                                                                    {{ $task->comments()->latest()->first()->comment ?? '-' }}
-                                                                </div>
-                                                            </td>
-                                                        </tr>
+                                                        @if ($task->comments()->latest()->first())
+                                                            <tr>
+                                                                <td colspan="7" class="bg-info-50 text-muted">
+                                                                    <div style="max-width: 50%;">
+                                                                        <div class="d-flex align-items-start gap-3">
+                                                                            <img src="{{ asset('storage/' . $task->comments()->latest()->first()->user->img) }}"
+                                                                                alt=""
+                                                                                class="w-40-px h-40-px rounded-pill">
+                                                                            <div class="w-100">
+                                                                                <div
+                                                                                    class="d-flex align-items-center justify-content-between">
+                                                                                    <div
+                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        <span
+                                                                                            class="mb-0 fs-7">{{ $task->comments()->latest()->first()->user->name }}
+                                                                                            {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p class="mb-0 text-primary-light">
+                                                                                    {{ $task->comments()->latest()->first()->comment }}
+                                                                                </p>
+                                                                                <span class="comment-time d-block fs-7"
+                                                                                    data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
                                                     @endforeach
                                                 </tbody>
                                             </table>
@@ -808,16 +748,113 @@
                                             <p class="text-secondary-light">No Repeating Tasks Available.</p>
                                         @endif
                                     </div>
-
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="row gy-3 mb-10">
+                    <div class="col-lg-6">
+                        @if (!empty($project->contractFiles) && count($project->contractFiles) > 0)
+                            <div class="card border">
+                                <div class="card-header">
+                                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                                        <h6 class="mb-2 fw-bold text-lg mb-0">Contract Files</h6>
+                                        @if ($userPermissions->contains('can add project files'))
+                                            <button data-bs-toggle="modal" data-bs-target="#projectAttachmentsModal"
+                                                class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                                                Add Attachments
+                                                <iconify-icon icon="solar:alt-arrow-right-linear"
+                                                    class="icon"></iconify-icon>
+                                            </button>
+                                            <div class="modal fade" id="projectAttachmentsModal" tabindex="-1"
+                                                aria-labelledby="projectAttachmentsModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5"
+                                                                id="projectAttachmentsModalLabel">Choose
+                                                                Project
+                                                                Attachments
+                                                            </h1>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <input readonly class="form-control" type="file"
+                                                                id="fileInput" multiple>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button type="button"
+                                                                onclick="uploadProjectFiles({{ $project->id }})"
+                                                                class="btn btn-primary">Save changes</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex flex-column gap-24">
+                                        @foreach ($project->contractFiles as $file)
+                                            @php
+                                                $filePath = asset('storage/' . $file->file_path);
+                                                $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
+                                            @endphp
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="d-flex align-items-center gap-12">
+                                                    <div class="flex-shrink-0">
+                                                        <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
+                                                            alt="" class="">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="text-md mb-0 fw-normal">
+                                                            {{ Illuminate\Support\Str::limit($file->file_name, 10, '...') }}
+                                                        </h6>
+                                                        <span
+                                                            class="text-xs text-secondary-light fw-normal">{{ $extension }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-align gap-12">
+                                                    <button type="button"
+                                                        onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
+                                                        class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-danger-100 text-danger-600 bg-hover-danger-600 text-hover-white text-md rounded-circle">
+                                                        <i class="ri-delete-bin-5-line"></i>
+                                                    </button>
+                                                    <a href="{{ $filePath }}" download
+                                                        class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
+                                                        <i class="ri-download-2-fill"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
 
+                                </div>
+                            </div>
+                        @else
+                            <p class="text-danger">No contract files attached.</p>
+                        @endif
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card border">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                                    <h6 class="mb-2 fw-bold text-lg mb-0">Handover Notes</h6>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <textarea readonly required class="w-100 h-100 border-0 bg-transparent p-0 m-0" name="handover_notes"
+                                    id="handover_notes">{{ $project->handover_notes }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight"
             aria-labelledby="offcanvasRightLabel">
             <div class="offcanvas-header">
@@ -828,7 +865,6 @@
                 ...
             </div>
         </div>
-
         <!-- Task Attachments Modal -->
         <div class="modal fade" id="taskAttachmentsModal" tabindex="-1" aria-labelledby="taskAttachmentsModalLabel"
             aria-hidden="true">
@@ -856,7 +892,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Modal -->
         <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
             <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
@@ -883,7 +918,6 @@
                 </div>
             </div>
         </form>
-
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight"
             aria-labelledby="offcanvasRightLabel">
             <div class="offcanvas-header">
@@ -920,7 +954,54 @@
                 </div>
             </div>
         </div>
+        <script>
+            function timeAgo(date) {
+                const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+                const intervals = [{
+                        label: "year",
+                        seconds: 31536000
+                    },
+                    {
+                        label: "month",
+                        seconds: 2592000
+                    },
+                    {
+                        label: "week",
+                        seconds: 604800
+                    },
+                    {
+                        label: "day",
+                        seconds: 86400
+                    },
+                    {
+                        label: "hour",
+                        seconds: 3600
+                    },
+                    {
+                        label: "minute",
+                        seconds: 60
+                    },
+                ];
 
+                for (const interval of intervals) {
+                    const count = Math.floor(seconds / interval.seconds);
+                    if (count > 0) {
+                        return `${count} ${interval.label}${count !== 1 ? "s" : ""} ago`;
+                    }
+                }
+                return seconds < 10 ? "Just now" : `${seconds} seconds ago`;
+            }
+
+            function updateTimestamps() {
+                document.querySelectorAll(".comment-time").forEach(element => {
+                    const timestamp = element.getAttribute("data-time");
+                    element.textContent = timeAgo(timestamp);
+                    this.innerText = timeAgo(timestamp);
+                });
+            }
+            setInterval(updateTimestamps, 30000);
+            updateTimestamps()
+        </script>
         <script>
             function loadTaskDetails(taskId) {
                 $("input[name='task_id']").val(taskId);
@@ -942,57 +1023,6 @@
                     }
                 });
             }
-        </script>
-
-        <div class="modal fade" id="projectAttachmentsModal" tabindex="-1"
-            aria-labelledby="projectAttachmentsModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="projectAttachmentsModalLabel">Choose Project
-                            Attachments
-                        </h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input readonly class="form-control" type="file" id="fileInput" multiple>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" onclick="uploadProjectFiles({{ $project->id }})"
-                            class="btn btn-primary">Save changes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                let startDate = document.getElementById("contract_start_date").value;
-                let contractTerm = parseInt(document.getElementById("contract_term").value) || 0;
-                let contractValue = parseFloat(document.getElementById("contract_value").value) || 0;
-
-                if (startDate && contractTerm) {
-                    let start = new Date(startDate);
-
-                    // Calculate Contract End Date
-                    let endDate = new Date(start);
-                    endDate.setMonth(endDate.getMonth() + contractTerm);
-                    document.getElementById("contract_end_date").value = endDate.toISOString().split("T")[0];
-
-                    // Calculate Monthly Invoice Amount
-                    if (contractValue > 0) {
-                        let monthlyInvoice = (contractValue / contractTerm).toFixed(2);
-                        document.getElementById("monthly_invoice").value = monthlyInvoice;
-                    }
-
-                    // Calculate Next Invoice Date (One month after Start Date)
-                    let nextInvoiceDate = new Date(start);
-                    nextInvoiceDate.setMonth(nextInvoiceDate.getMonth() + 1);
-                    document.getElementById("next_invoice_date").value = nextInvoiceDate.toISOString().split("T")[0];
-                }
-            });
         </script>
         <script>
             function deleteProjectFile(projectId, fileId) {
@@ -1048,32 +1078,32 @@
                     .catch(error => console.error("Error:", error));
             }
 
-            document.getElementById('deleteAllAttachmentsBtn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to delete all attachments?')) {
-                    // Send DELETE request using AJAX
-                    fetch("{{ route('projects.deleteAllFiles', ['project' => $project->id]) }}", {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                    'content'),
-                                'Content-Type': 'application/json',
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('All attachments deleted successfully!');
-                                location.reload(); // Refresh the page to reflect the changes
-                            } else {
-                                alert('Error: ' + data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('There was an error processing your request.');
-                        });
-                }
-            });
+            // document.getElementById('deleteAllAttachmentsBtn').addEventListener('click', function() {
+            //     if (confirm('Are you sure you want to delete all attachments?')) {
+            //         // Send DELETE request using AJAX
+            //         fetch("{{ route('projects.deleteAllFiles', ['project' => $project->id]) }}", {
+            //                 method: 'DELETE',
+            //                 headers: {
+            //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+            //                         'content'),
+            //                     'Content-Type': 'application/json',
+            //                 }
+            //             })
+            //             .then(response => response.json())
+            //             .then(data => {
+            //                 if (data.success) {
+            //                     alert('All attachments deleted successfully!');
+            //                     location.reload(); // Refresh the page to reflect the changes
+            //                 } else {
+            //                     alert('Error: ' + data.message);
+            //                 }
+            //             })
+            //             .catch(error => {
+            //                 console.error('Error:', error);
+            //                 alert('There was an error processing your request.');
+            //             });
+            //     }
+            // });
         </script>
         <script>
             document.addEventListener("DOMContentLoaded", function() {

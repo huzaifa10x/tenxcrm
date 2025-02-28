@@ -15,7 +15,7 @@
                 @foreach ($users as $user)
                     <div class="col-xxl-3 col-md-6 user-grid-card">
                         <div class="position-relative border radius-16 overflow-hidden">
-                            <img src="images/user-grid/user-grid-bg1.png" alt="" class="w-100 object-fit-cover">
+                            <img src="{{ asset('storage/' . $user->logo) }}" alt="" class="w-100 object-fit-cover">
 
                             @if ($userPermissions->contains('can manage users'))
                                 <div class="dropdown position-absolute top-0 end-0 me-16 mt-16">
