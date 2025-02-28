@@ -57,7 +57,7 @@ class TaskCollaboratorController extends Controller
         TaskHistory::create([
             'task_id' => $collaborator->task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Task Collaborator " . auth()->user()->name . " Removed By " . auth()->user()->name,
+            'action' => "Task Collaborator " . $collaborator->user->name . " Removed By " . auth()->user()->name,
         ]);
 
         return response()->json(['message' => 'Collaborator removed successfully']);
