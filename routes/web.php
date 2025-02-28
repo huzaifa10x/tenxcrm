@@ -134,8 +134,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/projects/{project}/keywords', [ProjectKeywordController::class, 'store'])
         ->name('projects.storeKeywords');
 
+    Route::get('/task/{task}/collaborators', [TaskCollaboratorController::class, 'index'])->name('task.collaborators');
     Route::middleware('permission:can create tasks')->group(function () {
-        Route::get('/task/{task}/collaborators', [TaskCollaboratorController::class, 'index'])->name('task.collaborators');
         Route::post('/task/collaborators/store', [TaskCollaboratorController::class, 'store'])->name('task.collaborators.store');
         Route::delete('/task/collaborators/{collaborator}', [TaskCollaboratorController::class, 'destroy'])->name('task.collaborators.destroy');
     });
