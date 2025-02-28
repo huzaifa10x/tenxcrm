@@ -34,36 +34,42 @@
                                 <td>{{ $project->project_type }}</td>
                                 <td>
                                     @if ($userPermissions->contains('can update project status'))
-                                        <select class="form-control project-status" data-project-id="{{ $project->id }}"
-                                            required>
-                                            <option selected disabled value="">Select status</option>
-                                            <option value="Current"
-                                                {{ $project->status == 'Current' ? 'selected' : '' }}>
-                                                Current
-                                            </option>
-                                            <option value="Paused" {{ $project->status == 'Paused' ? 'selected' : '' }}>
-                                                Paused
-                                            </option>
-                                            <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>
-                                                WFF
-                                            </option>
-                                            <option value="Expired"
-                                                {{ $project->status == 'Expired' ? 'selected' : '' }}>
-                                                Expired
-                                            </option>
-                                            <option value="Debt Collection"
-                                                {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt
-                                                Collection
-                                            </option>
-                                            <option value="Cancelled"
-                                                {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
-                                                Cancelled
-                                            </option>
-                                            <option value="Completed"
-                                                {{ $project->status == 'Completed' ? 'selected' : '' }}>
-                                                Completed
-                                            </option>
-                                        </select>
+                                        @if (auth()->user()->hasRole('ADMIN') || $project->createdBy->id == auth()->user()->id)
+                                            <select class="form-control project-status"
+                                                data-project-id="{{ $project->id }}" required>
+                                                <option selected disabled value="">Select status</option>
+                                                <option value="Current"
+                                                    {{ $project->status == 'Current' ? 'selected' : '' }}>
+                                                    Current
+                                                </option>
+                                                <option value="Paused"
+                                                    {{ $project->status == 'Paused' ? 'selected' : '' }}>
+                                                    Paused
+                                                </option>
+                                                <option value="WFF"
+                                                    {{ $project->status == 'WFF' ? 'selected' : '' }}>
+                                                    WFF
+                                                </option>
+                                                <option value="Expired"
+                                                    {{ $project->status == 'Expired' ? 'selected' : '' }}>
+                                                    Expired
+                                                </option>
+                                                <option value="Debt Collection"
+                                                    {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt
+                                                    Collection
+                                                </option>
+                                                <option value="Cancelled"
+                                                    {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
+                                                    Cancelled
+                                                </option>
+                                                <option value="Completed"
+                                                    {{ $project->status == 'Completed' ? 'selected' : '' }}>
+                                                    Completed
+                                                </option>
+                                            </select>
+                                        @else
+                                            {{ $project->status }}
+                                        @endif
                                     @else
                                         {{ $project->status }}
                                     @endif
@@ -79,11 +85,14 @@
                                             <iconify-icon icon="majesticons:eye-line"
                                                 class="icon text-xl"></iconify-icon>
                                         </a>
+
                                         @if ($userPermissions->contains('can edit projects'))
-                                            <a href="{{ route('projects.edit', $project->id) }}"
-                                                class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                            </a>
+                                            @if (auth()->user()->hasRole('ADMIN') || $project->createdBy->id == auth()->user()->id)
+                                                <a href="{{ route('projects.edit', $project->id) }}"
+                                                    class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                                    <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                                                </a>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

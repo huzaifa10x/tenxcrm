@@ -256,8 +256,12 @@ class TaskController extends Controller
             ]);
 
             $user = User::find($request->assigned_to);
-
-            $user->notify(new CustomNotification("New Task Added By " . auth()->user()->name, $request->title));
+            $url = url("tasks/show/{$task->id}");
+            $user->notify(new CustomNotification(
+                "New task added by " . auth()->user()->name,
+                "A new task '" . $request->title . "' has been assigned.",
+                $url
+            ));
 
             return redirect()->back()->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
@@ -312,10 +316,17 @@ class TaskController extends Controller
     }
 
     // Delete task
+    public function showTask($id)
+    {
+        session()->flash('open_task_id', $id);
+        return redirect()->route('tasks.board.index');
+    }
+
     public function destroy(Task $task)
     {
         $user = User::find($task->assigned_to);
-        $user->notify(new CustomNotification("Task deleted by " . auth()->user()->name, $task->title . " deleted"));
+        $url = route('tasks.board.index');
+        $user->notify(new CustomNotification("Task deleted by " . auth()->user()->name, $task->title . " deleted", $url));
         $task->delete();
         return redirect()->back()->with('success', 'Task deleted successfully!');
     }
@@ -364,20 +375,30 @@ class TaskController extends Controller
     public function updateStatus(Request $request)
     {
         $task = Task::findOrFail($request->task_id);
+
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Status Changed From " . $task->status . " To " . $request->status . " By " . auth()->user()->name,
+            'action' => "Status changed from " . $task->status . " to " . $request->status . " by " . auth()->user()->name,
         ]);
+
         $task->status = $request->status;
+        $task->save(); // Save before notification
 
         $user = User::find($task->assigned_to);
-        $user->notify(new CustomNotification("Task status updated by " . auth()->user()->name, $task->title . " status updated"));
 
-        $task->save();
+        if ($user) {
+            $url = url("tasks/show/{$task->id}");
+            $user->notify(new CustomNotification(
+                "Task status updated by " . auth()->user()->name,
+                "The status of '" . $task->title . "' has been updated.",
+                $url
+            ));
+        }
 
         return response()->json(['message' => 'Task status updated successfully']);
     }
+
     public function deleteAttachment(TaskAttachment $attachment)
     {
         Storage::disk('public')->delete($attachment->file_path);
@@ -658,7 +679,12 @@ class TaskController extends Controller
         ]);
 
         $user = User::find($task->assigned_to);
-        $user->notify(new CustomNotification("Task status updated by " . auth()->user()->name, $task->title . " marked as completed"));
+        $url = url("tasks/show/{$task->id}");
+        $user->notify(new CustomNotification(
+            "Task status updated by " . auth()->user()->name,
+            "The task '" . $task->title . "' has been marked as completed.",
+            $url
+        ));
 
         return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
     }

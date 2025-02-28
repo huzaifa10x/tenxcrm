@@ -95,6 +95,10 @@ class Project extends Model
     {
         return $this->belongsToMany(User::class, 'project_seo_admin');
     }
+    public function collaborators()
+    {
+        return $this->hasMany(ProjectCollaborator::class, 'project_id');
+    }
 
     public function contentWriters()
     {

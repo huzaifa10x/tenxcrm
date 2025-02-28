@@ -68,7 +68,7 @@
 
         <div class="col-lg-12 task-title-wrapper" style="display: none">
             <label class="form-label" for="title">Title</label>
-            <input type="text" class="form-control" id="title" name="title" required>
+            <input type="text" class="form-control" id="createTaskTitle" name="title" required>
         </div>
 
         <div class="col-lg-12">
@@ -187,15 +187,14 @@
             };
             $(document).on('change', '#sub_type', function() {
                 let selectedSubType = $(this).val();
-                var TitleValue = $('#title').val();
+                var TitleValue = $('#createTaskTitle').val();
 
                 // Check if there's already a hyphen to prevent multiple hyphens
                 if (selectedSubType && !TitleValue.includes(" - ")) {
-                    $('#title').val(TitleValue + " - " + selectedSubType);
+                    $('#createTaskTitle').val(TitleValue + " - " + selectedSubType + " TASK");
                     $('#taskCreateModalLabel').text(TitleValue + " - " + selectedSubType + " TASK");
                 } else if (selectedSubType && TitleValue.includes(" - ")) {
-                    // If hyphen is already present, just append the subtype after the hyphen
-                    $('#title').val(TitleValue.split(" - ")[0] + " - " + selectedSubType);
+                    $('#createTaskTitle').val(TitleValue.split(" - ")[0] + " - " + selectedSubType + " Task");
                     $('#taskCreateModalLabel').text(TitleValue.split(" - ")[0] + " - " + selectedSubType + " Task");
                 }
                 $('#extra-fields').slideDown();
@@ -244,7 +243,7 @@
             $('#department_id').change(function() {
                 let departmentName = $("#department_id option:selected").text();
                 if (departmentName) {
-                    $('#title').val(departmentName);
+                    $('#createTaskTitle').val(departmentName);
                     if (['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'SEO ADMIN', 'ADMIN', 'SALES',
                             'ADHOC'
                         ].includes(departmentName)) {
@@ -254,7 +253,7 @@
                         $('#sub_type').empty();
                     } else {
                         $('#subtype-container').slideDown();
-                        $('#title').val(departmentName + " - ADHOC TASK");
+                        $('#createTaskTitle').val(departmentName + " - ADHOC TASK");
                         $('#type').val("ADHOC");
                         $('.task-title-wrapper').slideDown();
                         $('#sub_type').empty();

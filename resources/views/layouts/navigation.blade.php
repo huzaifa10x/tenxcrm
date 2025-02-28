@@ -132,26 +132,24 @@
                     </ul>
                 </li>
             @endif
-            @if ($userPermissions->contains('can view all projects') || $userPermissions->contains('can view own projects'))
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <iconify-icon icon="solar:document-text-outline" class="menu-icon"></iconify-icon>
-                        <span>Projects</span>
-                    </a>
-                    <ul class="sidebar-submenu">
+            <li class="dropdown">
+                <a href="javascript:void(0)">
+                    <iconify-icon icon="solar:document-text-outline" class="menu-icon"></iconify-icon>
+                    <span>Projects</span>
+                </a>
+                <ul class="sidebar-submenu">
+                    <li>
+                        <a href="{{ route('projects.index') }}"><i
+                                class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All projects</a>
+                    </li>
+                    @if ($userPermissions->contains('can add projects'))
                         <li>
-                            <a href="{{ route('projects.index') }}"><i
-                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All projects</a>
+                            <a href="{{ route('projects.create') }}"><i
+                                    class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Project</a>
                         </li>
-                        @if ($userPermissions->contains('can add projects'))
-                            <li>
-                                <a href="{{ route('projects.create') }}"><i
-                                        class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Project</a>
-                            </li>
-                        @endif
-                    </ul>
-                </li>
-            @endif
+                    @endif
+                </ul>
+            </li>
             <li class="dropdown">
                 <a href="javascript:void(0)">
                     <i class="ri-news-line text-xl me-14 d-flex w-auto"></i>

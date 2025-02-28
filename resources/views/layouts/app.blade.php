@@ -146,12 +146,16 @@
                                                                     notification.data.message, notification.id);
                                                             }
                                                             html += `
-                                                                <a href="javascript:void(0)"
+                                                                <a
+                                                                href="${notification?.data?.url}"
                                                                    class="px-24 notification-item position-relative py-12 d-flex align-items-start gap-3 mb-2 justify-content-between"
                                                                    data-id="${notification.id}">
                                                                     <div class="text-black d-flex align-items-center gap-3">
-                                                                        <span class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
+                                                                        <span class="position-relative w-44-px h-44-px ${notification.read_at == null ?"bg-danger-50 text-danger":"bg-success-subtle text-success-main"} rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
                                                                             <iconify-icon icon="bitcoin-icons:verify-outline" class="icon text-xxl"></iconify-icon>
+                                                                            ${notification.read_at == null ?
+                                                                            `<span class="w-12-px h-12-px rounded-circle bg-warning-600 position-absolute top-0 start-0 m-0"></span>`
+                                                                            :''}
                                                                         </span>
                                                                         <div>
                                                                             <h6 class="text-md fw-semibold mb-4">${notification.data.title}</h6>

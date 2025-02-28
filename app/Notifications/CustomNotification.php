@@ -14,14 +14,16 @@ class CustomNotification extends Notification implements ShouldQueue
 
     protected $title;
     protected $message;
+    protected $url;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $message)
+    public function __construct($title, $message, $url)
     {
         $this->title = $title;
         $this->message = $message;
+        $this->url = $url;
     }
 
     /**
@@ -40,6 +42,7 @@ class CustomNotification extends Notification implements ShouldQueue
         return [
             'title' => $this->title,
             'message' => $this->message,
+            'url' => $this->url,
         ];
     }
 }

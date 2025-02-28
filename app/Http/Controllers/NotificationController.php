@@ -10,7 +10,7 @@ class NotificationController extends Controller
     // Fetch Unread Notifications
     public function fetch()
     {
-        $notifications = Auth::user()->notifications()->whereNull('read_at')->latest()->get();
+        $notifications = Auth::user()->notifications()->latest()->get();
 
         return response()->json([
             'notifications' => $notifications

@@ -35,8 +35,7 @@
                         <div class="row mt-3">
                             <div class="col-lg-4">
                                 <label class="form-label" for="sales_manager_ids">Sales Managers</label>
-                                <select class="form-control w-100" name="sales_manager_ids[]" id="sales_manager_ids"
-                                    multiple>
+                                <select class="form-control w-100" name="sales_manager_ids[]" id="sales_manager_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SALES MANAGER')) as $user)
                                         <option value="{{ $user->id }}"
                                             {{ in_array($user->id, $project->salesManagers->pluck('id')->toArray()) ? 'selected' : '' }}>
@@ -47,8 +46,8 @@
 
                             <div class="col-lg-4">
                                 <label class="form-label" for="account_manager_ids">Account Managers</label>
-                                <select class="form-control w-100" name="account_manager_ids[]" id="account_manager_ids"
-                                    multiple>
+                                <select class="form-control w-100" name="account_manager_ids[]"
+                                    id="account_manager_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('AM')) as $user)
                                         <option value="{{ $user->id }}"
                                             {{ in_array($user->id, $project->accountManagers->pluck('id')->toArray()) ? 'selected' : '' }}>
@@ -59,8 +58,7 @@
 
                             <div class="col-lg-4">
                                 <label class="form-label" for="tech_manager_ids">Tech Managers</label>
-                                <select class="form-control w-100" name="tech_manager_ids[]" id="tech_manager_ids"
-                                    multiple>
+                                <select class="form-control w-100" name="tech_manager_ids[]" id="tech_manager_ids">
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}"
                                             {{ in_array($user->id, $project->techManagers->pluck('id')->toArray()) ? 'selected' : '' }}>
@@ -71,18 +69,22 @@
 
                             <div class="col-lg-4">
                                 <label class="form-label" for="seo_admin_ids">Seo Admin</label>
-                                <select class="form-control w-100" name="seo_admin_ids[]" id="seo_admin_ids" multiple>
+                                <select class="form-control w-100" name="seo_admin_ids[]" id="seo_admin_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SEO ADMIN')) as $user)
-                                        <option value="{{ $user->id }}" {{ in_array($user->id, $project->seoAdmins->pluck('id')->toArray()) ? 'selected' : '' }}>{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}"
+                                            {{ in_array($user->id, $project->seoAdmins->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                            {{ $user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-lg-4">
                                 <label class="form-label" for="content_writers_ids">Content Writer</label>
-                                <select class="form-control w-100" name="content_writers_ids[]" id="content_writers_ids"
-                                    multiple>
+                                <select class="form-control w-100" name="content_writers_ids[]"
+                                    id="content_writers_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('CONTENT')) as $user)
-                                        <option value="{{ $user->id }}" {{ in_array($user->id, $project->contentWriters->pluck('id')->toArray()) ? 'selected' : '' }}>{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}"
+                                            {{ in_array($user->id, $project->contentWriters->pluck('id')->toArray()) ? 'selected' : '' }}>
+                                            {{ $user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -426,7 +428,7 @@
                             aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <input class="form-control" type="file" id="fileInput" multiple>
+                        <input class="form-control" type="file" id="fileInput">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -462,31 +464,31 @@
                     placeholder: 'Select Sales Managers',
                     allowClear: true,
                     width: '100%',
-                    closeOnSelect: false
+                    closeOnSelect: true
                 });
                 $('#account_manager_ids').select2({
                     placeholder: 'Select Account Managers',
                     allowClear: true,
                     width: '100%',
-                    closeOnSelect: false
+                    closeOnSelect: true
                 });
                 $('#tech_manager_ids').select2({
                     placeholder: 'Select Tech Managers',
                     allowClear: true,
                     width: '100%',
-                    closeOnSelect: false
+                    closeOnSelect: true
                 });
                 $('#seo_admin_ids').select2({
                     placeholder: 'Select Tech Managers',
                     allowClear: true,
                     width: '100%',
-                    closeOnSelect: false
+                    closeOnSelect: true
                 });
                 $('#content_writers_ids').select2({
                     placeholder: 'Select Tech Managers',
                     allowClear: true,
                     width: '100%',
-                    closeOnSelect: false
+                    closeOnSelect: true
                 });
             });
         </script>
@@ -577,7 +579,7 @@
                     placeholder: 'Select Channels',
                     allowClear: true,
                     width: '100%',
-                    closeOnSelect: false
+                    closeOnSelect: true
                 });
                 var selectedChannels = @json($project->socialMediaProject ? $project->socialMediaProject->channels : []);
                 if (selectedChannels.length > 0) {

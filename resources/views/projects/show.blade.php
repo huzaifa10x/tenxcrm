@@ -89,8 +89,8 @@
                                 class="w-100 object-fit-cover">
                             <div class="pb-24 ms-16 mb-24 me-16  mt--100">
                                 <div class="text-center border border-top-0 border-start-0 border-end-0">
-                                    <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo }}" alt=""
-                                        class="mt-10 w-200-p p-10 h-200-px rounded object-fit-cover"
+                                    <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo }}"
+                                        alt="" class="mt-10 w-200-p p-10 h-200-px rounded object-fit-cover"
                                         style="backdrop-filter: blur(9px);">
                                     <h6 class="mb-0 mt-16">{{ $project->companies->name }}</h6>
                                     <span
@@ -852,6 +852,25 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xxl-6 col-md-6">
+                        <div
+                            class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                            <div
+                                class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between">
+                                <span class="fw-bold">Collaborators</span>
+                                <select onchange="addProjectCollaborator('{{ $project->id }}')" id="user_id"
+                                    class="form-select w-auto">
+                                    <option value="">Select User</option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="card-body p-24">
+                                <div class="row gy-3 mb-10" id="collaborators-list"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -954,6 +973,60 @@
                 </div>
             </div>
         </div>
+        <script>
+            function fetchProjectCollaborators(projectId) {
+                $.get("{{ route('project.collaborators', ['project' => ':id']) }}".replace(':id', projectId), function(
+                    response) {
+                    $('#collaborators-list').empty();
+                    response.forEach(collaborator => {
+                        $('#collaborators-list').append(`
+                            <div class="col-sm-6">
+                                <div class="d-flex align-items-start gap-2">
+                                    <img src="{{ asset('/public/storage') }}/${collaborator.user.img}" class="w-40-px h-40-px rounded-pill" />
+                                    <div class="flex-grow-1 d-inline-flex flex-column">
+                                        <h6 class="text-sm mb-0">${collaborator.user.name}</h6>
+                                        <span class="text-xs text-secondary-light">${collaborator.user.email}</span>
+                                    </div>
+                                    <iconify-icon onclick="removeProjectCollaborator(${collaborator.id}, ${projectId})" icon="fluent:delete-24-regular"></iconify-icon>
+                                </div>
+                            </div>
+                        `);
+                    });
+                });
+            }
+
+            function addProjectCollaborator(projectId) {
+                $.post("{{ route('project.collaborators.store') }}", {
+                    project_id: projectId,
+                    user_id: $('#user_id').val(),
+                    _token: "{{ csrf_token() }}"
+                }, function(response) {
+                    fetchProjectCollaborators(projectId);
+                    toastr.success(response.message);
+                }).fail(function(xhr) {
+                    toastr.error(xhr.responseJSON.message);
+                });
+            }
+
+            function removeProjectCollaborator(id, projectId) {
+                $.ajax({
+                    url: "{{ route('project.collaborators.destroy', ['collaborator' => ':id']) }}".replace(':id', id),
+                    type: 'DELETE',
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        fetchProjectCollaborators(projectId);
+                        toastr.success(response.message);
+                    }
+                });
+            }
+
+            $(document).ready(() => {
+                fetchProjectCollaborators("{{ $project->id }}");
+            });
+        </script>
+
         <script>
             function timeAgo(date) {
                 const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -1155,6 +1228,14 @@
                     passwordSpan.text('••••••');
                     $(this).text('Show');
                 }
+            });
+        </script>
+        <script>
+            $('#user_id').select2({
+                placeholder: 'select collaborator',
+                allowClear: true,
+                width: '100%', // Full width
+                closeOnSelect: true // Prevent closing on select
             });
         </script>
     @endif

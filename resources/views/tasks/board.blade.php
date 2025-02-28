@@ -198,10 +198,36 @@
             }).disableSelection();
         });
 
+        // function loadTaskDetails(taskId) {
+        //     $("input[name='task_id']").val(taskId);
+        //     $('#taskDetails').html(
+        //         '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>');
+        //     $.ajax({
+        //         url: '{{ route('tasks.show', ':id') }}'.replace(':id', taskId),
+        //         method: 'GET',
+        //         data: {
+        //             is_ajax: true
+        //         },
+        //         success: function(response) {
+        //             $('#taskDetails').html(response);
+        //             loadTaskAttachments();
+        //             loadComments();
+        //         },
+        //         error: function() {
+        //             $('#taskDetails').html(
+        //                 '<p class="text-danger">This task may have been deleted or is no longer accessible. Please reach out to the admin for further details.</p>'
+        //                 );
+        //         }
+        //     });
+        // }
         function loadTaskDetails(taskId) {
+            const baseUrl = "{{ url('/') }}";
+            window.history.pushState(null, '', baseUrl + '/tasks/show/' + taskId);
+
             $("input[name='task_id']").val(taskId);
             $('#taskDetails').html(
                 '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>');
+
             $.ajax({
                 url: '{{ route('tasks.show', ':id') }}'.replace(':id', taskId),
                 method: 'GET',
@@ -212,12 +238,36 @@
                     $('#taskDetails').html(response);
                     loadTaskAttachments();
                     loadComments();
+                    $('#offcanvasRight').offcanvas('show');
                 },
                 error: function() {
-                    $('#taskDetails').html('<p class="text-danger">Error fetching task details.</p>');
+                    $('#taskDetails').html(
+                        '<p class="text-danger">This task may have been deleted or is no longer accessible. Please reach out to the admin for further details.</p>'
+                    );
                 }
             });
         }
+
+        window.onpopstate = function() {
+            if (!window.location.pathname.includes('/tasks/')) {
+                $('#offcanvasRight').offcanvas('hide');
+            }
+        };
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let openTaskId = "{{ session('open_task_id') }}";
+
+            if (openTaskId && openTaskId !== "") {
+                let offcanvasElement = document.getElementById('offcanvasRight');
+                if (offcanvasElement) {
+                    let offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+                    offcanvas.show();
+                    loadTaskDetails(openTaskId);
+                }
+            }
+        });
     </script>
 
 </x-app-layout>

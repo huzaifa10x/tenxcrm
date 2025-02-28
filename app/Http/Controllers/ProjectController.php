@@ -39,6 +39,9 @@ class ProjectController extends Controller
                         ->orWhereHas('accountManagers', function ($q) use ($user) {
                             $q->where('user_id', $user->id);
                         })
+                        ->orWhereHas('collaborators', function ($query) use ($user) {
+                            $query->where('user_id', $user->id);
+                        })
                         ->orWhereHas('techManagers', function ($q) use ($user) {
                             $q->where('user_id', $user->id);
                         });

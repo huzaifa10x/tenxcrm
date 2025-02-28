@@ -9,6 +9,7 @@ use App\Http\Controllers\OffsiteTaskController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectCollaboratorController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectKeywordController;
 use App\Http\Controllers\RoleController;
@@ -85,6 +86,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('projects-get-extra-fields', [ProjectController::class, 'getExtraFields'])->name('projects-get-extra-fields');
     Route::get('/users-by-department/{department}', [UserController::class, 'getUsersByDepartment'])->name('users.by.department');
 
+    Route::get('/projects/{project}/collaborators', [ProjectCollaboratorController::class, 'index'])->name('project.collaborators');
+    Route::post('/projects/collaborators', [ProjectCollaboratorController::class, 'store'])->name('project.collaborators.store');
+    Route::delete('/projects/collaborators/{collaborator}', [ProjectCollaboratorController::class, 'destroy'])->name('project.collaborators.destroy');
+
     Route::resource('tasks', TaskController::class);
     Route::get('tasks/board/index', [TaskController::class, 'boardView'])->name('tasks.board.index');
     Route::get('/tasks/{task}/attachments', [TaskController::class, 'jsonTaskAttachments'])->name('tasks.attachments.index');
@@ -93,6 +98,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can create tasks')->group(function () {
         Route::get('/tasks/assigned/index', [TaskController::class, 'assignedTasks'])->name('tasks.assigned.index');
     });
+
+    Route::get('/tasks/show/{id}', [TaskController::class, 'showTask'])->name('tasks.show.index');
+    Route::get('/tasks/clear-session', function () {
+        session()->forget('open_task_id');
+        return response()->json(['status' => 'cleared']);
+    })->name('tasks.clearSession');
 
     Route::middleware('permission:can view own tasks')->group(function () {
         Route::get('/tasks/forme/index', [TaskController::class, 'formeTasks'])->name('tasks.forme.index');

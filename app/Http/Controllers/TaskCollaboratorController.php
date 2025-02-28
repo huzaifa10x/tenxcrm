@@ -45,7 +45,8 @@ class TaskCollaboratorController extends Controller
 
         $user->notify(new CustomNotification(
             "You have been added as a collaborator",
-            auth()->user()->name . " has added you as a collaborator on the task: " . $collaborator->task->title
+            auth()->user()->name . " has added you as a collaborator on the task: " . $collaborator->task->title,
+            route('tasks.show',  $collaborator->task->id)
         ));
 
         return response()->json([
