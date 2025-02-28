@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Faker\Factory as Faker;
 
 class UserSeeder extends Seeder
 {
@@ -15,8 +14,6 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-
-        $faker = Faker::create();
 
         $users = [
             [
@@ -153,7 +150,7 @@ class UserSeeder extends Seeder
                 [
                     'name' => $userData['name'],
                     'password' => $userData['password'],
-                    'phone' => $faker->phoneNumber,
+                    'phone' => "00000000000",
                 ]
             );
             if ($userData['role'] == 'ADMIN') {

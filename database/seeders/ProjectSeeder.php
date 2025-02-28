@@ -13,7 +13,6 @@ use App\Models\WebDevProject;
 use App\Models\Industry;
 use App\Models\User;
 use App\Models\PaymentMethod;
-use Faker\Factory as Faker;
 
 class ProjectSeeder extends Seeder
 {
@@ -22,27 +21,25 @@ class ProjectSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = Faker::create();
-
         $company = Company::first();
         $user = User::first();
         $paymentMethod = PaymentMethod::first();
         $industry = Industry::first();
 
         $project = Project::create([
-            'title' => $faker->sentence,
-            'description' => $faker->paragraph,
+            'title' => 'SEO Optimization for ABC Corp',
+            'description' => 'An advanced SEO strategy to improve search engine rankings and organic traffic.',
             'category' => 'PLATINUM',
             'status' => 'Current',
             'industry_id' => $industry->id,
             'company_id' => $company->id,
             'created_by' => $user->id,
-            'contract_start_date' => $faker->date(),
-            'contract_term' => $faker->numberBetween(12, 36),
-            'contract_value' => $faker->randomFloat(2, 1000, 50000),
+            'contract_start_date' => '2024-03-01',
+            'contract_term' => 24,
+            'contract_value' => 15000.00,
             'free_months' => 1,
             'payment_method_id' => $paymentMethod->id,
-            'handover_notes' => $faker->paragraph,
+            'handover_notes' => 'Ensure proper documentation and keyword analysis reports.',
             'project_type' => 'SEO',
         ]);
 
@@ -51,35 +48,35 @@ class ProjectSeeder extends Seeder
         $project->techManagers()->sync([User::inRandomOrder()->first()->id]);
 
         $project->contractFiles()->create([
-            'file_path' => 'path/to/dummy/contract.pdf',
-            'file_name' => 'dummy_contract.pdf',
+            'file_path' => 'uploads/contracts/seo_contract.pdf',
+            'file_name' => 'seo_contract.pdf',
             'file_type' => 'application/pdf',
         ]);
 
         if ($project->project_type == 'SEO') {
             SeoProject::create([
                 'project_id' => $project->id,
-                'number_of_keywords' => $faker->numberBetween(5, 50),
+                'number_of_keywords' => 25,
                 'milestone_1_percentage' => 30,
-                'milestone_1_date' => $faker->date(),
+                'milestone_1_date' => '2024-04-15',
                 'milestone_2_percentage' => 40,
-                'milestone_2_date' => $faker->date(),
+                'milestone_2_date' => '2024-07-15',
                 'milestone_3_percentage' => 30,
-                'milestone_3_date' => $faker->date(),
+                'milestone_3_date' => '2024-10-15',
             ]);
         } elseif ($project->project_type == 'Social Media') {
             SocialMediaProject::create([
                 'project_id' => $project->id,
-                'channels' => json_encode(['Facebook', 'Instagram']),
-                'video_shoots_per_month' => $faker->numberBetween(1, 5),
-                'static_posts' => $faker->numberBetween(5, 20),
-                'reels' => $faker->numberBetween(2, 10),
+                'channels' => json_encode(['Facebook', 'Instagram', 'Twitter']),
+                'video_shoots_per_month' => 3,
+                'static_posts' => 10,
+                'reels' => 5,
             ]);
         } elseif ($project->project_type == 'Web Development') {
             WebDevProject::create([
                 'project_id' => $project->id,
                 'payment_type' => 'Partial',
-                'remaining_payment' => $faker->randomFloat(2, 5000, 20000),
+                'remaining_payment' => 7500.00,
                 'site_condition' => 'New Project',
             ]);
         }
