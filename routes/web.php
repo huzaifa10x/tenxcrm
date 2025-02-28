@@ -96,8 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('permission:can view own tasks')->group(function () {
         Route::get('/tasks/forme/index', [TaskController::class, 'formeTasks'])->name('tasks.forme.index');
-        Route::get('/tasks/collaborated/index', [TaskController::class, 'collaboratedTasks'])->name('tasks.collaborated.index');
     });
+    Route::get('/tasks/collaborated/index', [TaskController::class, 'collaboratedTasks'])->name('tasks.collaborated.index');
 
     Route::middleware('permission:can add task files')->group(function () {
         Route::post('/tasks/{task}/add-attachment', [TaskController::class, 'addAttachment'])->name('tasks.addAttachment');
