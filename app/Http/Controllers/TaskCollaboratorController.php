@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\TaskCollaborator;
 use App\Models\TaskHistory;
 use App\Models\User;
+use App\Notifications\CustomNotification;
 
 class TaskCollaboratorController extends Controller
 {
@@ -25,7 +26,6 @@ class TaskCollaboratorController extends Controller
             'user_id' => 'required|exists:users,id'
         ]);
 
-        // Check if the user is already assigned to the task
         if (TaskCollaborator::where('task_id', $request->task_id)
             ->where('user_id', $request->user_id)
             ->exists()
@@ -42,6 +42,11 @@ class TaskCollaboratorController extends Controller
             'user_id' => auth()->user()->id,
             'action' => $user->name . " was added as a collaborator by " . auth()->user()->name,
         ]);
+
+        $user->notify(new CustomNotification(
+            "You have been added as a collaborator",
+            auth()->user()->name . " has added you as a collaborator on the task: " . $collaborator->task->title
+        ));
 
         return response()->json([
             'message' => 'Collaborator added successfully',
