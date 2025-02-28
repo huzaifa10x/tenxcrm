@@ -109,7 +109,7 @@
                             <div class="row">
                                 @foreach ($task->attachments as $file)
                                     @php
-                                        $filePath = asset('storage/' . $file->file_path);
+                                        $filePath = asset('/public/storage/' . $file->file_path);
                                         $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
                                         $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                                     @endphp

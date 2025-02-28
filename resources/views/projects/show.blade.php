@@ -89,7 +89,7 @@
                                 class="w-100 object-fit-cover">
                             <div class="pb-24 ms-16 mb-24 me-16  mt--100">
                                 <div class="text-center border border-top-0 border-start-0 border-end-0">
-                                    <img src="{{ asset('storage/') }}/{{ $project->companies->logo }}" alt=""
+                                    <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo }}" alt=""
                                         class="mt-10 w-200-p p-10 h-200-px rounded object-fit-cover"
                                         style="backdrop-filter: blur(9px);">
                                     <h6 class="mb-0 mt-16">{{ $project->companies->name }}</h6>
@@ -583,7 +583,7 @@
                                                                 <td colspan="7" class="bg-info-50 text-muted">
                                                                     <div style="max-width: 50%;">
                                                                         <div class="d-flex align-items-start gap-3">
-                                                                            <img src="{{ asset('storage/' . $task->comments()->latest()->first()->user->img) }}"
+                                                                            <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
                                                                                 alt=""
                                                                                 class="w-40-px h-40-px rounded-pill">
                                                                             <div class="w-100">
@@ -648,7 +648,7 @@
                                                                 <td colspan="7" class="bg-info-50 text-muted">
                                                                     <div style="max-width: 50%;">
                                                                         <div class="d-flex align-items-start gap-3">
-                                                                            <img src="{{ asset('storage/' . $task->comments()->latest()->first()->user->img) }}"
+                                                                            <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
                                                                                 alt=""
                                                                                 class="w-40-px h-40-px rounded-pill">
                                                                             <div class="w-100">
@@ -717,7 +717,7 @@
                                                                 <td colspan="7" class="bg-info-50 text-muted">
                                                                     <div style="max-width: 50%;">
                                                                         <div class="d-flex align-items-start gap-3">
-                                                                            <img src="{{ asset('storage/' . $task->comments()->latest()->first()->user->img) }}"
+                                                                            <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
                                                                                 alt=""
                                                                                 class="w-40-px h-40-px rounded-pill">
                                                                             <div class="w-100">
@@ -801,7 +801,7 @@
                                     <div class="d-flex flex-column gap-24">
                                         @foreach ($project->contractFiles as $file)
                                             @php
-                                                $filePath = asset('storage/' . $file->file_path);
+                                                $filePath = asset('/public/storage/' . $file->file_path);
                                                 $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
                                             @endphp
                                             <div class="d-flex align-items-center justify-content-between gap-3">

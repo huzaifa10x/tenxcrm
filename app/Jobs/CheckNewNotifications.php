@@ -32,7 +32,6 @@ class CheckNewNotifications implements ShouldQueue
         $user = User::find($this->userId);
         if ($user) {
             $newNotifications = $user->unreadNotifications()->count();
-            // You can log this or broadcast it via WebSockets
         }
     }
 }

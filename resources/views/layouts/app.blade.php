@@ -266,7 +266,7 @@
                         <div class="dropdown">
                             <button class="d-flex justify-content-center align-items-center rounded-circle"
                                 type="button" data-bs-toggle="dropdown">
-                                <img src="{{ auth()->user()->img ? asset('storage/' . auth()->user()->img) : asset('/images/user.png') }}"
+                                <img src="{{ auth()->user()->img ? asset('/public/storage/' . auth()->user()->img) : asset('/images/user.png') }}"
                                     alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
                             </button>
                             <div class="dropdown-menu to-top dropdown-menu-sm">

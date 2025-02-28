@@ -28,7 +28,7 @@
                         </div>
                         <div class="col-lg-6">
                             <label class="form-label" for="logo">
-                                <img src="{{ asset('storage/') }}/{{ $company->logo }}" class="img-fluid" alt="Logo"
+                                <img src="{{ asset('/public/storage/') }}/{{ $company->logo }}" class="img-fluid" alt="Logo"
                                     width="50"> {{ $company->name }}
                             </label>
                             <input type="file" name="logo" id="logo" class="form-control">

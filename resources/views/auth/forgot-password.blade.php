@@ -20,7 +20,7 @@
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
 
-            <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"
+            <button type="submit" class="btn btn-success text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Email Password Reset Link</button>
             <div class="text-center">
                 <a href="{{ route('login') }}" class="text-primary-600 fw-bold mt-24">Back to Sign In</a>

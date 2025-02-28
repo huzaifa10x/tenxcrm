@@ -7,7 +7,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-6">
-                        <img src="{{ asset('storage/' . $user->logo) }}" class="img-fluid" alt="Logo" width="50">
+                        <img src="{{ asset('/public/storage/' . $user->logo) }}" class="img-fluid" alt="Logo" width="50">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Name</label>

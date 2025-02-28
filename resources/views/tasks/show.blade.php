@@ -1292,7 +1292,7 @@
     function renderAttachments(attachments) {
         let html = '';
         attachments.forEach(file => {
-            let filePath = "{{ asset('storage/') }}/" + file.file_path;
+            let filePath = "{{ asset('/public/storage/') }}/" + file.file_path;
             let fileName = file.file_path.slice(-10);
             let extension = file.file_path.split('.').pop();
             let imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];

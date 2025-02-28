@@ -47,13 +47,13 @@
                         <label class="form-check-label" for="remeber">Remember me </label>
                     </div>
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-primary-600 fw-medium">Forgot
+                        <a href="{{ route('password.request') }}" class="text-success-600 fw-medium">Forgot
                             Password?</a>
                     @endif
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"> Sign
+            <button type="submit" class="btn btn-success text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"> Sign
                 In</button>
         </form>
     </div>

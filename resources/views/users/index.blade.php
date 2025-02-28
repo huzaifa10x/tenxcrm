@@ -8,10 +8,13 @@
                 <a href="{{ route('users.create') }}" class="btn btn-outline-primary">
                     Add New User
                 </a>
+                <a href="{{ route('users.gridView') }}" class="btn btn-outline-info ms-3">
+                    Grid
+                </a>
             </div>
         @endif
         <div class="card-body table-responsive">
-            <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+            <table class="table bordered-table mb-0">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -28,7 +31,7 @@
                             <td>
                                 <div class="form-check style-check d-flex align-items-center">
                                     <label class="form-check-label">
-                                        <img src="{{ asset('storage/') }}/{{ $user->img }}" class="rounded-pill me-1 w-40-px h-40-px img-fluid"
+                                        <img src="{{ asset('/public/storage/') }}/{{ $user->img }}" class="rounded-pill me-1 w-40-px h-40-px img-fluid"
                                             alt="Logo" width="50"> {{ $user->name }}
                                     </label>
                                 </div>
