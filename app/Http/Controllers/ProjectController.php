@@ -118,12 +118,6 @@ class ProjectController extends Controller
                 'milestone_3_date' => 'required|date',
             ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
             SeoProject::create(array_merge(['project_id' => $project->id], $validator->validated()));
 
             $initialTasks = [
