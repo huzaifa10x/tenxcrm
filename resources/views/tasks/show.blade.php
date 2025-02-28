@@ -844,7 +844,7 @@
                 $('#collaborators-list').append(`
                 <div class="col-sm-6">
                     <div class="d-flex align-items-start gap-2">
-                        <img src="{{ asset('storage') }}/${collaborator.user.img}" class="w-40-px h-40-px rounded-pill" /> 
+                        <img src="{{ asset('/public/storage') }}/${collaborator.user.img}" class="w-40-px h-40-px rounded-pill" /> 
                         <div class="flex-grow-1 d-inline-flex flex-column">
                             <h6 class="text-sm mb-0">${collaborator.user.name}</h6>
                             <span class="text-xs text-secondary-light">${collaborator.user.email}</span>
@@ -1221,7 +1221,7 @@
                     `
                 <div class="position-relative p-1 px-24 border-bottom">
                     <div class="d-flex align-items-start gap-3">
-                        <img src="{{ asset('storage') }}/${comment.user.img}" alt="" class="w-40-px h-40-px rounded-pill">
+                        <img src="{{ asset('/public/storage') }}/${comment.user.img}" alt="" class="w-40-px h-40-px rounded-pill">
                         <div class="w-100">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
