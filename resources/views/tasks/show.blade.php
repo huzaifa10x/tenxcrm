@@ -553,12 +553,12 @@
     </div>
 </div>
 <div class="row gy-3 mb-10">
-    <div class="col-xxl-6 col-md-6">
+    <div class="col-lg-4">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
                 <span class="fw-bold">Title</span>
             </div>
-            <div class="card-body">
+            <div class="card-body bg-warning-50">
                 @if ($relatedData && $relatedData->sub_type == 'ADHOC')
                     <input type="text"
                         class="m-0 p-0 border-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
@@ -570,7 +570,19 @@
             </div>
         </div>
     </div>
-    <div class="col-xxl-6 col-md-6">
+    <div class="col-lg-4">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header bg-success-50 py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Start Date</span>
+            </div>
+            <div class="card-body bg-success-50">
+                <input type="datetime"
+                    class="m-0 p-0 border-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                    name="start_date" id="start_date" value="{{ $task->start_date }}" required>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header bg-danger-50 py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
                 <span class="fw-bold">Due Date</span>
