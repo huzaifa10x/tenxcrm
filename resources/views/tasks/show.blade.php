@@ -526,7 +526,7 @@
             @endif
         </div>
         @if ($task->status === 'Completed')
-            <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn"
+            <button type="button" class="btn-sm fs-7 btn btn-secondary text-light-800 complete-task-btn"
                 disabled>Completed</button>
         @else
             <form id="task-complete-form-{{ $task->id }}"
@@ -534,7 +534,7 @@
                 style="display: inline-block;">
                 @csrf
                 @method('PATCH')
-                <button type="button" class="btn-sm fs-7 btn btn-neutral-900 complete-task-btn"
+                <button type="button" class="btn-sm fs-7 btn btn-success  complete-task-btn"
                     data-task-id="{{ $task->id }}">Complete Task</button>
             </form>
         @endif
@@ -635,7 +635,7 @@
         </div>
     </div>
 </div>
-<div class="row gy-3 mb-10">
+<div class="row gy-3 mb-16">
     @if ($task->completions->count())
         <div class="col-lg-4">
             <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">

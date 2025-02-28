@@ -105,11 +105,11 @@
     </div>
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-            <span class="offcanvas-title" id="offcanvasRightLabel">Task Detail</span>
+        <div class="offcanvas-header bg-base">
+            <h6 class="text-md mb-0 fw-medium">Task Detail</h6>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body" id="taskDetails">
+        <div class="offcanvas-body bg-base" id="taskDetails">
             ...
         </div>
     </div>
