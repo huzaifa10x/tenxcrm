@@ -160,8 +160,12 @@
                                                                             :''}
                                                                         </span>
                                                                         <div>
-                                                                            <h6 class="text-md fw-semibold mb-4">${notification.data.title}</h6>
-                                                                            <p class="mb-0 text-sm text-secondary-light text-w-200-px">${notification.data.message}</p>
+                                                                            <h6 class="text-md fw-semibold mb-4" title="${notification.data.title}">
+                                                                                ${notification.data.title}
+                                                                            </h6>
+                                                                            <p class="mb-0 text-sm text-secondary-light text-w-200-px" title="${notification.data.message}">
+                                                                                ${notification.data.message}
+                                                                            </p>
                                                                         </div>
                                                                     </div>
                                                                     <span class="text-sm text-secondary-light flex-shrink-0">
