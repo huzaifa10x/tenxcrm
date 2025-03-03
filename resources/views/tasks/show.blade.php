@@ -67,11 +67,7 @@
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title === 'Connect the GA, GSC, GTM, and GMB')
+                        @elseif ($task->title === 'Connect the GA, GSC, GTM, and GMB')
                             <span class="d-block fw-bold">Connect the GA, GSC, GTM, and GMB</span>
                             <label for="GA" form="label">GA</label>
                             <input type="hidden" name="fields[0][name]" value="GA">
@@ -91,52 +87,33 @@
                                 name="fields[3][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title === 'Keywords Approval')
+                        @elseif ($task->title === 'Keywords Approval')
                             <span class="d-block fw-bold">Keywords Approval</span>
-
                             <label for="seo_admin_approval" form="label">SEO ADMIN APPROVAL</label>
                             <input type="hidden" name="fields[0][name]" value="seo_admin_approval">
                             <input type="checkbox" class="form-check-input" id="seo_admin_approval" required
                                 name="fields[0][value]">
-
                             <label for="client_approval" form="label">CLIENT APPROVAL</label>
                             <input type="hidden" name="fields[1][name]" value="client_approval">
                             <input type="checkbox" class="form-check-input" id="client_approval" required
                                 name="fields[1][value]">
-
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title === 'Intro Call')
+                        @elseif ($task->title === 'Intro Call')
                             <input type="hidden" name="fields[0][name]" value="intro_call">
                             <label class="form-label" for="intro_call">Have you done Intro Call</label>
                             <input id="intro_call" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title === 'Onboarding Email')
+                        @elseif ($task->title === 'Onboarding Email')
                             <input type="hidden" name="fields[0][name]" value="onboarding_email">
                             <label class="form-label" for="onboarding_email">Have you sent Onboarding Email</label>
                             <input id="onboarding_email" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title === 'Send SEO Benchmark Report to client')
+                        @elseif ($task->title === 'Send SEO Benchmark Report to client')
                             <input type="hidden" name="fields[0][name]" value="benchmark_report_to_client">
                             <label class="form-label" for="benchmark_report_to_client">Have you set benchmark report
                                 to
@@ -145,11 +122,7 @@
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'First Client Meeting')
+                        @elseif ($task->title == 'First Client Meeting')
                             <label class="form-label">Location</label>
                             <input type="text" name="fields[0][name]" value="location" hidden>
                             <select name="fields[0][value]">
@@ -159,83 +132,51 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Upload the Content Intake Form')
+                        @elseif ($task->title == 'Upload the Content Intake Form')
                             <label class="form-label">Upload the Content Intake Form</label>
                             <input type="text" name="fields[0][name]" value="content_intake_form" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Upload the Local Listing Form')
+                        @elseif ($task->title == 'Upload the Local Listing Form')
                             <label class="form-label">Upload the Local Listing Form</label>
                             <input type="text" name="fields[0][name]" value="local_listing_form" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'On-site Audit (from SE ranking)')
+                        @elseif ($task->title == 'On-site Audit (from SE ranking)')
                             <label class="form-label">On-site Audit (from SE ranking)</label>
                             <input type="text" name="fields[0][name]" value="onsite_from_se_ranking" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'PUBLISH CONTENT')
+                        @elseif ($task->title == 'PUBLISH CONTENT')
                             <label class="form-label" for="publish_content">Have you published content</label>
                             <input type="hidden" name="fields[0][name]" value="publish_content">
                             <input id="publish_content" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Backlink Audit & DISAVOW')
+                        @elseif ($task->title == 'Backlink Audit & DISAVOW')
                             <label class="form-label">Document of Backlink Audit & DISAVOW</label>
                             <input type="text" name="fields[0][name]" value="backlink_audit_and_disavow" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($relatedData && in_array($relatedData->sub_type, ['SEO CONTENT', 'BLOG CONTENT']))
+                        @elseif ($relatedData && in_array($relatedData->sub_type, ['SEO CONTENT', 'BLOG CONTENT']))
                             <label class="form-label">Number Of Words</label>
                             <input type="text" name="fields[0][name]" value="number_of_words" hidden>
                             <input class="form-control" type="number" name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($relatedData && in_array($relatedData->sub_type, ['ADHOC', 'REVISION']))
+                        @elseif ($relatedData && in_array($relatedData->sub_type, ['ADHOC', 'REVISION']))
                             <label class="form-label">Notes</label>
                             <input type="text" name="fields[0][name]" value="notes" hidden>
                             <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
                                 placeholder="Enter Notes"></textarea>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if (
+                        @elseif (
                             $relatedData &&
                                 in_array($relatedData->sub_type, [
                                     'RE-ONSITE',
@@ -254,15 +195,10 @@
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'SEO Content Request')
+                        @elseif ($task->title == 'SEO Content Request')
                             <label class="form-label">Upload SEO Content Request Document</label>
                             <input type="text" name="fields[0][name]" value="seo_content_request_document" hidden>
                             <input type="file" name="file" required class="form-control">
-
                             <label class="form-label" for="content_completion_word_count">content completion word
                                 count</label>
                             <input type="hidden" name="fields[1][name]" value="content_completion_word_count">
@@ -270,51 +206,31 @@
                                 name="fields[1][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Content Audit')
+                        @elseif ($task->title == 'Content Audit')
                             <label class="form-label">Content Audit</label>
                             <input type="text" name="fields[0][name]" value="content_audit" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'First On-site')
+                        @elseif ($task->title == 'First On-site')
                             <label class="form-label">First On-site Report</label>
                             <input type="text" name="fields[0][name]" value="first_onsite_report" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Request Local Listing')
+                        @elseif ($task->title == 'Request Local Listing')
                             <label class="form-label">Upload Request Local Listing Doc</label>
                             <input type="text" name="fields[0][name]" value="request_local_listing" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Create the Project on SE Ranking')
+                        @elseif ($task->title == 'Create the Project on SE Ranking')
                             <label class="form-label">Attach Benchmark Report</label>
                             <input type="text" name="fields[0][name]" value="benchmark_report" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Performance Report')
+                        @elseif ($task->title == 'Performance Report')
                             <label class="form-label">Performance</label>
                             <input type="text" name="fields[0][name]" value="performance" hidden>
                             <select name="fields[0][value]">
@@ -324,11 +240,7 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Campaign Meeting (Deep-dive) with Tech')
+                        @elseif ($task->title == 'Campaign Meeting (Deep-dive) with Tech')
                             <label class="form-label">MINUTES OF MEETINGS</label>
                             <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
                             <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
@@ -341,11 +253,7 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Campaign Meeting (Deep-dive) with Client')
+                        @elseif ($task->title == 'Campaign Meeting (Deep-dive) with Client')
                             <label class="form-label">MINUTES OF MEETINGS</label>
                             <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
                             <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
@@ -358,17 +266,12 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Renewal Reminder')
+                        @elseif ($task->title == 'Renewal Reminder')
                             <input type="hidden" name="fields[0][name]" value="renewal_reminder_status">
                             <label class="form-label" for="renewal_reminder_status">Have you sent Renewal
                                 Reminder</label>
                             <input id="renewal_reminder_status" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
-                            {{--  --}}
                             <label class="form-label">Feeling</label>
                             <input type="hidden" name="fields[1][name]" value="feeling" hidden>
                             <select name="fields[1][value]">
@@ -378,16 +281,11 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Renewal Contract')
+                        @elseif ($task->title == 'Renewal Contract')
                             <input type="hidden" name="fields[0][name]" value="renewal_contract_status">
                             <label class="form-label" for="renewal_contract_status">Have you sent Follow-Up</label>
                             <input id="renewal_contract_status" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
-                            {{--  --}}
                             <label class="form-label">Feeling</label>
                             <input type="hidden" name="fields[1][name]" value="feeling" hidden>
                             <select name="fields[1][value]">
@@ -397,11 +295,7 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-12">
-                        @if ($task->title == 'Renewal Status')
+                        @elseif ($task->title == 'Renewal Status')
                             <label class="form-label">Renewal Status</label>
                             <input type="hidden" name="fields[0][name]" value="status" hidden>
                             <select name="fields[0][value]">
@@ -416,6 +310,7 @@
             </div>
         </div>
     </form>
+
     @if (in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) ||
             ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
         <form id="keywordForm">
@@ -437,8 +332,7 @@
                 <button class="btn bnt-sm btn-info-900" type="submit">Complete Task</button>
             </div>
         </form>
-    @endif
-    @if ($task->title == 'Add the Client Credentials')
+    @elseif ($task->title == 'Add the Client Credentials')
         <form id="clientCredentialsForm">
             @csrf
             <input type="hidden" name="project_id" value="{{ $task->project_id }}">
@@ -454,9 +348,21 @@
             <button type="button" id="addCredential">Add More</button>
             <button type="submit">Submit</button>
         </form>
+    @else
+        <form id="taskForm" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="task_id" value="{{ $task->id }}">
+            <div class="col-lg-12">
+                <label class="form-label">Notes</label>
+                <input type="text" name="fields[0][name]" value="notes" hidden>
+                <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
+                    placeholder="Enter Notes"></textarea>
+                <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                    Task</button>
+            </div>
+        </form>
     @endif
     <div id="responseMessage"></div>
-    {{-- COMPLETION FORM --}}
 </div>
 <div class="card border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
