@@ -4,7 +4,7 @@
     </button>
     <div>
         <a href="index.html" class="sidebar-logo">
-            <img src="{{ asset('/images/logo-dark.png') }}" alt="site logo" class="light-logo">
+            <img src="{{ asset('/images/dark-logo.png') }}" alt="site logo" class="light-logo">
             <img src="{{ asset('/images/logo-light.png') }}" alt="site logo" class="dark-logo">
             <img src="{{ asset('/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
         </a>

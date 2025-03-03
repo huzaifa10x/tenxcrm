@@ -1249,7 +1249,7 @@
                             <h6 class="text-md mb-0 fw-medium">${fileName}</h6>
                         </div>
                     </div>
-                     <button type="button" class="m-2 delete-attachment border-0 btn p-0 m-0"
+                     <button type="button" class="text-secondary m-2 delete-attachment border-0 btn p-0 m-0"
                         data-attachment-id="${file.id}"
                         data-delete-url="{{ route('tasks.attachments.destroy', ':id') }}".replace(':id', file.id)">
                         <iconify-icon icon="material-symbols:delete-outline" class="icon line-height-1"></iconify-icon>
@@ -1266,7 +1266,7 @@
                         </div>
                     </div>
                     <div class="d-flex gap-10 align-items-baseline">
-                         <button type="button" class="m-2 delete-attachment border-0 btn p-0 m-0"
+                         <button type="button" class="text-secondary m-2 delete-attachment border-0 btn p-0 m-0"
                             data-attachment-id="${file.id}"
                             data-delete-url="{{ route('tasks.attachments.destroy', ':id') }}".replace(':id', file.id)">
                             <iconify-icon icon="material-symbols:delete-outline" class="icon line-height-1"></iconify-icon>

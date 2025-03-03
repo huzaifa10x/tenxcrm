@@ -57,7 +57,7 @@
                                                 by: {{ $task->createdBy->name }}</span>
                                             @if ($userPermissions->contains('can create tasks'))
                                                 <span
-                                                    class="badge text-capitalize position-absolute top-0 end-0 bg-base fs-7 text-black-50 mb-10 fw-light">assigned
+                                                    class="badge text-capitalize position-absolute top-0 end-0 bg-base fs-7 text-secondary mb-10 fw-light">assigned
                                                     to:
                                                     {{ $task->assignedTo ? $task->assignedTo->name : 'n/a' }}</span>
                                             @endif
