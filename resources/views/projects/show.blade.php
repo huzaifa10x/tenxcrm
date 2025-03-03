@@ -502,50 +502,44 @@
                         <div
                             class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
                             <div
-                                class="card-header pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
-                                <h6 class="text-lg mb-0">Tasks</h6>
-                                <ul class="nav bordered-tab d-inline-flex nav-pills mb-0 gap-3" id="task-tab"
-                                    role="tablist">
+                                class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
+                                <ul class="nav border-gradient-tab nav-pills mb-0" id="pills-tab" role="tablist">
                                     <li class="nav-item" role="presentation">
-                                        <div class="d-flex flex-wrap align-items-center gap-3">
-                                            <button id="regular-tab" data-bs-toggle="pill"
-                                                data-bs-target="#regular-task" type="button" role="tab"
-                                                class="active btn text-neutral-600 bg-neutral-100 position-relative px-20 py-8 text-sm line-height-1 d-flex align-items-center">
-                                                Regular Tasks
-                                                <span
-                                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info-600 border border-white">
-                                                    {{ $regularTasks->count() }}
-                                                </span>
-                                            </button>
-                                        </div>
+                                        <button class="nav-link d-flex align-items-center active" id="regular-tab"
+                                            data-bs-toggle="pill" data-bs-target="#regular-task" type="button"
+                                            role="tab" type="button" role="tab"
+                                            aria-controls="pills-to-do-list" aria-selected="true">
+                                            Regular Tasks
+                                            <span
+                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $regularTasks->count() }}</span>
+                                        </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <div class="d-flex flex-wrap align-items-center gap-3">
-                                            <button id="sequence-tab" data-bs-toggle="pill"
-                                                data-bs-target="#sequence-task" type="button" role="tab"
-                                                class="btn text-neutral-600 bg-neutral-100 position-relative px-20 py-8 text-sm line-height-1 d-flex align-items-center">
-                                                Sequence Tasks
-                                                <span
-                                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info-600 border border-white">
-                                                    {{ $sequenceTasks->count() }}
-                                                </span>
-                                            </button>
-                                        </div>
+                                        <button class="nav-link d-flex align-items-center" id="sequence-tab"
+                                            data-bs-toggle="pill" data-bs-target="#sequence-task" type="button"
+                                            role="tab" type="button" role="tab"
+                                            aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
+                                            Sequence Tasks
+                                            <span
+                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $sequenceTasks->count() }}</span>
+                                        </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <div class="d-flex flex-wrap align-items-center gap-3">
-                                            <button id="repeating-tab" data-bs-toggle="pill"
-                                                data-bs-target="#repeating-task" type="button" role="tab"
-                                                class="btn text-neutral-600 bg-neutral-100 position-relative px-20 py-8 text-sm line-height-1 d-flex align-items-center">
-                                                Repeating Tasks
-                                                <span
-                                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info-600 border border-white">
-                                                    {{ $repeatingTasks->count() }}
-                                                </span>
-                                            </button>
-                                        </div>
+                                        <button class="nav-link d-flex align-items-center" id="repeating-tab"
+                                            data-bs-toggle="pill" data-bs-target="#repeating-task" type="button"
+                                            role="tab" type="button" role="tab"
+                                            aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
+                                            Repeating Tasks
+                                            <span
+                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $repeatingTasks->count() }}</span>
+                                        </button>
                                     </li>
                                 </ul>
+                                <a href="{{ route('tasks.board.index') }}"
+                                    class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                                    Tasks
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
+                                </a>
                             </div>
                             <div class="card-body p-0">
                                 <div class="tab-content" id="task-tabContent">
@@ -599,7 +593,8 @@
                                                                                 <p class="mb-0 text-primary-light">
                                                                                     {{ $task->comments()->latest()->first()->comment }}
                                                                                 </p>
-                                                                                <span class="comment-time text-secondary d-block fs-7"
+                                                                                <span
+                                                                                    class="comment-time text-secondary d-block fs-7"
                                                                                     data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
                                                                             </div>
                                                                         </div>
@@ -994,7 +989,6 @@
                     });
                 });
             }
-
             function addProjectCollaborator(projectId) {
                 $.post("{{ route('project.collaborators.store') }}", {
                     project_id: projectId,
@@ -1007,7 +1001,6 @@
                     toastr.error(xhr.responseJSON.message);
                 });
             }
-
             function removeProjectCollaborator(id, projectId) {
                 $.ajax({
                     url: "{{ route('project.collaborators.destroy', ['collaborator' => ':id']) }}".replace(':id', id),
@@ -1021,12 +1014,10 @@
                     }
                 });
             }
-
             $(document).ready(() => {
                 fetchProjectCollaborators("{{ $project->id }}");
             });
         </script>
-
         <script>
             function timeAgo(date) {
                 const seconds = Math.floor((new Date() - new Date(date)) / 1000);
