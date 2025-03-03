@@ -101,7 +101,13 @@ class DashboardController extends Controller
                 return ($project->contract_value && $project->contract_term) ?
                     ($project->contract_value / $project->contract_term) : 0;
             });
-            return view('dashboard', compact('role', 'currentPortfolio', 'projects'));
+            $campaignCounts = Project::whereHas('accountManagers', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->selectRaw("status, COUNT(*) as count")
+                ->groupBy('status')
+                ->get()
+                ->pluck('count', 'status');
+            return view('dashboard', compact('role', 'currentPortfolio', 'projects', 'campaignCounts'));
         }
 
         return view('dashboard', compact('role'));

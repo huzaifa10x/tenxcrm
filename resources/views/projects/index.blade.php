@@ -21,6 +21,7 @@
                         <th>Status</th>
                         <th>Started at</th>
                         <th>Created By</th>
+                        <th>Tasks</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -74,6 +75,9 @@
                             <td>{{ $project->contract_start_date }}</td>
                             <td>
                                 {{ $project->createdBy->name }}
+                            </td>
+                            <td>
+                                {{ $project->tasks->count() }}
                             </td>
                             <td class="">
                                 <div class="d-flex align-items-center gap-10">
