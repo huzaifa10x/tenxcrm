@@ -74,7 +74,7 @@
                         <button type="button" class="sidebar-mobile-toggle">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
-                        <div id="live-time"></div>
+                        <div class="fs-7" id="live-time"></div>
                         <script>
                             function updateTime() {
                                 const options = {
@@ -85,7 +85,7 @@
                                     hour12: true
                                 };
                                 const currentTime = new Date().toLocaleTimeString('en-US', options);
-                                document.getElementById('live-time').innerText = "CRM TIME:  " + currentTime;
+                                document.getElementById('live-time').innerText = currentTime;
                             }
 
                             setInterval(updateTime, 1000);
