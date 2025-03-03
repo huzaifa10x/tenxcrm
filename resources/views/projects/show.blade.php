@@ -4,11 +4,11 @@
     </x-slot>
     @if ($userPermissions->contains('can view all projects') || $userPermissions->contains('can view own projects'))
         <div class="card border">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-10">
                 <div class="d-flex align-items-center gap-3">
                     @if ($userPermissions->contains('can create tasks'))
                         <button data-bs-toggle="modal" data-bs-target="#taskCreateModal"
-                            class="btn-sm btn btn-outline-primary">
+                            class="btn-sm btn btn-outline-primary fs-7">
                             Create Task
                         </button>
                     @endif

@@ -730,7 +730,7 @@
     <div class="col-xxl-6 col-md-6">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
-                <span class="fw-bold">Task Activity</span>zzz
+                <span class="fw-bold">Task Activity</span>
             </div>
             <div class="card-body p-24">
                 <div class="row gy-3 mb-10" id="collaborators-list">
