@@ -745,7 +745,7 @@
                                 <span class="fw-semibold fs-7">
                                     {{ ucwords(str_replace('_', ' ', $history->action)) }}
                                 </span>
-                                <small class="text-muted fs-7">{{ $history->created_at->diffForHumans() }}</small>
+                                <small class="text-secondary fs-7">{{ $history->created_at->diffForHumans() }}</small>
                             </div>
                         </div>
                     @endforeach
