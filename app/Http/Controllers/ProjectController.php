@@ -29,7 +29,7 @@ class ProjectController extends Controller
         if ($user->hasPermission('can view all projects')) {
             $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins'])
                 ->paginate(10);
-        } elseif ($user->hasPermission('can view own projects')) {
+        } else {
             $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers'])
                 ->where(function ($query) use ($user) {
                     $query->where('created_by', $user->id)
@@ -47,8 +47,6 @@ class ProjectController extends Controller
                         });
                 })
                 ->paginate(10);
-        } else {
-            abort(403, 'Unauthorized action.');
         }
         return view('projects.index', compact('projects'));
     }
@@ -555,7 +553,7 @@ class ProjectController extends Controller
                 ';
                 break;
 
-                // Add cases for other project types as needed
+            // Add cases for other project types as needed
 
             default:
                 $fields = ''; // No extra fields for other project types
