@@ -592,14 +592,14 @@
                                                                                     <div
                                                                                         class="d-flex align-items-center gap-2">
                                                                                         <span
-                                                                                            class="mb-0 fs-7">{{ $task->comments()->latest()->first()->user->name }}
+                                                                                            class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
                                                                                             {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
                                                                                     </div>
                                                                                 </div>
                                                                                 <p class="mb-0 text-primary-light">
                                                                                     {{ $task->comments()->latest()->first()->comment }}
                                                                                 </p>
-                                                                                <span class="comment-time d-block fs-7"
+                                                                                <span class="comment-time text-secondary d-block fs-7"
                                                                                     data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
                                                                             </div>
                                                                         </div>
