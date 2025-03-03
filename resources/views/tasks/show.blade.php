@@ -349,7 +349,7 @@
             <button type="submit">Submit</button>
         </form>
     @else
-        <form id="taskForm" enctype="multipart/form-data">
+        <form id="taskForm2" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="task_id" value="{{ $task->id }}">
             <div class="col-lg-12">
@@ -953,6 +953,27 @@
     }
     $(document).ready(function() {
         $("#taskForm").submit(function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+
+            $.ajax({
+                url: "{{ route('tasks.complete') }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message, "Success");
+                    if (xhr.status === 200) {
+                        triggerCompletionSubmit();
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error("Error: " + xhr.responseText, "Error");
+                }
+            });
+        });
+        $("#taskForm2").submit(function(e) {
             e.preventDefault();
             let formData = new FormData(this);
 
