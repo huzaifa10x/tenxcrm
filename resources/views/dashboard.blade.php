@@ -175,7 +175,8 @@
                                                 <td rowspan="{{ $project->tasks->count() }}">{{ $project->title }}
                                                 </td>
                                             @endif
-                                            <td>{{ $task->title }}</td>
+                                            <td> <a target="_blank" href="{{ url("tasks/show/{$task->id}") }}">{{ $task->title }}</a>
+                                            </td>
                                             <td>{{ $task->status }}</td>
                                         </tr>
                                     @endforeach
