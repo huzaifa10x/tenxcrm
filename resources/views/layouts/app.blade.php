@@ -150,6 +150,7 @@
                                                             html += `
                                                                 <a
                                                                 href="${notification?.data?.url}"
+                                                                target="_blank"
                                                                    class="px-24 notification-item position-relative py-12 d-flex align-items-start gap-3 mb-2 justify-content-between"
                                                                    data-id="${notification.id}">
                                                                     <div class="text-black d-flex align-items-center gap-3">

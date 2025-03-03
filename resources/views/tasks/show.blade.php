@@ -366,7 +366,8 @@
 </div>
 <div class="d-flex flex-column mb-10 align-items-baseline gap-1" style="white-space: nowrap;">
     <label class="form-label fs-7 m-0" for="priority">Project</label>
-    <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->project->title }} - {{ $task->project->companies->name }}">
+    <input readonly type="text" class="form-control fs-7 h-auto"
+        value="{{ $task->project->title }} - {{ $task->project->companies->name }}">
 </div>
 <div class="card border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
@@ -602,11 +603,11 @@
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
                 <span class="fw-bold">Task Comments</span>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-0 position-relative">
                 <div class="row gy-3 p-10">
                     <ul id="comment-list" class="list-group mb-3"></ul>
                 </div>
-                <form action="#" class="row gy-3 p-10">
+                <form action="#" class="row gy-3 p-10 position-absolute bottom-0 left-0 w-100 bg-base-50">
                     <div class="d-flex align-items-center justify-content-between">
                         <textarea id="comment-text" class="textarea-max-height form-control border resize-none scroll-sm"
                             placeholder="Write massage"></textarea>

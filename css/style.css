@@ -15917,6 +15917,7 @@ td.fc-header-center {
 ul#comment-list {
   max-height: 500px;
   overflow-y: auto;
+  padding-bottom: 60px;
 }
 
 .table>thead {
