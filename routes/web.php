@@ -105,9 +105,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return response()->json(['status' => 'cleared']);
     })->name('tasks.clearSession');
 
-    Route::middleware('permission:can view own tasks')->group(function () {
-        Route::get('/tasks/forme/index', [TaskController::class, 'formeTasks'])->name('tasks.forme.index');
-    });
+    Route::get('/tasks/forme/index', [TaskController::class, 'formeTasks'])->name('tasks.forme.index');
+
     Route::get('/tasks/collaborated/index', [TaskController::class, 'collaboratedTasks'])->name('tasks.collaborated.index');
 
     Route::middleware('permission:can add task files')->group(function () {

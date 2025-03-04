@@ -88,10 +88,8 @@ class TaskController extends Controller
         $users = User::all();
         $departments = Role::all();
 
-        if (($user->hasPermission('can view own tasks'))) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
-                ->where('assigned_to', $user->id)->visibleTasks()->get();
-        }
+        $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+            ->where('assigned_to', $user->id)->visibleTasks()->get();
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
@@ -270,9 +268,6 @@ class TaskController extends Controller
     }
     public function show(Request $request, Task $task)
     {
-        if (!$request->is_ajax) {
-            return redirect()->route('tasks.board.index');
-        }
         $users = User::all();
         $projects = Project::all();
         $departments = Role::all();
@@ -310,6 +305,10 @@ class TaskController extends Controller
             default:
                 $relatedData = null;
                 break;
+        }
+
+        if (!$request->is_ajax) {
+            session()->flash('is_not_ajax', true);
         }
 
         return view('tasks.show', compact('task', 'projects', 'users', 'departments', 'relatedData'));
@@ -536,11 +535,30 @@ class TaskController extends Controller
 
         $task->update(['status' => 'Completed', 'completed_date' => now()]);
         $accountManager = $project->accountManagers[0]->id;
-        $seoTech = $project->seoTechs[0]->id ?? null;
-        $seoAdmin = $project->seoAdmins[0]->id ?? null;
-        $contentWriter = $project->contentWriters[0]->id ?? null;
+        $seoTech = $project->techManagers[0]->id;
+        $seoAdmin = $project->seoAdmins[0]->id;
+        $contentWriter = $project->contentWriters[0]->id;
+
+        if (
+            !$accountManager ||
+            !$seoTech ||
+            !$seoAdmin ||
+            !$contentWriter
+        ) {
+            return "Please assign all the roles to the project";
+        }
 
         $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
+
+        $keywordsApprovalTasks = [
+            ["title" => 'Create the Project on SE Ranking', "assignee" => $seoTech],
+            ["title" => 'Send SEO Benchmark Report to client', "assignee" => $accountManager],
+            ["title" => 'First On-site', "assignee" => $seoTech],
+            ["title" => 'Add KW Mapping', "assignee" => $seoAdmin],
+            ["title" => 'On-site Audit (from SE ranking', "assignee" => $seoAdmin],
+            ["title" => 'Content Audit', "assignee" => $seoAdmin],
+            ["title" => 'Backlink Audit & DISAVOW', "assignee" => $seoAdmin],
+        ];
 
         switch ($task->title) {
             case 'First Client Meeting':
@@ -560,16 +578,23 @@ class TaskController extends Controller
                 break;
 
             case 'Keywords Approval':
-                Task::insert([
-                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Create the Project on SE Ranking', 'assigned_to' => $seoTech, 'status' => 'Todo'],
-                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Send SEO Benchmark Report to client', 'assigned_to' => $accountManager, 'status' => 'Todo'],
-                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'First On-site', 'assigned_to' => $seoTech, 'status' => 'Todo'],
-                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Add KW Mapping', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
-                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'On-site Audit (from SE ranking)', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
-                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Content Audit', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
-                    ['is_automated' => 1, 'start_date' => $dubaiTime, 'created_by' => 1, 'project_id' => $project->id, 'title' => 'Backlink Audit & DISAVOW', 'assigned_to' => $seoAdmin, 'status' => 'Todo'],
-                ]);
-
+                foreach ($keywordsApprovalTasks as $task) {
+                    Task::create([
+                        'is_automated' => 1,
+                        'title' => $task['title'],
+                        'description' => "system generated task",
+                        'project_id' => $project->id,
+                        'department_id' => null,
+                        'created_by' => 1,
+                        'assigned_to' => $task['assignee'],
+                        'priority' => 'High',
+                        'type' => 'ADHOC',
+                        'status' => 'Todo',
+                        'due_date' => Carbon::now()->addDays(7),
+                        'start_date' => $dubaiTime,
+                        'repeat_task' => false,
+                    ]);
+                }
                 break;
 
             case 'Content Audit':
@@ -583,7 +608,6 @@ class TaskController extends Controller
                     'status' => 'Todo',
                     'start_date' => $dubaiTime,
                     'type' => 'ADHOC',
-                    'description' => 'system generated task'
                 ]);
                 break;
 
@@ -673,18 +697,10 @@ class TaskController extends Controller
         }
 
         TaskHistory::create([
-            'task_id' => $task->id,
+            'task_id' => $id,
             'user_id' => auth()->user()->id,
             'action' => auth()->user()->name . " marked this task completed",
         ]);
-
-        $user = User::find($task->assigned_to);
-        $url = url("tasks/show/{$task->id}");
-        $user->notify(new CustomNotification(
-            "Task status updated by " . auth()->user()->name,
-            "The task '" . $task->title . "' has been marked as completed.",
-            $url
-        ));
 
         return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
     }

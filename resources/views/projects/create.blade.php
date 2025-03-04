@@ -12,7 +12,7 @@
 
                         <div class="col-lg-12">
                             <label class="form-label" for="title">Project Title</label>
-                            <input type="text" name="title" class="form-control">
+                            <input type="text" name="title" class="form-control" required>
                         </div>
 
                         <div class="col-lg-12">
@@ -22,7 +22,7 @@
 
                         <div class="col-lg-4">
                             <label class="form-label" for="company_id">Company</label>
-                            <select class="form-control w-100" name="company_id" id="company_id">
+                            <select class="form-control w-100" required name="company_id" id="company_id">
                                 @foreach ($companies as $company)
                                     <option value="{{ $company->id }}">{{ $company->name }}</option>
                                 @endforeach
@@ -32,7 +32,7 @@
                         <div class="row mt-3">
                             <div class="col-lg-4">
                                 <label class="form-label" for="sales_manager_ids">Sales Managers</label>
-                                <select class="form-control w-100" name="sales_manager_ids[]" id="sales_manager_ids">
+                                <select class="form-control w-100" required name="sales_manager_ids[]" id="sales_manager_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SALES MANAGER')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
@@ -41,7 +41,7 @@
 
                             <div class="col-lg-4">
                                 <label class="form-label" for="account_manager_ids">Account Managers</label>
-                                <select class="form-control w-100" name="account_manager_ids[]"
+                                <select class="form-control w-100" required name="account_manager_ids[]"
                                     id="account_manager_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('AM')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -51,7 +51,7 @@
 
                             <div class="col-lg-4">
                                 <label class="form-label" for="tech_manager_ids">Tech Managers</label>
-                                <select class="form-control w-100" name="tech_manager_ids[]" id="tech_manager_ids">
+                                <select class="form-control w-100" required name="tech_manager_ids[]" id="tech_manager_ids">
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
@@ -59,7 +59,7 @@
                             </div>
                             {{-- <div class="col-lg-4">
                                 <label class="form-label" for="seo_tech_ids">Seo Tech</label>
-                                <select class="form-control w-100" name="seo_tech_ids[]" id="seo_tech_ids"
+                                <select class="form-control w-100" required name="seo_tech_ids[]" id="seo_tech_ids"
                                     >
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SEO TECH')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -68,7 +68,7 @@
                             </div> --}}
                             <div class="col-lg-4">
                                 <label class="form-label" for="seo_admin_ids">Seo Admin</label>
-                                <select class="form-control w-100" name="seo_admin_ids[]" id="seo_admin_ids">
+                                <select class="form-control w-100" required name="seo_admin_ids[]" id="seo_admin_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('SEO ADMIN')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                                     @endforeach
@@ -76,7 +76,7 @@
                             </div>
                             <div class="col-lg-4">
                                 <label class="form-label" for="content_writers_ids">Content Writer</label>
-                                <select class="form-control w-100" name="content_writers_ids[]"
+                                <select class="form-control w-100" required name="content_writers_ids[]"
                                     id="content_writers_ids">
                                     @foreach ($users->filter(fn($user) => $user->roles->pluck('name')->contains('CONTENT')) as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -129,11 +129,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-6">
-                            <label class="form-label" for="contract_start_date">contract start date</label>
-                            <input type="date" class="form-control" id="contract_start_date"
-                                name="contract_start_date" required>
-                        </div>
+                        <input type="hidden" class="form-control" id="contract_start_date" name="contract_start_date" value="{{ date('Y-m-d') }}" required>
 
                         <div class="col-lg-6">
                             <label class="form-label" for="contract_value">contract value</label>

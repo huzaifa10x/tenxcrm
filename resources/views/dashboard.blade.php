@@ -152,41 +152,149 @@
                 </div>
             </div>
         </div>
-        @if ($projects->count())
-            <div class="card basic-data-table">
-                <div class="card-header">
-                    <span class="fw-bold">Campaign's Tasks</span>
-                </div>
-                <div class="card-body table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>Project Name</th>
-                                <th>Task Name</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($projects as $project)
-                                @if ($project->tasks->count())
-                                    @foreach ($project->tasks as $index => $task)
-                                        <tr>
-                                            @if ($index == 0)
-                                                <td rowspan="{{ $project->tasks->count() }}">{{ $project->title }}
-                                                </td>
-                                            @endif
-                                            <td> <a target="_blank" href="{{ url("tasks/show/{$task->id}") }}">{{ $task->title }}</a>
-                                            </td>
-                                            <td>{{ $task->status }}</td>
-                                        </tr>
-                                    @endforeach
+
+        {{--  --}}
+        <div class="row gy-3 mb-10">
+            <div class="col-lg-12">
+                <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
+                    <div
+                        class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
+                        <ul class="nav border-gradient-tab nav-pills mb-0" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link d-flex align-items-center active" id="pending-tab"
+                                    data-bs-toggle="pill" data-bs-target="#pending-task" type="button" role="tab"
+                                    type="button" role="tab" aria-controls="pills-to-do-list" aria-selected="true">
+                                    Pending Tasks
+                                    <span
+                                        class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link d-flex align-items-center" id="completed-tab"
+                                    data-bs-toggle="pill" data-bs-target="#completed-task" type="button"
+                                    role="tab" type="button" role="tab" aria-controls="pills-recent-leads"
+                                    aria-selected="false" tabindex="-1">
+                                    Completed Tasks
+                                    <span
+                                        class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link d-flex align-items-center" id="assigned-tab"
+                                    data-bs-toggle="pill" data-bs-target="#assigned-tasks" type="button"
+                                    role="tab" type="button" role="tab" aria-controls="pills-recent-leads"
+                                    aria-selected="false" tabindex="-1">
+                                    Tasks I've Assigned
+                                    <span
+                                        class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $assignedTasks->count() }}</span>
+                                </button>
+                            </li>
+                        </ul>
+                        <a href="{{ route('tasks.board.index') }}"
+                            class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                            Tasks
+                            <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="tab-content" id="task-tabContent">
+                            <!-- PENDING TASKS TAB -->
+                            <div style="max-height: 500px; overflow-y: auto" class="tab-pane fade show active p-3"
+                                id="pending-task" role="tabpanel">
+                                @if ($pendingTasks->count())
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Project Name</th>
+                                                <th>Task</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($pendingTasks as $task)
+                                                <tr>
+                                                    <td><a target="_blank"
+                                                            href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }}</a>
+                                                    </td>
+                                                    <td><a href="{{ route('tasks.show', $task->id) }}"
+                                                            target="_blank">{{ $task->title }}</a></td>
+                                                    <td>{{ $task->status }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p>No pending tasks found.</p>
                                 @endif
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </div>
+                            <!-- COMPLETED TASKS TAB -->
+                            <div style="max-height: 500px; overflow-y: auto" class="tab-pane fade p-3"
+                                id="completed-task" role="tabpanel">
+                                @if ($completedTasks->count())
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Project Name</th>
+                                                <th>Task</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($completedTasks as $task)
+                                                <tr>
+                                                    <td><a target="_blank"
+                                                            href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }}</a>
+                                                    </td>
+                                                    <td><a href="{{ route('tasks.show', $task->id) }}"
+                                                            target="_blank">{{ $task->title }}</a></td>
+                                                    <td>{{ $task->status }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p>No completed tasks found.</p>
+                                @endif
+                            </div>
+                            <!-- ASSIGNED TASKS TAB -->
+                            <div style="max-height: 500px; overflow-y: auto" class="tab-pane fade p-3"
+                                id="assigned-tasks" role="tabpanel">
+                                @if ($assignedTasks->count())
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Project Name</th>
+                                                <th>Task</th>
+                                                <th>Assignee</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($assignedTasks as $task)
+                                                <tr>
+                                                    <td><a target="_blank"
+                                                            href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }}</a>
+                                                    </td>
+                                                    <td><a href="{{ route('tasks.show', $task->id) }}"
+                                                            target="_blank">{{ $task->title }}</a></td>
+                                                    <td>{{ $task->assignedTo->name }}</td>
+                                                    <td>{{ $task->status }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p>No assigned tasks found.</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        @endif
+        </div>
+        {{--  --}}
+
+
 
     @endif
 </x-app-layout>

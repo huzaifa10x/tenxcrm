@@ -2,6 +2,7 @@
     <x-slot name="header">
         {{ __('Project - ' . $project->title) }}
     </x-slot>
+
     <div class="card border">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-10">
             <div class="d-flex align-items-center gap-3">
@@ -575,12 +576,11 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach ($regularTasks as $task)
-                                                        <tr data-bs-toggle="offcanvas"
-                                                            data-bs-target="#offcanvasRight"
-                                                            aria-controls="offcanvasRight"
-                                                            onclick="loadTaskDetails({{ $task->id }})">
+                                                        <tr>
                                                             <td>{{ $task->id }}</td>
-                                                            <td>{{ $task->title }}</td>
+                                                            <td><a
+                                                                    href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
+                                                            </td>
                                                             <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
                                                             <td>{{ $task->start_date }}</td>
                                                             <td><x-badge :text="$task->priority" type="priority" /></td>
@@ -641,12 +641,11 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach ($sequenceTasks as $task)
-                                                        <tr data-bs-toggle="offcanvas"
-                                                            data-bs-target="#offcanvasRight"
-                                                            aria-controls="offcanvasRight"
-                                                            onclick="loadTaskDetails({{ $task->id }})">
+                                                        <tr>
                                                             <td>{{ $task->id }}</td>
-                                                            <td>{{ $task->title }}</td>
+                                                            <td><a
+                                                                    href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
+                                                            </td>
                                                             <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
                                                             <td>{{ $task->start_date }}</td>
                                                             <td><x-badge :text="$task->priority" type="priority" /></td>
@@ -706,12 +705,11 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach ($repeatingTasks as $task)
-                                                        <tr data-bs-toggle="offcanvas"
-                                                            data-bs-target="#offcanvasRight"
-                                                            aria-controls="offcanvasRight"
-                                                            onclick="loadTaskDetails({{ $task->id }})">
+                                                        <tr>
                                                             <td>{{ $task->id }}</td>
-                                                            <td>{{ $task->title }}<div
+                                                            <td><a
+                                                                    href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
+                                                                <div
                                                                     class="badge rounded {{ $task->repeatingTask ? ($task->repeat_task ? 'bg-info-50 text-info' : 'bg-warning-50 text-warning') : '' }} fs-7">
                                                                     {{ $task->repeatingTask ? ($task->repeat_task ? ' - Repeating Enabled' : ' - Repeating Disabled') : '' }}
                                                                 </div>
@@ -1091,28 +1089,7 @@
         setInterval(updateTimestamps, 30000);
         updateTimestamps()
     </script>
-    <script>
-        function loadTaskDetails(taskId) {
-            $("input[name='task_id']").val(taskId);
-            $('#taskDetails').html(
-                '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>');
-            $.ajax({
-                url: '{{ route('tasks.show', ':id') }}'.replace(':id', taskId),
-                method: 'GET',
-                data: {
-                    is_ajax: true
-                },
-                success: function(response) {
-                    $('#taskDetails').html(response);
-                    loadTaskAttachments();
-                    loadComments();
-                },
-                error: function() {
-                    $('#taskDetails').html('<p class="text-danger">Error fetching task details.</p>');
-                }
-            });
-        }
-    </script>
+
     <script>
         function deleteProjectFile(projectId, fileId) {
             if (confirm("Are you sure you want to delete this file?")) {

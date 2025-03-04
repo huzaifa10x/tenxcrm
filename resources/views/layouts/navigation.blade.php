@@ -170,13 +170,11 @@
                             </a>
                         </li>
                     @endif
-                    @if ($userPermissions->contains('can view own tasks'))
-                        <li>
-                            <a href="{{ route('tasks.forme.index') }}">
-                                <span>Tasks for Me</span>
-                            </a>
-                        </li>
-                    @endif
+                    <li>
+                        <a href="{{ route('tasks.forme.index') }}">
+                            <span>Tasks for Me</span>
+                        </a>
+                    </li>
                     <li>
                         <a href="{{ route('tasks.collaborated.index') }}">
                             <span>Tasks I'm a Collaborator In</span>
