@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/public/storage',
+            'url' => env('APP_URL') . '/public/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -73,8 +73,11 @@ return [
     |
     */
 
+    // 'links' => [
+    //     public_path('storage') => storage_path('app/public'),
+    // ],
     'links' => [
-        public_path('storage') => storage_path('app/public'),
+        '/home/u403163732/domains/10xksa.com/public_html/storage' => '/home/u403163732/domains/10xksa.com/public_html/storage/app/public',
     ],
 
 ];
