@@ -102,7 +102,19 @@
             </div>
         </div>
         <div class="row gy-3 mb-10">
-            <div class="col-lg-6"></div>
+            <div class="col-lg-6">
+                <div class="card h-100 radius-8 border-0">
+                    <span class="mb-3 text-primary">📅 Select a Date</span>
+                    <input type="date" id="todoDate" class="form-control mb-3">
+                    <div id="todoForm" class="d-none">
+                        <div class="input-group">
+                            <input type="text" id="todoTask" class="form-control" placeholder="Enter Todo">
+                            <button class="btn btn-primary" id="saveTodo">➕ Add</button>
+                        </div>
+                    </div>
+                    <ul id="todoList" class="list-group mt-2"></ul>
+                </div>
+            </div>
             <div class="col-lg-6">
                 <div class="card h-100 radius-8 border-0">
                     <div class="card-body p-24">
@@ -118,7 +130,6 @@
                                 </select>
                             </div> --}}
                         </div>
-
                         <div class="mt-3">
                             @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
                                 <div class="d-flex align-items-center justify-content-between gap-3 mb-12">
@@ -152,8 +163,6 @@
                 </div>
             </div>
         </div>
-
-        {{--  --}}
         <div class="row gy-3 mb-10">
             <div class="col-lg-12">
                 <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
@@ -162,8 +171,9 @@
                         <ul class="nav border-gradient-tab nav-pills mb-0" id="pills-tab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link d-flex align-items-center active" id="pending-tab"
-                                    data-bs-toggle="pill" data-bs-target="#pending-task" type="button" role="tab"
-                                    type="button" role="tab" aria-controls="pills-to-do-list" aria-selected="true">
+                                    data-bs-toggle="pill" data-bs-target="#pending-task" type="button"
+                                    role="tab" type="button" role="tab" aria-controls="pills-to-do-list"
+                                    aria-selected="true">
                                     Pending Tasks
                                     <span
                                         class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
@@ -292,9 +302,118 @@
                 </div>
             </div>
         </div>
-        {{--  --}}
-
-
-
+        <div class="card basic-data-table">
+            @if ($userPermissions->contains('can add projects'))
+                <div class="card-header">
+                    <span class="fw-bold">Campaigns</span>
+                </div>
+            @endif
+            <div class="card-body table-responsive">
+                <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Company</th>
+                            <th>Service Type</th>
+                            <th>Status</th>
+                            <th>Seo Tech</th>
+                            <th>Contract End</th>
+                            <th>Monthly Revenue</th>
+                            <th>Campaign Tasks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($accountProjects as $accountProject)
+                            <tr>
+                                <td>{{ $accountProject->id }}</td>
+                                <td>{{ $accountProject->title }}</td>
+                                <td>{{ $accountProject->companies->name }}</td>
+                                <td>{{ $accountProject->project_type }}</td>
+                                <td>{{ $accountProject->status }}</td>
+                                <td>{{ $accountProject->techManagers[0]->name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($accountProject->contract_start_date)->addMonths($accountProject->contract_term) }}
+                                </td>
+                                <td>{{ $accountProject->contract_term > 0 ? round($accountProject->contract_value / $accountProject->contract_term, 2) : 0 }}
+                                </td>
+                                <td>{{ $accountProject->tasks->count() }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     @endif
+    <script>
+        $(document).ready(function() {
+
+            function fetchTodos(selectedDate) {
+                $('#todoForm').removeClass('d-none');
+                $.get("{{ route('todo.getByDate') }}", {
+                    date: selectedDate
+                }, function(data) {
+                    let todoList = $('#todoList');
+                    todoList.empty();
+                    if (data.length > 0) {
+                        $.each(data, function(index, todo) {
+                            let statusIcon = todo.status === 'completed' ? '✅' : '⏳';
+                            let actionButton = todo.status === 'pending' ?
+                                `<button class="btn btn-sm btn-success mark-done" data-id="${todo.id}">✔</button>` :
+                                '';
+
+                            todoList.append(`
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>${statusIcon} ${todo.task}</span>
+                                ${actionButton}
+                            </li>
+                        `);
+                        });
+                    } else {
+                        todoList.append(
+                            '<li class="list-group-item text-muted">No tasks found for this date.</li>'
+                        );
+                    }
+                });
+            }
+
+            let today = new Date().toISOString().split('T')[0];
+            fetchTodos(today);
+            $('#todoDate').val(today)
+
+            $('#todoDate').on('change', function() {
+                let selectedDate = $(this).val();
+                fetchTodos(selectedDate)
+            });
+
+            $('#saveTodo').on('click', function() {
+                let date = $('#todoDate').val();
+                let task = $('#todoTask').val();
+
+                if (!task.trim()) {
+                    alert("Please enter a task!");
+                    return;
+                }
+
+                $.post("{{ route('todo.store') }}", {
+                    _token: "{{ csrf_token() }}",
+                    date: date,
+                    task: task
+                }, function() {
+                    $('#todoTask').val('');
+                    $('#todoDate').trigger('change'); // Refresh list
+                });
+            });
+
+            $(document).on('click', '.mark-done', function() {
+                let todoId = $(this).data('id');
+
+                $.post("{{ route('todo.markDone') }}", {
+                    _token: "{{ csrf_token() }}",
+                    id: todoId
+                }, function() {
+                    $('#todoDate').trigger('change'); // Refresh list
+                });
+            });
+        });
+    </script>
 </x-app-layout>

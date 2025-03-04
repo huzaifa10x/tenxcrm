@@ -40,6 +40,10 @@ class DashboardController extends Controller
 
             $assignedTasks = Task::where('created_by', $user->id)->get();
 
+            $accountProjects = Project::whereHas('accountManagers', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+
             return view('dashboard', compact(
                 'role',
                 'currentPortfolio',
@@ -47,7 +51,8 @@ class DashboardController extends Controller
                 'campaignCounts',
                 'pendingTasks',
                 'completedTasks',
-                'assignedTasks'
+                'assignedTasks',
+                'accountProjects'
             ));
         }
 

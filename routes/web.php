@@ -16,6 +16,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TaskCollaboratorController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UserController;
 use App\Jobs\CreateRecurringTaskJob;
 use App\Models\Task;
@@ -37,6 +38,12 @@ Route::get('/live-time', function () {
 Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
 Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread.count');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');
+    Route::get('/todo/get-by-date', [TodoController::class, 'getTodosByDate'])->name('todo.getByDate');
+    Route::post('/todo/mark-done', [TodoController::class, 'markAsDone'])->name('todo.markDone');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
