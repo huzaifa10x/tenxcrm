@@ -254,7 +254,7 @@ class TaskController extends Controller
             ]);
 
             $user = User::find($request->assigned_to);
-            $url = url("tasks/show/{$task->id}");
+            $url = url("tasks/{$task->id}");
             $user->notify(new CustomNotification(
                 "New task added by " . auth()->user()->name,
                 "A new task '" . $request->title . "' has been assigned.",
@@ -387,7 +387,7 @@ class TaskController extends Controller
         $user = User::find($task->assigned_to);
 
         if ($user) {
-            $url = url("tasks/show/{$task->id}");
+            $url = url("tasks/{$task->id}");
             $user->notify(new CustomNotification(
                 "Task status updated by " . auth()->user()->name,
                 "The status of '" . $task->title . "' has been updated.",
