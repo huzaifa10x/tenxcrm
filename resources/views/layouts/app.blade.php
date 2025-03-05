@@ -24,7 +24,6 @@
     'resources/css/lib/editor.atom-one-dark.min.css',
     'resources/css/lib/editor.quill.snow.css',
     'resources/css/lib/flatpickr.min.css',
-    'resources/css/lib/full-calendar.css',
     'resources/css/lib/jquery-jvectormap-2.0.5.css',
     'resources/css/lib/magnific-popup.css',
     'resources/css/lib/slick.css',
@@ -42,7 +41,6 @@
     <link rel="stylesheet" href="{{ asset('css/lib/editor.atom-one-dark.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/editor.quill.snow.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/flatpickr.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/full-calendar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/jquery-jvectormap-2.0.5.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/magnific-popup.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/slick.css') }}">

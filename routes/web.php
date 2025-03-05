@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');
     Route::get('/todo/get-by-date', [TodoController::class, 'getTodosByDate'])->name('todo.getByDate');
     Route::post('/todo/mark-done', [TodoController::class, 'markAsDone'])->name('todo.markDone');
+    Route::get('/todo/dates', [TodoController::class, 'getTodoDates'])->name('todo.getDates');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

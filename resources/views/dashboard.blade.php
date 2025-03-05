@@ -3,6 +3,11 @@
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
     @if ($role === 'AM')
+        <style>
+            .fc-toolbar-title {
+                font-size: 16px !important;
+            }
+        </style>
         <div class="row gy-3 mb-10">
             <div class="col-xxl-3 col-sm-6">
                 <div class="card p-3 shadow-2 radius-8 h-100 gradient-deep-two-1 border border-white">
@@ -102,19 +107,32 @@
             </div>
         </div>
         <div class="row gy-3 mb-10">
+            <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
+            <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
             <div class="col-lg-6">
-                <div class="card h-100 radius-8 border-0">
-                    <span class="mb-3 text-primary">📅 Select a Date</span>
-                    <input type="date" id="todoDate" class="form-control mb-3">
-                    <div id="todoForm" class="d-none">
-                        <div class="input-group">
-                            <input type="text" id="todoTask" class="form-control" placeholder="Enter Todo">
-                            <button class="btn btn-primary" id="saveTodo">➕ Add</button>
-                        </div>
-                    </div>
-                    <ul id="todoList" class="list-group mt-2"></ul>
+                <div class="card h-100 p-3 radius-8 border-0">
+                    <div id="calendar"></div>
                 </div>
             </div>
+            <div class="col-lg-6">
+                <div class="card h-100 radius-8 border-0">
+                    <div class="card-header">
+                        <input type="hidden" id="todoDate" class="form-control mb-3">
+                        <div id="todoForm" class="d-none">
+                            <div class="input-group">
+                                <input type="text" id="todoTask" class="form-control" placeholder="Enter Todo">
+                                <button class="input-group-text bg-base" id="saveTodo"> <iconify-icon
+                                    icon="lucide:plus"></iconify-icon>Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" style="max-height: 500px; overflow-y: auto">
+                        <ul id="todoList" class="list-group mt-2"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3 mb-10">
             <div class="col-lg-6">
                 <div class="card h-100 radius-8 border-0">
                     <div class="card-body p-24">
@@ -345,75 +363,115 @@
         </div>
     @endif
     <script>
-        $(document).ready(function() {
+        document.addEventListener("DOMContentLoaded", function() {
+            let today = new Date().toISOString().split('T')[0];
+            document.getElementById('todoDate').value = today;
+            fetchTodos(today);
 
+            // Fetch and display todos for selected date
             function fetchTodos(selectedDate) {
-                $('#todoForm').removeClass('d-none');
-                $.get("{{ route('todo.getByDate') }}", {
-                    date: selectedDate
-                }, function(data) {
-                    let todoList = $('#todoList');
-                    todoList.empty();
-                    if (data.length > 0) {
-                        $.each(data, function(index, todo) {
-                            let statusIcon = todo.status === 'completed' ? '✅' : '⏳';
-                            let actionButton = todo.status === 'pending' ?
-                                `<button class="btn btn-sm btn-success mark-done" data-id="${todo.id}">✔</button>` :
-                                '';
+                document.getElementById('todoForm').classList.remove('d-none');
+                fetch(`{{ route('todo.getByDate') }}?date=${selectedDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let todoList = document.getElementById('todoList');
+                        todoList.innerHTML = "";
+                        if (data.length > 0) {
+                            data.forEach(todo => {
+                                let statusIcon = todo.status === 'completed' ? '✅' : '⏳';
+                                let actionButton = todo.status === 'pending' ?
+                                    `<button class="btn btn-sm btn-success mark-done" data-id="${todo.id}">✔</button>` :
+                                    '';
 
-                            todoList.append(`
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>${statusIcon} ${todo.task}</span>
-                                ${actionButton}
-                            </li>
-                        `);
-                        });
-                    } else {
-                        todoList.append(
-                            '<li class="list-group-item text-muted">No tasks found for this date.</li>'
-                        );
-                    }
-                });
+                                let listItem = document.createElement('li');
+                                listItem.classList.add('list-group-item', 'd-flex',
+                                    'justify-content-between', 'align-items-center');
+                                listItem.innerHTML =
+                                    `<span>${statusIcon} ${todo.task}</span> ${actionButton}`;
+                                todoList.appendChild(listItem);
+                            });
+                        } else {
+                            todoList.innerHTML =
+                                `<li class="list-group-item text-muted">No tasks found for this date.</li>`;
+                        }
+                    });
             }
 
-            let today = new Date().toISOString().split('T')[0];
-            fetchTodos(today);
-            $('#todoDate').val(today)
-
-            $('#todoDate').on('change', function() {
-                let selectedDate = $(this).val();
-                fetchTodos(selectedDate)
+            // Handle date change
+            document.getElementById('todoDate').addEventListener('change', function() {
+                fetchTodos(this.value);
             });
 
-            $('#saveTodo').on('click', function() {
-                let date = $('#todoDate').val();
-                let task = $('#todoTask').val();
+            // Save new todo
+            document.getElementById('saveTodo').addEventListener('click', function() {
+                let date = document.getElementById('todoDate').value;
+                let task = document.getElementById('todoTask').value.trim();
 
-                if (!task.trim()) {
+                if (!task) {
                     alert("Please enter a task!");
                     return;
                 }
 
-                $.post("{{ route('todo.store') }}", {
-                    _token: "{{ csrf_token() }}",
-                    date: date,
-                    task: task
-                }, function() {
-                    $('#todoTask').val('');
-                    $('#todoDate').trigger('change'); // Refresh list
+                fetch("{{ route('todo.store') }}", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        date: date,
+                        task: task
+                    })
+                }).then(response => response.json()).then(() => {
+                    document.getElementById('todoTask').value = '';
+                    fetchTodos(date); // Refresh list
                 });
             });
 
-            $(document).on('click', '.mark-done', function() {
-                let todoId = $(this).data('id');
-
-                $.post("{{ route('todo.markDone') }}", {
-                    _token: "{{ csrf_token() }}",
-                    id: todoId
-                }, function() {
-                    $('#todoDate').trigger('change'); // Refresh list
-                });
+            // Mark task as done (Event Delegation)
+            document.getElementById('todoList').addEventListener('click', function(e) {
+                if (e.target.classList.contains('mark-done')) {
+                    let todoId = e.target.dataset.id;
+                    fetch("{{ route('todo.markDone') }}", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            id: todoId
+                        })
+                    }).then(response => response.json()).then(() => {
+                        fetchTodos(document.getElementById('todoDate').value); // Refresh list
+                    });
+                }
             });
+
+            // Initialize FullCalendar
+            let calendarEl = document.getElementById('calendar');
+            let calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                selectable: true,
+                dateClick: function(info) {
+                    document.getElementById('todoDate').value = info.dateStr;
+                    fetchTodos(info.dateStr);
+                },
+                events: function(fetchInfo, successCallback) {
+                    fetch("{{ route('todo.getDates') }}")
+                        .then(response => response.json())
+                        .then(dates => {
+                            let events = dates.map(date => ({
+                                title: "📌 Todo",
+                                start: date,
+                                allDay: true,
+                                color: "#ffcc00"
+                            }));
+                            successCallback(events);
+                        });
+                }
+            });
+
+            calendar.render();
         });
     </script>
 </x-app-layout>
