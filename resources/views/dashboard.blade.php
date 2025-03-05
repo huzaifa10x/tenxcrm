@@ -122,7 +122,7 @@
                             <div class="input-group">
                                 <input type="text" id="todoTask" class="form-control" placeholder="Enter Todo">
                                 <button class="input-group-text bg-base" id="saveTodo"> <iconify-icon
-                                    icon="lucide:plus"></iconify-icon>Add</button>
+                                        icon="lucide:plus"></iconify-icon>Add</button>
                             </div>
                         </div>
                     </div>
@@ -132,66 +132,16 @@
                 </div>
             </div>
         </div>
-        <div class="row g-3 mb-10">
-            <div class="col-lg-6">
-                <div class="card h-100 radius-8 border-0">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                            <h6 class="mb-2 fw-bold text-lg">Campaigns</h6>
-                            {{-- <div class="">
-                                <select
-                                    class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
-                                    <option>Yearly</option>
-                                    <option>Monthly</option>
-                                    <option>Weekly</option>
-                                    <option>Today</option>
-                                </select>
-                            </div> --}}
-                        </div>
-                        <div class="mt-3">
-                            @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
-                                <div class="d-flex align-items-center justify-content-between gap-3 mb-12">
-                                    <div class="d-flex align-items-center">
-                                        <span
-                                            class="text-xxl line-height-1 d-flex align-content-center flex-shrink-0 text-{{ strtolower(str_replace(' ', '-', $status)) }}">
-                                            <iconify-icon icon="ri:discount-percent-fill" class="icon"></iconify-icon>
-                                        </span>
-                                        <span
-                                            class="text-primary-light fw-medium text-sm ps-12">{{ $status }}</span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2 w-100">
-                                        <div class="w-100 max-w-66 ms-auto">
-                                            <div class="progress progress-sm rounded-pill" role="progressbar"
-                                                aria-valuenow="{{ $campaignCounts[$status] ?? 0 }}" aria-valuemin="0"
-                                                aria-valuemax="100">
-                                                <div class="progress-bar bg-{{ strtolower(str_replace(' ', '-', $status)) }} rounded-pill"
-                                                    style="width: {{ ($campaignCounts[$status] ?? 0) * 10 }}%;">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span
-                                            class="text-secondary-light font-xs fw-semibold">{{ $campaignCounts[$status] ?? 0 }}</span>
-                                    </div>
-                                </div>
-                            @endforeach
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row gy-3 mb-10">
-            <div class="col-lg-12">
+            <div class="col-lg-8">
                 <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
                     <div
                         class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
                         <ul class="nav border-gradient-tab nav-pills mb-0" id="pills-tab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link d-flex align-items-center active" id="pending-tab"
-                                    data-bs-toggle="pill" data-bs-target="#pending-task" type="button"
-                                    role="tab" type="button" role="tab" aria-controls="pills-to-do-list"
-                                    aria-selected="true">
+                                    data-bs-toggle="pill" data-bs-target="#pending-task" type="button" role="tab"
+                                    type="button" role="tab" aria-controls="pills-to-do-list" aria-selected="true">
                                     Pending Tasks
                                     <span
                                         class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
@@ -316,6 +266,54 @@
                                 @endif
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card h-100 radius-8 border-0">
+                    <div class="card-body p-24">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                            <h6 class="mb-2 fw-bold text-lg">Campaigns</h6>
+                            {{-- <div class="">
+                                <select
+                                    class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
+                                    <option>Yearly</option>
+                                    <option>Monthly</option>
+                                    <option>Weekly</option>
+                                    <option>Today</option>
+                                </select>
+                            </div> --}}
+                        </div>
+                        <div class="mt-3">
+                            @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
+                                <div class="d-flex align-items-center justify-content-between gap-3 mb-12">
+                                    <div class="d-flex align-items-center">
+                                        <span
+                                            class="text-xxl line-height-1 d-flex align-content-center flex-shrink-0 text-{{ strtolower(str_replace(' ', '-', $status)) }}">
+                                            <iconify-icon icon="ri:discount-percent-fill"
+                                                class="icon"></iconify-icon>
+                                        </span>
+                                        <span
+                                            class="text-primary-light fw-medium text-sm ps-12">{{ $status }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 w-100">
+                                        <div class="w-100 max-w-66 ms-auto">
+                                            <div class="progress progress-sm rounded-pill" role="progressbar"
+                                                aria-valuenow="{{ $campaignCounts[$status] ?? 0 }}" aria-valuemin="0"
+                                                aria-valuemax="100">
+                                                <div class="progress-bar bg-{{ strtolower(str_replace(' ', '-', $status)) }} rounded-pill"
+                                                    style="width: {{ ($campaignCounts[$status] ?? 0) * 10 }}%;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span
+                                            class="text-secondary-light font-xs fw-semibold">{{ $campaignCounts[$status] ?? 0 }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                        </div>
+
                     </div>
                 </div>
             </div>
