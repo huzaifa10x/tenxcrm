@@ -56,7 +56,7 @@
 
     <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
-
+    <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
 </head>
 
 <body class="font-sans antialiased">
@@ -379,7 +379,7 @@
     ]) --}}
 
 
-    <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
+   
     <script src="{{ asset('js/lib/dataTables.min.js') }}"></script>
     <script src="{{ asset('js/lib/iconify-icon.min.js') }}"></script>
 

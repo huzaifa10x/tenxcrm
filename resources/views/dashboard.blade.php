@@ -472,6 +472,95 @@
             });
         </script>
     @elseif ($role === 'CONTENT')
-    {{$role}}
+        <div class="row gy-3 mb-10">
+            <div class="col-xxl-4 col-lg-6">
+                <div class="card h-100 border shadow-none radius-8 overflow-hidden">
+                    <div class="card-body p-24">
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-4 col-lg-6">
+                <div class="card h-100 border shadow-none radius-8 overflow-hidden">
+                    <div class="card-body p-24">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                            <h6 class="mb-2 fw-bold text-lg">Tasks</h6>
+                        </div>
+                        <div id="compAndPendingTasks"></div>
+                        <ul class="d-flex flex-wrap align-items-center justify-content-between mt-3 gap-3">
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="w-12-px h-12-px radius-2 bg-yellow"></span>
+                                <span class="text-secondary-light text-sm fw-normal">Pending:
+                                    <span class="text-primary-light fw-semibold">{{ $pendingTasks }}</span>
+                                </span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="w-12-px h-12-px radius-2 bg-primary-600"></span>
+                                <span class="text-secondary-light text-sm fw-normal">Completed:
+                                    <span class="text-primary-light fw-semibold">{{ $completedTasks }}</span>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-4 col-lg-6">
+                <div class="card h-100 border shadow-none radius-8 overflow-hidden">
+                    <div class="card-body p-24">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                            <h6 class="mb-2 fw-bold text-lg">Words Count</h6>
+                        </div>
+                        <div id="compAndPendingWords"></div>
+                        <ul class="d-flex flex-wrap align-items-center justify-content-between mt-3 gap-3">
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="w-12-px h-12-px radius-2 bg-yellow"></span>
+                                <span class="text-secondary-light text-sm fw-normal">Pending:
+                                    <span class="text-primary-light fw-semibold">{{ $pendingTasks }}</span>
+                                </span>
+                            </li>
+                            <li class="d-flex align-items-center gap-2">
+                                <span class="w-12-px h-12-px radius-2 bg-primary-600"></span>
+                                <span class="text-secondary-light text-sm fw-normal">Delivered:
+                                    <span class="text-primary-light fw-semibold">{{ $completedTasks }}</span>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var options = {
+                series: [{{ $pendingTasks }}, {{ $completedTasks }}],
+                colors: ['#F4941E', '#22C55E'],
+                labels: ['Pending', 'Completed'],
+                legend: {
+                    show: false
+                },
+                chart: {
+                    type: 'donut',
+                    height: 270,
+                    sparkline: {
+                        enabled: true
+                    },
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }],
+            };
+            var chart = new ApexCharts(document.querySelector("#compAndPendingTasks"), options);
+            chart.render();
+            var chart1 = new ApexCharts(document.querySelector("#compAndPendingWords"), options);
+            chart1.render();
+        </script>
     @endif
 </x-app-layout>

@@ -54,7 +54,7 @@ class DashboardController extends Controller
                 'assignedTasks',
                 'accountProjects'
             ));
-        }elseif($role == 'CONTENT'){
+        } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
@@ -69,13 +69,15 @@ class DashboardController extends Controller
                 ->get()
                 ->pluck('count', 'status');
 
-            $pendingTasks = $projects->flatMap(function ($project) {
-                return $project->tasks->where('status', 'Todo')->values();
-            });
+            $pendingTasks = Task::whereIn('project_id', $projects->pluck('id'))
+                ->where('status', 'Todo')
+                ->count();
 
-            $completedTasks = $projects->flatMap(function ($project) {
-                return $project->tasks->where('status', 'Completed')->values();
-            });
+            $completedTasks = Task::whereIn('project_id', $projects->pluck('id'))
+                ->where('status', 'Completed')
+                ->count();
+
+            $totalTasks = Task::whereIn('project_id', $projects->pluck('id'))->count();
 
             $assignedTasks = Task::where('created_by', $user->id)->get();
 
@@ -91,6 +93,7 @@ class DashboardController extends Controller
                 'pendingTasks',
                 'completedTasks',
                 'assignedTasks',
+                'totalTasks',
                 'accountProjects'
             ));
         }
