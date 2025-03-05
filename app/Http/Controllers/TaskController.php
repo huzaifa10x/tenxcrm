@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Notifications\TaskAssigned;
 use App\Notifications\TaskCreatedNotification;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -41,25 +42,69 @@ class TaskController extends Controller
     {
         return redirect()->route('tasks.board.index');
     }
+    public function search(Request $request)
+    {
 
-    public function boardView()
+        $user = auth()->user();
+
+        $tasks = Task::where('title', 'LIKE', '%' . $request->query('query') . '%')
+            ->where(function ($query) use ($user) {
+                $query->where('created_by', $user->id)
+                    ->orWhere('assigned_to', $user->id)
+                    ->orWhereExists(function ($subQuery) use ($user) {
+                        $subQuery->select(DB::raw(1))
+                            ->from('task_collaborators')
+                            ->whereRaw('task_collaborators.task_id = tasks.id')
+                            ->where('task_collaborators.user_id', $user->id);
+                    });
+
+                if ($user->hasRole('ADMIN')) {
+                    $query->orWhereRaw('1=1'); // Admin can see all tasks
+                }
+            })
+            ->select('id', 'title')
+            ->limit(10)
+            ->get();
+
+        return response()->json($tasks);
+    }
+
+    public function boardView(Request $request)
     {
         $user = auth()->user();
         $projects = Project::all();
         $users = User::all();
         $departments = Role::all();
-
-        if ($user->hasPermission('can view all tasks')) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks()->get();
-        } elseif ($user->hasPermission('can view own tasks')) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
-                ->where('assigned_to', $user->id)
-                ->visibleTasks()->get();
-        } else {
-            $tasks = collect();
+        $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks();
+        if ($request->has('type')) {
+            $request->validate([
+                'type' => 'in:CONTENT,ONSITE,TECH MANAGER,OFFSITE,DESIGN,DEVELOPMENT,AM,SEO ADMIN,ADMIN,SALES MANAGER,SALES,ADHOC,SOCIAL MEDIA MANAGER'
+            ]);
+            $taskQuery->where('type', $request->input('type'));
         }
+        if (!$user->hasPermission('can view all tasks')) {
+            $taskQuery->where('assigned_to', $user->id);
+        }
+        $taskCounts = Task::selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->pluck('count', 'type')
+            ->toArray();
 
-        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
+        $completedTaskCounts = Task::where('status', 'completed')
+            ->selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->pluck('count', 'type')
+            ->toArray();
+
+        // Calculate progress percentages
+        $progressData = [];
+        foreach ($taskCounts as $type => $total) {
+            $completed = $completedTaskCounts[$type] ?? 0;
+            $percentage = $total > 0 ? round(($completed / $total) * 100) : 0;
+            $progressData[$type] = $percentage;
+        }
+        $tasks = $taskQuery->get();
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments', 'progressData'));
     }
 
     public function assignedTasks()
@@ -68,16 +113,9 @@ class TaskController extends Controller
         $projects = Project::all();
         $users = User::all();
         $departments = Role::all();
-        if (($user->hasPermission('can create tasks'))) {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
-                ->where('created_by', $user->id)
-                ->visibleTasks()->get();
-        } else {
-            $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
-                ->where('assigned_to', $user->id)
-                ->visibleTasks()->get();
-        }
-
+        $tasks = Task::with(['project', 'createdBy', 'assignedTo'])
+            ->where('created_by', $user->id)
+            ->visibleTasks()->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 

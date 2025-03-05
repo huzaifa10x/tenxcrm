@@ -54,6 +54,45 @@ class DashboardController extends Controller
                 'assignedTasks',
                 'accountProjects'
             ));
+        }elseif($role == 'CONTENT'){
+            $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+            $currentPortfolio = $projects->sum(function ($project) {
+                return ($project->contract_value && $project->contract_term) ?
+                    ($project->contract_value / $project->contract_term) : 0;
+            });
+            $campaignCounts = Project::whereHas('contentWriters', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->selectRaw("status, COUNT(*) as count")
+                ->groupBy('status')
+                ->get()
+                ->pluck('count', 'status');
+
+            $pendingTasks = $projects->flatMap(function ($project) {
+                return $project->tasks->where('status', 'Todo')->values();
+            });
+
+            $completedTasks = $projects->flatMap(function ($project) {
+                return $project->tasks->where('status', 'Completed')->values();
+            });
+
+            $assignedTasks = Task::where('created_by', $user->id)->get();
+
+            $accountProjects = Project::whereHas('contentWriters', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->get();
+
+            return view('dashboard', compact(
+                'role',
+                'currentPortfolio',
+                'projects',
+                'campaignCounts',
+                'pendingTasks',
+                'completedTasks',
+                'assignedTasks',
+                'accountProjects'
+            ));
         }
 
         return view('dashboard', compact('role'));

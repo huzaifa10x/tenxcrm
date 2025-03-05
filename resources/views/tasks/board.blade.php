@@ -12,12 +12,75 @@
         </div>
     @endif
     <div class="card mb-3 basic-data-table">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        @if (auth()->user()->hasRole('ADMIN') && route('tasks.board.index') == url()->current())
+            <div class="row">
+                @foreach ($progressData as $department => $progress)
+                    <div class="col-lg-2">
+                        <div class="card p-0 overflow-hidden position-relative radius-12">
+                            <div class="card-header p-10 bg-base border border-end-0 border-start-0 border-top-0">
+                                <span class="fw-bold fs-7">{{ $department }}</span>
+                            </div>
+                            <div class="card-body p-10">
+                                <div
+                                    class="progressBar w-100-px h-44-px position-relative text-primary-light fw-semibold">
+                                    <div class="barOverflow">
+                                        <div class="circleBar border-width-6-px"></div>
+                                    </div>
+                                    <div
+                                        class="position-absolute start-50 translate-middle top-50 line-height-1 mt-8 w-100 text-center">
+                                        <div
+                                            class="d-flex align-items-center justify-content-center line-height-1 text-sm">
+                                            <span class="fs-7 barNumber line-height-1">{{ $progress }} </span>
+                                            <span class="fs-7">%</span>
+                                        </div>
+                                        <span
+                                            class="line-height-1 text-xs text-secondary-light fs-7">{{ $department }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+        @endif
+        <div class="card-header d-flex justify-content-start gap-10 align-items-center">
             @if ($userPermissions->contains('can create tasks'))
                 <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-outline-primary">
                     Create Task
                 </button>
+                <div>
+                    <select id="taskType" class="form-select">
+                        <option value="">Filter By Type</option>
+                        <option value="ALL">ALL</option>
+                        <option value="CONTENT">CONTENT</option>
+                        <option value="ONSITE">ONSITE</option>
+                        <option value="TECH MANAGER">TECH MANAGER</option>
+                        <option value="OFFSITE">OFFSITE</option>
+                        <option value="DESIGN">DESIGN</option>
+                        <option value="DEVELOPMENT">DEVELOPMENT</option>
+                        <option value="AM">AM</option>
+                        <option value="SEO ADMIN">SEO ADMIN</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="SALES MANAGER">SALES MANAGER</option>
+                        <option value="SALES">SALES</option>
+                        <option value="ADHOC">ADHOC</option>
+                        <option value="SOCIAL MEDIA MANAGER">SOCIAL MEDIA MANAGER</option>
+                    </select>
+                </div>
             @endif
+            <div>
+                <div class="input-group">
+                    <input type="text" id="taskSearch" class="form-control" placeholder="Search Task by Title...">
+                    <div id="input2" class="list-group"
+                        style="position: absolute;
+                        top: 44px;
+                        z-index: 1000;
+                        left: 1px;
+                        width: 100%;">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="overflow-x-auto scroll-sm pb-8">
@@ -223,5 +286,53 @@
                 }
             });
         }
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#taskType').on('change', function() {
+                let selectedType = $(this).val();
+                if (selectedType === 'ALL') {
+                    window.location.href = "{{ route('tasks.board.index') }}";
+                    return;
+                }
+                let url = `{{ route('tasks.board.index') }}?type=${selectedType}`;
+                window.location.href = url;
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#taskSearch').on('input', function() {
+                let query = $(this).val();
+                if (query.length < 2) {
+                    $('#input2').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('tasks.search.index') }}",
+                    method: "GET",
+                    data: {
+                        query: query
+                    },
+                    success: function(response) {
+                        if (response.length > 0) {
+                            let suggestions = response.map(task =>
+                                `<a target="_blank" href="{{ url('tasks') }}/${task.id}" class="list-group-item list-group-item-action">${task.id} - ${task.title}</a>`
+                            ).join('');
+                            $('#input2').html(suggestions).show();
+                        } else {
+                            $('#input2').hide();
+                        }
+                    }
+                });
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#taskSearch, #input2').length) {
+                    $('#input2').hide();
+                }
+            });
+        });
     </script>
 </x-app-layout>

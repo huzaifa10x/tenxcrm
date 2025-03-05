@@ -100,6 +100,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('tasks', TaskController::class);
     Route::get('tasks/board/index', [TaskController::class, 'boardView'])->name('tasks.board.index');
+    Route::get('/tasks/search/index', [TaskController::class, 'search'])->name('tasks.search.index');
     Route::get('/tasks/{task}/attachments', [TaskController::class, 'jsonTaskAttachments'])->name('tasks.attachments.index');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
 
