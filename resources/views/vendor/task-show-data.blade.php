@@ -56,10 +56,11 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-lg-12">
-                    <form id="taskForm" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="task_id" value="{{ $task->id }}">
-                        @if ($task->title === 'Handover Meet with The Sales Manager')
+                    <input type="hidden" name="task_id" value="{{ $task->id }}">
+                    @if ($task->title === 'Handover Meet with The Sales Manager')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <input type="hidden" name="fields[0][name]" value="handover_meeting">
                             <label class="form-label" for="handover_meeting">Have you done Handover Meet with The
                                 Sales
@@ -68,7 +69,11 @@
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title === 'Connect the GA, GSC, GTM, and GMB')
+                        </form>
+                    @elseif ($task->title === 'Connect the GA, GSC, GTM, and GMB')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <span class="d-block fw-bold">Connect the GA, GSC, GTM, and GMB</span>
                             <label for="GA" form="label">GA</label>
                             <input type="hidden" name="fields[0][name]" value="GA">
@@ -88,7 +93,11 @@
                                 name="fields[3][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title === 'Keywords Approval')
+                        </form>
+                    @elseif ($task->title === 'Keywords Approval')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <span class="d-block fw-bold">Keywords Approval</span>
                             <label for="seo_admin_approval" form="label">SEO ADMIN APPROVAL</label>
                             <input type="hidden" name="fields[0][name]" value="seo_admin_approval">
@@ -100,14 +109,22 @@
                                 name="fields[1][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title === 'Intro Call')
+                        </form>
+                    @elseif ($task->title === 'Intro Call')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <input type="hidden" name="fields[0][name]" value="intro_call">
                             <label class="form-label" for="intro_call">Have you done Intro Call</label>
                             <input id="intro_call" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title === 'Onboarding Email')
+                        </form>
+                    @elseif ($task->title === 'Onboarding Email')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <input type="hidden" name="fields[0][name]" value="onboarding_email">
                             <label class="form-label" for="onboarding_email">Have you sent Onboarding
                                 Email</label>
@@ -115,7 +132,11 @@
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title === 'Send SEO Benchmark Report to client')
+                        </form>
+                    @elseif ($task->title === 'Send SEO Benchmark Report to client')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <input type="hidden" name="fields[0][name]" value="benchmark_report_to_client">
                             <label class="form-label" for="benchmark_report_to_client">Have you set benchmark
                                 report
@@ -125,7 +146,11 @@
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'First Client Meeting')
+                        </form>
+                    @elseif ($task->title == 'First Client Meeting')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Location</label>
                             <input type="text" name="fields[0][name]" value="location" hidden>
                             <select name="fields[0][value]">
@@ -135,70 +160,106 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Upload the Content Intake Form')
+                        </form>
+                    @elseif ($task->title == 'Upload the Content Intake Form')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload the Content Intake Form</label>
                             <input type="text" name="fields[0][name]" value="content_intake_form" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Upload the Local Listing Form')
+                        </form>
+                    @elseif ($task->title == 'Upload the Local Listing Form')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload the Local Listing Form</label>
                             <input type="text" name="fields[0][name]" value="local_listing_form" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'On-site Audit (from SE ranking)')
+                        </form>
+                    @elseif ($task->title == 'On-site Audit (from SE ranking)')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">On-site Audit (from SE ranking)</label>
                             <input type="text" name="fields[0][name]" value="onsite_from_se_ranking" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'PUBLISH CONTENT')
+                        </form>
+                    @elseif ($task->title == 'PUBLISH CONTENT')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label" for="publish_content">Have you published content</label>
                             <input type="hidden" name="fields[0][name]" value="publish_content">
                             <input id="publish_content" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Backlink Audit & DISAVOW')
+                        </form>
+                    @elseif ($task->title == 'Backlink Audit & DISAVOW')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Document of Backlink Audit & DISAVOW</label>
                             <input type="text" name="fields[0][name]" value="backlink_audit_and_disavow" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($relatedData && in_array($relatedData->sub_type, ['SEO CONTENT', 'BLOG CONTENT']))
+                        </form>
+                    @elseif ($relatedData && in_array($relatedData->sub_type, ['SEO CONTENT', 'BLOG CONTENT']))
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Number Of Words</label>
                             <input type="text" name="fields[0][name]" value="number_of_words" hidden>
                             <input class="form-control" type="number" name="fields[0][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($relatedData && in_array($relatedData->sub_type, ['ADHOC', 'REVISION']))
+                        </form>
+                    @elseif ($relatedData && in_array($relatedData->sub_type, ['ADHOC', 'REVISION']))
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Notes</label>
                             <input type="text" name="fields[0][name]" value="notes" hidden>
                             <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
                                 placeholder="Enter Notes"></textarea>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif (
-                            $relatedData &&
-                                in_array($relatedData->sub_type, [
-                                    'RE-ONSITE',
-                                    'CHANGES IN CONTENT',
-                                    'CREATE NEW PAGE',
-                                    'REPLACE/UPLOAD CONTENT',
-                                    'ONSITE AUDIT',
-                                    'LP DESIGN',
-                                    'BANNERS',
-                                    'VIDEO',
-                                    'REVISIONS',
-                                    'SITE SPEED AND RENDERING',
-                                ]))
+                        </form>
+                    @elseif (
+                        $relatedData &&
+                            in_array($relatedData->sub_type, [
+                                'RE-ONSITE',
+                                'CHANGES IN CONTENT',
+                                'CREATE NEW PAGE',
+                                'REPLACE/UPLOAD CONTENT',
+                                'ONSITE AUDIT',
+                                'LP DESIGN',
+                                'BANNERS',
+                                'VIDEO',
+                                'REVISIONS',
+                                'SITE SPEED AND RENDERING',
+                            ]))
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Attachment</label>
                             <input type="text" name="fields[0][name]" value="attachment" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'SEO Content Request')
+                        </form>
+                    @elseif ($task->title == 'SEO Content Request')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload SEO Content Request Document</label>
                             <input type="text" name="fields[0][name]" value="seo_content_request_document" hidden>
                             <input type="file" name="file" required class="form-control">
@@ -210,31 +271,51 @@
                                 name="fields[1][value]">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Content Audit')
+                        </form>
+                    @elseif ($task->title == 'Content Audit')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Content Audit</label>
                             <input type="text" name="fields[0][name]" value="content_audit" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'First On-site')
+                        </form>
+                    @elseif ($task->title == 'First On-site')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">First On-site Report</label>
                             <input type="text" name="fields[0][name]" value="first_onsite_report" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Request Local Listing')
+                        </form>
+                    @elseif ($task->title == 'Request Local Listing')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload Request Local Listing Doc</label>
                             <input type="text" name="fields[0][name]" value="request_local_listing" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Create the Project on SE Ranking')
+                        </form>
+                    @elseif ($task->title == 'Create the Project on SE Ranking')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Attach Benchmark Report</label>
                             <input type="text" name="fields[0][name]" value="benchmark_report" hidden>
                             <input type="file" name="file" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Performance Report')
+                        </form>
+                    @elseif ($task->title == 'Performance Report')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Performance</label>
                             <input type="text" name="fields[0][name]" value="performance" hidden>
                             <select name="fields[0][value]">
@@ -244,7 +325,11 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Campaign Meeting (Deep-dive) with Tech')
+                        </form>
+                    @elseif ($task->title == 'Campaign Meeting (Deep-dive) with Tech')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">MINUTES OF MEETINGS</label>
                             <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
                             <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
@@ -257,7 +342,11 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Campaign Meeting (Deep-dive) with Client')
+                        </form>
+                    @elseif ($task->title == 'Campaign Meeting (Deep-dive) with Client')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">MINUTES OF MEETINGS</label>
                             <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
                             <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
@@ -270,7 +359,11 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Renewal Reminder')
+                        </form>
+                    @elseif ($task->title == 'Renewal Reminder')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <input type="hidden" name="fields[0][name]" value="renewal_reminder_status">
                             <label class="form-label" for="renewal_reminder_status">Have you sent Renewal
                                 Reminder</label>
@@ -285,7 +378,11 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Renewal Contract')
+                        </form>
+                    @elseif ($task->title == 'Renewal Contract')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <input type="hidden" name="fields[0][name]" value="renewal_contract_status">
                             <label class="form-label" for="renewal_contract_status">Have you sent
                                 Follow-Up</label>
@@ -300,7 +397,11 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif ($task->title == 'Renewal Status')
+                        </form>
+                    @elseif ($task->title == 'Renewal Status')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Renewal Status</label>
                             <input type="hidden" name="fields[0][name]" value="status" hidden>
                             <select name="fields[0][value]">
@@ -309,22 +410,22 @@
                             </select>
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
-                        @elseif (
-                            !in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) &&
-                                !($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])) &&
-                                !$task->title == 'Add the Client Credentials')
-                            <div class="col-lg-12">
-                                <label class="form-label">Notes</label>
-                                <input type="text" name="fields[0][name]" value="notes" hidden>
-                                <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
-                                    placeholder="Enter Notes"></textarea>
-                                <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
-                                    Task</button>
-                            </div>
-                        @else
-                        @endif
-                    </form>
-                    @if (in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) ||
+                        </form>
+                    @elseif (
+                        !in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) &&
+                            !($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])) &&
+                            !$task->title == 'Add the Client Credentials')
+                        <form id="taskForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                            <label class="form-label">Notes</label>
+                            <input type="text" name="fields[0][name]" value="notes" hidden>
+                            <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
+                                placeholder="Enter Notes"></textarea>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
+                        </form>
+                    @elseif (in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) ||
                             ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
                         <form id="keywordForm">
                             @csrf
@@ -382,6 +483,18 @@
                             </div>
                         </form>
                     @else
+                        <div class="col-lg-12">
+                            <form id="taskForm" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                <label class="form-label">Notes</label>
+                                <input type="text" name="fields[0][name]" value="notes" hidden>
+                                <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
+                                    placeholder="Enter Notes"></textarea>
+                                <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                    Task</button>
+                            </form>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -471,7 +584,7 @@
                     data-task-id="{{ $task->id }}">Complete Task</button>
             </form>
         @endif
-        @if ($userPermissions->contains('can create tasks'))
+        @if ($userPermissions->contains('can create tasks') && auth()->user()->id == $task->created_by)
             @if ($task->repeatingTask && $task->repeat_task)
                 <button class="btn btn-sm fs-7 btn-danger disable-repeating"
                     data-task-id="{{ $task->id }}">Disable

@@ -23,7 +23,7 @@ class TodoController extends Controller
 
         return response()->json(['message' => 'Todo added successfully!']);
     }
-
+   
     public function getTodosByDate(Request $request)
     {
         $todos = Todo::where('user_id', auth()->id())
