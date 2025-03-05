@@ -51,9 +51,10 @@
 
                             <div class="col-lg-4">
                                 <label class="form-label" for="tech_manager_ids">Tech Managers</label>
-                                <select class="form-control w-100" required name="tech_manager_ids[]" id="tech_manager_ids">
+                                <select required class="form-control w-100" name="tech_manager_ids[]" id="tech_manager_ids">
                                     @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}">
+                                            {{ $user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
