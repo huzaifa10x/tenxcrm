@@ -539,15 +539,6 @@ class TaskController extends Controller
         $seoAdmin = $project->seoAdmins[0]->id;
         $contentWriter = $project->contentWriters[0]->id;
 
-        if (
-            !$accountManager ||
-            !$seoTech ||
-            !$seoAdmin ||
-            !$contentWriter
-        ) {
-            return "Please assign all the roles to the project";
-        }
-
         $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
 
         $keywordsApprovalTasks = [
@@ -555,7 +546,7 @@ class TaskController extends Controller
             ["title" => 'Send SEO Benchmark Report to client', "assignee" => $accountManager],
             ["title" => 'First On-site', "assignee" => $seoTech],
             ["title" => 'Add KW Mapping', "assignee" => $seoAdmin],
-            ["title" => 'On-site Audit (from SE ranking', "assignee" => $seoAdmin],
+            ["title" => 'On-site Audit (from SE ranking)', "assignee" => $seoAdmin],
             ["title" => 'Content Audit', "assignee" => $seoAdmin],
             ["title" => 'Backlink Audit & DISAVOW', "assignee" => $seoAdmin],
         ];

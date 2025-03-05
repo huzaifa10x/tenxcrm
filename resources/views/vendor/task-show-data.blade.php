@@ -98,17 +98,21 @@
                         <form id="taskForm" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <span class="d-block fw-bold">Keywords Approval</span>
-                            <label for="seo_admin_approval" form="label">SEO ADMIN APPROVAL</label>
-                            <input type="hidden" name="fields[0][name]" value="seo_admin_approval">
-                            <input type="checkbox" class="form-check-input" id="seo_admin_approval" required
-                                name="fields[0][value]">
-                            <label for="client_approval" form="label">CLIENT APPROVAL</label>
-                            <input type="hidden" name="fields[1][name]" value="client_approval">
-                            <input type="checkbox" class="form-check-input" id="client_approval" required
-                                name="fields[1][value]">
-                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
-                                Task</button>
+                            <span class="d-block fw-bold mb-2">Keyword Approval Process</span>
+                            <div class="mt-3">
+                                <label for="seo_admin_approval" class="form-label">SEO Admin Approval
+                                    (Completed)</label>
+                                <input required type="hidden" name="fields[0][name]" value="seo_admin_approval">
+                                <input type="checkbox" class="form-check-input" id="seo_admin_approval" required
+                                    name="fields[0][value]">
+                            </div>
+                            <div class="mb-3">
+                                <label for="client_approval" class="form-label">Client Approval (Completed)</label>
+                                <input required type="hidden" name="fields[1][name]" value="client_approval">
+                                <input type="checkbox" class="form-check-input" id="client_approval" required
+                                    name="fields[1][value]">
+                            </div>
+                            <button class="btn btn-sm btn-dark mt-3" type="submit">Mark Task as Complete</button>
                         </form>
                     @elseif ($task->title === 'Intro Call')
                         <form id="taskForm" enctype="multipart/form-data">
@@ -153,7 +157,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Location</label>
                             <input type="text" name="fields[0][name]" value="location" hidden>
-                            <select name="fields[0][value]">
+                            <select class="form-control" name="fields[0][value]">
                                 <option value="Zoom">Zoom</option>
                                 <option value="10X Office">10X Office</option>
                                 <option value="Client Office">Client Office</option>
