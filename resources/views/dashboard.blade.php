@@ -846,7 +846,8 @@
                 breakpoint: 480,
                 options: {
                     chart: {
-                        width: 200
+                        width: 150,
+                        height: 150,
                     },
                     legend: {
                         position: 'bottom'
@@ -874,7 +875,8 @@
                 breakpoint: 480,
                 options: {
                     chart: {
-                        width: 200
+                        width: 150,
+                        height: 150,
                     },
                     legend: {
                         position: 'bottom'
