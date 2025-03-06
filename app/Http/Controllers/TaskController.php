@@ -570,14 +570,11 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
         $project = $task->project;
-
         $task->update(['status' => 'Completed', 'completed_date' => now()]);
         $accountManager = $project->accountManagers[0]->id;
         $seoAdmin = $project->seoAdmins[0]->id;
         $contentWriter = $project->contentWriters[0]->id;
-
         $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
-
         $keywordsApprovalTasks = [
             ["title" => 'Create the Project on SE Ranking', "assignee" => $seoTech],
             ["title" => 'Send SEO Benchmark Report to client', "assignee" => $accountManager],
