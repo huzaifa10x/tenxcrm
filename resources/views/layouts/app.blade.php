@@ -74,7 +74,8 @@
                         <button type="button" class="sidebar-mobile-toggle">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
-                        <span id="live-time" class="badge text-sm fw-semibold rounded-pill bg-light-600 px-10 py-1 radius-4 text-dark fs-7">00:00</span>
+                        <span id="live-time"
+                            class="badge text-sm fw-semibold rounded-pill bg-light-600 px-10 py-1 radius-4 text-dark fs-7">00:00</span>
                         <script>
                             function updateTime() {
                                 const options = {
@@ -182,10 +183,13 @@
                                         function showBrowserNotification(title, message, notificationId) {
                                             let lastNotificationId = localStorage.getItem("lastNotificationId");
                                             if (lastNotificationId == notificationId) {
-                                                return; 
+                                                return;
                                             }
                                             localStorage.setItem("lastNotificationId", notificationId);
                                             toastr.success(message);
+                                            // Play notification sound
+                                            let audio = new Audio("{{ asset('/public/sounds/notify.mp3') }}");
+                                            audio.play();
                                             toastr.options = {
                                                 "closeButton": true,
                                                 "positionClass": "toast-top-right",
@@ -201,7 +205,7 @@
                                             if (Notification.permission === "granted") {
                                                 new Notification(title, {
                                                     body: message,
-                                                    icon: "{{ asset('/images/logo-icon.png') }}" 
+                                                    icon: "{{ asset('/images/logo-icon.png') }}"
                                                 });
                                             } else if (Notification.permission !== "denied") {
                                                 Notification.requestPermission().then(permission => {
@@ -281,7 +285,8 @@
                         </div><!-- Notification dropdown end -->
 
                         <div class="dropdown">
-                            <button class="w-36-px h-36-px d-flex justify-content-center align-items-center rounded-circle"
+                            <button
+                                class="w-36-px h-36-px d-flex justify-content-center align-items-center rounded-circle"
                                 type="button" data-bs-toggle="dropdown">
                                 <img src="{{ auth()->user()->img ? asset('/public/storage/' . auth()->user()->img) : asset('/images/user.png') }}"
                                     alt="image" class="w-36-px h-36-px object-fit-cover rounded-circle">
@@ -387,7 +392,7 @@
     ]) --}}
 
 
-   
+
     <script src="{{ asset('js/lib/dataTables.min.js') }}"></script>
     <script src="{{ asset('js/lib/iconify-icon.min.js') }}"></script>
 
