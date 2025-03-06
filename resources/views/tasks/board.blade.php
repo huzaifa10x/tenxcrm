@@ -111,9 +111,9 @@
                                     <h6 class="text-lg fw-semibold mb-0">{{ $status }}</h6>
                                 </div>
                                 <div class="connectedSortable ps-24 pt-24 pe-24 kanban-items"
-                                    id="{{ strtolower(str_replace(' ', '-', $status)) }}"
-                                    data-status="{{ $status }}">
-                                    @foreach ($tasks->where('status', $status) as $task)
+                                id="{{ strtolower(str_replace(' ', '-', $status)) }}"
+                                data-status="{{ $status }}">
+                                @foreach ($tasks->where('status', $status) as $task)
                                         <div data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                             aria-controls="offcanvasRight"
                                             onclick="loadTaskDetails({{ $task->id }})"
