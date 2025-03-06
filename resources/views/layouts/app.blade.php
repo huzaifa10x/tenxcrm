@@ -65,7 +65,7 @@
     <main class="dashboard-main">
         <div class="navbar-header">
             <div class="row align-items-center justify-content-between">
-                <div class="col-auto">
+                <div class="col-auto px-1">
                     <div class="d-flex flex-wrap align-items-center gap-4">
                         <button type="button" class="sidebar-toggle">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon text-2xl non-active"></iconify-icon>
@@ -74,7 +74,7 @@
                         <button type="button" class="sidebar-mobile-toggle">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
-                        <div class="fs-7" id="live-time"></div>
+                        <span id="live-time" class="badge text-sm fw-semibold rounded-pill bg-light-600 px-10 py-1 radius-4 text-dark fs-7">00:00</span>
                         <script>
                             function updateTime() {
                                 const options = {
@@ -95,17 +95,17 @@
 
                     </div>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto px-1">
 
-                    <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="d-flex flex-wrap align-items-center gap-10 p-0">
                         <div id="notification-count" class="text-danger fs-7 fw-bold"></div>
                         <button type="button" data-theme-toggle
-                            class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
+                            class="w-36-px h-36-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
 
 
                         <div class="dropdown">
                             <button
-                                class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
+                                class="has-indicator w-36-px h-36-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
                                 type="button" data-bs-toggle="dropdown">
                                 <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
                             </button>
@@ -116,7 +116,7 @@
                                         <h6 class="text-lg text-primary-light fw-semibold mb-0">Notifications</h6>
                                     </div>
                                     <span id="user-noti-count"
-                                        class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center"></span>
+                                        class="text-primary-600 fw-semibold text-lg w-36-px h-36-px rounded-circle bg-base d-flex justify-content-center align-items-center"></span>
                                 </div>
 
                                 <div class="max-h-400-px overflow-y-auto scroll-sm pe-4" id="notification-list"></div>
@@ -273,10 +273,10 @@
                         </div><!-- Notification dropdown end -->
 
                         <div class="dropdown">
-                            <button class="d-flex justify-content-center align-items-center rounded-circle"
+                            <button class="w-36-px h-36-px d-flex justify-content-center align-items-center rounded-circle"
                                 type="button" data-bs-toggle="dropdown">
                                 <img src="{{ auth()->user()->img ? asset('/public/storage/' . auth()->user()->img) : asset('/images/user.png') }}"
-                                    alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                                    alt="image" class="w-36-px h-36-px object-fit-cover rounded-circle">
                             </button>
                             <div class="dropdown-menu to-top dropdown-menu-sm">
                                 <div
@@ -347,13 +347,13 @@
             </div>
             {{ $slot }}
         </div>
-        <footer class="d-footer">
+        <footer class="d-footer py-1">
             <div class="row align-items-center justify-content-between">
                 <div class="col-auto">
-                    <p class="mb-0">© 2025 10X Digital. All Rights Reserved.</p>
+                    <p class="mb-0 fs-7">© 2025 10X Digital. All Rights Reserved.</p>
                 </div>
                 <div class="col-auto">
-                    <p class="mb-0">Made by <a href="https://10xdigital.ae" class="text-primary-600">10X
+                    <p class="mb-0 fs-7">Made by <a href="https://10xdigital.ae" class="text-primary-600">10X
                             Digital</a></p>
                 </div>
             </div>

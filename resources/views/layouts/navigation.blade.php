@@ -2,10 +2,9 @@
     <button type="button" class="sidebar-close-btn">
         <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
     </button>
-    <div>
-        <a href="index.html" class="sidebar-logo">
-            <img src="{{ asset('/images/dark-logo.png') }}" alt="site logo" class="light-logo">
-            <img src="{{ asset('/images/logo-light.png') }}" alt="site logo" class="dark-logo">
+    <div style="background: #273142 !important;">
+        <a href="{{ route('dashboard') }}" class="sidebar-logo">
+            <img src="{{ asset('/images/logo-light.png') }}" alt="site logo" class="">
             <img src="{{ asset('/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
         </a>
     </div>
