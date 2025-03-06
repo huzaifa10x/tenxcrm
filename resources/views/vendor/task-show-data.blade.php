@@ -226,17 +226,6 @@
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
-                    @elseif ($relatedData && in_array($relatedData->sub_type, ['ADHOC', 'REVISION']))
-                        <form id="taskForm" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <label class="form-label">Notes</label>
-                            <input type="text" name="fields[0][name]" value="notes" hidden>
-                            <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
-                                placeholder="Enter Notes"></textarea>
-                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
-                                Task</button>
-                        </form>
                     @elseif (
                         $relatedData &&
                             in_array($relatedData->sub_type, [
@@ -491,10 +480,10 @@
                             <form id="taskForm" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                {{-- <label class="form-label">Notes</label>
+                                <label class="form-label">Notes</label>
                                 <input type="text" name="fields[0][name]" value="notes" hidden>
                                 <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
-                                    placeholder="Enter Notes"></textarea> --}}
+                                    placeholder="Enter Notes"></textarea>
                                 <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                     Task</button>
                             </form>
