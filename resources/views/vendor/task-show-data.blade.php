@@ -960,7 +960,9 @@
                             <h6 class="text-sm mb-0">${collaborator.user.name}</h6>
                             <span class="text-xs text-secondary-light">${collaborator.user.email}</span>
                         </div>
+                        @if ($task->created_by == auth()->user()->id || auth()->user()->hasRole('ADMIN'))
                         <iconify-icon onclick="removeCollaborator(${collaborator.id}, ${taskId})" icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
+                        @endif
                     </div>
                 </div>
             `);

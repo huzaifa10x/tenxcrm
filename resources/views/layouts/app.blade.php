@@ -181,26 +181,34 @@
 
                                         function showBrowserNotification(title, message, notificationId) {
                                             let lastNotificationId = localStorage.getItem("lastNotificationId");
-
-                                            // Check if this notification was already shown
                                             if (lastNotificationId == notificationId) {
-                                                return; // Do not show the same notification again
+                                                return; 
                                             }
-
-                                            // Store the new notification ID
                                             localStorage.setItem("lastNotificationId", notificationId);
-
+                                            toastr.success(message);
+                                            toastr.options = {
+                                                "closeButton": true,
+                                                "positionClass": "toast-top-right",
+                                                "showDuration": "1000",
+                                                "hideDuration": "1000",
+                                                "timeOut": "5000",
+                                                "extendedTimeOut": "1000",
+                                                "showEasing": "swing",
+                                                "hideEasing": "linear",
+                                                "showMethod": "fadeIn",
+                                                "hideMethod": "fadeOut"
+                                            };
                                             if (Notification.permission === "granted") {
                                                 new Notification(title, {
                                                     body: message,
-                                                    icon: "/images/notification-icon.png" // Replace with your notification icon
+                                                    icon: "{{ asset('/images/logo-icon.png') }}" 
                                                 });
                                             } else if (Notification.permission !== "denied") {
                                                 Notification.requestPermission().then(permission => {
                                                     if (permission === "granted") {
                                                         new Notification(title, {
                                                             body: message,
-                                                            icon: "/images/notification-icon.png"
+                                                            icon: "{{ asset('/images/logo-icon.png') }}"
                                                         });
                                                     }
                                                 });
