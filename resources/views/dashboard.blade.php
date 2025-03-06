@@ -824,6 +824,20 @@
                 </div>
             </div>
         </div>
+    @elseif ($role == 'ADMIN')
+        <div class="row gy-3 mb-10">
+            <div class="col-lg-12">
+                <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
+                    <div
+                        class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
+                        <span class="fw-bold">Last 15 Days Tasks</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="tasksChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
     <script>
         var options = {

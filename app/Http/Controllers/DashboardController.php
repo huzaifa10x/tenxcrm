@@ -16,6 +16,20 @@ class DashboardController extends Controller
 
         $role = $user->roles->first()->name;
 
+        $last15Days = collect(range(0, 14))->map(function ($day) {
+            return Carbon::now()->subDays($day)->format('Y-m-d');
+        })->reverse()->values();
+
+        $tasksLast15Days = Task::where('assigned_to', $user->id)
+            ->whereBetween('created_at', [Carbon::now()->subDays(14)->startOfDay(), Carbon::now()->endOfDay()])
+            ->selectRaw("DATE(created_at) as date, COUNT(*) as count")
+            ->groupBy('date')
+            ->pluck('count', 'date');
+
+        $taskData = $last15Days->mapWithKeys(function ($date) use ($tasksLast15Days) {
+            return [$date => $tasksLast15Days[$date] ?? 0];
+        });
+
         if ($role == 'AM') {
             $projects = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
@@ -44,20 +58,6 @@ class DashboardController extends Controller
             $accountProjects = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
-
-            $last15Days = collect(range(0, 14))->map(function ($day) {
-                return Carbon::now()->subDays($day)->format('Y-m-d');
-            })->reverse()->values();
-
-            $tasksLast15Days = Task::where('assigned_to', $user->id)
-                ->whereBetween('created_at', [Carbon::now()->subDays(14)->startOfDay(), Carbon::now()->endOfDay()])
-                ->selectRaw("DATE(created_at) as date, COUNT(*) as count")
-                ->groupBy('date')
-                ->pluck('count', 'date');
-
-            $taskData = $last15Days->mapWithKeys(function ($date) use ($tasksLast15Days) {
-                return [$date => $tasksLast15Days[$date] ?? 0];
-            });
 
             return view('dashboard', compact(
                 'role',
@@ -112,20 +112,6 @@ class DashboardController extends Controller
                 ->sum('field_value');
             $pendingWords = $pendingWords ?? 0;
 
-            $last15Days = collect(range(0, 14))->map(function ($day) {
-                return Carbon::now()->subDays($day)->format('Y-m-d');
-            })->reverse()->values();
-
-            $tasksLast15Days = Task::where('assigned_to', $user->id)
-                ->whereBetween('created_at', [Carbon::now()->subDays(14)->startOfDay(), Carbon::now()->endOfDay()])
-                ->selectRaw("DATE(created_at) as date, COUNT(*) as count")
-                ->groupBy('date')
-                ->pluck('count', 'date');
-
-            $taskData = $last15Days->mapWithKeys(function ($date) use ($tasksLast15Days) {
-                return [$date => $tasksLast15Days[$date] ?? 0];
-            });
-
             return view('dashboard', compact(
                 'role',
                 'currentPortfolio',
@@ -144,6 +130,6 @@ class DashboardController extends Controller
             ));
         }
 
-        return view('dashboard', compact('role'));
+        return view('dashboard', compact('role', 'taskData'));
     }
 }
