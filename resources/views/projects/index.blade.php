@@ -15,13 +15,15 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Title</th>
-                        <th>Company</th>
-                        <th>Type</th>
+                        <th>Project</th>
+                        <th>Service</th>
                         <th>Status</th>
-                        <th>Started at</th>
+                        <th>Account Manager</th>
+                        <th>Contract End Date</th>
+                        <th>Monthly Revenue (w/o VAT)</th>
+                        <th>Tech</th>
                         <th>Created By</th>
-                        <th>Tasks</th>
+                        <th>Pending Tasks</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -29,14 +31,13 @@
                     @foreach ($projects as $project)
                         <tr>
                             <td>{{ $project->id }}</td>
-                            <td>{{ $project->title }}</td>
-                            <td>{{ $project->companies->name }}</td>
+                            <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a></td>
                             <td>{{ $project->project_type }}</td>
                             <td>
                                 @if ($userPermissions->contains('can update project status'))
                                     @if (auth()->user()->hasRole('ADMIN') || $project->createdBy->id == auth()->user()->id)
-                                        <select class="form-control project-status" data-project-id="{{ $project->id }}"
-                                            required>
+                                        <select class="form-control project-status"
+                                            data-project-id="{{ $project->id }}" required>
                                             <option selected disabled value="">Select status</option>
                                             <option value="Current"
                                                 {{ $project->status == 'Current' ? 'selected' : '' }}>
@@ -72,12 +73,20 @@
                                     {{ $project->status }}
                                 @endif
                             </td>
-                            <td>{{ $project->contract_start_date }}</td>
+                            <td>{{ $project->accountManagers->pluck('name')->first() ?? '' }}</td>
+                            <td>{{ Carbon\Carbon::parse($project->contract_start_date)->addMonths($project->contract_term)->format('Y-m-d') ?? '' }}
+                            </td>
+                            <td>{{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 ?? '' }}
+                            </td>
+                            <td>{{ $project->techManagers->pluck('name')->first() ?? '' }}</td>
                             <td>
                                 {{ $project->createdBy->name }}
                             </td>
                             <td>
-                                {{ $project->tasks->count() }}
+                                <span
+                                    class="badge text-sm fw-semibold w-32-px h-32-px d-flex justify-content-center align-items-center rounded-circle border border-danger-600 text-danger-600 radius-4 text-white">
+                                    {{ $project->tasks->where('status', 'Todo')->count() ?? 0 }}
+                                </span>
                             </td>
                             <td class="">
                                 <div class="d-flex align-items-center gap-10">

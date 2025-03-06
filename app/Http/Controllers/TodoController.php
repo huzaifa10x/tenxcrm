@@ -43,13 +43,22 @@ class TodoController extends Controller
 
         return response()->json(['message' => 'Todo marked as completed!']);
     }
+    // public function getTodoDates()
+    // {
+    //     $dates = Todo::where('user_id', auth()->id())
+    //         ->selectRaw('DATE(date) as todo_date')
+    //         ->groupBy('todo_date')
+    //         ->pluck('todo_date');
+
+    //     return response()->json($dates);
+    // }
     public function getTodoDates()
     {
-        $dates = Todo::where('user_id', auth()->id())
-            ->selectRaw('DATE(date) as todo_date')
-            ->groupBy('todo_date')
-            ->pluck('todo_date');
+        $todos = Todo::where('user_id', auth()->id())
+            ->selectRaw('DATE(date) as todo_date, task')
+            ->orderBy('todo_date', 'asc')
+            ->get();
 
-        return response()->json($dates);
+        return response()->json($todos);
     }
 }

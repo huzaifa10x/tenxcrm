@@ -209,7 +209,7 @@ class ProjectController extends Controller
         $contractEndDate = $contractStartDate->copy()->addMonths($project->contract_term);
         $monthlyInvoice = ($project->contract_term > 0) ? round($project->contract_value / $project->contract_term, 2) : 0;
         $nextInvoiceDate = $contractStartDate->copy()->addMonth();
-
+        
         return view('projects.show', compact(
             'project',
             'industries',

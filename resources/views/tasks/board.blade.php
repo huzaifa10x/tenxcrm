@@ -45,10 +45,10 @@
 
         @endif
         <div class="card-header d-flex justify-content-start gap-10 align-items-center">
-            @if ($userPermissions->contains('can create tasks'))
-                <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-outline-primary">
-                    Create Task
-                </button>
+            <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-outline-primary">
+                Create Task
+            </button>
+            @if (auth()->user()->hasRole('ADMIN'))
                 <div>
                     <select id="taskType" class="form-select">
                         <option value="">Filter By Type</option>
@@ -83,11 +83,28 @@
             </div>
         </div>
     </div>
+    @php
+        $statusColors = [
+            'Todo' => 'bg-info-600',
+            'In Progress' => 'bg-lilac-600',
+            'Review' => 'bg-success-600',
+            'Completed' => 'bg-warning-600',
+            'Blocked' => 'bg-danger-600',
+        ];
+    @endphp
     <div class="overflow-x-auto scroll-sm pb-8">
         <div class="kanban-wrapper">
             <div class="d-flex align-items-start gap-24" id="sortable-wrapper">
                 @foreach (['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'] as $status)
-                    <div class="w-25 kanban-item radius-12 progress-card kanban-column scroll-sm">
+                    <div class="w-25 kanban-item radius-12 progress-card kanban-column scroll-sm position-relative">
+                        @php
+                            $colorClass = $statusColors[$status] ?? 'bg-secondary-600';
+                            $taskCount = $tasks->where('status', $status)->count();
+                        @endphp
+                        <span
+                            class="position-absolute top-0 end-0 m-10 badge text-sm fw-semibold w-32-px h-32-px d-flex justify-content-center align-items-center rounded-circle {{ $colorClass }} text-white">
+                            {{ $taskCount }}
+                        </span>
                         <div class="card p-0 radius-12 overflow-hidden shadow-none">
                             <div class="card-body p-0 pb-24">
                                 <div class="d-flex align-items-center gap-2 justify-content-between ps-24 pt-24 pe-24">

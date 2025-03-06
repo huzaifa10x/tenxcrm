@@ -6,12 +6,10 @@
     <div class="card border">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-10">
             <div class="d-flex align-items-center gap-3">
-                @if ($userPermissions->contains('can create tasks'))
-                    <button data-bs-toggle="modal" data-bs-target="#taskCreateModal"
-                        class="btn-sm btn btn-outline-primary fs-7">
-                        Create Task
-                    </button>
-                @endif
+                <button data-bs-toggle="modal" data-bs-target="#taskCreateModal"
+                    class="btn-sm btn btn-outline-primary fs-7">
+                    Create Task
+                </button>
                 @if ($userPermissions->contains('can update project status'))
                     <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
                         <label class="form-label fs-7 m-0">Project Status</label>
@@ -566,11 +564,11 @@
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
-                                                        <th>Name</th>
-                                                        <th>Assignee</th>
-                                                        <th>Start Date</th>
-                                                        <th>Priority</th>
+                                                        <th>Subject</th>
                                                         <th>Status</th>
+                                                        <th>Start Date</th>
+                                                        <th>Due Date</th>
+                                                        <th>Assignee</th>
                                                         {{-- <th>ACTION</th> --}}
                                                     </tr>
                                                 </thead>
@@ -581,10 +579,11 @@
                                                             <td><a
                                                                     href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
                                                             </td>
-                                                            <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
-                                                            <td>{{ $task->start_date }}</td>
-                                                            <td><x-badge :text="$task->priority" type="priority" /></td>
                                                             <td><x-badge :text="$task->status" type="status" /></td>
+                                                            <td>{{ $task->start_date }}</td>
+                                                            <td>{{ $task->due_date }}</td>
+                                                            <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
+                                                            {{-- <td><x-badge :text="$task->priority" type="priority" /></td> --}}
                                                         </tr>
                                                         @if ($task->comments()->latest()->first())
                                                             <tr>
@@ -631,11 +630,11 @@
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
-                                                        <th>Name</th>
-                                                        <th>Assignee</th>
-                                                        <th>Start Date</th>
-                                                        <th>Priority</th>
+                                                        <th>Subject</th>
                                                         <th>Status</th>
+                                                        <th>Start Date</th>
+                                                        <th>Due Date</th>
+                                                        <th>Assignee</th>
                                                         {{-- <th>ACTION</th> --}}
                                                     </tr>
                                                 </thead>
@@ -646,10 +645,11 @@
                                                             <td><a
                                                                     href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
                                                             </td>
-                                                            <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
-                                                            <td>{{ $task->start_date }}</td>
-                                                            <td><x-badge :text="$task->priority" type="priority" /></td>
                                                             <td><x-badge :text="$task->status" type="status" /></td>
+                                                            <td>{{ $task->start_date }}</td>
+                                                            <td>{{ $task->due_date }}</td>
+                                                            <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
+                                                            {{-- <td><x-badge :text="$task->priority" type="priority" /></td> --}}
                                                         </tr>
                                                         @if ($task->comments()->latest()->first())
                                                             <tr>
@@ -665,14 +665,15 @@
                                                                                     <div
                                                                                         class="d-flex align-items-center gap-2">
                                                                                         <span
-                                                                                            class="mb-0 fs-7">{{ $task->comments()->latest()->first()->user->name }}
+                                                                                            class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
                                                                                             {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
                                                                                     </div>
                                                                                 </div>
                                                                                 <p class="mb-0 text-primary-light">
                                                                                     {{ $task->comments()->latest()->first()->comment }}
                                                                                 </p>
-                                                                                <span class="comment-time d-block fs-7"
+                                                                                <span
+                                                                                    class="comment-time text-secondary d-block fs-7"
                                                                                     data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
                                                                             </div>
                                                                         </div>
@@ -695,11 +696,11 @@
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
-                                                        <th>Name</th>
-                                                        <th>Assignee</th>
-                                                        <th>Start Date</th>
-                                                        <th>Priority</th>
+                                                        <th>Subject</th>
                                                         <th>Status</th>
+                                                        <th>Start Date</th>
+                                                        <th>Due Date</th>
+                                                        <th>Assignee</th>
                                                         {{-- <th>ACTION</th> --}}
                                                     </tr>
                                                 </thead>
@@ -709,15 +710,12 @@
                                                             <td>{{ $task->id }}</td>
                                                             <td><a
                                                                     href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
-                                                                <div
-                                                                    class="badge rounded {{ $task->repeatingTask ? ($task->repeat_task ? 'bg-info-50 text-info' : 'bg-warning-50 text-warning') : '' }} fs-7">
-                                                                    {{ $task->repeatingTask ? ($task->repeat_task ? ' - Repeating Enabled' : ' - Repeating Disabled') : '' }}
-                                                                </div>
                                                             </td>
-                                                            <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
-                                                            <td>{{ $task->start_date }}</td>
-                                                            <td><x-badge :text="$task->priority" type="priority" /></td>
                                                             <td><x-badge :text="$task->status" type="status" /></td>
+                                                            <td>{{ $task->start_date }}</td>
+                                                            <td>{{ $task->due_date }}</td>
+                                                            <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
+                                                            {{-- <td><x-badge :text="$task->priority" type="priority" /></td> --}}
                                                         </tr>
                                                         @if ($task->comments()->latest()->first())
                                                             <tr>
@@ -733,14 +731,15 @@
                                                                                     <div
                                                                                         class="d-flex align-items-center gap-2">
                                                                                         <span
-                                                                                            class="mb-0 fs-7">{{ $task->comments()->latest()->first()->user->name }}
+                                                                                            class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
                                                                                             {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
                                                                                     </div>
                                                                                 </div>
                                                                                 <p class="mb-0 text-primary-light">
                                                                                     {{ $task->comments()->latest()->first()->comment }}
                                                                                 </p>
-                                                                                <span class="comment-time d-block fs-7"
+                                                                                <span
+                                                                                    class="comment-time text-secondary d-block fs-7"
                                                                                     data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
                                                                             </div>
                                                                         </div>
