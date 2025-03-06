@@ -573,7 +573,6 @@ class TaskController extends Controller
 
         $task->update(['status' => 'Completed', 'completed_date' => now()]);
         $accountManager = $project->accountManagers[0]->id;
-        $seoTech = $project->techManagers[0]->id;
         $seoAdmin = $project->seoAdmins[0]->id;
         $contentWriter = $project->contentWriters[0]->id;
 
