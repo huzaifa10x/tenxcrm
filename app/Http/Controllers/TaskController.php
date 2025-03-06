@@ -573,12 +573,13 @@ class TaskController extends Controller
         $task->update(['status' => 'Completed', 'completed_date' => now()]);
         $accountManager = $project->accountManagers[0]->id;
         $seoAdmin = $project->seoAdmins[0]->id;
+        $techManger = $project->techManagers[0]->id;
         $contentWriter = $project->contentWriters[0]->id;
         $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
         $keywordsApprovalTasks = [
-            ["title" => 'Create the Project on SE Ranking', "assignee" => $seoTech],
+            ["title" => 'Create the Project on SE Ranking', "assignee" => $techManger],
             ["title" => 'Send SEO Benchmark Report to client', "assignee" => $accountManager],
-            ["title" => 'First On-site', "assignee" => $seoTech],
+            ["title" => 'First On-site', "assignee" => $techManger],
             ["title" => 'Add KW Mapping', "assignee" => $seoAdmin],
             ["title" => 'On-site Audit (from SE ranking)', "assignee" => $seoAdmin],
             ["title" => 'Content Audit', "assignee" => $seoAdmin],
