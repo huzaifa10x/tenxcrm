@@ -368,7 +368,7 @@
         <div class="card basic-data-table">
             @if ($userPermissions->contains('can add projects'))
                 <div class="card-header">
-                    <span class="fw-bold">Campaigns</span>
+                    <span class="fw-bold">Projects</span>
                 </div>
             @endif
             <div class="card-body table-responsive">
