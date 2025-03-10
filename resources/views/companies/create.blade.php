@@ -11,20 +11,30 @@
                     <div class="row gy-3">
                         <div class="col-lg-6">
                             <label class="form-label">Company Name</label>
-                            <input type="text" name="name" class="form-control">
+                            <input required type="text" name="name" class="form-control">
                         </div>
                         <div class="col-lg-6">
                             <label class="form-label">Company Website</label>
-                            <input type="text" name="website" class="form-control">
-                        </div>
-                        <div class="col-lg-6">
-                            <label class="form-label">Company City</label>
-                            <input type="text" name="city" class="form-control">
+                            <input required type="text" name="website" class="form-control">
                         </div>
                         <div class="col-lg-6">
                             <label class="form-label">Company Country</label>
-                            <input type="text" name="country" class="form-control">
+                            <select required id="country" name="country" class="form-control">
+                                <option value="">Select Country</option>
+                                <option value="UAE">UAE</option>
+                                <option value="SAUDI ARABIA">SAUDI ARABIA</option>
+                                <option value="USA">USA</option>
+                                <option value="OTHER">OTHER</option>
+                            </select>
                         </div>
+
+                        <div class="col-lg-6 city-wrapper" style="display: none">
+                            <label class="form-label">Company City</label>
+                            <select required id="city" name="city" class="form-control">
+                                <option value="">Select City</option>
+                            </select>
+                        </div>
+
                         <div class="col-lg-6">
                             <label class="form-label">Company Logo</label>
                             <input type="file" name="logo" class="form-control">
@@ -36,6 +46,30 @@
                 </div>
             </div>
         </form>
+        <script>
+            $(document).ready(function() {
+                let cities = {
+                    "UAE": ["Dubai", "Abu Dhabi", "Sharjah", "Other"],
+                    "SAUDI ARABIA": ["Riyadh", "Jeddah", "Dammam", "Other"],
+                    "USA": ["New York", "Los Angeles", "Chicago", "Other"],
+                    "OTHER": ["Other"]
+                };
+
+                $("#country").change(function() {
+                    let country = $(this).val();
+                    let cityDropdown = $("#city");
+                    $('.city-wrapper').slideDown();
+                    cityDropdown.empty().append('<option value="">Select City</option>');
+
+                    if (country && cities[country]) {
+                        $.each(cities[country], function(index, city) {
+                            cityDropdown.append('<option value="' + city.toLowerCase() + '">' + city +
+                                '</option>');
+                        });
+                    }
+                });
+            });
+        </script>
     @else
         @include('vendor.not-allowed')
     @endif

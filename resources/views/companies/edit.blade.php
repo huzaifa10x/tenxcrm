@@ -19,17 +19,28 @@
                             <input value="{{ $company->website }}" type="text" name="website" class="form-control">
                         </div>
                         <div class="col-lg-6">
-                            <label class="form-label">Company City</label>
-                            <input value="{{ $company->city }}" type="text" name="city" class="form-control">
-                        </div>
-                        <div class="col-lg-6">
                             <label class="form-label">Company Country</label>
-                            <input value="{{ $company->country }}" type="text" name="country" class="form-control">
+                            <select required id="country" name="country" class="form-control">
+                                <option value="">Select Country</option>
+                                <option value="UAE" {{ $company->country == 'UAE' ? 'selected' : '' }}>UAE</option>
+                                <option value="SAUDI ARABIA"
+                                    {{ $company->country == 'SAUDI ARABIA' ? 'selected' : '' }}>SAUDI ARABIA</option>
+                                <option value="USA" {{ $company->country == 'USA' ? 'selected' : '' }}>USA</option>
+                                <option value="OTHER" {{ $company->country == 'OTHER' ? 'selected' : '' }}>OTHER
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-6 city-wrapper">
+                            <label class="form-label">Company City</label>
+                            <select required id="city" name="city" class="form-control">
+                                <option value="{{ $company->city }}" selected>{{ $company->city }}</option>
+                            </select>
                         </div>
                         <div class="col-lg-6">
                             <label class="form-label" for="logo">
-                                <img src="{{ asset('/public/storage/') }}/{{ $company->logo }}" class="img-fluid" alt="Logo"
-                                    width="50"> {{ $company->name }}
+                                <img src="{{ asset('/public/storage/') }}/{{ $company->logo }}" class="img-fluid"
+                                    alt="Logo" width="50"> {{ $company->name }}
                             </label>
                             <input type="file" name="logo" id="logo" class="form-control">
                         </div>
@@ -40,6 +51,33 @@
                 </div>
             </div>
         </form>
+        <script>
+            $(document).ready(function() {
+                let cities = {
+                    "UAE": ["Dubai", "Abu Dhabi", "Sharjah", "Other"],
+                    "SAUDI ARABIA": ["Riyadh", "Jeddah", "Dammam", "Other"],
+                    "USA": ["New York", "Los Angeles", "Chicago", "Other"],
+                    "OTHER": ["Other"]
+                };
+
+                function updateCities() {
+                    let country = $("#country").val();
+                    let cityDropdown = $("#city");
+                    cityDropdown.empty().append('<option value="">Select City</option>');
+
+                    if (country && cities[country]) {
+                        $.each(cities[country], function(index, city) {
+                            let selected = (city.toLowerCase() === "{{ strtolower($company->city) }}") ?
+                                "selected" : "";
+                            cityDropdown.append('<option value="' + city + '" ' + selected + '>' + city +
+                                '</option>');
+                        });
+                    }
+                }
+                $("#country").change(updateCities);
+                updateCities();
+            });
+        </script>
     @else
         @include('vendor.not-allowed')
     @endif
