@@ -71,7 +71,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|min:8|confirmed',
             'roles' => 'nullable|array',
-            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'img' => 'nullable',
         ]);
 
         // Update user details
@@ -141,10 +141,11 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id)->delete();
-        if (file_exists($user->img)) {
+        $user = User::findOrFail($id);
+        if ($user->img && file_exists(public_path($user->img))) {
             Storage::disk('public')->delete($user->img);
         }
+        $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully!');
     }
 

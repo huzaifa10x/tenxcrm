@@ -541,7 +541,7 @@
                                 </td>
                                 <td>{{ $project->techManagers->pluck('name')->first() ?? '' }}</td>
                                 <td>
-                                    {{ $project->createdBy->name }}
+                                    {{ $project->createdBy->name ?? "N/A" }}
                                 </td>
                                 <td>
                                     <span

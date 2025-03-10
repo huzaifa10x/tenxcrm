@@ -498,7 +498,7 @@
 <div class="d-flex flex-column mb-10 align-items-baseline gap-1" style="white-space: nowrap;">
     <label class="form-label fs-7 m-0" for="priority">Project</label>
     <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
-        {{ $task->project->companies->name }}</a>
+        {{ $task->project->companies->name ?? 'N/A' }}</a>
 </div>
 <div class="card border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">

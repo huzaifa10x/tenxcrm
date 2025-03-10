@@ -1,4 +1,4 @@
-<x-app-layout>
+div<x-app-layout>
     <x-slot name="header">
         {{ __('USER - ' . $user->name) }}
     </x-slot>
@@ -6,9 +6,12 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-6">
-                        <img src="{{ asset('/public/storage/' . $user->logo) }}" class="img-fluid" alt="Logo" width="50">
-                    </div>
+                    @if ($user->img)
+                        <div class="col-lg-6">
+                            <img src="{{ asset('/public/storage/' . $user->img) }}" class="img-fluid" alt="Logo"
+                                width="50">
+                        </div>
+                    @endif
                     <div class="col-md-6">
                         <label class="form-label">Name</label>
                         <div class="icon-field has-validation">

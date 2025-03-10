@@ -86,35 +86,41 @@
                             class="w-100 object-fit-cover">
                         <div class="pb-24 ms-16 mb-24 me-16  mt--100">
                             <div class="text-center border border-top-0 border-start-0 border-end-0">
-                                <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo }}"
+                                <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? 'N/A' }}"
                                     alt="" class="mt-10 w-200-p p-10 h-200-px rounded object-fit-cover"
                                     style="backdrop-filter: blur(9px);">
-                                <h6 class="mb-0 mt-16">{{ $project->companies->name }}</h6>
-                                <span
-                                    class="text-secondary-light mb-16">{{ optional(optional($project->companies)->details->first())->email ?? '' }}
-                                </span>
+                                <h6 class="mb-0 mt-16">{{ $project->companies->name ?? 'N/A' }}</h6>
+                                @if ($project->companies)
+                                    <span
+                                        class="text-secondary-light mb-16">{{ optional(optional($project->companies)->details->first())->email ?? '' }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="my-10">
                                 <div class="d-flex flex-column gap-3">
                                     <div class="border p-3 rounded bg-info-50 credential-item">
-                                        <div><strong>Website:</strong> {{ $project->companies->website }}</div>
-                                        <div><strong>City:</strong> {{ $project->companies->city }}</div>
-                                        <div><strong>Country:</strong> {{ $project->companies->country }}</div>
+                                        <div><strong>Website:</strong> {{ $project->companies->website ?? 'N/A' }}
+                                        </div>
+                                        <div><strong>City:</strong> {{ $project->companies->city ?? 'N/A' }}</div>
+                                        <div><strong>Country:</strong> {{ $project->companies->country ?? 'N/A' }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="d-flex flex-column gap-3">
-                                @foreach ($project->companies->details as $index => $details)
-                                    <div
-                                        class="border p-3 rounded bg-light credential-item mb-10 {{ $index > 0 ? 'd-none' : '' }}">
-                                        <div><strong>name:</strong> {{ $details->name }}</div>
-                                        <div><strong>email:</strong> {{ $details->email }}</div>
-                                        <div><strong>phone:</strong> {{ $details->phone }}</div>
-                                        <div><strong>city:</strong> {{ $details->city }}</div>
-                                        <div><strong>Website:</strong> <a href="{{ $details->website }}"
-                                                target="_blank">{{ $details->website }}</a></div>
-                                    </div>
-                                @endforeach
+                                @if ($project->companies)
+                                    @foreach ($project->companies->details as $index => $details)
+                                        <div
+                                            class="border p-3 rounded bg-light credential-item mb-10 {{ $index > 0 ? 'd-none' : '' }}">
+                                            <div><strong>name:</strong> {{ $details->name }}</div>
+                                            <div><strong>email:</strong> {{ $details->email }}</div>
+                                            <div><strong>phone:</strong> {{ $details->phone }}</div>
+                                            <div><strong>city:</strong> {{ $details->city }}</div>
+                                            <div><strong>Website:</strong> <a href="{{ $details->website }}"
+                                                    target="_blank">{{ $details->website }}</a></div>
+                                        </div>
+                                    @endforeach
+                                @endif
                             </div>
 
                             @if (count($project->credentials) > 1)
@@ -173,7 +179,7 @@
                                         <div class="flex-grow-1">
                                             <h6 class="text-md mb-0 fw-medium">Industry</h6>
                                             <span
-                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry ?? "N/A" }}</span>
+                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry ?? 'N/A' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -418,7 +424,7 @@
                                                 <h6 class="text-md mb-0 fw-medium">Payment Method</h6>
                                                 <span
                                                     class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $project->paymentMethod->name ?? "N/A" }}
+                                                    {{ $project->paymentMethod->name ?? 'N/A' }}
                                                 </span>
                                             </div>
                                         </div>

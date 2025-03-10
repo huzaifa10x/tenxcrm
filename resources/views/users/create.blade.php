@@ -73,12 +73,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        {{-- <div class="col-lg-6">
                             <label class="form-label" for="img">
                                 Image
                             </label>
                             <input type="file" name="img" id="img" class="form-control">
-                        </div>
+                        </div> --}}
                         <div class="col-md-12 mt-3">
                             <label class="form-label">Roles</label>
                             <div class="form-group">

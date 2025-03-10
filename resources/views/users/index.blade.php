@@ -31,8 +31,12 @@
                             <td>
                                 <div class="form-check style-check d-flex align-items-center">
                                     <label class="form-check-label">
-                                        <img src="{{ asset('/public/storage/') }}/{{ $user->img }}" class="rounded-pill me-1 w-40-px h-40-px img-fluid"
-                                            alt="Logo" width="50"> {{ $user->name }}
+                                        @if ($user->img)
+                                            <img src="{{ asset('/public/storage/') }}/{{ $user->img }}"
+                                                class="rounded-pill me-1 w-40-px h-40-px img-fluid" alt="Logo"
+                                                width="50">
+                                        @endif
+                                        {{ $user->name }}
                                     </label>
                                 </div>
                             </td>

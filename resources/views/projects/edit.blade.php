@@ -26,8 +26,12 @@
                             <label class="form-label" for="company_id">Company</label>
                             <select class="form-control w-100" name="company_id" id="company_id">
                                 @foreach ($companies as $company)
-                                    <option {{ $project->companies->id == $company->id ? 'selected' : '' }}
-                                        value="{{ $company->id }}">{{ $company->name }}</option>
+                                    @if ($project->companies)
+                                        <option {{ $project->companies->id == $company->id ? 'selected' : '' }}
+                                            value="{{ $company->id }}">{{ $company->name }}</option>
+                                    @else
+                                        <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
