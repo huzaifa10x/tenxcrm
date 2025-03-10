@@ -14,28 +14,12 @@ class PaymentMethodsSeeder extends Seeder
     public function run()
     {
         $paymentMethods = [
-            'PayPal',
-            'Stripe',
-            'Square',
-            'Amazon Payments',
-            'Google Wallet',
-            'Skrill',
-            'Payoneer',
             'cash',
             'check',
-            'credit card',
-            'debit card',
             'bank transfer',
-            'money order',
-            'purchase order',
-            'invoice',
-            'gift card',
-            'store credit',
-            'cryptocurrency',
             'other',
         ];
 
-        // Seed the paymentMethods
         foreach ($paymentMethods as $paymentMethod) {
             PaymentMethod::create([
                 'name' => $paymentMethod

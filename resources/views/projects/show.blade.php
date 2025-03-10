@@ -173,7 +173,7 @@
                                         <div class="flex-grow-1">
                                             <h6 class="text-md mb-0 fw-medium">Industry</h6>
                                             <span
-                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry }}</span>
+                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry ?? "N/A" }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -418,7 +418,7 @@
                                                 <h6 class="text-md mb-0 fw-medium">Payment Method</h6>
                                                 <span
                                                     class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $project->paymentMethod->name }}
+                                                    {{ $project->paymentMethod->name ?? "N/A" }}
                                                 </span>
                                             </div>
                                         </div>

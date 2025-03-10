@@ -15,16 +15,14 @@ class IndustrySeeder extends Seeder
     {
         // Define default industries
         $industries = [
-            'Advertising',
-            'Aerospace & Defense',
-            'Agricultural Inputs',
-            'Airlines',
-            'Airports & Air Services',
-            'Aluminum',
-            'Apparel Manufacturing',
-            'Apparel Retail',
-            'IT',
-            'Software House',
+            'E Commerce',
+            'Automotive',
+            'HealthCare',
+            'B2B Marketing',
+            'Education',
+            'Real Estate',
+            'Travel',
+            'Finance',
         ];
 
         // Seed the industries
