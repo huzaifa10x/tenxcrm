@@ -52,17 +52,19 @@
                                         class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center">
                                         <iconify-icon icon="lucide:edit"></iconify-icon>
                                     </a>
-                                    <form action="{{ route('companies.destroy', $company->id) }}" method="POST"
-                                        style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" style="margin-top: -5px;"
-                                            onclick="return confirm('Are you sure you want to delete this company?')"
-                                            class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
-                                            <iconify-icon icon="fluent:delete-24-regular"
-                                                class="menu-icon"></iconify-icon>
-                                        </button>
-                                    </form>
+                                    @if (auth()->user()->hasRole('ADMIN'))
+                                        <form action="{{ route('companies.destroy', $company->id) }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" style="margin-top: -5px;"
+                                                onclick="return confirm('Are you sure you want to delete this company?')"
+                                                class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center">
+                                                <iconify-icon icon="fluent:delete-24-regular"
+                                                    class="menu-icon"></iconify-icon>
+                                            </button>
+                                        </form>
+                                    @endif
                                 @endif
                             </td>
                         </tr>

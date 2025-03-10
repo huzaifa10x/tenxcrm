@@ -26,26 +26,24 @@
                         <tr>
                             <td> {{ $PaymentMethod->id }}</td>
                             <td>{{ $PaymentMethod->name }}</td>
-                            @if ($userPermissions->contains('can manage payment methods'))
+                            @if (auth()->user()->hasRole('ADMIN'))
                                 <td class="text-center">
                                     <div class="d-flex align-items-center gap-10 justify-content-center">
                                         <a href="{{ route('payment-methods.edit', $PaymentMethod->id) }}"
                                             class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
                                             <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
                                         </a>
-                                        @if (auth()->user()->hasRole('ADMIN'))
-                                            <form action="{{ route('payment-methods.destroy', $PaymentMethod->id) }}"
-                                                method="POST" style="display: inline-block;"
-                                                onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                                    <iconify-icon icon="fluent:delete-24-regular"
-                                                        class="menu-icon"></iconify-icon>
-                                                </button>
-                                            </form>
-                                        @endif
+                                        <form action="{{ route('payment-methods.destroy', $PaymentMethod->id) }}"
+                                            method="POST" style="display: inline-block;"
+                                            onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                                <iconify-icon icon="fluent:delete-24-regular"
+                                                    class="menu-icon"></iconify-icon>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             @endif
