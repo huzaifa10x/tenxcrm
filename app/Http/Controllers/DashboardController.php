@@ -44,7 +44,7 @@ class DashboardController extends Controller
             $startDate = Carbon::now()->subYear()->startOfYear();
         }
         $endDate = Carbon::now()->endOfDay();
-        $pendingTasksCountGlobal = Task::where('status', 'Todo')
+        $pendingTasksCountGlobal = Task::whereIn('status', ['Todo', 'In Progress', 'Review'])
             ->where('assigned_to', $user->id)
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
