@@ -2,6 +2,104 @@
     <x-slot name="header">
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
+    <div class="row gy-3 mb-10">
+        <div class="col-xxl-6">
+            <div class="card h-100">
+                <div
+                    class="card-header border-bottom-0 pb-0 d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                    <h6 class="mb-2 fw-bold text-lg mb-0">Tasks</h6>
+                    <select id="taskFilter"
+                        class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
+                        <option value="weekly">Last Week</option>
+                        <option value="monthly" selected>Last Month</option>
+                        <option value="yearly">Last Year</option>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <div class="position-relative h-100 min-h-320-px">
+                        <div class="md-position-absolute start-0 top-0 mt-20">
+                            <h6 id="total-count" class="mb-1">{{ $totalTasks }}</h6>
+                            <span class="text-secondary-light">Total</span>
+                        </div>
+                        <div class="row g-3 h-100">
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="pendingBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-warning"
+                                    style="min-height: {{ $taskPercentages['pending'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-warning-600 rounded-circle mb-12">
+                                        <h6 id="pendingCount" class="mb-0 text-base">{{ $pendingTasksCountGlobal }}</h6>
+                                    </span>
+                                    <span class="text-secondary-light">Pending</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="completedBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-lilac"
+                                    style="min-height: {{ $taskPercentages['completed'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-lilac-600 rounded-circle mb-12">
+                                        <h6 id="completedCount" class="mb-0 text-base">{{ $completedTasksCountGlobal }}
+                                        </h6>
+                                    </span>
+                                    <span class="text-secondary-light">Completed</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="createdBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-primary"
+                                    style="min-height: {{ $taskPercentages['created'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-primary-600 rounded-circle mb-12">
+                                        <h6 id="createdCount" class="mb-0 text-base">{{ $createdTasksCountGlobal }}</h6>
+                                    </span>
+                                    <span class="text-secondary-light">Assigned</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="collaboratorBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-success"
+                                    style="min-height: {{ $taskPercentages['collaborator'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-success-600 rounded-circle mb-12">
+                                        <h6 id="collaboratorCount" class="mb-0 text-base">
+                                            {{ $collaboratorTasksCountGlobal }}</h6>
+                                    </span>
+                                    <span class="text-secondary-light">Collaborator</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-6">
+            <div class="card h-100">
+                <div class="card-body p-24">
+                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
+                        <h6 class="mb-2 fw-bold text-lg mb-0">Latest Notifications</h6>
+                    </div>
+                    @foreach ($latestNotifications as $notification)
+                        <a href="{{ $notification['data']['url'] }}" class="d-flex align-items-start gap-2 mb-20">
+                            <span
+                                class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-success-600 rounded-circle mb-12">
+                                <h6 id="collaboratorCount" class="mb-0 text-base">
+                                    {{ $notification->notifiable_id }}
+                                </h6>
+                            </span>
+                            <div class="flex-grow-1">
+                                <h6 class="text-md mb-1 fw-semibold">{{ $notification['data']['title'] }}</h6>
+                                <p class="text-sm text-secondary-light fw-medium mb-1">
+                                    {{ $notification['data']['message'] }}</p>
+                                <span
+                                    class="text-sm text-secondary-light fw-normal">{{ $notification->created_at }}</span>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
     @if ($role === 'AM')
         <style>
             .fc-toolbar-title {
@@ -170,7 +268,8 @@
                                     <div class="d-flex align-items-center">
                                         <span
                                             class="text-xxl line-height-1 d-flex align-content-center flex-shrink-0 text-{{ strtolower(str_replace(' ', '-', $status)) }}">
-                                            <iconify-icon icon="ri:discount-percent-fill" class="icon"></iconify-icon>
+                                            <iconify-icon icon="ri:discount-percent-fill"
+                                                class="icon"></iconify-icon>
                                         </span>
                                         <span
                                             class="text-primary-light fw-medium text-sm ps-12">{{ $status }}</span>
@@ -825,7 +924,6 @@
             </div>
         </div>
     @elseif ($role == 'ADMIN')
-     
     @endif
     <script>
         var options = {
@@ -911,4 +1009,38 @@
             chart.render();
         });
     </script>
+    <script>
+        $(document).ready(function() {
+            $('#taskFilter').change(function() {
+                let filter = $(this).val();
+
+                $.ajax({
+                    url: "{{ route('dashboard') }}",
+                    type: "GET",
+                    data: {
+                        filter: filter
+                    },
+                    success: function(response) {
+                        // Update task counts
+                        $('#pendingCount').text(response.pendingTasksCount);
+                        $('#completedCount').text(response.completedTasksCount);
+                        $('#createdCount').text(response.createdTasksCount);
+                        $('#collaboratorCount').text(response.collaboratorTasksCount);
+                        $('#total-count').text(response.totalTasks);
+
+                        // Update bar heights based on new percentages
+                        $('#pendingBar').css('min-height', response.taskPercentages.pending +
+                            '%');
+                        $('#completedBar').css('min-height', response.taskPercentages
+                            .completed + '%');
+                        $('#createdBar').css('min-height', response.taskPercentages.created +
+                            '%');
+                        $('#collaboratorBar').css('min-height', response.taskPercentages
+                            .collaborator + '%');
+                    }
+                });
+            });
+        });
+    </script>
+
 </x-app-layout>

@@ -51,6 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/task-counts', [DashboardController::class, 'getTaskCounts'])->name('dashboard.taskCounts');
     Route::middleware('permission:can view users')->group(function () {
         Route::resource('users', UserController::class);
         Route::get('/users-grid-view', [UserController::class, 'gridView'])->name('users.gridView');

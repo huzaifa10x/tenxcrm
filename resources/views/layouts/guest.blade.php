@@ -60,7 +60,7 @@
     <section class="auth bg-base d-flex flex-wrap">
         <div class="auth-left d-lg-block d-none">
             <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-                <img src="{{ asset('/images/auth/auth-img.png') }}" alt="">
+                <img style="filter: hue-rotate(240deg);" src="{{ asset('/images/auth/auth-img.png') }}" alt="">
             </div>
         </div>
         <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">

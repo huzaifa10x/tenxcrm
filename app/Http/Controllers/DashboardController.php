@@ -7,14 +7,17 @@ use App\Models\Task;
 use App\Models\TaskCompletion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
         $role = $user->roles->first()->name;
+
+        $latestNotifications = $user->notifications()->latest()->take(5)->get();
 
         $last15Days = collect(range(0, 14))->map(function ($day) {
             return Carbon::now()->subDays($day)->format('Y-m-d');
@@ -29,6 +32,52 @@ class DashboardController extends Controller
         $taskData = $last15Days->mapWithKeys(function ($date) use ($tasksLast15Days) {
             return [$date => $tasksLast15Days[$date] ?? 0];
         });
+
+        $filter = $request->query('filter', 'monthly');
+        if ($filter === 'monthly') {
+            $startDate = Carbon::now()->subMonth()->startOfMonth();
+        } elseif ($filter === 'weekly') {
+            $startDate = Carbon::now()->subWeek()->startOfWeek();
+        } else {
+            $startDate = Carbon::now()->subYear()->startOfYear();
+        }
+        $endDate = Carbon::now()->endOfDay();
+        $pendingTasksCountGlobal = Task::where('status', 'Todo')
+            ->where('assigned_to', $user->id)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+        $completedTasksCountGlobal = Task::where('status', 'Completed')
+            ->where('assigned_to', $user->id)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+        $createdTasksCountGlobal = Task::where('created_by', $user->id)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+        $collaboratorTasksCountGlobal = Task::whereExists(function ($subQuery) use ($user) {
+            $subQuery->select(DB::raw(1))
+                ->from('task_collaborators')
+                ->whereRaw('task_collaborators.task_id = tasks.id')
+                ->where('task_collaborators.user_id', $user->id);
+        })->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+        $totalTasks = $pendingTasksCountGlobal + $completedTasksCountGlobal + $createdTasksCountGlobal + $collaboratorTasksCountGlobal;
+        $totalTasks = max($totalTasks, 1);
+        $taskPercentages = [
+            'pending' => round(($pendingTasksCountGlobal / $totalTasks) * 100),
+            'completed' => round(($completedTasksCountGlobal / $totalTasks) * 100),
+            'created' => round(($createdTasksCountGlobal / $totalTasks) * 100),
+            'collaborator' => round(($collaboratorTasksCountGlobal / $totalTasks) * 100),
+        ];
+        if ($request->ajax()) {
+            return response()->json([
+                'pendingTasksCountGlobal' => $pendingTasksCountGlobal,
+                'completedTasksCountGlobal' => $completedTasksCountGlobal,
+                'createdTasksCountGlobal' => $createdTasksCountGlobal,
+                'collaboratorTasksCountGlobal' => $collaboratorTasksCountGlobal,
+                'taskPercentages' => $taskPercentages,
+                'totalTasks' => $totalTasks,
+            ]);
+        }
 
         if ($role == 'AM') {
             $projects = Project::whereHas('accountManagers', function ($query) use ($user) {
@@ -69,6 +118,13 @@ class DashboardController extends Controller
                 'assignedTasks',
                 'accountProjects',
                 'taskData',
+                'pendingTasksCountGlobal',
+                'completedTasksCountGlobal',
+                'createdTasksCountGlobal',
+                'collaboratorTasksCountGlobal',
+                'taskPercentages',
+                'latestNotifications',
+                'totalTasks',
             ));
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
@@ -127,9 +183,26 @@ class DashboardController extends Controller
                 'completedWords',
                 'pendingWords',
                 'taskData',
+                'pendingTasksCountGlobal',
+                'completedTasksCountGlobal',
+                'createdTasksCountGlobal',
+                'collaboratorTasksCountGlobal',
+                'taskPercentages',
+                'latestNotifications',
+                'totalTasks',
             ));
         }
 
-        return view('dashboard', compact('role', 'taskData'));
+        return view('dashboard', compact(
+            'role',
+            'taskData',
+            'pendingTasksCountGlobal',
+            'completedTasksCountGlobal',
+            'createdTasksCountGlobal',
+            'collaboratorTasksCountGlobal',
+            'taskPercentages',
+            'latestNotifications',
+            'totalTasks',
+        ));
     }
 }
