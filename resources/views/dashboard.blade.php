@@ -19,10 +19,6 @@
                 </div>
                 <div class="card-body">
                     <div class="position-relative h-100 min-h-320-px">
-                        <div class="md-position-absolute start-0 top-0 mt-20">
-                            <h6 id="total-count" class="mb-1">{{ $totalTasks }}</h6>
-                            <span class="text-secondary-light">Total</span>
-                        </div>
                         <div class="row g-3 h-100">
                             <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
                                 <div id="pendingBar"
@@ -1026,11 +1022,10 @@
                     },
                     success: function(response) {
                         // Update task counts
-                        $('#pendingCount').text(response.pendingTasksCount);
-                        $('#completedCount').text(response.completedTasksCount);
-                        $('#createdCount').text(response.createdTasksCount);
-                        $('#collaboratorCount').text(response.collaboratorTasksCount);
-                        $('#total-count').text(response.totalTasks);
+                        $('#pendingCount').text(response.pendingTasksCountGlobal);
+                        $('#completedCount').text(response.completedTasksCountGlobal);
+                        $('#createdCount').text(response.createdTasksCounGlobalt);
+                        $('#collaboratorCount').text(response.collaboratorTasksCountGlobal);
 
                         // Update bar heights based on new percentages
                         $('#pendingBar').css('min-height', response.taskPercentages.pending +

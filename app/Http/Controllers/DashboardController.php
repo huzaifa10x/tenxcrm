@@ -77,7 +77,6 @@ class DashboardController extends Controller
                 'createdTasksCountGlobal' => $createdTasksCountGlobal,
                 'collaboratorTasksCountGlobal' => $collaboratorTasksCountGlobal,
                 'taskPercentages' => $taskPercentages,
-                'totalTasks' => $totalTasks,
             ]);
         }
 
@@ -126,7 +125,6 @@ class DashboardController extends Controller
                 'collaboratorTasksCountGlobal',
                 'taskPercentages',
                 'latestNotifications',
-                'totalTasks',
             ));
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
@@ -191,7 +189,6 @@ class DashboardController extends Controller
                 'collaboratorTasksCountGlobal',
                 'taskPercentages',
                 'latestNotifications',
-                'totalTasks',
             ));
         }
 
@@ -204,7 +201,6 @@ class DashboardController extends Controller
             'collaboratorTasksCountGlobal',
             'taskPercentages',
             'latestNotifications',
-            'totalTasks',
         ));
     }
 }
