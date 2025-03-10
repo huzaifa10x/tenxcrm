@@ -33,11 +33,13 @@ class DashboardController extends Controller
             return [$date => $tasksLast15Days[$date] ?? 0];
         });
 
-        $filter = $request->query('filter', 'monthly');
+        $filter = $request->query('filter', 'today');
         if ($filter === 'monthly') {
             $startDate = Carbon::now()->subMonth()->startOfMonth();
         } elseif ($filter === 'weekly') {
             $startDate = Carbon::now()->subWeek()->startOfWeek();
+        } elseif ($filter === 'today') {
+            $startDate = Carbon::now()->startOfDay();
         } else {
             $startDate = Carbon::now()->subYear()->startOfYear();
         }

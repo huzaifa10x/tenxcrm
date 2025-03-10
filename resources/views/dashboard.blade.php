@@ -7,13 +7,15 @@
             <div class="card h-100">
                 <div
                     class="card-header border-bottom-0 pb-0 d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                    <h6 class="mb-2 fw-bold text-lg mb-0">Tasks</h6>
+                    <h6 id="card-title" class="mb-2 fw-bold text-lg mb-0">Today Tasks</h6>
                     <select id="taskFilter"
                         class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
+                        <option value="today" selected>Today</option>
                         <option value="weekly">Last Week</option>
-                        <option value="monthly" selected>Last Month</option>
+                        <option value="monthly">Last Month</option>
                         <option value="yearly">Last Year</option>
                     </select>
+
                 </div>
                 <div class="card-body">
                     <div class="position-relative h-100 min-h-320-px">
@@ -1013,6 +1015,8 @@
         $(document).ready(function() {
             $('#taskFilter').change(function() {
                 let filter = $(this).val();
+                let selectedText = $('#taskFilter option:selected').text();
+                $('#card-title').text(selectedText + " Tasks");
 
                 $.ajax({
                     url: "{{ route('dashboard') }}",
