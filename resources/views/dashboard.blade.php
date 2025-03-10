@@ -1024,7 +1024,7 @@
                         // Update task counts
                         $('#pendingCount').text(response.pendingTasksCountGlobal);
                         $('#completedCount').text(response.completedTasksCountGlobal);
-                        $('#createdCount').text(response.createdTasksCounGlobalt);
+                        $('#createdCount').text(response.createdTasksCountGlobal);
                         $('#collaboratorCount').text(response.collaboratorTasksCountGlobal);
 
                         // Update bar heights based on new percentages
