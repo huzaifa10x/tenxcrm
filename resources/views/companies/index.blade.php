@@ -1,4 +1,3 @@
-<!-- resources/views/companies/index.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         {{ __('Companies') }}

@@ -16,7 +16,7 @@
                     <tr>
                         <th>#</th>
                         <th>Method Name</th>
-                        @if ($userPermissions->contains('can manage payment methods'))
+                        @if (auth()->user()->hasRole('ADMIN'))
                             <th>Actions</th>
                         @endif
                     </tr>
