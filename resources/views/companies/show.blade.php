@@ -1,4 +1,4 @@
-<!-- resources/views/companies/show.blade.php -->
+div<!-- resources/views/companies/show.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         {{ __('COMPANY - ') . $company->name }}
@@ -6,9 +6,12 @@
     <div class="card">
         <div class="card-body">
             <div class="row gy-3">
-                <div class="col-lg-12">
-                    <img src="{{ asset('/public/storage/' . $company->logo) }}" class="img-fluid" alt="Logo" width="50">
-                </div>
+                @if ($company->logo)
+                    <div class="col-lg-12">
+                        <img src="{{ asset('/public/storage/' . $company->logo) }}" class="img-fluid" alt="Logo"
+                            width="50">
+                    </div>
+                @endif
                 <div class="col-lg-12">
                     <label class="form-label">Company Name</label>
                     <input readonly value="{{ $company->name }}" type="text" name="name" class="form-control">
