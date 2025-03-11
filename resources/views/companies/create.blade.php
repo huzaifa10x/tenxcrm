@@ -49,9 +49,17 @@
         <script>
             $(document).ready(function() {
                 let cities = {
-                    "UAE": ["Dubai", "Abu Dhabi", "Sharjah", "Other"],
-                    "SAUDI ARABIA": ["Riyadh", "Jeddah", "Dammam", "Other"],
-                    "USA": ["New York", "Los Angeles", "Chicago", "Other"],
+                    "UAE": [
+                        "Abu Dhabi",
+                        "Dubai",
+                        "Sharjah",
+                        "Ajman",
+                        "Umm Al Quwain",
+                        "Ras Al Khaimah",
+                        "Fujairah",
+                    ],
+                    "SAUDI ARABIA": ["Other"],
+                    "USA": ["Other"],
                     "OTHER": ["Other"]
                 };
 
