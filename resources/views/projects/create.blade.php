@@ -261,7 +261,6 @@
                         var domainName = fullDomain.replace(/(https?:\/\/)?(www\.)?/i,
                             ''); // Remove https:// and www.
                         $('#title').val(domainName + ' - ' + projectType);
-                        console.log(domainName + ' - ' + projectType)
                     }
                 });
             });

@@ -155,11 +155,11 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-6">
+                        {{-- <div class="col-lg-6">
                             <label class="form-label" for="contract_start_date">Contract Start Date</label>
                             <input type="date" class="form-control date-picker" id="contract_start_date"
                                 name="contract_start_date" value="{{ $project->contract_start_date }}" required>
-                        </div>
+                        </div> --}}
 
                         <div class="col-lg-6">
                             <label class="form-label" for="contract_value">Contract Value</label>
