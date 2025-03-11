@@ -85,11 +85,11 @@
                         <img src="{{ asset('/images/user-grid/user-grid-bg1.png') }}" alt=""
                             class="w-100 object-fit-cover">
                         <div class="pb-24 ms-16 mb-24 me-16  mt--100">
-                            <div class="text-center border border-top-0 border-start-0 border-end-0">
-                                <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? 'N/A' }}"
-                                    alt="" class="mt-10 w-200-p p-10 h-200-px rounded object-fit-cover"
-                                    style="backdrop-filter: blur(9px);">
-                                <h6 class="mb-0 mt-16">{{ $project->companies->name ?? 'N/A' }}</h6>
+                            <div
+                                class="text-center d-flex mt-3 align-items-center justify-content-center border border-top-0 border-start-0 border-end-0">
+                                <img style="backdrop-filter: blur(9px);"
+                                    src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? 'N/A' }}"
+                                    alt="" class="mt-10 img-fluid p-10 rounded">
                                 @if ($project->companies)
                                     <span
                                         class="text-secondary-light mb-16">{{ optional(optional($project->companies)->details->first())->email ?? '' }}
@@ -331,7 +331,8 @@
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->techManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
-                        $userPermissions->contains('can view campaign access'))
+                        $userPermissions->contains('can view campaign access') ||
+                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-3">
                         <div class="card h-100">
                             <div class="card-header">
@@ -362,7 +363,8 @@
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->techManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
-                        $userPermissions->contains('can view financial details'))
+                        $userPermissions->contains('can view financial details') ||
+                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-3">
                         <div class="card h-100">
                             <div class="card-header">
@@ -515,7 +517,8 @@
             @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                     auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                     auth()->user()->id == $project->techManagers->pluck('id')->first() ||
-                    auth()->user()->hasRole('ADMIN'))
+                    auth()->user()->hasRole('ADMIN') ||
+                    ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                 <div class="row gy-3 mb-10">
                     <div class="col-lg-12">
                         <div
@@ -825,7 +828,8 @@
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="text-md mb-0 fw-normal">
-                                                        {{ Illuminate\Support\Str::limit($file->file_name, 10, '...') }}
+                                                        <a target="_blank"
+                                                            href="{{ $filePath }}">{{ Illuminate\Support\Str::limit($file->file_name, 10, '...') }}</a>
                                                     </h6>
                                                     <span
                                                         class="text-xs text-secondary-light fw-normal">{{ $extension }}</span>
@@ -854,7 +858,8 @@
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->techManagers->pluck('id')->first() ||
-                        auth()->user()->hasRole('ADMIN'))
+                        auth()->user()->hasRole('ADMIN') ||
+                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-6">
                         <div class="card border">
                             <div class="card-header">
@@ -876,7 +881,8 @@
                             @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                                     auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                                     auth()->user()->id == $project->techManagers->pluck('id')->first() ||
-                                    auth()->user()->hasRole('ADMIN'))
+                                    auth()->user()->hasRole('ADMIN') ||
+                                    ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                                 <select onchange="addProjectCollaborator('{{ $project->id }}')" id="user_id"
                                     class="form-select w-auto">
                                     <option value="">Select User</option>
@@ -1006,7 +1012,8 @@
                                      @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                                              auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                                              auth()->user()->id == $project->techManagers->pluck('id')->first() ||
-                                             auth()->user()->hasRole('ADMIN'))
+                                             auth()->user()->hasRole('ADMIN') ||
+                                             ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <iconify-icon onclick="removeProjectCollaborator(${collaborator.id}, ${projectId})" icon="fluent:delete-24-regular"></iconify-icon>
                     @endif
                                 </div>

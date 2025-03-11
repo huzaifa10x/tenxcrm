@@ -157,7 +157,7 @@
 
                         <div class="col-lg-6">
                             <label class="form-label" for="contract_start_date">Contract Start Date</label>
-                            <input type="date" class="form-control" id="contract_start_date"
+                            <input type="date" class="form-control date-picker" id="contract_start_date"
                                 name="contract_start_date" value="{{ $project->contract_start_date }}" required>
                         </div>
 
@@ -313,7 +313,7 @@
                                 <div class="col-lg-6">
                                     <label class="form-label" for="milestone_1_date">Guarantee for 1st Milestone
                                         Date</label>
-                                    <input required class="form-control" type="date" id="milestone_1_date"
+                                    <input required class="form-control date-picker" type="date" id="milestone_1_date"
                                         name="milestone_1_date"
                                         value="{{ $project->seoProject->milestone_1_date ?? '' }}">
                                 </div>
@@ -327,7 +327,7 @@
                                 <div class="col-lg-6">
                                     <label class="form-label" for="milestone_2_date">Guarantee for 2nd Milestone
                                         Date</label>
-                                    <input required class="form-control" type="date" id="milestone_2_date"
+                                    <input required class="form-control date-picker" type="date" id="milestone_2_date"
                                         name="milestone_2_date"
                                         value="{{ $project->seoProject->milestone_2_date ?? '' }}">
                                 </div>
@@ -341,7 +341,7 @@
                                 <div class="col-lg-6">
                                     <label class="form-label" for="milestone_3_date">Guarantee for 3rd Milestone
                                         Date</label>
-                                    <input required class="form-control" type="date" id="milestone_3_date"
+                                    <input required class="form-control date-picker" type="date" id="milestone_3_date"
                                         name="milestone_3_date"
                                         value="{{ $project->seoProject->milestone_3_date ?? '' }}">
                                 </div>

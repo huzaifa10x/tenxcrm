@@ -101,7 +101,7 @@
 
     <div class="col-lg-6">
         <label class="form-label" for="due_date">Due Date</label>
-        <input type="date" class="form-control" id="due_date" name="due_date">
+        <input type="date" class="form-control date-picker" id="due_date" name="due_date">
     </div>
 
     <div class="col-lg-6">

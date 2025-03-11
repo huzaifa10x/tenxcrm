@@ -77,7 +77,7 @@ class ProjectController extends Controller
             'contract_value' => 'required|numeric',
             'free_months' => 'nullable|integer',
             'contract_copy' => 'nullable|array',
-            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,webp',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'handover_notes' => 'nullable|string',
             'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other',
@@ -476,7 +476,7 @@ class ProjectController extends Controller
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_1_date">Guarantee for 1st Milestone Date</label>
-                    <input required class="form-control" type="date" id="milestone_1_date" name="milestone_1_date">
+                    <input required class="form-control date-picker" type="date" id="milestone_1_date" name="milestone_1_date">
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_2_percentage">Guarantee for 2nd Milestone %</label>
@@ -484,7 +484,7 @@ class ProjectController extends Controller
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_2_date">Guarantee for 2nd Milestone Date</label>
-                    <input required class="form-control" type="date" id="milestone_2_date" name="milestone_2_date">
+                    <input required class="form-control date-picker" type="date" id="milestone_2_date" name="milestone_2_date">
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_3_percentage">Guarantee for 3rd Milestone %</label>
@@ -492,7 +492,7 @@ class ProjectController extends Controller
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label" for="milestone_3_date">Guarantee for 3rd Milestone Date</label>
-                    <input required class="form-control" type="date" id="milestone_3_date" name="milestone_3_date">
+                    <input required class="form-control date-picker" type="date" id="milestone_3_date" name="milestone_3_date">
                 </div>
                 ';
                 break;

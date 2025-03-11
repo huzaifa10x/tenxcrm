@@ -48,6 +48,8 @@
     <link rel="stylesheet" href="{{ asset('css/lib/file-upload.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
@@ -407,8 +409,19 @@
     <script src="{{ asset('js/homeOneChart.js') }}"></script>
     <!-- jQuery & Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr(".date-picker", {
+                enableTime: false, // Time picker disable
+                dateFormat: "Y-m-d", // Date format YYYY-MM-DD
+                altInput: true,
+                altFormat: "F j, Y", // Show formatted date (e.g., March 11, 2025)
+                allowInput: true
+            });
+        });
+    </script>
 
     <script>
         @if (Session::has('success'))

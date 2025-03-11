@@ -6,7 +6,10 @@
     @if ($userPermissions->contains('can manage companies'))
         <form method="POST" action="{{ route('companies.store') }}" enctype="multipart/form-data">
             @csrf
-            <div class="card">
+            <div class="card mb-10">
+                <div class="card-header">
+                    <span class="fw-bold">Company Details</span>
+                </div>
                 <div class="card-body">
                     <div class="row gy-3">
                         <div class="col-lg-6">
@@ -27,25 +30,75 @@
                                 <option value="OTHER">OTHER</option>
                             </select>
                         </div>
-
                         <div class="col-lg-6 city-wrapper" style="display: none">
                             <label class="form-label">Company City</label>
                             <select required id="city" name="city" class="form-control">
                                 <option value="">Select City</option>
                             </select>
                         </div>
-
                         <div class="col-lg-6">
                             <label class="form-label">Company Logo</label>
                             <input type="file" name="logo" class="form-control">
                         </div>
-                        <div class="col-lg-6">
-                            <button type="submit" class="btn btn-primary-600 radius-8">Add Company</button>
-                        </div>
                     </div>
                 </div>
             </div>
+            <div class="card mb-10">
+                <div class="card-header">
+                    <span class="fw-bold">Contact person Details</span>
+                </div>
+                <div class="card-body">
+                    <div id="companyDetailsContainer">
+                        <div class="row gy-3 company-detail">
+                            <div class="col-lg-6">
+                                <label class="form-label">Name</label>
+                                <input required name="detail_name[]" type="text" class="form-control">
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="form-label">Email</label>
+                                <input required name="detail_email[]" type="text" class="form-control">
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="form-label">Phone Number</label>
+                                <input required name="detail_phone[]" type="text" class="form-control">
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="form-label">City</label>
+                                <input required name="detail_city[]" type="text" class="form-control">
+                            </div>
+                            <div class="col-lg-6">
+                                <label class="form-label">Website</label>
+                                <input required name="detail_website[]" type="text" class="form-control">
+                            </div>
+                            <div class="col-lg-6">
+                                <button type="button" class="btn btn-danger remove-detail mt-3">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-top">
+                    <button type="button" id="addMoreDetails" class="btn btn-success btn-sm">Add More</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </div>
+            </div>
         </form>
+        <script>
+            $(document).ready(function() {
+                $("#addMoreDetails").click(function() {
+                    var newDetail = $(".company-detail:first").clone();
+                    newDetail.find("input").val(""); // Clear input fields
+                    $("#companyDetailsContainer").append(newDetail);
+                });
+
+                $(document).on("click", ".remove-detail", function() {
+                    if ($(".company-detail").length > 1) {
+                        $(this).closest(".company-detail").remove();
+                    } else {
+                        alert("At least one detail is required!");
+                    }
+                });
+            });
+        </script>
         <script>
             $(document).ready(function() {
                 let cities = {

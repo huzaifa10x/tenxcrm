@@ -35,7 +35,7 @@
                             <td>{{ $project->project_type }}</td>
                             <td>
                                 @if ($userPermissions->contains('can update project status'))
-                                    @if (auth()->user()->hasRole('ADMIN') || $project->createdBy->id == auth()->user()->id)
+                                    @if (auth()->user()->hasRole('ADMIN') || ($project->createdBy && $project->createdBy->id == auth()->user()->id))
                                         <select class="form-control project-status"
                                             data-project-id="{{ $project->id }}" required>
                                             <option selected disabled value="">Select status</option>
@@ -80,7 +80,7 @@
                             </td>
                             <td>{{ $project->techManagers->pluck('name')->first() ?? '' }}</td>
                             <td>
-                                {{ $project->createdBy->name ?? "N/A" }}
+                                {{ $project->createdBy->name ?? 'N/A' }}
                             </td>
                             <td>
                                 <span
@@ -96,7 +96,7 @@
                                     </a>
 
                                     @if ($userPermissions->contains('can edit projects'))
-                                        @if (auth()->user()->hasRole('ADMIN') || $project->createdBy->id == auth()->user()->id)
+                                        @if (auth()->user()->hasRole('ADMIN') || ($project->createdBy && $project->createdBy->id == auth()->user()->id))
                                             <a href="{{ route('projects.edit', $project->id) }}"
                                                 class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
                                                 <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>

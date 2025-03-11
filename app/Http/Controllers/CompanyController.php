@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\CompanyDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,14 +30,41 @@ class CompanyController extends Controller
             'website' => 'required|url',
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            'logo' => 'nullable',
+            'logo' => 'nullable|image|max:2048',
+
+            'detail_name.*' => 'required|string|max:255',
+            'detail_email.*' => 'required|email|unique:company_details,email',
+            'detail_phone.*' => 'required|string|max:20',
+            'detail_city.*' => 'required|string|max:100',
+            'detail_website.*' => 'nullable|url',
         ]);
+
         if ($request->hasFile('logo')) {
             $validated['logo'] = $request->file('logo')->store('logos', 'public');
         }
-        Company::create($validated);
+
+        $company = Company::create([
+            'name' => $validated['name'],
+            'website' => $validated['website'],
+            'city' => $validated['city'],
+            'country' => $validated['country'],
+            'logo' => $validated['logo'] ?? null,
+        ]);
+
+        foreach ($request->detail_name as $key => $name) {
+            CompanyDetail::create([
+                'company_id' => $company->id,
+                'name' => $name,
+                'email' => $request->detail_email[$key],
+                'phone' => $request->detail_phone[$key],
+                'city' => $request->detail_city[$key],
+                'website' => $request->detail_website[$key] ?? null,
+            ]);
+        }
+
         return redirect()->route('companies.index')->with('success', 'Company created successfully!');
     }
+
 
     // Show the details of a single company
     public function show($id)

@@ -615,8 +615,8 @@
                 <span class="fw-bold">Start Date</span>
             </div>
             <div class="card-body bg-success-50">
-                <input type="datetime"
-                    class="m-0 p-0 border-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                <input type="datetime" readonly disabled
+                    class="m-0 p-0 border-0 w-100 h-100 date-picker {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
                     name="start_date" id="start_date" value="{{ $task->start_date }}" required>
             </div>
         </div>
@@ -628,7 +628,7 @@
             </div>
             <div class="card-body bg-danger-50">
                 <input type="date"
-                    class="m-0 p-0 border-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                    class="m-0 p-0 border-0 w-100 h-100 date-picker {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
                     name="due_date" id="due_date" value="{{ $task->due_date }}" required>
             </div>
         </div>
