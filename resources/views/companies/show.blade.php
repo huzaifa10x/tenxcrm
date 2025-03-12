@@ -1,4 +1,3 @@
-div<!-- resources/views/companies/show.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         {{ __('COMPANY - ') . $company->name }}
@@ -41,7 +40,6 @@ div<!-- resources/views/companies/show.blade.php -->
                     <th>Email</th>
                     <th>Phone</th>
                     <th>City</th>
-                    <th>Website</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -76,10 +74,6 @@ div<!-- resources/views/companies/show.blade.php -->
                             <label class="form-label">City</label>
                             <input name="city" type="text" class="form-control">
                         </div>
-                        <div class="col-lg-6">
-                            <label class="form-label">Website</label>
-                            <input name="website" type="text" class="form-control">
-                        </div>
                         <input type="hidden" value="{{ $company->id }}" name="company_id">
                         <div class="col-lg-6">
                             <button type="submit" class="btn btn-primary mt-3">Save</button>
@@ -107,15 +101,13 @@ div<!-- resources/views/companies/show.blade.php -->
                         <td>${detail.email}</td>
                         <td>${detail.phone}</td>
                         <td>${detail.city}</td>
-                        <td>${detail.website || ''}</td>
                         <td class="d-flex align-items-center gap-10">
                             <button class="edit-detail bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" 
                                 data-id="${detail.id}" 
                                 data-name="${detail.name}" 
                                 data-email="${detail.email}" 
                                 data-phone="${detail.phone}" 
-                                data-city="${detail.city}" 
-                                data-website="${detail.website || ''}">
+                                data-city="${detail.city}">
                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
                             </button>
                             <button class="delete-detail remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle" data-id="${detail.id}">

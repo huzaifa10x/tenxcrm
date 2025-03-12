@@ -67,10 +67,6 @@
                                 <input required name="detail_city[]" type="text" class="form-control">
                             </div>
                             <div class="col-lg-6">
-                                <label class="form-label">Website</label>
-                                <input required name="detail_website[]" type="text" class="form-control">
-                            </div>
-                            <div class="col-lg-6">
                                 <button type="button" class="btn btn-danger remove-detail mt-3">Remove</button>
                             </div>
                         </div>

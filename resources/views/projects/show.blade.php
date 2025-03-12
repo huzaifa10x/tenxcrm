@@ -116,8 +116,6 @@
                                             <div><strong>email:</strong> {{ $details->email }}</div>
                                             <div><strong>phone:</strong> {{ $details->phone }}</div>
                                             <div><strong>city:</strong> {{ $details->city }}</div>
-                                            <div><strong>Website:</strong> <a href="{{ $details->website }}"
-                                                    target="_blank">{{ $details->website }}</a></div>
                                         </div>
                                     @endforeach
                                 @endif

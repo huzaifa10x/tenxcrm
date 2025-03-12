@@ -10,7 +10,7 @@ class CompanyDetail extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'email', 'phone', 'city', 'website', 'company_id'
+        'name', 'email', 'phone', 'city', 'company_id'
     ];
 
     // Define the relationship with the Company model

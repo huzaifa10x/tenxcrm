@@ -36,7 +36,7 @@ class CompanyController extends Controller
             'detail_email.*' => 'required|email|unique:company_details,email',
             'detail_phone.*' => 'required|string|max:20',
             'detail_city.*' => 'required|string|max:100',
-            'detail_website.*' => 'nullable|url',
+            // 'detail_website.*' => 'nullable|url',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -58,7 +58,7 @@ class CompanyController extends Controller
                 'email' => $request->detail_email[$key],
                 'phone' => $request->detail_phone[$key],
                 'city' => $request->detail_city[$key],
-                'website' => $request->detail_website[$key] ?? null,
+                // 'website' => $request->detail_website[$key] ?? null,
             ]);
         }
 

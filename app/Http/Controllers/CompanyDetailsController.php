@@ -22,7 +22,6 @@ class CompanyDetailsController extends Controller
             'email' => 'required|email|unique:company_details,email',
             'phone' => 'required|string|max:20',
             'city' => 'required|string|max:100',
-            'website' => 'nullable|url',
             'company_id' => 'required|exists:companies,id',
         ]);
 
@@ -40,7 +39,6 @@ class CompanyDetailsController extends Controller
             'email' => 'required|email|unique:company_details,email,' . $request->id,
             'phone' => 'required|string|max:20',
             'city' => 'required|string|max:100',
-            'website' => 'nullable|url',
         ]);
 
         $detail = CompanyDetail::findOrFail($request->id);
