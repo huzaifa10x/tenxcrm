@@ -66,11 +66,10 @@
                                 <label class="form-label">City</label>
                                 <input required name="detail_city[]" type="text" class="form-control">
                             </div>
-                            <input type="hidden" value="---" name="detail_website[]">
-                            {{-- <div class="col-lg-6">
+                            <div class="col-lg-6">
                                 <label class="form-label">Website</label>
                                 <input required name="" type="text" class="form-control">
-                            </div> --}}
+                            </div>
                             <div class="col-lg-6">
                                 <button type="button" class="btn btn-danger remove-detail mt-3">Remove</button>
                             </div>
