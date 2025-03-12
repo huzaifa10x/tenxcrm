@@ -86,7 +86,7 @@
                             class="w-100 object-fit-cover">
                         <div class="pb-24 ms-16 mb-24 me-16  mt--100">
                             <div
-                                class="text-center d-flex mt-3 align-items-center justify-content-center border border-top-0 border-start-0 border-end-0">
+                                class="text-center d-flex mt-3 flex-column align-items-center justify-content-center border border-top-0 border-start-0 border-end-0">
                                 <img style="backdrop-filter: blur(9px);"
                                     src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? 'N/A' }}"
                                     alt="" class="mt-10 img-fluid p-10 rounded">
