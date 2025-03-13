@@ -707,7 +707,7 @@
                                         <td class="fs-7">Attachment</td>
                                         <td class="fs-7">
                                             @php
-                                                $filePath = 'storage/' . $completion->field_value;
+                                                $filePath = '/public/storage/' . $completion->field_value;
                                             @endphp
                                             <a href="{{ asset($filePath) }}" target="_blank"
                                                 class="fs-7 text-primary d-block mt-1">
