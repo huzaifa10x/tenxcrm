@@ -30,7 +30,7 @@
                                     <label class="form-check-label">
                                         @if ($company->logo)
                                             <img src="{{ asset('/public/storage/') }}/{{ $company->logo }}"
-                                                class="img-fluid" alt="Logo" width="50">
+                                                class="img-fluid" width="36" alt="Logo" width="50">
                                         @endif
                                         {{ $company->name }}
                                     </label>
