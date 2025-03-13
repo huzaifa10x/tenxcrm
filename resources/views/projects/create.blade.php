@@ -82,9 +82,11 @@
                             @endforeach
                         </select>
                     </div>
-
-                    <input type="date" class="form-control date-picker" id="contract_start_date" name="contract_start_date"
-                        value="" required>
+                    <div class="col-lg-3">
+                        <label class="form-label" for="payment_method_id">Contract Start Date</label>
+                        <input type="date" class="form-control date-picker" id="contract_start_date"
+                            name="contract_start_date" value="" required>
+                    </div>
                 </div>
             </div>
             <div class="card mb-10 rounded border">
