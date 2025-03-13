@@ -371,7 +371,7 @@ class TaskController extends Controller
     public function addAttachment(Request $request, Task $task)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpg,png,pdf,docx,txt',
+            'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,webp|max:2048',
         ]);
 
         // Store the file in the 'task_attachments' directory
@@ -456,7 +456,7 @@ class TaskController extends Controller
     {
         $request->validate([
             'attachments' => 'required|array',
-            'attachments.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,webp|max:2048',
         ]);
         $uploadedCount = 0;
         foreach ($request->file('attachments') as $file) {

@@ -104,10 +104,14 @@
         <input type="date" class="form-control date-picker" id="due_date" name="due_date">
     </div>
 
-    <div class="col-lg-6">
+    {{-- <div class="col-lg-6">
         <label class="form-label" for="attachments">Attachments</label>
         <input type="file" class="form-control" id="attachments" name="attachments[]" multiple>
         <small class="form-text text-muted">You can upload multiple files.</small>
+    </div> --}}
+    <div class="col-lg-12">
+        <label class="form-label" for="contract_copy">Attachments</label>
+        <div id="taskAttachmentsDropzone" class="dropzone"></div>
     </div>
 
     <!-- Repeat Task Checkbox -->
@@ -136,17 +140,6 @@
             <input type="number" name="repeat_count" class="form-control">
         </div>
     </div>
-    <script>
-        $(document).ready(function() {
-            $('#repeat_task').change(function() {
-                if ($(this).val() == 1) {
-                    $('#repeat_every_group').slideDown();
-                } else {
-                    $('#repeat_every_group').slideUp();
-                }
-            });
-        });
-    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

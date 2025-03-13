@@ -3,8 +3,6 @@
         {{ __('Create Project') }}
     </x-slot>
     @if ($userPermissions->contains('can add projects'))
-        <!-- Dropzone CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
 
         <form enctype="multipart/form-data" action="{{ route('projects.store') }}" method="POST" id="create-project-form">
             @csrf
@@ -177,7 +175,6 @@
                 </div>
             </div>
         </form>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
 
         <script type="text/javascript">
             var uploadedDocumentMap = {};
@@ -197,16 +194,6 @@
                 },
                 init: function() {
                     var dropzoneInstance = this;
-
-                    // document.querySelector("#create-project-form").addEventListener("submit", function(e) {
-                    //     e.preventDefault();
-                    //     e.stopPropagation();
-                    //     if (dropzoneInstance.files.length > 0) {
-                    //         dropzoneInstance.processQueue(); // Process Dropzone files first
-                    //     } else {
-                    //         // this.submit();
-                    //     }
-                    // });
                     dropzoneInstance.on("sending", function(file, xhr, formData) {
                         var form = document.querySelector("#create-project-form");
                         var formDataEntries = new FormData(form);
@@ -215,9 +202,6 @@
                         });
                         formData.append("contract_copy[]", file);
                     });
-                    // dropzoneInstance.on("queuecomplete", function() {
-                    //     // document.querySelector("#create-project-form").submit();
-                    // });
                     dropzoneInstance.on("success", function(file, response) {
                         uploadedDocumentMap[file.name] = response.name;
                     });

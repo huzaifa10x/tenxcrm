@@ -111,9 +111,9 @@
                                     <h6 class="text-lg fw-semibold mb-0">{{ $status }}</h6>
                                 </div>
                                 <div class="connectedSortable ps-24 pt-24 pe-24 kanban-items"
-                                id="{{ strtolower(str_replace(' ', '-', $status)) }}"
-                                data-status="{{ $status }}">
-                                @foreach ($tasks->where('status', $status) as $task)
+                                    id="{{ strtolower(str_replace(' ', '-', $status)) }}"
+                                    data-status="{{ $status }}">
+                                    @foreach ($tasks->where('status', $status) as $task)
                                         <div data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                             aria-controls="offcanvasRight"
                                             onclick="loadTaskDetails({{ $task->id }})"
@@ -221,7 +221,7 @@
             </div>
         </div>
     </div>
-    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('tasks.store') }}" id="task-create-form" method="POST" enctype="multipart/form-data">
         <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
@@ -237,12 +237,82 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-primary task-submit">Save</button>
                     </div>
                 </div>
             </div>
         </div>
     </form>
+    <script type="text/javascript">
+        var uploadedDocumentMap = {};
+        Dropzone.autoDiscover = false;
+
+        var myDropzone = new Dropzone("#taskAttachmentsDropzone", {
+            url: "{{ route('tasks.store') }}", // Laravel route for form submission
+            autoProcessQueue: false,
+            uploadMultiple: true,
+            paramName: "attachments", // Ensure Laravel handles it as an array
+            maxFiles: 10,
+            maxFilesize: 5, // 5MB per file
+            acceptedFiles: ".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp",
+            addRemoveLinks: true,
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            init: function() {
+                var dropzoneInstance = this;
+                dropzoneInstance.on("sending", function(file, xhr, formData) {
+                    var form = document.querySelector("#task-create-form");
+                    var formDataEntries = new FormData(form);
+                    formDataEntries.forEach((value, key) => {
+                        formData.append(key, value);
+                    });
+                    formData.append("attachments[]", file);
+                });
+                dropzoneInstance.on("success", function(file, response) {
+                    uploadedDocumentMap[file.name] = response.name;
+                });
+                dropzoneInstance.on("removedfile", function(file) {
+                    if (uploadedDocumentMap[file.name]) {
+                        delete uploadedDocumentMap[file.name];
+                    }
+                });
+            }
+        });
+        $('.task-submit').click(function(e) {
+            e.preventDefault();
+            var formData = new FormData($("#task-create-form")[0]);
+            myDropzone.files.forEach(function(file) {
+                formData.append("attachments[]", file);
+            });
+            $.ajax({
+                url: "{{ route('tasks.store') }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    window.location.href = "{{ route('tasks.board.index') }}"
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    alert("Error in submission!");
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#repeat_task').change(function() {
+                if ($(this).val() == 1) {
+                    $('#repeat_every_group').slideDown();
+                } else {
+                    $('#repeat_every_group').slideUp();
+                }
+            });
+        });
+    </script>
     <script>
         $(document).ready(function() {
             $(".kanban-items").sortable({

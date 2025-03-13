@@ -1461,7 +1461,7 @@
                         <img src="{{ asset('/images/doc.png') }}" alt=""
                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                         <div class="flex-grow-1">
-                            <h6 class="text-md mb-0 fw-medium">${fileName}</h6>
+                            <a href="${filePath}" class="text-md mb-0 fw-medium">${fileName}</a>
                         </div>
                     </div>
                     <div class="d-flex gap-10 align-items-baseline">
