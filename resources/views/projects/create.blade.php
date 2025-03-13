@@ -83,8 +83,8 @@
                         </select>
                     </div>
 
-                    <input type="hidden" class="form-control" id="contract_start_date" name="contract_start_date"
-                        value="{{ date('Y-m-d') }}" required>
+                    <input type="date" class="form-control date-picker" id="contract_start_date" name="contract_start_date"
+                        value="" required>
                 </div>
             </div>
             <div class="card mb-10 rounded border">
