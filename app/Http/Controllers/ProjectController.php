@@ -141,7 +141,7 @@ class ProjectController extends Controller
                     'created_by' => auth()->id(),
                     'assigned_to' => $request->account_manager_ids[0],
                     'priority' => 'Medium',
-                    'type' => 'SEO ADMIN',
+                    'type' => 'AM',
                     'status' => 'Todo',
                     'due_date' => Carbon::now()->addDays(7),
                     'start_date' => Carbon::now(),
@@ -192,8 +192,9 @@ class ProjectController extends Controller
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
         $departments = Role::all();
-        $taskCounts = Task::selectRaw('type, COUNT(*) as count')
-            ->groupBy('type')
+        $taskCounts = Task::selectRaw('project_id, type, COUNT(*) as count')
+            ->where('project_id', $project->id) // Specific project ke tasks filter karne ke liye
+            ->groupBy('project_id', 'type')
             ->pluck('count', 'type');
 
         $regularTasks = $project->tasks()->where('is_automated', 0)->where('repeat_task', 0)->get();
@@ -209,7 +210,7 @@ class ProjectController extends Controller
         $contractEndDate = $contractStartDate->copy()->addMonths($project->contract_term);
         $monthlyInvoice = ($project->contract_term > 0) ? round($project->contract_value / $project->contract_term, 2) : 0;
         $nextInvoiceDate = $contractStartDate->copy()->addMonth();
-        
+
         return view('projects.show', compact(
             'project',
             'industries',

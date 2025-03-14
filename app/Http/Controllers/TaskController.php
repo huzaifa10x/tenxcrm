@@ -571,7 +571,7 @@ class TaskController extends Controller
         $task = Task::findOrFail($id);
         $project = $task->project;
         $task->update(['status' => 'Completed', 'completed_date' => now()]);
-        
+
         $accountManager = $project->accountManagers[0]->id ?? 1;
         $seoAdmin = $project->seoAdmins[0]->id ?? 1;
         $techManger = $project->techManagers[0]->id ?? 1;
@@ -579,15 +579,15 @@ class TaskController extends Controller
 
         $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
         $keywordsApprovalTasks = [
-            ["title" => 'Create the Project on SE Ranking', "assignee" => $techManger],
-            ["title" => 'Send SEO Benchmark Report to client', "assignee" => $accountManager],
-            ["title" => 'First On-site', "assignee" => $techManger],
-            ["title" => 'Add KW Mapping', "assignee" => $seoAdmin],
-            ["title" => 'On-site Audit (from SE ranking)', "assignee" => $seoAdmin],
-            ["title" => 'Content Audit', "assignee" => $seoAdmin],
-            ["title" => 'Backlink Audit & DISAVOW', "assignee" => $seoAdmin],
+            ["type" => "SEO ADMIN", "title" => 'Create the Project on SE Ranking', "assignee" => $techManger],
+            ["type" => "AM", "title" => 'Send SEO Benchmark Report to client', "assignee" => $accountManager],
+            ["type" => "ONSITE", "title" => 'First On-site', "assignee" => $techManger],
+            ["type" => "SEO ADMIN", "title" => 'Add KW Mapping', "assignee" => $seoAdmin],
+            ["type" => "SEO ADMIN", "title" => 'On-site Audit (from SE ranking)', "assignee" => $seoAdmin],
+            ["type" => "SEO ADMIN", "title" => 'Content Audit', "assignee" => $seoAdmin],
+            ["type" => "SEO ADMIN", "title" => 'Backlink Audit & DISAVOW', "assignee" => $seoAdmin],
         ];
-
+        
         switch ($task->title) {
             case 'First Client Meeting':
                 Task::insert([
@@ -599,7 +599,7 @@ class TaskController extends Controller
                         'assigned_to' => $accountManager,
                         'status' => 'Todo',
                         'start_date' => $dubaiTime,
-                        'type' => 'ADHOC',
+                        'type' => 'AM',
                         'description' => 'system generated task'
                     ],
                 ]);
@@ -616,7 +616,7 @@ class TaskController extends Controller
                         'created_by' => 1,
                         'assigned_to' => $task['assignee'],
                         'priority' => 'High',
-                        'type' => 'ADHOC',
+                        'type' => $task['type'],
                         'status' => 'Todo',
                         'due_date' => Carbon::now()->addDays(7),
                         'start_date' => $dubaiTime,
@@ -635,7 +635,7 @@ class TaskController extends Controller
                     'assigned_to' => $contentWriter,
                     'status' => 'Todo',
                     'start_date' => $dubaiTime,
-                    'type' => 'ADHOC',
+                    'type' => 'CONTENT',
                 ]);
                 break;
 
@@ -648,7 +648,7 @@ class TaskController extends Controller
                     'assigned_to' => $accountManager,
                     'status' => 'Todo',
                     'start_date' => $dubaiTime,
-                    'type' => 'ADHOC',
+                    'type' => 'AM',
                     'description' => 'system generated task'
                 ]);
                 break;
@@ -662,7 +662,7 @@ class TaskController extends Controller
                     'assigned_to' => $seoAdmin,
                     'status' => 'Todo',
                     'start_date' => $dubaiTime,
-                    'type' => 'ADHOC',
+                    'type' => 'SEO ADMIN',
                     'description' => 'system generated task'
                 ]);
 
@@ -701,7 +701,7 @@ class TaskController extends Controller
                     'assigned_to' => $seoAdmin,
                     'status' => 'Todo',
                     'start_date' => $dubaiTime,
-                    'type' => 'ADHOC',
+                    'type' => 'SEO ADMIN',
                     'description' => 'system generated task'
                 ]);
                 break;
@@ -715,7 +715,7 @@ class TaskController extends Controller
                     'assigned_to' => $seoAdmin,
                     'status' => 'Todo',
                     'start_date' => now()->addDays(30),
-                    'type' => 'ADHOC',
+                    'type' => 'SEO ADMIN',
                     'description' => 'system generated task'
                 ]);
                 break;

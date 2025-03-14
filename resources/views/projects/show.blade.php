@@ -181,77 +181,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if ($project->seoProject)
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Number of keywords</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->seoProject->number_of_keywords ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Guarantee for 1st Milestone %
-                                                </h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->seoProject->milestone_1_percentage ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Guarantee for 1st Milestone Date
-                                                </h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->seoProject->milestone_1_date ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Guarantee for 2nd Milestone %
-                                                </h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-info-600 bg-info-100 px-20 py-9 radius-4 text-white">{{ $project->seoProject->milestone_2_percentage ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Guarantee for 2nd Milestone Date
-                                                </h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-info-600 bg-info-100 px-20 py-9 radius-4 text-white">{{ $project->seoProject->milestone_2_date ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Guarantee for 3rd Milestone %
-                                                </h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4 text-white">{{ $project->seoProject->milestone_3_percentage ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Guarantee for 3rd Milestone Date
-                                                </h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4 text-white">{{ $project->seoProject->milestone_3_date ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
+
                                 @if ($project->project_type == 'Web Development')
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                         <div class="d-flex align-items-center">
@@ -497,6 +427,62 @@
                         </div>
                     </div>
                 @endif
+                @if ($project->seoProject)
+                    <div class="card h-100">
+                        <div class="card-body p-24">
+                            <div class="d-flex flex-wrap gap-24 align-items-center justify-content-between">
+                                <div class="d-flex flex-row gap-24">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-md mb-0 fw-bold">Number of Keywords</h6>
+                                            <span
+                                                class="text-sm text-secondary-light fw-normal">{{ $project->seoProject->number_of_keywords ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div
+                                            class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-warning-100 flex-shrink-0">
+                                            1
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <span class="text-sm text-secondary-light fw-normal fs-7">Guarantee</span>
+                                            <h6 class="text-md mb-0 fw-bold">
+                                                {{ $project->seoProject->milestone_1_percentage ?? '-' }}%</h6>
+                                            <span class="text-sm text-secondary-light fw-normal">
+                                                {{ $project->seoProject->milestone_1_date ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div
+                                            class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-100 flex-shrink-0">
+                                            2
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <span class="text-sm text-secondary-light fw-normal fs-7">Guarantee</span>
+                                            <h6 class="text-md mb-0 fw-bold">
+                                                {{ $project->seoProject->milestone_2_percentage ?? '-' }}%</h6>
+                                            <span class="text-sm text-secondary-light fw-normal">
+                                                {{ $project->seoProject->milestone_2_date ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div
+                                            class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-100 flex-shrink-0">
+                                            3
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <span class="text-sm text-secondary-light fw-normal fs-7">Guarantee</span>
+                                            <h6 class="text-md mb-0 fw-bold">
+                                                {{ $project->seoProject->milestone_3_percentage ?? '-' }}%</h6>
+                                            <span class="text-sm text-secondary-light fw-normal">
+                                                {{ $project->seoProject->milestone_3_date ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
             <div class="row gy-3 mb-10">
                 <div class="col-lg-12">
@@ -541,7 +527,7 @@
                                             aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
                                             Sequence Tasks
                                             <span
-                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $sequenceTasks->count() }}</span>
+                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $sequenceTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count() }}</span>
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
@@ -646,7 +632,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach ($sequenceTasks as $task)
+                                                    @foreach ($sequenceTasks->whereIn('status', ['Todo', 'In Progress', 'Review']) as $task)
                                                         <tr>
                                                             <td>{{ $task->id }}</td>
                                                             <td><a

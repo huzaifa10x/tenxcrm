@@ -53,7 +53,7 @@
     <!-- Dropzone CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
-    
+
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
@@ -417,11 +417,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            flatpickr(".date-picker", {
-                enableTime: false, // Time picker disable
-                dateFormat: "Y-m-d", // Date format YYYY-MM-DD
+            flatpickr('input[type="date"]', {
+                enableTime: false,
+                dateFormat: "Y-m-d",
                 altInput: true,
-                altFormat: "F j, Y", // Show formatted date (e.g., March 11, 2025)
+                altFormat: "F j, Y",
                 allowInput: true
             });
         });
