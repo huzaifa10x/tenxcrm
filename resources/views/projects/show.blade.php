@@ -658,7 +658,7 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="text-secondary-light">No Regular Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Regular Tasks Available.</p>
                                         @endif
                                     </div>
                                     <!-- Sequence Tasks -->
@@ -724,7 +724,7 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="text-secondary-light">No Sequence Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Sequence Tasks Available.</p>
                                         @endif
                                     </div>
                                     <!-- Repeating Tasks -->
@@ -790,7 +790,7 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="text-secondary-light">No Repeating Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Repeating Tasks Available.</p>
                                         @endif
                                     </div>
                                     <!-- Completed Tasks -->
@@ -856,7 +856,7 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="text-secondary-light">No Repeating Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Repeating Tasks Available.</p>
                                         @endif
                                     </div>
                                 </div>
@@ -951,6 +951,44 @@
                         </div>
                     </div>
                 </div>
+                @if (!empty($sequenceTasksFiles))
+                    <div class="col-lg-6">
+                        <div class="card border">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                                    <h6 class="mb-2 fw-bold text-lg mb-0">Task Files</h6>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-column gap-24">
+                                    @foreach ($sequenceTasksFiles as $file)
+                                        <div class="d-flex align-items-center justify-content-between gap-3">
+                                            <div class="d-flex align-items-center gap-12">
+                                                <div class="flex-shrink-0">
+                                                    <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
+                                                        alt="" class="">
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-normal">
+                                                        <a target="_blank"
+                                                            href="{{ asset('/public/storage') }}/{{ $file['file'] }}">{{ $file['name'] }}</a>
+                                                    </h6>
+                                                </div>
+                                            </div>
+                                            <div class="flex-align gap-12">
+                                                <a href="{{ asset('/public/storage') }}/{{ $file['file'] }}"
+                                                    download
+                                                    class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
+                                                    <i class="ri-download-2-fill"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->techManagers->pluck('id')->first() ||
@@ -1100,7 +1138,7 @@
             e.preventDefault();
             let formData = new FormData(this);
             $.ajax({
-                url: "{{ route('projects.storeClientCredentials', $task->project_id) }}",
+                url: "{{ route('projects.storeClientCredentials', $project->id) }}",
                 type: "POST",
                 data: formData,
                 processData: false,

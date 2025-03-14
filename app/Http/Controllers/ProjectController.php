@@ -19,6 +19,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
@@ -212,6 +213,18 @@ class ProjectController extends Controller
         $monthlyInvoice = ($project->contract_term > 0) ? round($project->contract_value / $project->contract_term, 2) : 0;
         $nextInvoiceDate = $contractStartDate->copy()->addMonth();
 
+        $sequenceTasksFiles = [];
+        foreach ($sequenceTasks as $task) {
+            foreach ($task->completions as $completion) {
+                if (Str::startsWith($completion->field_value, 'task_attachments/')) {
+                    $sequenceTasksFiles[] = [
+                        'name' => "#" . $task->id . " - " . str_replace('_', ' ', ucfirst($completion->field_name)),
+                        'file' => $completion->field_value
+                    ];
+                }
+            }
+        }
+
         return view('projects.show', compact(
             'project',
             'industries',
@@ -227,6 +240,7 @@ class ProjectController extends Controller
             'contractEndDate',
             'monthlyInvoice',
             'nextInvoiceDate',
+            'sequenceTasksFiles',
         ));
     }
 
