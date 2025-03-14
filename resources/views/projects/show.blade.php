@@ -429,14 +429,14 @@
                                                 <div class="col-lg-3">
                                                     <input class="form-control" type="text"
                                                         name="credentials[0][platform_name]"
-                                                        placeholder="Platform Name">
+                                                        placeholder="Platform Name" required>
                                                 </div>
                                                 <div class="col-lg-3">
                                                     <input class="form-control" type="text"
                                                         name="credentials[0][url]" placeholder="Website URL">
                                                 </div>
                                                 <div class="col-lg-3">
-                                                    <input class="form-control" type="text"
+                                                    <input required class="form-control" type="text"
                                                         name="credentials[0][username]" placeholder="Username/Email">
                                                 </div>
                                                 <div class="col-lg-3 d-flex align-items-center gap-3">
@@ -1049,7 +1049,7 @@
             $("#credentialsContainer").append(`
             <div class="credentialRow row mb-10">
                 <div class="col-lg-3">
-                    <input class="form-control" type="text"
+                    <input required class="form-control" type="text"
                         name="credentials[${credentialIndex}][platform_name]" placeholder="Platform Name">
                 </div>
                 <div class="col-lg-3">
@@ -1057,7 +1057,7 @@
                         placeholder="Website URL">
                 </div>
                 <div class="col-lg-3">
-                    <input class="form-control" type="text" name="credentials[${credentialIndex}][username]"
+                    <input required class="form-control" type="text" name="credentials[${credentialIndex}][username]"
                         placeholder="Username/Email">
                 </div>
                 <div class="col-lg-3 d-flex align-items-center gap-3">
