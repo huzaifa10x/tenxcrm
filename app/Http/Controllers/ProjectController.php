@@ -565,20 +565,20 @@ class ProjectController extends Controller
     public function storeClientCredentials(Request $request, Project $project)
     {
         $request->validate([
-            'credentials' => 'required|array',
-            'credentials.*.url' => 'required|url',
-            'credentials.*.platform_name' => 'required|string',
-            'credentials.*.username' => 'required|string',
-            'credentials.*.password' => 'required|string',
+            'credentials' => 'nullable|array',
+            'credentials.*.url' => 'nullable|url',
+            'credentials.*.platform_name' => 'nullable|string',
+            'credentials.*.username' => 'nullable|string',
+            'credentials.*.password' => 'nullable|string',
         ]);
 
         foreach ($request->credentials as $cred) {
             ClientCredential::create([
                 'project_id' => $project->id,
-                'url' => $cred['url'],
-                'platform_name' => $cred['platform_name'],
-                'username' => $cred['username'],
-                'password' => $cred['password'], // Encrypt for security
+                'url' => $cred['url'] ?? "",
+                'platform_name' => $cred['platform_name'] ?? "",
+                'username' => $cred['username'] ?? "",
+                'password' => $cred['password'] ?? "",
             ]);
         }
 

@@ -129,309 +129,305 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h6 class="mb-2 fw-bold text-lg mb-0">Sales Brief</h6>
-                        </div>
-                        <div class="card-body" style="height: 500px; overflow-y: auto;">
-                            <div class="">
-                                <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Project Type</h6>
-                                            <span
-                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->project_type }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Sales Manger</h6>
-                                            <span
-                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->salesManagers->pluck('name')->first() }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Account Manager</h6>
-                                            <span
-                                                class="mt-10 badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4 text-white">{{ $project->accountManagers->pluck('name')->first() }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Tech Manger</h6>
-                                            <span
-                                                class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">{{ $project->techManagers->pluck('name')->first() }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Industry</h6>
-                                            <span
-                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry ?? 'N/A' }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                @if ($project->project_type == 'Web Development')
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Payment Type</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->payment_type ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Remaining Payment</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->remaining_payment ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Site Condition</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->site_condition ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                                @if ($project->project_type == 'Social Media')
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Channels</h6>
-                                                @foreach ($project->socialMediaProject->channels as $channel)
-                                                    <span
-                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $channel }}</span>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Video shoots Per Month</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->video_shoots_per_month ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Static Posts Per Month</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->static_posts ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Reels Per Month</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->reels ?? '' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
-                        auth()->user()->id == $project->techManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
-                        $userPermissions->contains('can view campaign access') ||
+                        auth()->user()->hasRole('SEO ADMIN') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-3">
                         <div class="card h-100">
                             <div class="card-header">
-                                <h6 class="mb-2 fw-bold text-lg mb-0">Campaign Access</h6>
-                            </div>
-                            <div class="card-body" style="height: 500px; overflow-y: auto;">
-                                @foreach ($project->credentials as $credential)
-                                    <div class="my-10">
-                                        <div class="text-capitalize"><strong>Platform:</strong>
-                                            {{ $credential->platform_name }}</div>
-                                        <div class="text-capitalize"><strong>URL:</strong> <a
-                                                href="{{ $credential->url }}" target="_blank">Visit</a></div>
-                                        <div class="text-capitalize"><strong>Username:</strong>
-                                            {{ $credential->username }}</div>
-                                        <div class="text-capitalize"><strong>Password:</strong>
-                                            <span class="password-toggle text-muted"
-                                                data-password="{{ $credential->password }}">••••••</span>
-                                            <a href="javascript:void(0);" class="toggle-password small">Show</a>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
-                        auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
-                        auth()->user()->id == $project->techManagers->pluck('id')->first() ||
-                        auth()->user()->hasRole('ADMIN') ||
-                        $userPermissions->contains('can view financial details') ||
-                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
-                    <div class="col-lg-3">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h6 class="mb-2 fw-bold text-lg mb-0">Financial Details</h6>
+                                <h6 class="mb-2 fw-bold text-lg mb-0">Sales Brief</h6>
                             </div>
                             <div class="card-body" style="height: 500px; overflow-y: auto;">
                                 <div class="">
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Contract Start</h6>
+                                                <h6 class="text-md mb-0 fw-medium">Project Type</h6>
                                                 <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $project->contract_start_date }}
-                                                </span>
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->project_type }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Sales Manger</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->salesManagers->pluck('name')->first() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Account Manager</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4 text-white">{{ $project->accountManagers->pluck('name')->first() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Tech Manger</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">{{ $project->techManagers->pluck('name')->first() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="text-md mb-0 fw-medium">Industry</h6>
+                                                <span
+                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry ?? 'N/A' }}</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Contract End</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $contractEndDate->toDateString() }}
-                                                </span>
+                                    @if ($project->project_type == 'Web Development')
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Payment Type</h6>
+                                                    <span
+                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->payment_type ?? '' }}</span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Remaining Payment</h6>
+                                                    <span
+                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->remaining_payment ?? '' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Site Condition</h6>
+                                                    <span
+                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->site_condition ?? '' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if ($project->project_type == 'Social Media')
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Channels</h6>
+                                                    @foreach ($project->socialMediaProject->channels as $channel)
+                                                        <span
+                                                            class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $channel }}</span>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Video shoots Per Month</h6>
+                                                    <span
+                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->video_shoots_per_month ?? '' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Static Posts Per Month</h6>
+                                                    <span
+                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->static_posts ?? '' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Reels Per Month</h6>
+                                                    <span
+                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->reels ?? '' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
+                        auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                        auth()->user()->hasRole('ADMIN') ||
+                        auth()->user()->hasRole('SEO ADMIN') ||
+                        $userPermissions->contains('can view financial details') ||
+                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
+                    <div class="col-md-6">
+                        <div class="card radius-16">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                                    <h6 class="mb-2 fw-bold text-lg mb-0">Financial Details</h6>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-orange rounded-pill"></span>
+                                        <span class="text-secondary-light">Contract Start</span>
                                     </div>
-
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Contract Value</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ number_format($project->contract_value, 2) }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-primary-light fw-semibold">
+                                            {{ $project->contract_start_date }}</span>
                                     </div>
-
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Contract Term (Months)</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $project->contract_term }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Contract End</span>
                                     </div>
-
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Payment Method</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $project->paymentMethod->name ?? 'N/A' }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="text-primary-light fw-semibold">{{ $contractEndDate->toDateString() }}</span>
                                     </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Free Months</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $project->free_months }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Contract Value</span>
                                     </div>
-
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Monthly Invoice</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ number_format($monthlyInvoice, 2) }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="text-primary-light fw-semibold">{{ number_format($project->contract_value, 2) }}</span>
                                     </div>
-
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Next Invoice Date</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $nextInvoiceDate->toDateString() }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Contract Term</span>
                                     </div>
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Client Category:</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $project->category }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-primary-light fw-semibold">{{ $project->contract_term }}
+                                            MO</span>
                                     </div>
-                                    @php
-                                        $startDate = \Carbon\Carbon::parse($project->contract_start_date);
-                                        $endDate = $startDate->copy()->addMonths($project->contract_term);
-                                        $now = \Carbon\Carbon::now();
-                                        $remainingMonths = max(floor($now->diffInMonths($endDate, false)), 0);
-                                    @endphp
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Remaining Months:</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
-                                                    {{ $remainingMonths }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Payment Method</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="text-primary-light fw-semibold">{{ $project->paymentMethod->name ?? 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-cyan-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Free Months</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-primary-light fw-semibold">{{ $project->free_months }}
+                                            MO</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Monthly Invoice</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="text-primary-light fw-semibold">{{ number_format($monthlyInvoice, 2) }}</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Next Invoice Date</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span
+                                            class="text-primary-light fw-semibold">{{ $nextInvoiceDate->toDateString() }}</span>
+                                    </div>
+                                </div>
+                                @php
+                                    $startDate = \Carbon\Carbon::parse($project->contract_start_date);
+                                    $endDate = $startDate->copy()->addMonths($project->contract_term);
+                                    $now = \Carbon\Carbon::now();
+                                    $remainingMonths = max(floor($now->diffInMonths($endDate, false)), 0);
+                                @endphp
+                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
+                                        <span class="text-secondary-light">Remaining Months</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-primary-light fw-semibold">{{ $remainingMonths }}
+                                            MO</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @endif
-                @if ($project->seoProject)
-                    <div class="card h-100">
-                        <div class="card-body p-24">
-                            <div class="d-flex flex-wrap gap-24 align-items-center justify-content-between">
-                                <div class="d-flex flex-row gap-24">
+                @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
+                        auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                        auth()->user()->id == $project->techManagers->pluck('id')->first() ||
+                        auth()->user()->hasRole('ADMIN') ||
+                        $userPermissions->contains('can view campaign access') ||
+                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
+                    @if ($project->credentials->count())
+                        <div class="col-lg-12">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-2 fw-bold text-lg mb-0">Campaign Access</h6>
+                                </div>
+                                <div class="card-body d-flex align-items-start gap-10 flex-wrap"
+                                    style="max-height: 500px; overflow-y: auto;">
+                                    @foreach ($project->credentials as $credential)
+                                        <div class="border p-10 rounded">
+                                            @if ($credential->platform_name)
+                                                <div class="text-capitalize"><strong>Platform:</strong>
+                                                    {{ $credential->platform_name }}</div>
+                                            @endif
+                                            @if ($credential->url)
+                                                <div class="text-capitalize"><strong>URL:</strong> <a
+                                                        href="{{ $credential->url }}" target="_blank">Visit</a></div>
+                                            @endif
+                                            @if ($credential->username)
+                                                <div class="text-capitalize"><strong>Username:</strong>
+                                                    {{ $credential->username }}</div>
+                                            @endif
+                                            @if ($credential->password)
+                                                <div class="text-capitalize"><strong>Password:</strong>
+                                                    <span class="password-toggle text-muted"
+                                                        data-password="{{ $credential->password }}">••••••</span>
+                                                    <a href="javascript:void(0);"
+                                                        class="toggle-password small">Show</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                @endif
+            </div>
+            @if ($project->seoProject)
+                <div class="row gy-3 mb-10">
+                    <div class="col-lg-12">
+                        <div class="card border">
+                            <div class="card-header">
+                                <h6 class="mb-2 fw-bold text-lg mb-0">Seo Detail</h6>
+                            </div>
+                            <div class="card-body p-24">
+                                <div class="d-flex flex-wrap flex-row gap-24">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="flex-grow-1">
                                             <h6 class="text-md mb-0 fw-bold">Number of Keywords</h6>
@@ -482,8 +478,8 @@
                             </div>
                         </div>
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
             <div class="row gy-3 mb-10">
                 <div class="col-lg-12">
                     <div class="card border">

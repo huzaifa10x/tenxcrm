@@ -70,30 +70,6 @@
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
-                    @elseif ($task->title === 'Connect the GA, GSC, GTM, and GMB')
-                        <form id="taskForm" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <span class="d-block fw-bold">Connect the GA, GSC, GTM, and GMB</span>
-                            <label for="GA" form="label">GA</label>
-                            <input type="hidden" name="fields[0][name]" value="GA">
-                            <input type="checkbox" id="GA" class="form-check-input" required
-                                name="fields[0][value]">
-                            <label for="GSC" form="label">GSC</label>
-                            <input type="hidden" name="fields[1][name]" value="GSC">
-                            <input type="checkbox" id="GSC" class="form-check-input" required
-                                name="fields[1][value]">
-                            <label for="GTM" form="label">GTM</label>
-                            <input type="hidden" name="fields[2][name]" value="GTM">
-                            <input type="checkbox" id="GTM" class="form-check-input" required
-                                name="fields[2][value]">
-                            <label for="GMB" form="label">GMB</label>
-                            <input type="hidden" name="fields[3][name]" value="GMB">
-                            <input type="checkbox" id="GMB" class="form-check-input" required
-                                name="fields[3][value]">
-                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
-                                Task</button>
-                        </form>
                     @elseif ($task->title === 'Keywords Approval')
                         <form id="taskForm" enctype="multipart/form-data">
                             @csrf
@@ -451,19 +427,19 @@
                                 <div class="credentialRow row">
                                     <div class="col-lg-3">
                                         <input class="form-control" type="text"
-                                            name="credentials[0][platform_name]" placeholder="Platform Name" required>
+                                            name="credentials[0][platform_name]" placeholder="Platform Name">
                                     </div>
                                     <div class="col-lg-3">
                                         <input class="form-control" type="url" name="credentials[0][url]"
-                                            placeholder="Website URL" required>
+                                            placeholder="Website URL">
                                     </div>
                                     <div class="col-lg-3">
                                         <input class="form-control" type="text" name="credentials[0][username]"
-                                            placeholder="Username/Email" required>
+                                            placeholder="Username/Email">
                                     </div>
                                     <div class="col-lg-3 d-flex align-items-center gap-3">
                                         <input class="form-control" type="password" name="credentials[0][password]"
-                                            placeholder="Password" required>
+                                            placeholder="Password">
                                         <button type="button"
                                             class="removeCredential btn fs-7 btn-danger btn-sm">Remove</button>
                                     </div>
@@ -473,6 +449,97 @@
                                 <button class="btn btn-sm fs-7 btn-neutral-500" type="button" id="addCredential">Add
                                     More</button>
                                 <button class="btn btn-sm fs-7 btn-neutral-900" type="submit">Submit</button>
+                            </div>
+                        </form>
+                    @elseif ($task->title === 'Connect the GA, GSC, GTM, and GMB')
+                        <form class="ga-gmb-form" enctype="multipart/form-data" style="display: none">
+                            @csrf
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                            <span class="d-block fw-bold">Connect the GA, GSC, GTM, and GMB</span>
+                            <label for="GA" form="label">GA</label>
+                            <input type="hidden" name="fields[0][name]" value="GA">
+                            <input type="checkbox" checked id="GA" class="form-check-input" required
+                                name="fields[0][value]">
+                            <label for="GSC" form="label">GSC</label>
+                            <input type="hidden" name="fields[1][name]" value="GSC">
+                            <input type="checkbox" checked id="GSC" class="form-check-input" required
+                                name="fields[1][value]">
+                            <label for="GTM" form="label">GTM</label>
+                            <input type="hidden" name="fields[2][name]" value="GTM">
+                            <input type="checkbox" checked id="GTM" class="form-check-input" required
+                                name="fields[2][value]">
+                            <label for="GMB" form="label">GMB</label>
+                            <input type="hidden" name="fields[3][name]" value="GMB">
+                            <input type="checkbox" checked id="GMB" class="form-check-input" required
+                                name="fields[3][value]">
+                        </form>
+                        <form id="clientCredentialsForm2">
+                            @csrf
+                            <input type="hidden" name="project_id" value="{{ $task->project_id }}">
+                            <div id="credentialsContainer">
+                                <div class="credentialRow row mb-10">
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="text"
+                                            name="credentials[0][platform_name]" value="GA" readonly
+                                            placeholder="GA Credential">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="email" name="credentials[0][username]"
+                                            placeholder="Email*" required>
+                                    </div>
+                                    <div class="col-lg-3 d-flex align-items-center gap-3">
+                                        <input class="form-control" type="password" name="credentials[0][password]"
+                                            placeholder="Password">
+                                    </div>
+                                </div>
+                                <div class="credentialRow row mb-10">
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="text"
+                                            name="credentials[1][platform_name]" value="GSC" readonly
+                                            placeholder="GSC Credential">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="email" name="credentials[1][username]"
+                                            placeholder="Email*" required>
+                                    </div>
+                                    <div class="col-lg-3 d-flex align-items-center gap-3">
+                                        <input class="form-control" type="password" name="credentials[1][password]"
+                                            placeholder="Password">
+                                    </div>
+                                </div>
+                                <div class="credentialRow row mb-10">
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="text"
+                                            name="credentials[2][platform_name]" value="GTM" readonly
+                                            placeholder="GTM Credential">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="email" name="credentials[2][username]"
+                                            placeholder="Email*" required>
+                                    </div>
+                                    <div class="col-lg-3 d-flex align-items-center gap-3">
+                                        <input class="form-control" type="password" name="credentials[2][password]"
+                                            placeholder="Password">
+                                    </div>
+                                </div>
+                                <div class="credentialRow row mb-10">
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="text"
+                                            name="credentials[3][platform_name]" value="GMB" readonly
+                                            placeholder="GMB Credential">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <input class="form-control" type="email" name="credentials[3][username]"
+                                            placeholder="Email*" required>
+                                    </div>
+                                    <div class="col-lg-3 d-flex align-items-center gap-3">
+                                        <input class="form-control" type="password" name="credentials[3][password]"
+                                            placeholder="Password">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-start gap-10 mt-10">
+                                <button class="btn fs-7 btn-neutral-900" type="submit">Submit</button>
                             </div>
                         </form>
                     @else
@@ -1192,19 +1259,19 @@
             <div class="credentialRow row">
                 <div class="col-lg-3">
                     <input class="form-control" type="text"
-                        name="credentials[${credentialIndex}][platform_name]" placeholder="Platform Name" required>
+                        name="credentials[${credentialIndex}][platform_name]" placeholder="Platform Name">
                 </div>
                 <div class="col-lg-3">
                     <input class="form-control" type="url" name="credentials[${credentialIndex}][url]"
-                        placeholder="Website URL" required>
+                        placeholder="Website URL">
                 </div>
                 <div class="col-lg-3">
                     <input class="form-control" type="text" name="credentials[${credentialIndex}][username]"
-                        placeholder="Username/Email" required>
+                        placeholder="Username/Email">
                 </div>
                 <div class="col-lg-3 d-flex align-items-center gap-3">
                     <input class="form-control" type="password" name="credentials[${credentialIndex}][password]"
-                        placeholder="Password" required>
+                        placeholder="Password">
                     <button type="button"
                     class="removeCredential btn fs-7 btn-danger btn-sm">Remove</button>
                 </div>
@@ -1228,6 +1295,35 @@
                     toastr.success(response.message);
                     if (xhr.status === 200) {
                         triggerCompletionSubmit();
+                    }
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+        $("#clientCredentialsForm2").submit(function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            $.ajax({
+                url: "{{ route('projects.storeClientCredentials', $task->project_id) }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message);
+                    if (xhr.status === 200) {
+                        let form = $('.ga-gmb-form');
+                        let formData = form.serialize();
+                        $.ajax({
+                            url: "{{ route('tasks.complete') }}",
+                            type: "POST",
+                            data: formData,
+                        });
+                        setTimeout(() => {
+                            triggerCompletionSubmit();
+                        }, 1000);
                     }
                 },
                 error: function(xhr) {
