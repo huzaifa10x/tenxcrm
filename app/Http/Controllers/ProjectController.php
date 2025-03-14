@@ -199,6 +199,7 @@ class ProjectController extends Controller
 
         $regularTasks = $project->tasks()->where('is_automated', 0)->where('repeat_task', 0)->get();
         $sequenceTasks = $project->tasks()->where('is_automated', 1)->get();
+        $completedTasks = $project->tasks()->where('status', 'Completed')->get();
         $repeatingTasks = Task::where('project_id', $id)
             ->where(function ($query) {
                 $query->whereIn('id', function ($subQuery) {
@@ -220,6 +221,7 @@ class ProjectController extends Controller
             'taskCounts',
             'regularTasks',
             'sequenceTasks',
+            'completedTasks',
             'repeatingTasks',
             'contractStartDate',
             'contractEndDate',

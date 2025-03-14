@@ -51,7 +51,7 @@
             @if (auth()->user()->hasRole('ADMIN'))
                 <div>
                     <select id="taskType" class="form-select">
-                        <option value="">Filter By Type</option>
+                        <option value="" disabled selected>Filter By Type</option>
                         <option value="ALL">ALL</option>
                         <option value="CONTENT">CONTENT</option>
                         <option value="ONSITE">ONSITE</option>
@@ -68,6 +68,15 @@
                         <option value="SOCIAL MEDIA MANAGER">SOCIAL MEDIA MANAGER</option>
                     </select>
                 </div>
+                <div>
+                    <select id="byUser" class="form-select">
+                        <option value="" selected disabled>Filter By User</option>
+                        <option value="ALL">ALL</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             @endif
             <div>
                 <div class="input-group">
@@ -77,6 +86,8 @@
                         top: 44px;
                         z-index: 1000;
                         left: 1px;
+                        max-height: 300px;
+                        overflow-y: auto;
                         width: 100%;">
                     </div>
                 </div>
@@ -383,6 +394,17 @@
                     return;
                 }
                 let url = `{{ route('tasks.board.index') }}?type=${selectedType}`;
+                window.location.href = url;
+            });
+        });
+        $(document).ready(function() {
+            $('#byUser').on('change', function() {
+                let selectedUser = $(this).val();
+                if (selectedUser === 'ALL') {
+                    window.location.href = "{{ route('tasks.board.index') }}";
+                    return;
+                }
+                let url = `{{ route('tasks.board.index') }}?user_id=${selectedUser}`;
                 window.location.href = url;
             });
         });

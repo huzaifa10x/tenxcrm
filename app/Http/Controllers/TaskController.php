@@ -82,6 +82,9 @@ class TaskController extends Controller
             ]);
             $taskQuery->where('type', $request->input('type'));
         }
+        if ($request->has('user_id')) {
+            $taskQuery->where('assigned_to', $request->input('user_id'));
+        }
         if (!$user->hasPermission('can view all tasks')) {
             $taskQuery->where('assigned_to', $user->id);
         }
@@ -587,7 +590,7 @@ class TaskController extends Controller
             ["type" => "SEO ADMIN", "title" => 'Content Audit', "assignee" => $seoAdmin],
             ["type" => "SEO ADMIN", "title" => 'Backlink Audit & DISAVOW', "assignee" => $seoAdmin],
         ];
-        
+
         switch ($task->title) {
             case 'First Client Meeting':
                 Task::insert([

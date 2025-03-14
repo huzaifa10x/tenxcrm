@@ -576,6 +576,16 @@
                                                 class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $repeatingTasks->count() }}</span>
                                         </button>
                                     </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link d-flex align-items-center" id="completed-tab"
+                                            data-bs-toggle="pill" data-bs-target="#completed-task" type="button"
+                                            role="tab" type="button" role="tab"
+                                            aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
+                                            Completed Tasks
+                                            <span
+                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
+                                        </button>
+                                    </li>
                                 </ul>
                                 <a href="{{ route('tasks.board.index') }}"
                                     class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
@@ -735,6 +745,72 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach ($repeatingTasks as $task)
+                                                        <tr>
+                                                            <td>{{ $task->id }}</td>
+                                                            <td><a
+                                                                    href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
+                                                            </td>
+                                                            <td><x-badge :text="$task->status" type="status" /></td>
+                                                            <td>{{ $task->start_date }}</td>
+                                                            <td>{{ $task->due_date }}</td>
+                                                            <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
+                                                            {{-- <td><x-badge :text="$task->priority" type="priority" /></td> --}}
+                                                        </tr>
+                                                        @if ($task->comments()->latest()->first())
+                                                            <tr>
+                                                                <td colspan="7" class="bg-info-50 text-muted">
+                                                                    <div style="max-width: 50%;">
+                                                                        <div class="d-flex align-items-start gap-3">
+                                                                            <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
+                                                                                alt=""
+                                                                                class="w-40-px h-40-px rounded-pill">
+                                                                            <div class="w-100">
+                                                                                <div
+                                                                                    class="d-flex align-items-center justify-content-between">
+                                                                                    <div
+                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        <span
+                                                                                            class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
+                                                                                            {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p class="mb-0 text-primary-light">
+                                                                                    {{ $task->comments()->latest()->first()->comment }}
+                                                                                </p>
+                                                                                <span
+                                                                                    class="comment-time text-secondary d-block fs-7"
+                                                                                    data-time="{{ $task->comments()->latest()->first()->created_at }}"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        @else
+                                            <p class="text-secondary-light">No Repeating Tasks Available.</p>
+                                        @endif
+                                    </div>
+                                    <!-- Completed Tasks -->
+                                    <div style="max-height: 500px; overflow-y: auto;" class="tab-pane fade"
+                                        id="completed-task" role="tabpanel">
+                                        @if ($completedTasks->count())
+                                            <table class="table bordered-table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Subject</th>
+                                                        <th>Status</th>
+                                                        <th>Start Date</th>
+                                                        <th>Due Date</th>
+                                                        <th>Assignee</th>
+                                                        {{-- <th>ACTION</th> --}}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($completedTasks as $task)
                                                         <tr>
                                                             <td>{{ $task->id }}</td>
                                                             <td><a
