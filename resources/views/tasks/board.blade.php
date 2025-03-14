@@ -408,6 +408,20 @@
                 window.location.href = url;
             });
         });
+        $(document).ready(function() {
+            let urlParams = new URLSearchParams(window.location.search);
+            let userId = urlParams.get('user_id');
+            if (userId) {
+                $('#byUser').val(userId);
+            }
+        });
+        $(document).ready(function() {
+            let urlParams = new URLSearchParams(window.location.search);
+            let taskType = urlParams.get('type'); // Extract type from URL
+            if (taskType) {
+                $('#taskType').val(taskType);
+            }
+        });
     </script>
     <script>
         $(document).ready(function() {
