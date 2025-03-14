@@ -193,7 +193,7 @@ class ProjectController extends Controller
         $paymentMethods = PaymentMethod::all();
         $departments = Role::all();
         $taskCounts = Task::selectRaw('project_id, type, COUNT(*) as count')
-            ->where('project_id', $project->id) // Specific project ke tasks filter karne ke liye
+            ->where('project_id', $project->id)->whereIn('status', ['Todo', 'In Progress', 'Review'])
             ->groupBy('project_id', 'type')
             ->pluck('count', 'type');
 
