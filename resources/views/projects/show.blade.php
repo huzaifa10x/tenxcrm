@@ -442,8 +442,6 @@
                                                 <div class="col-lg-3 d-flex align-items-center gap-3">
                                                     <input class="form-control" type="password"
                                                         name="credentials[0][password]" placeholder="Password">
-                                                    <button type="button"
-                                                        class="removeCredential btn fs-7 btn-danger btn-sm">Remove</button>
                                                 </div>
                                             </div>
                                         </div>
