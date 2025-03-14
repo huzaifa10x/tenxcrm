@@ -566,7 +566,7 @@ class ProjectController extends Controller
     {
         $request->validate([
             'credentials' => 'nullable|array',
-            'credentials.*.url' => 'nullable|url',
+            'credentials.*.url' => 'nullable|string',
             'credentials.*.platform_name' => 'nullable|string',
             'credentials.*.username' => 'nullable|string',
             'credentials.*.password' => 'nullable|string',

@@ -430,7 +430,7 @@
                                             name="credentials[0][platform_name]" placeholder="Platform Name">
                                     </div>
                                     <div class="col-lg-3">
-                                        <input class="form-control" type="url" name="credentials[0][url]"
+                                        <input class="form-control" type="text" name="credentials[0][url]"
                                             placeholder="Website URL">
                                     </div>
                                     <div class="col-lg-3">
@@ -1262,7 +1262,7 @@
                         name="credentials[${credentialIndex}][platform_name]" placeholder="Platform Name">
                 </div>
                 <div class="col-lg-3">
-                    <input class="form-control" type="url" name="credentials[${credentialIndex}][url]"
+                    <input class="form-control" type="text" name="credentials[${credentialIndex}][url]"
                         placeholder="Website URL">
                 </div>
                 <div class="col-lg-3">

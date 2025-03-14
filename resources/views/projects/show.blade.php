@@ -384,35 +384,77 @@
                     @if ($project->credentials->count())
                         <div class="col-lg-12">
                             <div class="card h-100">
-                                <div class="card-header">
+                                <div class="card-header d-flex align-items-center justify-content-between">
                                     <h6 class="mb-2 fw-bold text-lg mb-0">Campaign Access</h6>
+                                    <button class="btn border-0 p-0 m-0 addmorecred">Add More
+                                        Credentials</button>
                                 </div>
-                                <div class="card-body d-flex align-items-start gap-10 flex-wrap"
-                                    style="max-height: 500px; overflow-y: auto;">
+                                <div class="card-body row" style="max-height: 500px; overflow-y: auto;">
                                     @foreach ($project->credentials as $credential)
-                                        <div class="border p-10 rounded">
-                                            @if ($credential->platform_name)
-                                                <div class="text-capitalize"><strong>Platform:</strong>
-                                                    {{ $credential->platform_name }}</div>
-                                            @endif
-                                            @if ($credential->url)
-                                                <div class="text-capitalize"><strong>URL:</strong> <a
-                                                        href="{{ $credential->url }}" target="_blank">Visit</a></div>
-                                            @endif
-                                            @if ($credential->username)
-                                                <div class="text-capitalize"><strong>Username:</strong>
-                                                    {{ $credential->username }}</div>
-                                            @endif
-                                            @if ($credential->password)
-                                                <div class="text-capitalize"><strong>Password:</strong>
-                                                    <span class="password-toggle text-muted"
-                                                        data-password="{{ $credential->password }}">••••••</span>
-                                                    <a href="javascript:void(0);"
-                                                        class="toggle-password small">Show</a>
-                                                </div>
-                                            @endif
+                                        <div class="col-lg-4 my-10">
+                                            <div class="card border p-3 rounded">
+                                                <div class="text-capitalize fs-7"><strong>Access Id:</strong>
+                                                    {{ $credential->id }}</div>
+                                                @if ($credential->platform_name)
+                                                    <div class="text-capitalize"><strong>Platform:</strong>
+                                                        {{ $credential->platform_name }}</div>
+                                                @endif
+                                                @if ($credential->url)
+                                                    <div class="text-capitalize"><strong>URL:</strong> <a
+                                                            href="{{ $credential->url }}" target="_blank">Visit</a>
+                                                    </div>
+                                                @endif
+                                                @if ($credential->username)
+                                                    <div class="text-capitalize"><strong>Username:</strong>
+                                                        {{ $credential->username }}</div>
+                                                @endif
+                                                @if ($credential->password)
+                                                    <div class="text-capitalize"><strong>Password:</strong>
+                                                        <span class="password-toggle text-muted"
+                                                            data-password="{{ $credential->password }}">••••••</span>
+                                                        <a href="javascript:void(0);"
+                                                            class="toggle-password small">Show</a>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     @endforeach
+                                </div>
+                                <div class="card-footer">
+                                    <form id="clientCredentialsForm" class="mt-10" style="display: none">
+                                        @csrf
+                                        <input type="hidden" name="project_id" value="{{ $project->id }}">
+                                        <div id="credentialsContainer">
+                                            <div class="credentialRow row mb-10">
+                                                <div class="col-lg-3">
+                                                    <input class="form-control" type="text"
+                                                        name="credentials[0][platform_name]"
+                                                        placeholder="Platform Name">
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <input class="form-control" type="text"
+                                                        name="credentials[0][url]" placeholder="Website URL">
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <input class="form-control" type="text"
+                                                        name="credentials[0][username]" placeholder="Username/Email">
+                                                </div>
+                                                <div class="col-lg-3 d-flex align-items-center gap-3">
+                                                    <input class="form-control" type="password"
+                                                        name="credentials[0][password]" placeholder="Password">
+                                                    <button type="button"
+                                                        class="removeCredential btn fs-7 btn-danger btn-sm">Remove</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-start gap-10 mt-10">
+                                            <button class="btn btn-sm fs-7 btn-neutral-500" type="button"
+                                                id="addCredential">Add
+                                                More</button>
+                                            <button class="btn btn-sm fs-7 btn-neutral-900"
+                                                type="submit">Submit</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -976,6 +1018,63 @@
         </div>
     </div>
     <script>
+        $('.addmorecred').click(function(e) {
+            e.preventDefault();
+            $('#clientCredentialsForm').slideDown();
+        });
+        $("#clientCredentialsForm").submit(function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            $.ajax({
+                url: "{{ route('projects.storeClientCredentials', $task->project_id) }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message);
+                    if (xhr.status === 200) {
+                        setTimeout(() => {
+                            window.location.reload()
+                        }, 1000);
+                    }
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+        let credentialIndex = 1;
+        $("#addCredential").click(function() {
+            $("#credentialsContainer").append(`
+            <div class="credentialRow row mb-10">
+                <div class="col-lg-3">
+                    <input class="form-control" type="text"
+                        name="credentials[${credentialIndex}][platform_name]" placeholder="Platform Name">
+                </div>
+                <div class="col-lg-3">
+                    <input class="form-control" type="text" name="credentials[${credentialIndex}][url]"
+                        placeholder="Website URL">
+                </div>
+                <div class="col-lg-3">
+                    <input class="form-control" type="text" name="credentials[${credentialIndex}][username]"
+                        placeholder="Username/Email">
+                </div>
+                <div class="col-lg-3 d-flex align-items-center gap-3">
+                    <input class="form-control" type="password" name="credentials[${credentialIndex}][password]"
+                        placeholder="Password">
+                    <button type="button"
+                    class="removeCredential btn fs-7 btn-danger btn-sm">Remove</button>
+                </div>
+            </div>
+            `);
+            credentialIndex++;
+        });
+        $(document).on("click", ".removeCredential", function() {
+            $(this).closest(".credentialRow").remove();
+        });
+    </script>
+    <script>
         function fetchProjectCollaborators(projectId) {
             $.get("{{ route('project.collaborators', ['project' => ':id']) }}".replace(':id', projectId), function(
                 response) {
@@ -1081,7 +1180,6 @@
         setInterval(updateTimestamps, 30000);
         updateTimestamps()
     </script>
-
     <script>
         function deleteProjectFile(projectId, fileId) {
             if (confirm("Are you sure you want to delete this file?")) {
