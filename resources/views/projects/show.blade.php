@@ -389,6 +389,7 @@
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->techManagers->pluck('id')->first() ||
+                        auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
                         $userPermissions->contains('can view campaign access') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
@@ -548,6 +549,7 @@
             @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                     auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                     auth()->user()->id == $project->techManagers->pluck('id')->first() ||
+                    auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                     auth()->user()->hasRole('ADMIN') ||
                     ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                 <div class="row gy-3 mb-10">
@@ -1007,6 +1009,7 @@
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->techManagers->pluck('id')->first() ||
+                        auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-6">
@@ -1030,6 +1033,7 @@
                             @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                                     auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                                     auth()->user()->id == $project->techManagers->pluck('id')->first() ||
+                                    auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                                     auth()->user()->hasRole('ADMIN') ||
                                     ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                                 <select onchange="addProjectCollaborator('{{ $project->id }}')" id="user_id"
@@ -1218,6 +1222,7 @@
                                      @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                                              auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                                              auth()->user()->id == $project->techManagers->pluck('id')->first() ||
+                                             auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                                              auth()->user()->hasRole('ADMIN') ||
                                              ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <iconify-icon onclick="removeProjectCollaborator(${collaborator.id}, ${projectId})" icon="fluent:delete-24-regular"></iconify-icon>
