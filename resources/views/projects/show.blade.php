@@ -168,6 +168,17 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @if ($project->seoAdmins)
+                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="text-md mb-0 fw-medium">Seo Admin</h6>
+                                                    <span
+                                                        class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">{{ $project->seoAdmins->pluck('name')->first() }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-grow-1">
@@ -658,7 +669,8 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Regular Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Regular Tasks
+                                                Available.</p>
                                         @endif
                                     </div>
                                     <!-- Sequence Tasks -->
@@ -724,7 +736,8 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Sequence Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Sequence Tasks
+                                                Available.</p>
                                         @endif
                                     </div>
                                     <!-- Repeating Tasks -->
@@ -790,7 +803,8 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Repeating Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Repeating Tasks
+                                                Available.</p>
                                         @endif
                                     </div>
                                     <!-- Completed Tasks -->
@@ -856,7 +870,8 @@
                                                 </tbody>
                                             </table>
                                         @else
-                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Repeating Tasks Available.</p>
+                                            <p class="my-3 ps-24 fs-7 fw-bold text-secondary-light">No Repeating Tasks
+                                                Available.</p>
                                         @endif
                                     </div>
                                 </div>

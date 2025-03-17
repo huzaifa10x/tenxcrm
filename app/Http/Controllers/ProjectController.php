@@ -31,7 +31,7 @@ class ProjectController extends Controller
             $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins'])
                 ->paginate(10);
         } else {
-            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers'])
+            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoAdmins'])
                 ->where(function ($query) use ($user) {
                     $query->where('created_by', $user->id)
                         ->orWhereHas('salesManagers', function ($q) use ($user) {
@@ -44,6 +44,9 @@ class ProjectController extends Controller
                             $query->where('user_id', $user->id);
                         })
                         ->orWhereHas('techManagers', function ($q) use ($user) {
+                            $q->where('user_id', $user->id);
+                        })
+                        ->orWhereHas('seoAdmins', function ($q) use ($user) {
                             $q->where('user_id', $user->id);
                         });
                 })
