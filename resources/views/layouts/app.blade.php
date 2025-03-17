@@ -445,7 +445,7 @@
         @endif
     </script>
     <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
-    <script>
+    {{-- <script>
         $(document).on('click', 'button', function() {
             let btn = $(this);
             btn.prop('disabled', true); // Button disable karo
@@ -453,7 +453,7 @@
                 btn.prop('disabled', false); // 1 second baad enable karo
             }, 2000);
         });
-    </script>
+    </script> --}}
 </body>
 
 </html>
