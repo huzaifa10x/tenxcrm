@@ -40,9 +40,17 @@
             @endforeach
         </div>
     @endif
-    <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn mb-3 btn-outline-primary">
-        Create Task
-    </button>
+    <div class="d-flex align-items-center justify-content-between">
+        <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-sm mb-3 btn-outline-primary">
+            Create Task
+        </button>
+        <div>
+            <select class="form-control" id="view_type">
+                <option value="list" selected>List View</option>
+                <option value="board">Board View</option>
+            </select>
+        </div>
+    </div>
     <div class="card mb-3 basic-data-table">
         <div class="card-header d-flex justify-content-start flex-wrap gap-10 align-items-center">
             <div class="row mb-10 gy-3">
@@ -90,19 +98,17 @@
                         </select>
                     </div>
                 @endif
-                <div class="col-lg-4">
-                    <div class="input-group">
-                        <input type="text" id="taskSearch" class="form-control"
-                            placeholder="Search Task by Title...">
-                        <div id="input2" class="list-group"
-                            style="position: absolute;
-                            top: 44px;
-                            z-index: 1000;
-                            left: 1px;
-                            max-height: 300px;
-                            overflow-y: auto;
-                            width: 100%;">
-                        </div>
+                <div class="input-group">
+                    <input type="text" id="taskSearch" class="form-control"
+                        placeholder="Search Task by Title...">
+                    <div id="input2" class="list-group"
+                        style="position: absolute;
+                        top: 44px;
+                        z-index: 1000;
+                        left: 1px;
+                        max-height: 300px;
+                        overflow-y: auto;
+                        width: 100%;">
                     </div>
                 </div>
             </div>
@@ -145,38 +151,21 @@
                                             class="kanban-item kanban-card bg-neutral-50 p-16 radius-8 mb-24 position-relative"
                                             data-task-id="{{ $task->id }}" data-status="{{ $status }}">
                                             <span
-                                                class="fs-7 mb-10 bg-primary-600 badge rounded text-light">#{{ $task->id }}</span>
-                                            @if ($userPermissions->contains('can create tasks'))
-                                                <small class="w-100 d-block fs-7">
-                                                    {{ $task->repeatingTask ? 'Recurring Task' : '' }}
-                                                    {{ $task->repeatingTask ? ($task->repeat_task ? ' - Enabled' : ' - Disabled') : '' }}
-                                                </small>
-                                            @endif
-                                            <h6 class="kanban-title text-lg fw-semibold mb-8">{{ $task->title }}</h6>
-                                            <p class="kanban-desc text-secondary-light mb-10">{{ $task->description }}
-                                            </p>
+                                                class="fs-7 mb-10 bg-cyan-100 badge rounded fs-8 text-secondary position-absolute top-0 start-0 fw-light">#{{ $task->id }}</span>
                                             <span
-                                                class="badge text-capitalize bg-danger-surface fs-7 text-dark mb-10 fw-light">{{ $task->status }}</span>
-                                            <span
-                                                class="badge text-capitalize bg-body fs-7 text-dark mb-10 fw-light">created
-                                                by: {{ $task->createdBy->name }}</span>
+                                                class="fs-7 mb-10 bg-warning-gradient mt-12 badge rounded text-dark">{{ $task->project->title ?? '' }}</span>
+                                            <h6 class="kanban-title text-lg fw-semibold fs-6 mb-0">{{ $task->title }}
+                                            </h6>
                                             @if ($userPermissions->contains('can create tasks'))
                                                 <span
-                                                    class="badge text-capitalize position-absolute top-0 end-0 bg-base fs-7 text-secondary mb-10 fw-light">assigned
+                                                    class="text-capitalize bg-cyan-100 badge rounded fs-8 text-secondary mb-10">assigned
                                                     to:
                                                     {{ $task->assignedTo ? $task->assignedTo->name : 'n/a' }}</span>
                                             @endif
-                                            <button type="button"
-                                                class="btn btn-sm text-primary-600 rounded bg-hover-primary-600 text-hover-white d-flex align-items-center gap-2 p-1">
-                                                <iconify-icon icon="lucide:tag" class="icon"></iconify-icon>
-                                                <span class="kanban-tag fw-semibold fs-7">{{ $task->type }} ->
-                                                    {{ $task->sub_type }}</span>
-                                            </button>
-                                            <div
-                                                class="mt-12 d-flex align-items-center justify-content-between gap-10">
-                                                <div class="d-flex align-items-center justify-content-between gap-10">
-                                                    <iconify-icon icon="solar:calendar-outline"
-                                                        class="text-primary-light"></iconify-icon>
+                                            <div class="d-flex align-items-center justify-content-between gap-10">
+                                                <div
+                                                    class="d-flex fs-7 align-items-center justify-content-between gap-10">
+                                                    Start Date:
                                                     <span class="start-date text-secondary-light">
                                                         {{ $task->start_date
                                                             ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
@@ -212,7 +201,6 @@
             </div>
         </div>
     </div>
-
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header bg-base">
             <h6 class="text-md mb-0 fw-medium">Task Detail</h6>
@@ -333,7 +321,6 @@
             });
         });
     </script>
-
     <script>
         $(document).ready(function() {
             $('#repeat_task').change(function() {
@@ -443,6 +430,22 @@
                     urlParams.set('user_id', selectedUser);
                     window.location.href = baseUrl + "?" + urlParams.toString();
                 }
+            });
+        });
+
+        $(document).ready(function() {
+            let urlParams = new URLSearchParams(window.location.search);
+            let viewType = urlParams.get('view_type');
+
+            if (viewType) {
+                $('#view_type').val(viewType);
+            }
+
+            $('#view_type').on('change', function() {
+                let selectedType = $(this).val();
+                let baseUrl = "{{ route('tasks.board.index') }}";
+                urlParams.set('view_type', selectedType);
+                window.location.href = baseUrl + "?" + urlParams.toString();
             });
         });
 
