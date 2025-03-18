@@ -63,6 +63,14 @@
     <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
+
+    <style>
+        body{
+            scroll-behavior: smooth !important;
+            transition: all .5s ease-in-out !important;
+        }
+    </style>
+
 </head>
 
 <body class="font-sans antialiased">
@@ -445,15 +453,6 @@
         @endif
     </script>
     <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
-    {{-- <script>
-        $(document).on('click', 'button', function() {
-            let btn = $(this);
-            btn.prop('disabled', true); // Button disable karo
-            setTimeout(function() {
-                btn.prop('disabled', false); // 1 second baad enable karo
-            }, 2000);
-        });
-    </script> --}}
 </body>
 
 </html>

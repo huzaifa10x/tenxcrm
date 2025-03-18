@@ -85,6 +85,13 @@ class TaskController extends Controller
         if ($request->has('user_id')) {
             $taskQuery->where('assigned_to', $request->input('user_id'));
         }
+        if ($request->has('start_date')) {
+            $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
+        }
+
+        if ($request->has('end_date')) {
+            $taskQuery->whereDate('created_at', '<=', $request->input('end_date'));
+        }
         if (!$user->hasPermission('can view all tasks')) {
             $taskQuery->where('assigned_to', $user->id);
         }

@@ -11,84 +11,98 @@
             </ul>
         </div>
     @endif
-    <div class="card mb-3 basic-data-table">
-        @if (auth()->user()->hasRole('ADMIN') && route('tasks.board.index') == url()->current())
-            <div class="row">
-                @foreach ($progressData as $department => $progress)
-                    <div class="col-lg-2">
-                        <div class="card p-0 overflow-hidden position-relative radius-12">
-                            <div class="card-header p-10 bg-base border border-end-0 border-start-0 border-top-0">
-                                <span class="fw-bold fs-7">{{ $department }}</span>
-                            </div>
-                            <div class="card-body p-10">
+    @if (auth()->user()->hasRole('ADMIN') && route('tasks.board.index') == url()->current())
+        <div class="row mb-16 gy-3">
+            @foreach ($progressData as $department => $progress)
+                <div class="col-lg-2">
+                    <div class="card p-0 overflow-hidden position-relative radius-12">
+                        <div class="card-header p-10 bg-base border border-end-0 border-start-0 border-top-0">
+                            <span class="fw-bold fs-7">{{ $department }}</span>
+                        </div>
+                        <div class="card-body p-10">
+                            <div class="progressBar w-100-px h-44-px position-relative text-primary-light fw-semibold">
+                                <div class="barOverflow">
+                                    <div class="circleBar border-width-6-px"></div>
+                                </div>
                                 <div
-                                    class="progressBar w-100-px h-44-px position-relative text-primary-light fw-semibold">
-                                    <div class="barOverflow">
-                                        <div class="circleBar border-width-6-px"></div>
+                                    class="position-absolute start-50 translate-middle top-50 line-height-1 mt-8 w-100 text-center">
+                                    <div class="d-flex align-items-center justify-content-center line-height-1 text-sm">
+                                        <span class="fs-7 barNumber line-height-1">{{ $progress }} </span>
+                                        <span class="fs-7">%</span>
                                     </div>
-                                    <div
-                                        class="position-absolute start-50 translate-middle top-50 line-height-1 mt-8 w-100 text-center">
-                                        <div
-                                            class="d-flex align-items-center justify-content-center line-height-1 text-sm">
-                                            <span class="fs-7 barNumber line-height-1">{{ $progress }} </span>
-                                            <span class="fs-7">%</span>
-                                        </div>
-                                        <span
-                                            class="line-height-1 text-xs text-secondary-light fs-7">{{ $department }}</span>
-                                    </div>
+                                    <span
+                                        class="line-height-1 text-xs text-secondary-light fs-7">{{ $department }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                @endforeach
+                </div>
+            @endforeach
+        </div>
+    @endif
+    <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn mb-3 btn-outline-primary">
+        Create Task
+    </button>
+    <div class="card mb-3 basic-data-table">
+        <div class="card-header d-flex justify-content-start flex-wrap gap-10 align-items-center">
+            <div class="row mb-10 gy-3">
+                <div class="col-lg-4">
+                    <input type="date" id="start_date_search" name="start_date_search" class="form-control"
+                        placeholder="Select Start Date">
+                </div>
+                <div class="col-lg-4">
+                    <input type="date" id="end_date_search" name="end_date_search" class="form-control"
+                        placeholder="Select End Date">
+                </div>
+                <div class="col-lg-4 d-flex align-items-center">
+                    <button id="search_tasks" class="btn btn-primary me-2">Search</button>
+                    <button id="reset_filters" class="btn btn-secondary">Reset</button>
+                </div>
             </div>
-
-        @endif
-        <div class="card-header d-flex justify-content-start gap-10 align-items-center">
-            <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-outline-primary">
-                Create Task
-            </button>
-            @if (auth()->user()->hasRole('ADMIN'))
-                <div>
-                    <select id="taskType" class="form-select">
-                        <option value="" disabled selected>Filter By Type</option>
-                        <option value="ALL">ALL</option>
-                        <option value="CONTENT">CONTENT</option>
-                        <option value="ONSITE">ONSITE</option>
-                        <option value="TECH MANAGER">TECH MANAGER</option>
-                        <option value="OFFSITE">OFFSITE</option>
-                        <option value="DESIGN">DESIGN</option>
-                        <option value="DEVELOPMENT">DEVELOPMENT</option>
-                        <option value="AM">AM</option>
-                        <option value="SEO ADMIN">SEO ADMIN</option>
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="SALES MANAGER">SALES MANAGER</option>
-                        <option value="SALES">SALES</option>
-                        <option value="ADHOC">ADHOC</option>
-                        <option value="SOCIAL MEDIA MANAGER">SOCIAL MEDIA MANAGER</option>
-                    </select>
-                </div>
-                <div>
-                    <select id="byUser" class="form-select">
-                        <option value="" selected disabled>Filter By User</option>
-                        <option value="ALL">ALL</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            @endif
-            <div>
-                <div class="input-group">
-                    <input type="text" id="taskSearch" class="form-control" placeholder="Search Task by Title...">
-                    <div id="input2" class="list-group"
-                        style="position: absolute;
-                        top: 44px;
-                        z-index: 1000;
-                        left: 1px;
-                        max-height: 300px;
-                        overflow-y: auto;
-                        width: 100%;">
+            <div class="row mb-10 gy-3">
+                @if (auth()->user()->hasRole('ADMIN') || route('tasks.assigned.index') == url()->current())
+                    <div class="col-lg-4">
+                        <select id="taskType" class="form-select">
+                            <option value="" disabled selected>Filter By Type</option>
+                            <option value="ALL">ALL</option>
+                            <option value="CONTENT">CONTENT</option>
+                            <option value="ONSITE">ONSITE</option>
+                            <option value="TECH MANAGER">TECH MANAGER</option>
+                            <option value="OFFSITE">OFFSITE</option>
+                            <option value="DESIGN">DESIGN</option>
+                            <option value="DEVELOPMENT">DEVELOPMENT</option>
+                            <option value="AM">AM</option>
+                            <option value="SEO ADMIN">SEO ADMIN</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="SALES MANAGER">SALES MANAGER</option>
+                            <option value="SALES">SALES</option>
+                            <option value="ADHOC">ADHOC</option>
+                            <option value="SOCIAL MEDIA MANAGER">SOCIAL MEDIA MANAGER</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <select id="byUser" class="form-select">
+                            <option value="" selected disabled>Filter By User</option>
+                            <option value="ALL">ALL</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <input type="text" id="taskSearch" class="form-control"
+                            placeholder="Search Task by Title...">
+                        <div id="input2" class="list-group"
+                            style="position: absolute;
+                            top: 44px;
+                            z-index: 1000;
+                            left: 1px;
+                            max-height: 300px;
+                            overflow-y: auto;
+                            width: 100%;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -158,7 +172,8 @@
                                                 <span class="kanban-tag fw-semibold fs-7">{{ $task->type }} ->
                                                     {{ $task->sub_type }}</span>
                                             </button>
-                                            <div class="mt-12 d-flex align-items-center justify-content-between gap-10">
+                                            <div
+                                                class="mt-12 d-flex align-items-center justify-content-between gap-10">
                                                 <div class="d-flex align-items-center justify-content-between gap-10">
                                                     <iconify-icon icon="solar:calendar-outline"
                                                         class="text-primary-light"></iconify-icon>
@@ -387,40 +402,85 @@
     </script>
     <script>
         $(document).ready(function() {
+            let type = new URLSearchParams(window.location.search).get('type');
+            if (type) {
+                $('#taskType').val(type);
+            }
             $('#taskType').on('change', function() {
                 let selectedType = $(this).val();
-                if (selectedType === 'ALL') {
-                    window.location.href = "{{ route('tasks.board.index') }}";
-                    return;
+                let urlParams = new URLSearchParams(window.location.search);
+                if (selectedType && selectedType !== "ALL") {
+                    urlParams.set('type', selectedType);
+                } else {
+                    urlParams.delete('type');
                 }
-                let url = `{{ route('tasks.board.index') }}?type=${selectedType}`;
-                window.location.href = url;
+
+                window.location.search = urlParams.toString();
             });
         });
-        $(document).ready(function() {
-            $('#byUser').on('change', function() {
-                let selectedUser = $(this).val();
-                if (selectedUser === 'ALL') {
-                    window.location.href = "{{ route('tasks.board.index') }}";
-                    return;
-                }
-                let url = `{{ route('tasks.board.index') }}?user_id=${selectedUser}`;
-                window.location.href = url;
-            });
-        });
+
         $(document).ready(function() {
             let urlParams = new URLSearchParams(window.location.search);
             let userId = urlParams.get('user_id');
+
             if (userId) {
                 $('#byUser').val(userId);
             }
+
+            $('#byUser').on('change', function() {
+                let selectedUser = $(this).val();
+                let baseUrl = "{{ route('tasks.board.index') }}";
+
+                if (selectedUser === 'ALL') {
+                    window.location.href = baseUrl;
+                } else {
+                    urlParams.set('user_id', selectedUser);
+                    window.location.href = baseUrl + "?" + urlParams.toString();
+                }
+            });
         });
-        $(document).ready(function() {
+
+        document.addEventListener("DOMContentLoaded", function() {
             let urlParams = new URLSearchParams(window.location.search);
-            let taskType = urlParams.get('type'); // Extract type from URL
-            if (taskType) {
-                $('#taskType').val(taskType);
-            }
+            let startDate = urlParams.get('start_date');
+            let endDate = urlParams.get('end_date');
+
+            flatpickr("#start_date_search", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: true,
+                defaultDate: startDate ? startDate : null // Set date from URL if exists
+            });
+
+            flatpickr("#end_date_search", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: true,
+                defaultDate: endDate ? endDate : null // Set date from URL if exists
+            });
+
+            $('#search_tasks').on('click', function() {
+                let startDate = $('#start_date_search').val();
+                let endDate = $('#end_date_search').val();
+
+                if (startDate) urlParams.set('start_date', startDate);
+                else urlParams.delete('start_date');
+
+                if (endDate) urlParams.set('end_date', endDate);
+                else urlParams.delete('end_date');
+
+                window.location.search = urlParams.toString(); // Reload with updated params
+            });
+
+            $('#reset_filters').on('click', function() {
+                $('#start_date_search').flatpickr().clear(); // Clear start date
+                $('#end_date_search').flatpickr().clear(); // Clear end date
+                window.location.search = ''; // Reset URL params
+            });
         });
     </script>
     <script>
