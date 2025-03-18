@@ -10,21 +10,27 @@
                 </a>
             </div>
         @endif
+        <style>
+            th {
+                cursor: grab;
+                background: #f8f9fa;
+            }
+        </style>
         <div class="card-body table-responsive">
-            <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+            <table class="table bordered-table mb-0" id="project-data-table">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Project</th>
-                        <th>Service</th>
-                        <th>Status</th>
-                        <th>Account Manager</th>
-                        <th>Contract End Date</th>
-                        <th>Monthly Revenue (w/o VAT)</th>
-                        <th>Tech</th>
-                        <th>Created By</th>
-                        <th>Pending Tasks</th>
-                        <th>Actions</th>
+                        <th data-key="p-id">#</th>
+                        <th data-key="Project">Project</th>
+                        <th data-key="Service">Service</th>
+                        <th data-key="Status">Status</th>
+                        <th data-key="Account_Manager">Account Manager</th>
+                        <th data-key="Contract_End_Date">Contract End Date</th>
+                        <th data-key="Monthly_Revenue">Monthly Revenue (w/o VAT)</th>
+                        <th data-key="Tech">Tech</th>
+                        <th data-key="Created_By">Created By</th>
+                        <th data-key="Pending_Tasks">Pending Tasks</th>
+                        <th data-key="Actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,6 +148,62 @@
                         .catch(error => console.error("Error:", error));
                 });
             });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery.dragtable@2.0.15/jquery.dragtable.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.dragtable@2.0.15/dragtable.min.css">
+    <script>
+        $(document).ready(function() {
+            let table = $('#project-data-table');
+            let storageKey = 'tableColumnOrder';
+
+            function saveColumnOrder(sortOrder) {
+                localStorage.setItem(storageKey, JSON.stringify(sortOrder));
+            }
+            function loadColumnOrder() {
+                let savedOrder = localStorage.getItem(storageKey);
+                if (!savedOrder) return;
+                savedOrder = JSON.parse(savedOrder);
+                let headerRow = table.find('thead tr');
+                let bodyRows = table.find('tbody tr');
+                let newHeader = [];
+                let headerMap = {};
+                let headers = headerRow.find('th');
+                headers.each(function(index) {
+                    let key = $(this).attr('data-key');
+                    if (key) headerMap[key] = index;
+                });
+                savedOrder.forEach((key) => {
+                    let th = headers.filter(`[data-key="${key}"]`);
+                    if (th.length) newHeader.push(th.detach());
+                });
+                headerRow.append(newHeader);
+                bodyRows.each(function() {
+                    let row = $(this);
+                    let newCells = new Array(savedOrder.length); // Initialize array to maintain order
+                    row.children().each(function(index) {
+                        let key = headers.eq(index).attr(
+                        'data-key'); // Find key based on original order
+                        let newIndex = savedOrder.indexOf(key); // Find where it should be placed
+                        if (newIndex !== -1) {
+                            newCells[newIndex] = $(this).detach(); // Place at correct index
+                        }
+                    });
+                    row.append(newCells);
+                });
+            }
+            table.dragtable({
+                persistState: function(table) {
+                    let sortOrder = {};
+                    table.el.find('th').each(function(i) {
+                        if (this.dataset.key) { // Use 'data-key' instead of 'id'
+                            sortOrder[this.dataset.key] = i;
+                        }
+                    });
+                    saveColumnOrder(Object.keys(sortOrder)); // Save order in localStorage
+                }
+            });
+            loadColumnOrder();
         });
     </script>
 
