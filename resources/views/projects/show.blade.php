@@ -83,12 +83,12 @@
                 <div class="col-lg-3">
                     <div
                         class="trail-bg h-100 text-center d-flex flex-column justify-content-center align-items-center p-16 radius-8">
-                        <a href="{{ $project->companies->website ?? '' }}"> <img
+                        <a target="_blank" href="{{ $project->companies->website ?? '' }}"> <img
                                 src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? '' }}"
                                 alt="" class="img-fluid mb-16 rounded object-fit-cover rounded-end-4"
                                 style="max-width: 150px;"></a>
                         <h6 class="text-white text-xl"><a
-                                href="{{ $project->companies->website ?? '' }}">{{ $project->companies->name ?? '' }}</a>
+                                target="_blank" href="{{ $project->companies->website ?? '' }}">{{ $project->companies->name ?? '' }}</a>
                         </h6>
                         <div class="">
                             <p class="text-white">
