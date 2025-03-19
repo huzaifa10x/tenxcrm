@@ -15187,7 +15187,6 @@ td.fc-header-center {
 /* === NFT end === */
 /* === trail card start === */
 .trail-bg {
-  /* update */
   background-image: linear-gradient(#000000a1, #000000a1), url("../images/home-nine/trail-bg.png");
   background-size: cover;
   background-repeat: no-repeat;
