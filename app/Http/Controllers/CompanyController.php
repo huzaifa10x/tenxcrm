@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\CompanyDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class CompanyController extends Controller
 {
@@ -26,16 +27,16 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required',
             'website' => 'required|url',
-            'city' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
+            'city' => 'required',
+            'country' => 'required',
             'logo' => 'nullable',
 
-            'detail_name.*' => 'required|string|max:255',
-            'detail_email.*' => 'required|email|unique:company_details,email',
-            'detail_phone.*' => 'required|string|max:20',
-            'detail_city.*' => 'required|string|max:100',
+            'detail_name.*' => 'required',
+            'detail_email.*' => 'required',
+            'detail_phone.*' => 'required',
+            'detail_city.*' => 'required',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -60,9 +61,8 @@ class CompanyController extends Controller
             ]);
         }
 
-        return redirect()->route('companies.index')->with('success', 'Company created successfully!');
+        return response()->json(['message' => 'Company created successfully!'], 200);
     }
-
 
     // Show the details of a single company
     public function show($id)

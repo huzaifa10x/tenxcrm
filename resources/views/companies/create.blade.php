@@ -1,10 +1,9 @@
-<!-- resources/views/companies/create.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         {{ __('Create Company') }}
     </x-slot>
     @if ($userPermissions->contains('can manage companies'))
-        <form method="POST" action="{{ route('companies.store') }}" enctype="multipart/form-data">
+        <form id="companyForm" enctype="multipart/form-data">
             @csrf
             <div class="card mb-10">
                 <div class="card-header">
@@ -14,57 +13,67 @@
                     <div class="row gy-3">
                         <div class="col-lg-6">
                             <label class="form-label">Company Name</label>
-                            <input required type="text" name="name" class="form-control">
+                            <input type="text" name="name" class="form-control">
+                            <span class="text-danger error-name"></span>
                         </div>
                         <div class="col-lg-6">
                             <label class="form-label">Company Website</label>
-                            <input required type="text" name="website" class="form-control">
+                            <input type="text" name="website" class="form-control">
+                            <span class="text-danger error-website"></span>
                         </div>
                         <div class="col-lg-6">
                             <label class="form-label">Company Country</label>
-                            <select required id="country" name="country" class="form-control">
+                            <select name="country" id="country" class="form-control">
                                 <option value="">Select Country</option>
                                 <option value="UAE">UAE</option>
                                 <option value="SAUDI ARABIA">SAUDI ARABIA</option>
                                 <option value="USA">USA</option>
                                 <option value="OTHER">OTHER</option>
                             </select>
+                            <span class="text-danger error-country"></span>
                         </div>
                         <div class="col-lg-6 city-wrapper" style="display: none">
                             <label class="form-label">Company City</label>
-                            <select required id="city" name="city" class="form-control">
+                            <select name="city" id="city" class="form-control">
                                 <option value="">Select City</option>
                             </select>
+                            <span class="text-danger error-city"></span>
                         </div>
                         <div class="col-lg-6">
                             <label class="form-label">Company Logo</label>
                             <input type="file" name="logo" class="form-control">
+                            <span class="text-danger error-logo"></span>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="card mb-10">
                 <div class="card-header">
-                    <span class="fw-bold">Contact person Details</span>
+                    <span class="fw-bold">Contact Person Details</span>
                 </div>
                 <div class="card-body">
                     <div id="companyDetailsContainer">
                         <div class="row gy-3 company-detail">
                             <div class="col-lg-6">
                                 <label class="form-label">Name</label>
-                                <input required name="detail_name[]" type="text" class="form-control">
+                                <input name="detail_name[]" type="text" class="form-control">
+                                <span class="text-danger error-detail_name"></span>
                             </div>
                             <div class="col-lg-6">
                                 <label class="form-label">Email</label>
-                                <input required name="detail_email[]" type="text" class="form-control">
+                                <input name="detail_email[]" type="text" class="form-control">
+                                <span class="text-danger error-detail_email"></span>
                             </div>
                             <div class="col-lg-6">
                                 <label class="form-label">Phone Number</label>
-                                <input required name="detail_phone[]" type="text" class="form-control">
+                                <input name="detail_phone[]" type="text" class="form-control">
+                                <span class="text-danger error-detail_phone"></span>
                             </div>
                             <div class="col-lg-6">
                                 <label class="form-label">City</label>
-                                <input required name="detail_city[]" type="text" class="form-control">
+                                <input name="detail_city[]" type="text" class="form-control">
+                                <span class="text-danger error-detail_city"></span>
                             </div>
                             <div class="col-lg-6">
                                 <button type="button" class="btn btn-danger remove-detail mt-3">Remove</button>
@@ -78,23 +87,9 @@
                 </div>
             </div>
         </form>
-        <script>
-            $(document).ready(function() {
-                $("#addMoreDetails").click(function() {
-                    var newDetail = $(".company-detail:first").clone();
-                    newDetail.find("input").val(""); // Clear input fields
-                    $("#companyDetailsContainer").append(newDetail);
-                });
 
-                $(document).on("click", ".remove-detail", function() {
-                    if ($(".company-detail").length > 1) {
-                        $(this).closest(".company-detail").remove();
-                    } else {
-                        alert("At least one detail is required!");
-                    }
-                });
-            });
-        </script>
+        <div id="successMessage" class="alert alert-success mt-3 d-none"></div>
+
         <script>
             $(document).ready(function() {
                 let cities = {
@@ -111,8 +106,7 @@
                     "USA": ["Other"],
                     "OTHER": ["Other"]
                 };
-
-                $("#country").change(function() {
+                $(document).on('change', '#country', function() {
                     let country = $(this).val();
                     let cityDropdown = $("#city");
                     $('.city-wrapper').slideDown();
@@ -124,6 +118,64 @@
                                 '</option>');
                         });
                     }
+                });
+            });
+        </script>
+
+        <script>
+            $(document).ready(function() {
+
+                // Handle Adding More Contact Person Details
+                $("#addMoreDetails").click(function() {
+                    var newDetail = $(".company-detail:first").clone();
+                    newDetail.find("input").val(""); // Clear input fields
+                    $("#companyDetailsContainer").append(newDetail);
+                });
+
+                // Handle Removing Contact Person Details
+                $(document).on("click", ".remove-detail", function() {
+                    if ($(".company-detail").length > 1) {
+                        $(this).closest(".company-detail").remove();
+                    } else {
+                        alert("At least one contact person is required!");
+                    }
+                });
+
+                // AJAX Form Submission
+                $("#companyForm").submit(function(e) {
+                    e.preventDefault(); // Prevent default form submission
+
+                    let formData = new FormData(this); // Get form data
+                    let submitButton = $(this).find("button[type=submit]");
+                    submitButton.prop("disabled", true).text("Saving...");
+
+                    $.ajax({
+                        url: "{{ route('companies.store') }}", // Laravel route
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            $("#successMessage").removeClass("d-none").text(response.message);
+                            $("#errorMessages").addClass("d-none").text("");
+                            submitButton.prop("disabled", false).text("Save");
+                            $("#companyForm")[0].reset(); // Reset form
+                        },
+                        error: function(xhr) {
+                            let errors = xhr.responseJSON.errors;
+                            $(".text-danger").text(""); // Clear previous errors
+
+                            $.each(errors, function(key, value) {
+                                let formattedKey = key.replace(".",
+                                "_"); // Handle array input names
+                                $(".error-" + formattedKey).text(value[
+                                0]); // Show error under respective field
+                            });
+
+                            $("#successMessage").addClass("d-none").text("");
+                            submitButton.prop("disabled", false).text("Save");
+                        }
+                    });
                 });
             });
         </script>
