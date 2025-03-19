@@ -161,6 +161,9 @@
                             $("#errorMessages").addClass("d-none").text("");
                             submitButton.prop("disabled", false).text("Save");
                             $("#companyForm")[0].reset(); // Reset form
+                            setTimeout(() => {
+                                window.location.href = "{{ route('companies.index') }}"
+                            }, 2000);
                         },
                         error: function(xhr) {
                             let errors = xhr.responseJSON.errors;
