@@ -170,7 +170,7 @@
                                     <tbody>
                                         @foreach ($tasks->where('status', $status) as $task)
                                             <tr onclick="loadTaskDetails({{ $task->id }})">
-                                                <td>#{{ $task->id }}</td>
+                                                <td>{{ $task->id }}</td>
                                                 <td>
                                                     <a data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                                         aria-controls="offcanvasRight"

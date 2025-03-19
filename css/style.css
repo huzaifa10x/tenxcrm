@@ -15187,7 +15187,7 @@ td.fc-header-center {
 /* === NFT end === */
 /* === trail card start === */
 .trail-bg {
-  background-image: url("../images/home-nine/trail-bg.png");
+  background-image: linear-gradient(#000000a1, #000000a1), url("../images/home-nine/trail-bg.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
@@ -15947,11 +15947,27 @@ ul#comment-list {
 
 /* Bell Animation */
 @keyframes bell-shake {
-  0%, 100% { transform: rotate(0); }
-  20% { transform: rotate(-10deg); }
-  40% { transform: rotate(10deg); }
-  60% { transform: rotate(-5deg); }
-  80% { transform: rotate(5deg); }
+
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  20% {
+    transform: rotate(-10deg);
+  }
+
+  40% {
+    transform: rotate(10deg);
+  }
+
+  60% {
+    transform: rotate(-5deg);
+  }
+
+  80% {
+    transform: rotate(5deg);
+  }
 }
 
 .animate-bell iconify-icon {

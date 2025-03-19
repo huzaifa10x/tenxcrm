@@ -81,51 +81,32 @@
         <div class="card-body">
             <div class="row gy-3 mb-10">
                 <div class="col-lg-3">
-                    <div class="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
-                        <img src="{{ asset('/images/user-grid/user-grid-bg1.png') }}" alt=""
-                            class="w-100 object-fit-cover">
-                        <div class="pb-24 ms-16 mb-24 me-16  mt--100">
-                            <div
-                                class="text-center d-flex mt-3 flex-column align-items-center justify-content-center border border-top-0 border-start-0 border-end-0">
-                                <img style="backdrop-filter: blur(9px);"
-                                    src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? 'N/A' }}"
-                                    alt="" class="mt-10 img-fluid p-10 rounded">
-                                @if ($project->companies)
-                                    <span
-                                        class="text-secondary-light mb-16">{{ optional(optional($project->companies)->details->first())->email ?? '' }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="my-10">
-                                <div class="d-flex flex-column gap-3">
-                                    <div class="border p-3 rounded bg-info-50 credential-item">
-                                        <div><strong>Website:</strong> {{ $project->companies->website ?? 'N/A' }}
-                                        </div>
-                                        <div><strong>City:</strong> {{ $project->companies->city ?? 'N/A' }}</div>
-                                        <div><strong>Country:</strong> {{ $project->companies->country ?? 'N/A' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-flex flex-column gap-3">
-                                @if ($project->companies)
-                                    @foreach ($project->companies->details as $index => $details)
-                                        <div
-                                            class="border p-3 rounded bg-light credential-item mb-10 {{ $index > 0 ? 'd-none' : '' }}">
-                                            <div><strong>name:</strong> {{ $details->name }}</div>
-                                            <div><strong>email:</strong> {{ $details->email }}</div>
-                                            <div><strong>phone:</strong> {{ $details->phone }}</div>
-                                            <div><strong>city:</strong> {{ $details->city }}</div>
-                                        </div>
-                                    @endforeach
-                                @endif
-                            </div>
-
-                            @if (count($project->credentials) > 1)
-                                <button id="showMoreCredentials" class="btn btn-sm fs-7 btn-primary mt-2">Show More
-                                    Contacts</button>
+                    <div
+                        class="trail-bg h-100 text-center d-flex flex-column justify-content-center align-items-center p-16 radius-8">
+                        <a href="{{ $project->companies->website ?? '' }}"> <img
+                                src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? '' }}"
+                                alt="" class="img-fluid mb-16 rounded object-fit-cover rounded-circle"></a>
+                        <h6 class="text-white text-xl"><a
+                                href="{{ $project->companies->website ?? '' }}">{{ $project->companies->name ?? '' }}</a>
+                        </h6>
+                        <div class="">
+                            <p class="text-white">
+                                <a
+                                    href="mailto:{{ optional(optional($project->companies)->details->first())->email ?? '' }}">
+                                    {{ optional(optional($project->companies)->details->first())->email ?? '' }}
+                            </p>
+                            </a>
+                            @if ($userPermissions->contains('can view companies'))
+                                <a href="{{ route('companies.show', $project->companies->id) }}"
+                                    class="btn py-8 mb-16 rounded-pill w-100 bg-gradient-blue-warning text-sm">View
+                                    Company</a>
                             @endif
-
+                            {{-- Contact person info --}}
+                            @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() || auth()->user()->hasRole('ADMIN'))
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#contactPersonDetailModal"
+                                    class="btn py-8 rounded-pill w-100 bg-gradient-danger text-sm">Contact
+                                    Person</button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -272,12 +253,7 @@
                         </div>
                     </div>
                 @endif
-                @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
-                        auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
-                        auth()->user()->hasRole('ADMIN') ||
-                        auth()->user()->hasRole('SEO ADMIN') ||
-                        $userPermissions->contains('can view financial details') ||
-                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
+                @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() || auth()->user()->hasRole('ADMIN'))
                     <div class="col-md-6">
                         <div class="card radius-16">
                             <div class="card-header">
@@ -1089,6 +1065,40 @@
         </div>
     </div>
     <!-- Modal -->
+    <div class="modal fade" id="contactPersonDetailModal" tabindex="-1" aria-labelledby="contactPersonDetailModal"
+        aria-hidden="true">
+        <div class="modal-dialog bg-base">
+            <div class="modal-content bg-base">
+                <div class="modal-header bg-base">
+                    <h1 class="modal-title fs-5" id="contactPersonDetailModal">Company
+                        Contact Persons</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-base" style="max-height: 400px; overflow-y: auto;">
+                    <div class="d-flex flex-column gap-3">
+                        @if ($project->companies)
+                            @foreach ($project->companies->details as $index => $details)
+                                <div class="border text-start p-3 rounded bg-base mb-10">
+                                    <div class="border-bottom"><strong>name:</strong>
+                                        {{ $details->name }}
+                                    </div>
+                                    <div class="border-bottom"><strong>email:</strong>
+                                        {{ $details->email }}
+                                    </div>
+                                    <div class="border-bottom"><strong>phone:</strong>
+                                        {{ $details->phone }}
+                                    </div>
+                                    <div><strong>city:</strong> {{ $details->city }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
     <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
         <div class="modal fade" id="taskCreateModal" tabindex="-1" aria-labelledby="taskCreateModalLabel"
             aria-hidden="true">
@@ -1427,9 +1437,8 @@
     </script>
     <script>
         $(document).ready(function() {
-            $("#showMoreCredentials").on("click", function() {
-                $(".credential-item.d-none").removeClass("d-none");
-                $(this).hide(); // Button hide after clicking
+            $(".show-contact-person").click(function() {
+                $(".contact-person-info-wrapper").slideDown();
             });
         });
         $(document).on('click', '.toggle-password', function() {
