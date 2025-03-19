@@ -170,6 +170,9 @@
                                 "_"); // Handle array input names
                                 $(".error-" + formattedKey).text(value[
                                 0]); // Show error under respective field
+
+                                // Show toastr error message
+                                toastr.error(value[0]);
                             });
 
                             $("#successMessage").addClass("d-none").text("");

@@ -27,16 +27,16 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'website' => 'required|url',
-            'city' => 'required',
-            'country' => 'required',
+            'name' => 'required|string|max:255',
+            'website' => 'required',
+            'city' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
             'logo' => 'nullable',
 
-            'detail_name.*' => 'required',
-            'detail_email.*' => 'required',
-            'detail_phone.*' => 'required',
-            'detail_city.*' => 'required',
+            'detail_name.*' => 'required|string|max:255',
+            'detail_email.*' => 'required|email|unique:company_details,email',
+            'detail_phone.*' => 'required|string|max:20',
+            'detail_city.*' => 'required|string|max:100',
         ]);
 
         if ($request->hasFile('logo')) {
