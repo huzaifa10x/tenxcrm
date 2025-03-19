@@ -103,7 +103,9 @@
                                     Company</a>
                             @endif
                             {{-- Contact person info --}}
-                            @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() || auth()->user()->hasRole('ADMIN'))
+                            @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                                    auth()->user()->hasRole('ADMIN') ||
+                                    ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                                 <button type="button" data-bs-toggle="modal" data-bs-target="#contactPersonDetailModal"
                                     class="btn py-8 rounded-pill w-100 bg-gradient-danger text-sm">Contact
                                     Person</button>
@@ -254,7 +256,9 @@
                         </div>
                     </div>
                 @endif
-                @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() || auth()->user()->hasRole('ADMIN'))
+                @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                        auth()->user()->hasRole('ADMIN') ||
+                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-md-6">
                         <div class="card radius-16">
                             <div class="card-header">
@@ -860,91 +864,96 @@
                 </div>
             @endif
             <div class="row gy-3 mb-10">
-                <div class="col-lg-6">
-                    <div class="card border">
-                        <div class="card-header">
-                            <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                <h6 class="mb-2 fw-bold text-lg mb-0">Contract Files</h6>
-                                @if ($userPermissions->contains('can add project files'))
-                                    <button data-bs-toggle="modal" data-bs-target="#projectAttachmentsModal"
-                                        class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-                                        Add Attachments
-                                        <iconify-icon icon="solar:alt-arrow-right-linear"
-                                            class="icon"></iconify-icon>
-                                    </button>
-                                    <div class="modal fade" id="projectAttachmentsModal" tabindex="-1"
-                                        aria-labelledby="projectAttachmentsModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h1 class="modal-title fs-5" id="projectAttachmentsModalLabel">
-                                                        Choose
-                                                        Project
-                                                        Attachments
-                                                    </h1>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <input readonly class="form-control" type="file"
-                                                        id="fileInput" multiple>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close</button>
-                                                    <button type="button"
-                                                        onclick="uploadProjectFiles({{ $project->id }})"
-                                                        class="btn btn-primary">Save changes</button>
+                @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                        auth()->user()->hasRole('ADMIN') ||
+                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
+                    <div class="col-lg-6">
+                        <div class="card border">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                                    <h6 class="mb-2 fw-bold text-lg mb-0">Contract Files</h6>
+                                    @if ($userPermissions->contains('can add project files'))
+                                        <button data-bs-toggle="modal" data-bs-target="#projectAttachmentsModal"
+                                            class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                                            Add Attachments
+                                            <iconify-icon icon="solar:alt-arrow-right-linear"
+                                                class="icon"></iconify-icon>
+                                        </button>
+                                        <div class="modal fade" id="projectAttachmentsModal" tabindex="-1"
+                                            aria-labelledby="projectAttachmentsModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5"
+                                                            id="projectAttachmentsModalLabel">
+                                                            Choose
+                                                            Project
+                                                            Attachments
+                                                        </h1>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <input readonly class="form-control" type="file"
+                                                            id="fileInput" multiple>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="button"
+                                                            onclick="uploadProjectFiles({{ $project->id }})"
+                                                            class="btn btn-primary">Save changes</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                @if (!empty($project->contractFiles) && count($project->contractFiles) > 0)
+                                    <div class="d-flex flex-column gap-24">
+                                        @foreach ($project->contractFiles as $file)
+                                            @php
+                                                $filePath = asset('/public/storage/' . $file->file_path);
+                                                $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
+                                            @endphp
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="d-flex align-items-center gap-12">
+                                                    <div class="flex-shrink-0">
+                                                        <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
+                                                            alt="" class="">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="text-md mb-0 fw-normal">
+                                                            <a target="_blank"
+                                                                href="{{ $filePath }}">{{ Illuminate\Support\Str::limit($file->file_name, 10, '...') }}</a>
+                                                        </h6>
+                                                        <span
+                                                            class="text-xs text-secondary-light fw-normal">{{ $extension }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-align gap-12">
+                                                    <button type="button"
+                                                        onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
+                                                        class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-danger-100 text-danger-600 bg-hover-danger-600 text-hover-white text-md rounded-circle">
+                                                        <i class="ri-delete-bin-5-line"></i>
+                                                    </button>
+                                                    <a href="{{ $filePath }}" download
+                                                        class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
+                                                        <i class="ri-download-2-fill"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
+                                @else
+                                    <p class="text-danger">No contract files attached.</p>
                                 @endif
                             </div>
                         </div>
-                        <div class="card-body">
-                            @if (!empty($project->contractFiles) && count($project->contractFiles) > 0)
-                                <div class="d-flex flex-column gap-24">
-                                    @foreach ($project->contractFiles as $file)
-                                        @php
-                                            $filePath = asset('/public/storage/' . $file->file_path);
-                                            $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
-                                        @endphp
-                                        <div class="d-flex align-items-center justify-content-between gap-3">
-                                            <div class="d-flex align-items-center gap-12">
-                                                <div class="flex-shrink-0">
-                                                    <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
-                                                        alt="" class="">
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-normal">
-                                                        <a target="_blank"
-                                                            href="{{ $filePath }}">{{ Illuminate\Support\Str::limit($file->file_name, 10, '...') }}</a>
-                                                    </h6>
-                                                    <span
-                                                        class="text-xs text-secondary-light fw-normal">{{ $extension }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="flex-align gap-12">
-                                                <button type="button"
-                                                    onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
-                                                    class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-danger-100 text-danger-600 bg-hover-danger-600 text-hover-white text-md rounded-circle">
-                                                    <i class="ri-delete-bin-5-line"></i>
-                                                </button>
-                                                <a href="{{ $filePath }}" download
-                                                    class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
-                                                    <i class="ri-download-2-fill"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <p class="text-danger">No contract files attached.</p>
-                            @endif
-                        </div>
                     </div>
-                </div>
+                @endif
                 @if (!empty($sequenceTasksFiles))
                     <div class="col-lg-6">
                         <div class="card border">
