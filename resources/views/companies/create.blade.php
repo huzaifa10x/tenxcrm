@@ -156,6 +156,7 @@
                         processData: false,
                         contentType: false,
                         success: function(response) {
+                            toastr.success(response.message)
                             $("#successMessage").removeClass("d-none").text(response.message);
                             $("#errorMessages").addClass("d-none").text("");
                             submitButton.prop("disabled", false).text("Save");
@@ -167,9 +168,9 @@
 
                             $.each(errors, function(key, value) {
                                 let formattedKey = key.replace(".",
-                                "_"); // Handle array input names
+                                    "_"); // Handle array input names
                                 $(".error-" + formattedKey).text(value[
-                                0]); // Show error under respective field
+                                    0]); // Show error under respective field
 
                                 // Show toastr error message
                                 toastr.error(value[0]);
