@@ -22,24 +22,22 @@ class DashboardController extends Controller
 
         $settings = GeneralSetting::first();
 
-        // if (!$settings) {
-        //     return view('dashboard')->with('error', 'Company settings not found!');
-        // }
+        if (!$settings) {
+            $pendingAttendances = Attendance::where('date', '<', today())
+                ->whereNull('punch_out')
+                ->get();
 
-        // Get all pending attendance records where punch-out is missing before today
-        $pendingAttendances = Attendance::where('date', '<', today())
-            ->whereNull('punch_out')
-            ->get();
+            $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
 
-        $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
-
-        foreach ($pendingAttendances as $attendance) {
-            $attendance->punch_out = $closingTime;
-            $attendance->total_hours = Carbon::parse($attendance->punch_in)
-                ->diff(Carbon::parse($closingTime))
-                ->format('%H:%I:%S');
-            $attendance->save();
+            foreach ($pendingAttendances as $attendance) {
+                $attendance->punch_out = $closingTime;
+                $attendance->total_hours = Carbon::parse($attendance->punch_in)
+                    ->diff(Carbon::parse($closingTime))
+                    ->format('%H:%I:%S');
+                $attendance->save();
+            }
         }
+
 
         $last15Days = collect(range(0, 14))->map(function ($day) {
             return Carbon::now()->subDays($day)->format('Y-m-d');
