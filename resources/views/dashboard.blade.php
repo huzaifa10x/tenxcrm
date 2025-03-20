@@ -1,5 +1,3 @@
-{{ print_r('hi') }}
-{{ exit() }}
 <x-app-layout>
     <x-slot name="header">
         {{ __($role . ' DASHBOARD') }}
