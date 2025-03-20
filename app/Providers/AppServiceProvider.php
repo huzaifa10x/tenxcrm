@@ -42,8 +42,8 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command('notifications:check')->everyTenSeconds()->withoutOverlapping();
             });
         }
-        Carbon::setTestNow(Carbon::now());
         // Carbon::setTestNow(Carbon::now()->startOfMonth());
+        Carbon::setTestNow(Carbon::now());
         // Carbon::setTestNow(Carbon::now()->addHour(12));
         // Carbon::setTestNow(Carbon::now()->addDays(3));
     }
