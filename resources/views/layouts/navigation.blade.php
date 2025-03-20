@@ -181,6 +181,12 @@
                     </li>
                 </ul>
             </li>
+            <li>
+                <a href="{{ route('settings.index') }}">
+                    <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
+                    <span>System Setting</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>

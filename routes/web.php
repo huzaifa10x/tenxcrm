@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\IndustryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OffsiteTaskController;
@@ -44,6 +46,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/todo/get-by-date', [TodoController::class, 'getTodosByDate'])->name('todo.getByDate');
     Route::post('/todo/mark-done', [TodoController::class, 'markAsDone'])->name('todo.markDone');
     Route::get('/todo/dates', [TodoController::class, 'getTodoDates'])->name('todo.getDates');
+    Route::post('/punch-in', [AttendanceController::class, 'punchIn'])->name('attendance.punchIn');
+    Route::post('/punch-out', [AttendanceController::class, 'punchOut'])->name('attendance.punchOut');
+    Route::get('/settings', [GeneralSettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings/update', [GeneralSettingController::class, 'update'])->name('settings.update');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -51,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/admin/attendance/filter', [DashboardController::class, 'filterAttendance'])->name('admin.attendance.filter');
     Route::get('/dashboard/task-counts', [DashboardController::class, 'getTaskCounts'])->name('dashboard.taskCounts');
     Route::middleware('permission:can view users')->group(function () {
         Route::resource('users', UserController::class);

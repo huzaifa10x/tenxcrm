@@ -2,6 +2,11 @@
     <x-slot name="header">
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
+    <div class="d-flex align-items-center justify-content-between mb-10">
+        <button class="btn btn-sm btn-success" id="punchInBtn">Punch In</button>
+        <button class="btn btn-sm btn-danger" id="punchOutBtn">Punch Out</button>
+    </div>
+
     <div class="row gy-3 mb-10">
         <div class="col-xxl-6">
             <div class="card h-100">
@@ -49,7 +54,8 @@
                                     style="min-height: {{ $taskPercentages['created'] }}%;">
                                     <span
                                         class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-primary-600 rounded-circle mb-12">
-                                        <h6 id="createdCount" class="mb-0 text-base">{{ $createdTasksCountGlobal }}</h6>
+                                        <h6 id="createdCount" class="mb-0 text-base">{{ $createdTasksCountGlobal }}
+                                        </h6>
                                     </span>
                                     <span class="text-secondary-light">Assigned</span>
                                 </div>
@@ -923,6 +929,36 @@
         </div>
     @elseif ($role == 'ADMIN')
     @endif
+    @if (auth()->user()->hasRole('ADMIN'))
+        <div class="row gy-3 mb-10">
+            <div class="col-12">
+                <div class="card h-100">
+                    <div class="card-body p-24">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
+                            <h6 class="mb-2 fw-bold text-lg mb-0">Daily Attendance Report</h6>
+                        </div>
+                        <div class="container">
+                            <input placeholder="select date" type="date" id="attendanceDate"
+                                class="form-control mb-3">
+                            <table class="table table-bordered" id="attendanceTable">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Date</th>
+                                        <th>Punch In</th>
+                                        <th>Punch Out</th>
+                                        <th>Total Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     <script>
         var options = {
             series: [{{ $pendingWords ?? 0 }}, {{ $completedWords ?? 0 }}],
@@ -1041,5 +1077,77 @@
             });
         });
     </script>
+    <script>
+        function getLocationAndPunch(type) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    let data = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+                    if (type === 'out') {
+                        if (!confirm(
+                                "Are you sure you want to punch out? Once you punch out, you cannot punch in again today."
+                            )) {
+                            return;
+                        }
+                    }
+                    fetch(type === 'in' ? "{{ route('attendance.punchIn') }}" :
+                            "{{ route('attendance.punchOut') }}", {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify(data)
+                            }).then(response => response.json())
+                        .then(data => alert(data.success || data.error));
+                });
+            } else {
+                alert("Location access is required!");
+            }
+        }
+
+        document.getElementById('punchInBtn').addEventListener('click', () => getLocationAndPunch('in'));
+        document.getElementById('punchOutBtn').addEventListener('click', () => getLocationAndPunch('out'));
+    </script>
+    @if (auth()->user()->hasRole('ADMIN'))
+        <script>
+            $(document).ready(function() {
+                let today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+                $('#attendanceDate').val(today); // Set default value in date picker
+
+                function fetchAttendance(date) {
+                    $.ajax({
+                        url: "{{ route('admin.attendance.filter') }}",
+                        type: "GET",
+                        data: {
+                            date: date
+                        },
+                        success: function(data) {
+                            let tbody = '';
+                            data.forEach(attendance => {
+                                tbody += `
+                                <tr>
+                                    <td>${attendance.user.name}</td>
+                                    <td>${attendance.date}</td>
+                                    <td>${attendance.punch_in}</td>
+                                    <td>${attendance.punch_out ?? 'Not Punched Out'}</td>
+                                    <td>${attendance.total_hours ?? 'Pending'}</td>
+                                </tr>
+                            `;
+                            });
+                            $('#attendanceTable tbody').html(tbody);
+                        }
+                    });
+                }
+                fetchAttendance(today);
+                $('#attendanceDate').on('change', function() {
+                    let selectedDate = $(this).val();
+                    fetchAttendance(selectedDate);
+                });
+            });
+        </script>
+    @endif
 
 </x-app-layout>
