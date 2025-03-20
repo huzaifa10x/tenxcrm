@@ -22,7 +22,7 @@ class DashboardController extends Controller
 
         $settings = GeneralSetting::first();
 
-        if (!$settings) {
+        if (!$settings && $settings->office_close_time) {
             $pendingAttendances = Attendance::where('date', '<', today())
                 ->whereNull('punch_out')
                 ->get();
@@ -37,7 +37,6 @@ class DashboardController extends Controller
                 $attendance->save();
             }
         }
-
 
         $last15Days = collect(range(0, 14))->map(function ($day) {
             return Carbon::now()->subDays($day)->format('Y-m-d');
