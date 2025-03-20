@@ -202,7 +202,7 @@ class DashboardController extends Controller
                 'completedTasksCountGlobal',
                 'createdTasksCountGlobal',
                 'collaboratorTasksCountGlobal',
-                $extraData
+                // $extraData
             ),
         ));
     }
