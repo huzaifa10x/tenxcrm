@@ -181,12 +181,14 @@
                     </li>
                 </ul>
             </li>
-            <li>
-                <a href="{{ route('settings.index') }}">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
-                    <span>System Setting</span>
-                </a>
-            </li>
+            @if (auth()->user()->hasRole('ADMIN'))
+                <li>
+                    <a href="{{ route('settings.index') }}">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
+                        <span>System Setting</span>
+                    </a>
+                </li>
+            @endif
         </ul>
     </div>
 </aside>
