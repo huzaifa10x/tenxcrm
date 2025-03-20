@@ -139,6 +139,16 @@ class DashboardController extends Controller
                 'completedTasks',
                 'assignedTasks',
                 'accountProjects',
+                // DEFAULT COMPACT
+                'role',
+                'latestNotifications',
+                'taskData',
+                'taskPercentages',
+                'pendingTasksCountGlobal',
+                'completedTasksCountGlobal',
+                'createdTasksCountGlobal',
+                'collaboratorTasksCountGlobal',
+                // DEFAULT COMPACT
             ];
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
@@ -190,6 +200,16 @@ class DashboardController extends Controller
                 'totalTasksCount',
                 'completedWords',
                 'pendingWords',
+                // DEFAULT COMPACT
+                'role',
+                'latestNotifications',
+                'taskData',
+                'taskPercentages',
+                'pendingTasksCountGlobal',
+                'completedTasksCountGlobal',
+                'createdTasksCountGlobal',
+                'collaboratorTasksCountGlobal',
+                // DEFAULT COMPACT
             ];
         }
         return view('dashboard', array_merge(
@@ -202,7 +222,7 @@ class DashboardController extends Controller
                 'completedTasksCountGlobal',
                 'createdTasksCountGlobal',
                 'collaboratorTasksCountGlobal',
-                // $extraData
+                $extraData
             ),
         ));
     }
