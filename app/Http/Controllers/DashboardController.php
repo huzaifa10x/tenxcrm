@@ -16,6 +16,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        $extraData = [];
         $role = $user->roles->first()->name;
         $latestNotifications = $user->notifications()->latest()->take(5)->get();
 
@@ -129,15 +130,8 @@ class DashboardController extends Controller
             $accountProjects = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
-            return view('dashboard', compact(
-                'role',
-                'latestNotifications',
-                'taskData',
-                'taskPercentages',
-                'pendingTasksCountGlobal',
-                'completedTasksCountGlobal',
-                'createdTasksCountGlobal',
-                'collaboratorTasksCountGlobal',
+
+            $extraData += [
                 'currentPortfolio',
                 'projects',
                 'campaignCounts',
@@ -145,7 +139,7 @@ class DashboardController extends Controller
                 'completedTasks',
                 'assignedTasks',
                 'accountProjects',
-            ));
+            ];
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
@@ -183,7 +177,7 @@ class DashboardController extends Controller
                 ->where('field_name', 'number_of_words')
                 ->sum('field_value');
             $pendingWords = $pendingWords ?? 0;
-            return view('dashboard', compact(
+            $extraData += [
                 'currentPortfolio',
                 'projects',
                 'campaignCounts',
@@ -196,36 +190,20 @@ class DashboardController extends Controller
                 'totalTasksCount',
                 'completedWords',
                 'pendingWords',
-                'role',
-                'latestNotifications',
-                'taskData',
-                'taskPercentages',
-                'pendingTasksCountGlobal',
-                'completedTasksCountGlobal',
-                'createdTasksCountGlobal',
-                'collaboratorTasksCountGlobal',
-            ));
-        } elseif ($role == "ADMIN") {
-            return view('dashboard', compact(
-                'role',
-                'latestNotifications',
-                'taskData',
-                'taskPercentages',
-                'pendingTasksCountGlobal',
-                'completedTasksCountGlobal',
-                'createdTasksCountGlobal',
-                'collaboratorTasksCountGlobal',
-            ));
+            ];
         }
-        return view('dashboard', compact(
-            'role',
-            'latestNotifications',
-            'taskData',
-            'taskPercentages',
-            'pendingTasksCountGlobal',
-            'completedTasksCountGlobal',
-            'createdTasksCountGlobal',
-            'collaboratorTasksCountGlobal',
+        return view('dashboard', array_merge(
+            compact(
+                'role',
+                'latestNotifications',
+                'taskData',
+                'taskPercentages',
+                'pendingTasksCountGlobal',
+                'completedTasksCountGlobal',
+                'createdTasksCountGlobal',
+                'collaboratorTasksCountGlobal',
+                $extraData
+            ),
         ));
     }
     public function filterAttendance(Request $request)
