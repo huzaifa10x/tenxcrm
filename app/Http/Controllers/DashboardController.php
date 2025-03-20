@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\GeneralSetting;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskCompletion;
@@ -15,10 +16,30 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-
+        $extraData = [];
         $role = $user->roles->first()->name;
-        $attendances = Attendance::whereDate('date', Carbon::today())->get();
         $latestNotifications = $user->notifications()->latest()->take(5)->get();
+
+        $settings = GeneralSetting::first();
+
+        if (!$settings) {
+            return view('dashboard')->with('error', 'Company settings not found!');
+        }
+
+        // Get all pending attendance records where punch-out is missing before today
+        $pendingAttendances = Attendance::where('date', '<', today())
+            ->whereNull('punch_out')
+            ->get();
+
+        $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
+
+        foreach ($pendingAttendances as $attendance) {
+            $attendance->punch_out = $closingTime;
+            $attendance->total_hours = Carbon::parse($attendance->punch_in)
+                ->diff(Carbon::parse($closingTime))
+                ->format('%H:%I:%S');
+            $attendance->save();
+        }
 
         $last15Days = collect(range(0, 14))->map(function ($day) {
             return Carbon::now()->subDays($day)->format('Y-m-d');
@@ -110,8 +131,7 @@ class DashboardController extends Controller
                 $query->where('user_id', $user->id);
             })->get();
 
-            return view('dashboard', compact(
-                'role',
+            $extraData += [
                 'currentPortfolio',
                 'projects',
                 'campaignCounts',
@@ -119,14 +139,7 @@ class DashboardController extends Controller
                 'completedTasks',
                 'assignedTasks',
                 'accountProjects',
-                'taskData',
-                'pendingTasksCountGlobal',
-                'completedTasksCountGlobal',
-                'createdTasksCountGlobal',
-                'collaboratorTasksCountGlobal',
-                'taskPercentages',
-                'latestNotifications',
-            ));
+            ];
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
@@ -144,17 +157,13 @@ class DashboardController extends Controller
 
             $pendingTasks = Task::where('status', 'Todo')->where('assigned_to', $user->id)->get();
             $completedTasks = Task::where('status', 'Completed')->where('assigned_to', $user->id)->get();
-
             $pendingTasksCount = Task::where('status', 'Todo')->where('assigned_to', $user->id)->count();
             $completedTasksCount = Task::where('status', 'Completed')->where('assigned_to', $user->id)->count();
             $totalTasksCount = Task::where('assigned_to', $user->id)->count();
-
             $assignedTasks = Task::where('created_by', $user->id)->get();
-
             $accountProjects = Project::whereHas('contentWriters', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
-
             $completedWords = TaskCompletion::whereHas('task', function ($query) use ($projects) {
                 $query->whereIn('project_id', $projects->pluck('id'))
                     ->where('status', 'Completed');
@@ -168,9 +177,7 @@ class DashboardController extends Controller
                 ->where('field_name', 'number_of_words')
                 ->sum('field_value');
             $pendingWords = $pendingWords ?? 0;
-
-            return view('dashboard', compact(
-                'role',
+            $extraData += [
                 'currentPortfolio',
                 'projects',
                 'campaignCounts',
@@ -183,25 +190,31 @@ class DashboardController extends Controller
                 'totalTasksCount',
                 'completedWords',
                 'pendingWords',
+            ];
+        }
+        return view('dashboard', array_merge(
+            compact(
+                'role',
+                'latestNotifications',
                 'taskData',
+                'taskPercentages',
                 'pendingTasksCountGlobal',
                 'completedTasksCountGlobal',
                 'createdTasksCountGlobal',
                 'collaboratorTasksCountGlobal',
-                'taskPercentages',
-                'latestNotifications',
-            ));
-        }
-
-        return view('dashboard', compact(
-            'role',
-            'taskData',
-            'pendingTasksCountGlobal',
-            'completedTasksCountGlobal',
-            'createdTasksCountGlobal',
-            'collaboratorTasksCountGlobal',
-            'taskPercentages',
-            'latestNotifications',
+                $extraData
+            ),
         ));
+    }
+    public function filterAttendance(Request $request)
+    {
+        $date = $request->date ?? Carbon::today()->toDateString();
+
+        $attendances = Attendance::with('user')
+            ->whereDate('date', $date)
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return response()->json($attendances);
     }
 }
