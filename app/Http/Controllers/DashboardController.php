@@ -22,19 +22,21 @@ class DashboardController extends Controller
 
         $settings = GeneralSetting::first();
 
-        if (!$settings && $settings->office_close_time) {
+        if (!$settings) {
             $pendingAttendances = Attendance::where('date', '<', today())
                 ->whereNull('punch_out')
                 ->get();
 
-            $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
+            if ($settings->office_close_time) {
+                $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
 
-            foreach ($pendingAttendances as $attendance) {
-                $attendance->punch_out = $closingTime;
-                $attendance->total_hours = Carbon::parse($attendance->punch_in)
-                    ->diff(Carbon::parse($closingTime))
-                    ->format('%H:%I:%S');
-                $attendance->save();
+                foreach ($pendingAttendances as $attendance) {
+                    $attendance->punch_out = $closingTime;
+                    $attendance->total_hours = Carbon::parse($attendance->punch_in)
+                        ->diff(Carbon::parse($closingTime))
+                        ->format('%H:%I:%S');
+                    $attendance->save();
+                }
             }
         }
 
