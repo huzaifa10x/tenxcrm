@@ -205,6 +205,17 @@ class DashboardController extends Controller
                 'createdTasksCountGlobal',
                 'collaboratorTasksCountGlobal',
             ));
+        } elseif ($role == "ADMIN") {
+            return view('dashboard', compact(
+                'role',
+                'latestNotifications',
+                'taskData',
+                'taskPercentages',
+                'pendingTasksCountGlobal',
+                'completedTasksCountGlobal',
+                'createdTasksCountGlobal',
+                'collaboratorTasksCountGlobal',
+            ));
         }
         return view('dashboard', compact(
             'role',
