@@ -173,23 +173,7 @@
                                                     </span>
 
                                                 </div>
-                                                @if (auth()->user()->hasRole('ADMIN'))
-                                                    <div
-                                                        class="d-flex align-items-center justify-content-between gap-10">
-                                                        <form action="{{ route('tasks.destroy', $task->id) }}"
-                                                            method="POST" style="display: inline-block;"
-                                                            onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit"
-                                                                class="card-delete-button text-danger-600">
-                                                                <iconify-icon icon="fluent:delete-24-regular"
-                                                                    class="icon text-lg line-height-1">
-                                                                </iconify-icon>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                @endif
+
                                             </div>
                                         </div>
                                     @endforeach

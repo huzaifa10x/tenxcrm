@@ -434,8 +434,8 @@
                                             placeholder="Website URL">
                                     </div>
                                     <div class="col-lg-3">
-                                        <input required class="form-control" type="text" name="credentials[0][username]"
-                                            placeholder="Username/Email">
+                                        <input required class="form-control" type="text"
+                                            name="credentials[0][username]" placeholder="Username/Email">
                                     </div>
                                     <div class="col-lg-3 d-flex align-items-center gap-3">
                                         <input class="form-control" type="password" name="credentials[0][password]"
@@ -589,7 +589,8 @@
         @endif
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
             <label class="form-label fs-7 m-0" for="sub_type">Assignee</label>
-            <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->assignedTo->name }}">
+            <input readonly type="text" class="form-control fs-7 h-auto"
+                value="{{ $task->assignedTo->name ?? '' }}">
         </div>
         @if ($task->department_id)
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
@@ -980,6 +981,28 @@
                     @endforeach
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<div class="row gy-3 mb-10">
+    <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+        <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+            <span class="fw-bold">Danger Zone</span>
+        </div>
+        <div class="card-body p-24">
+            @if (auth()->user()->hasRole('ADMIN'))
+                <div class="d-flex align-items-center justify-content-between gap-10">
+                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                        style="display: inline-block;"
+                        onsubmit="return confirm('Are you sure you want to delete this user?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="card-delete-button text-danger-600">
+                            Delete Tasks
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 </div>
