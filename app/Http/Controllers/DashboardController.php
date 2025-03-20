@@ -20,6 +20,27 @@ class DashboardController extends Controller
         $attendances = Attendance::whereDate('date', Carbon::today())->get();
         $latestNotifications = $user->notifications()->latest()->take(5)->get();
 
+        $settings = GeneralSetting::first();
+
+        if (!$settings) {
+            return view('dashboard')->with('error', 'Company settings not found!');
+        }
+
+        // Get all pending attendance records where punch-out is missing before today
+        $pendingAttendances = Attendance::where('date', '<', today())
+            ->whereNull('punch_out')
+            ->get();
+
+        $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
+
+        foreach ($pendingAttendances as $attendance) {
+            $attendance->punch_out = $closingTime;
+            $attendance->total_hours = Carbon::parse($attendance->punch_in)
+                ->diff(Carbon::parse($closingTime))
+                ->format('%H:%I:%S');
+            $attendance->save();
+        }
+
         $last15Days = collect(range(0, 14))->map(function ($day) {
             return Carbon::now()->subDays($day)->format('Y-m-d');
         })->reverse()->values();
@@ -203,5 +224,16 @@ class DashboardController extends Controller
             'taskPercentages',
             'latestNotifications',
         ));
+    }
+    public function filterAttendance(Request $request)
+    {
+        $date = $request->date ?? Carbon::today()->toDateString();
+
+        $attendances = Attendance::with('user')
+            ->whereDate('date', $date)
+            ->orderBy('date', 'desc')
+            ->get();
+
+        return response()->json($attendances);
     }
 }
