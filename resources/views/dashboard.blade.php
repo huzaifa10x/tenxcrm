@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        {{ __($role ?? '' . ' DASHBOARD') }}
+        {{ __($role . ' DASHBOARD') }}
     </x-slot>
     <div class="d-flex align-items-center justify-content-between mb-10">
         <button class="btn btn-sm btn-success" id="punchInBtn">Punch In</button>
