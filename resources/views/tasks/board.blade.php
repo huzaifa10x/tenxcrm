@@ -99,8 +99,7 @@
                     </div>
                 @endif
                 <div class="input-group">
-                    <input type="text" id="taskSearch" class="form-control"
-                        placeholder="Search Task by Title...">
+                    <input type="text" id="taskSearch" class="form-control" placeholder="Search Task by Title...">
                     <div id="input2" class="list-group"
                         style="position: absolute;
                         top: 44px;
@@ -111,6 +110,7 @@
                         width: 100%;">
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -422,7 +422,7 @@
 
             $('#byUser').on('change', function() {
                 let selectedUser = $(this).val();
-                let baseUrl = "{{ route('tasks.board.index') }}";
+                let baseUrl = "{{ request()->url() }}";
 
                 if (selectedUser === 'ALL') {
                     window.location.href = baseUrl;
@@ -443,7 +443,7 @@
 
             $('#view_type').on('change', function() {
                 let selectedType = $(this).val();
-                let baseUrl = "{{ route('tasks.board.index') }}";
+                let baseUrl = "{{ request()->url() }}";
                 urlParams.set('view_type', selectedType);
                 window.location.href = baseUrl + "?" + urlParams.toString();
             });

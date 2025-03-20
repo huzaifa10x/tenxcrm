@@ -432,7 +432,7 @@
 
             $('#byUser').on('change', function() {
                 let selectedUser = $(this).val();
-                let baseUrl = "{{ route('tasks.board.index') }}";
+                let baseUrl = "{{ request()->url() }}";
 
                 if (selectedUser === 'ALL') {
                     window.location.href = baseUrl;
