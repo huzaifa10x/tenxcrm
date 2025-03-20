@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\GeneralSetting;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskCompletion;
