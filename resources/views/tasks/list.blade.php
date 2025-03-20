@@ -156,21 +156,23 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Title</th>
                                             <th>Project</th>
-                                            @if (route('tasks.assigned.index') == url()->current())
+                                            <th>Title</th>
+                                            @if (route('tasks.assigned.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
                                                 <th>Assigned To</th>
                                             @endif
+                                            <th>Created By</th>
                                             <th>Start Date</th>
-                                            @if (auth()->user()->hasRole('ADMIN'))
-                                                <th>Actions</th>
-                                            @endif
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($tasks->where('status', $status) as $task)
                                             <tr onclick="loadTaskDetails({{ $task->id }})">
                                                 <td>{{ $task->id }}</td>
+                                                <td><a target="_blank"
+                                                        href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title ?? 'N/A' }}</a>
+                                                </td>
                                                 <td>
                                                     <a data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                                         aria-controls="offcanvasRight"
@@ -179,28 +181,24 @@
                                                         {{ $task->title }}
                                                     </a>
                                                 </td>
-                                                <td>{{ $task->project->title ?? 'N/A' }}</td>
-                                                @if (route('tasks.assigned.index') == url()->current())
+                                                @if (route('tasks.assigned.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
                                                     <td>{{ $task->assignedTo->name ?? 'N/A' }}</td>
                                                 @endif
+                                                <td>
+                                                    {{ $task->createdBy->name ?? '' }}
+                                                </td>
                                                 <td>
                                                     {{ $task->start_date
                                                         ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
                                                         : 'Not Set' }}
                                                 </td>
-                                                @if (auth()->user()->hasRole('ADMIN'))
-                                                    <td>
-                                                        <form action="{{ route('tasks.destroy', $task->id) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('Are you sure you want to delete this task?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                                <i class="fa fa-trash"></i> Delete
-                                                            </button>
-                                                        </form>
-                                                    </td>
-                                                @endif
+                                                <td>
+                                                    <a target="_blank" href="{{ route('tasks.show', $task->id) }}"
+                                                        class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                                        <iconify-icon icon="majesticons:eye-line"
+                                                            class="icon text-xl"></iconify-icon>
+                                                    </a>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
