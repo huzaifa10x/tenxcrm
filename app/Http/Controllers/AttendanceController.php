@@ -93,22 +93,55 @@ class AttendanceController extends Controller
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         return $earthRadius * $c; // Distance in KM
     }
-
     public function monthlyAttendance(Request $request)
     {
-        $users = User::all(); // List of users for filtering
-        $query = Attendance::with('user');
+        $month = $request->input('month', now()->format('Y-m'));
+        $userId = $request->input('user_id'); // User filter
 
-        // Filters
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
+        // Get office open time
+        $officeStartTime = \App\Models\GeneralSetting::first()->office_open_time ?? '09:00:00';
+        $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes(15)->format('H:i:s');
+
+        // Convert month to Carbon instance
+        $monthCarbon = \Carbon\Carbon::parse($month);
+        $totalDays = $monthCarbon->daysInMonth;
+
+        // Fetch all users (for dropdown)
+        $usersQuery = \App\Models\User::query();
+
+        if ($userId) {
+            $usersQuery->where('id', $userId);
         }
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+
+        $users = $usersQuery->with(['attendances' => function ($query) use ($monthCarbon) {
+            $query->whereYear('date', $monthCarbon->year)
+                ->whereMonth('date', $monthCarbon->month);
+        }])->get();
+
+        // Calculate stats for selected user
+        $totalPresent = $totalAbsent = $totalLate = 0;
+
+        if ($userId) {
+            $user = $users->first();
+            if ($user) {
+                $attendanceDates = $user->attendances->pluck('date')->toArray();
+
+                for ($day = 1; $day <= $totalDays; $day++) {
+                    $date = $monthCarbon->format('Y-m') . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                    $attendance = $user->attendances->firstWhere('date', $date);
+
+                    if ($attendance) {
+                        $totalPresent++;
+                        if ($attendance->punch_in > $lateThreshold) {
+                            $totalLate++;
+                        }
+                    } else {
+                        $totalAbsent++;
+                    }
+                }
+            }
         }
 
-        $attendances = $query->orderBy('date', 'desc')->get();
-
-        return view('attendance.index', compact('attendances', 'users'));
+        return view('attendance.index', compact('users', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate'));
     }
 }

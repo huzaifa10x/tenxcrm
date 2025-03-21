@@ -58,7 +58,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
-
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'user_id');
+    }
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'permission_role', 'role_id', 'permission_id')
@@ -68,7 +71,7 @@ class User extends Authenticatable
     {
         return $this->roles->flatMap->permissions->pluck('name')->contains($permission);
     }
-    
+
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id');

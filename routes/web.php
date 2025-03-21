@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/attendance/filter', [DashboardController::class, 'filterAttendance'])->name('admin.attendance.filter');
     Route::get('/admin/attendance', [AttendanceController::class, 'monthlyAttendance'])->name('admin.attendance');
+    Route::get('/admin/attendance/monthly', [AttendanceController::class, 'monthlyAttendance'])->name('attendance.monthly');
     Route::get('/dashboard/task-counts', [DashboardController::class, 'getTaskCounts'])->name('dashboard.taskCounts');
     Route::middleware('permission:can view users')->group(function () {
         Route::resource('users', UserController::class);
