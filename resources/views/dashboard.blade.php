@@ -1124,21 +1124,32 @@
                         },
                         success: function(data) {
                             let tbody = '';
-                            data.forEach(attendance => {
-                                tbody += `
-                                <tr>
-                                    <td>${attendance.user.name}</td>
-                                    <td>${attendance.date}</td>
-                                    <td>${attendance.punch_in}</td>
-                                    <td>${attendance.punch_out ?? 'Not Punched Out'}</td>
-                                    <td>${attendance.total_hours ?? 'Pending'}</td>
-                                </tr>
-                            `;
-                            });
+                            if (data.length > 0) {
+                                data.forEach(attendance => {
+                                    tbody += `
+                        <tr>
+                            <td>${attendance.user.name}</td>
+                            <td>${attendance.date}</td>
+                            <td>${attendance.punch_in}</td>
+                            <td>${attendance.punch_out ?? 'Not Punched Out'}</td>
+                            <td>${attendance.total_hours ?? 'Pending'}</td>
+                        </tr>
+                    `;
+                                });
+                            } else {
+                                tbody =
+                                    `<tr><td colspan="5" class="text-center">No attendance records found.</td></tr>`;
+                            }
                             $('#attendanceTable tbody').html(tbody);
+                        },
+                        error: function(response) {
+                            $('#attendanceTable tbody').html(
+                                `<tr><td colspan="5" class="text-center">This is a holyday.</td></tr>`
+                            );
                         }
                     });
                 }
+
                 fetchAttendance(today);
                 $('#attendanceDate').on('change', function() {
                     let selectedDate = $(this).val();
