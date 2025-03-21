@@ -564,21 +564,8 @@
 </div>
 <div class="d-flex flex-column mb-10 align-items-baseline gap-1" style="white-space: nowrap;">
     <label class="form-label fs-7 m-0" for="priority">Project</label>
-    @if (auth()->user()->hasRole('ADMIN'))
-        @if (isset($projects) && $projects->count() > 0)
-            <div class="col-lg-6">
-                <label class="form-label" for="project_id">Project</label>
-                <select class="form-control task-update-field" id="project_id" name="project_id" required>
-                    @foreach ($projects as $project)
-                        <option  {{ $task->project_id == $project->id ? 'selected' : '' }} value="{{ $project->id }}">{{ $project->title }}</option>
-                    @endforeach
-                </select>
-            </div>
-        @endif
-    @else
-        <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
-            {{ $task->project->companies->name ?? 'N/A' }}</a>
-    @endif
+    <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
+        {{ $task->project->companies->name ?? 'N/A' }}</a>
 </div>
 <div class="card border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
