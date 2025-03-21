@@ -3,6 +3,21 @@
         {{ __('Monthly Attendance Report') }}
     </x-slot>
     @if (auth()->user()->hasRole('ADMIN'))
+        <style>
+            #scrollable-table {
+                overflow-x: auto;
+                white-space: nowrap;
+                cursor: grab;
+                user-select: none;
+                max-height: 700px;
+                overflow-y: auto;
+                padding-bottom: 5px;
+            }
+
+            #scrollable-table:active {
+                cursor: grabbing;
+            }
+        </style>
         <!-- Filters -->
         <form method="GET" action="{{ route('attendance.monthly') }}" class="mb-3">
             <div class="row">
