@@ -937,23 +937,21 @@
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
                             <h6 class="mb-2 fw-bold text-lg mb-0">Daily Attendance Report</h6>
                         </div>
-                        <div class="container">
-                            <input placeholder="select date" type="date" id="attendanceDate"
-                                class="form-control mb-3">
-                            <table class="table table-bordered" id="attendanceTable">
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Date</th>
-                                        <th>Punch In</th>
-                                        <th>Punch Out</th>
-                                        <th>Total Hours</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
+                        <input placeholder="select date" type="date" id="attendanceDate"
+                            class="form-control mb-3">
+                        <table class="table table-bordered" id="attendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Date</th>
+                                    <th>Punch In</th>
+                                    <th>Punch Out</th>
+                                    <th>Total Hours</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

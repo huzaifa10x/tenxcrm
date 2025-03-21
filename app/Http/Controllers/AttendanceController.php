@@ -30,12 +30,8 @@ class AttendanceController extends Controller
         }
 
         // Location validation
-        // $officeLatitude = 24.8607;
-        // $officeLongitude = 67.0011;
-        // $radius = 0.5; // 500 meters
-
-        $officeLatitude = 24.828825527748897;
-        $officeLongitude = 67.14603965025331;
+        $officeLatitude = 24.8607;
+        $officeLongitude = 67.0011;
         $radius = 0.5; // 500 meters
 
         if (!$request->latitude || !$request->longitude) {

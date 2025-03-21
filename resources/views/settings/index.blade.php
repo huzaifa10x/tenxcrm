@@ -19,13 +19,13 @@
             </div>
 
             <div class="form-group">
-                <label>Holidays (Comma Separated Dates):</label>
+                <label>Holidays (Comma Separated Dates) e.g ["2025-03-23", "2025-04-01"]</label>
                 <input type="text" name="holidays"
                     value="{{ isset($settings->holidays) ? implode(',', $settings->holidays) : '' }}"
                     class="form-control">
             </div>
 
-            <button type="submit" class="btn btn-primary">Save Settings</button>
+            <button type="submit" class="btn btn-primary btn-sm my-10">Save Settings</button>
         </form>
 
         <div id="responseMessage"></div>

@@ -985,24 +985,26 @@
     </div>
 </div>
 <div class="row gy-3 mb-10">
-    <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
-        <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
-            <span class="fw-bold">Danger Zone</span>
-        </div>
-        <div class="card-body p-24">
-            @if (auth()->user()->hasRole('ADMIN'))
-                <div class="d-flex align-items-center justify-content-between gap-10">
-                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
-                        style="display: inline-block;"
-                        onsubmit="return confirm('Are you sure you want to delete this user?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="card-delete-button text-danger-600">
-                            Delete Tasks
-                        </button>
-                    </form>
-                </div>
-            @endif
+    <div class="col-12">
+        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                <span class="fw-bold">Danger Zone</span>
+            </div>
+            <div class="card-body p-24">
+                @if (auth()->user()->hasRole('ADMIN'))
+                    <div class="d-flex align-items-center justify-content-between gap-10">
+                        <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                            style="display: inline-block;"
+                            onsubmit="return confirm('Are you sure you want to delete this user?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="card-delete-button text-danger-600">
+                                Delete Tasks
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>
