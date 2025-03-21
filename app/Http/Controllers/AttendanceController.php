@@ -30,10 +30,9 @@ class AttendanceController extends Controller
         }
 
         // Location validation
-        $officeLatitude = 24.8607;
-        $officeLongitude = 67.0011;
+        $officeLatitude = 24.904871745119998;
+        $officeLongitude = 67.07809279592651;
         $radius = 0.5; // 500 meters
-
         if (!$request->latitude || !$request->longitude) {
             return response()->json(['error' => 'Location access denied!'], 403);
         }
