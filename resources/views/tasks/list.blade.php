@@ -11,35 +11,6 @@
             </ul>
         </div>
     @endif
-    @if (auth()->user()->hasRole('ADMIN') && route('tasks.board.index') == url()->current())
-        <div class="row mb-16 gy-3">
-            @foreach ($progressData as $department => $progress)
-                <div class="col-lg-2">
-                    <div class="card p-0 overflow-hidden position-relative radius-12">
-                        <div class="card-header p-10 bg-base border border-end-0 border-start-0 border-top-0">
-                            <span class="fw-bold fs-7">{{ $department }}</span>
-                        </div>
-                        <div class="card-body p-10">
-                            <div class="progressBar w-100-px h-44-px position-relative text-primary-light fw-semibold">
-                                <div class="barOverflow">
-                                    <div class="circleBar border-width-6-px"></div>
-                                </div>
-                                <div
-                                    class="position-absolute start-50 translate-middle top-50 line-height-1 mt-8 w-100 text-center">
-                                    <div class="d-flex align-items-center justify-content-center line-height-1 text-sm">
-                                        <span class="fs-7 barNumber line-height-1">{{ $progress }} </span>
-                                        <span class="fs-7">%</span>
-                                    </div>
-                                    <span
-                                        class="line-height-1 text-xs text-secondary-light fs-7">{{ $department }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @endif
     <div class="d-flex align-items-center justify-content-between">
         <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-sm mb-3 btn-outline-primary">
             Create Task
@@ -92,7 +63,7 @@
                         <select id="byUser" class="form-select">
                             <option value="" selected disabled>Filter By User</option>
                             <option value="ALL">ALL</option>
-                            @foreach ($users as $user)
+                            @foreach ($users->sortBy('name') as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
@@ -176,8 +147,7 @@
                                                 <td>
                                                     <a data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                                         aria-controls="offcanvasRight"
-                                                        onclick="loadTaskDetails({{ $task->id }})"
-                                                        href="#">
+                                                        onclick="loadTaskDetails({{ $task->id }})" href="#">
                                                         {{ $task->title }}
                                                     </a>
                                                 </td>

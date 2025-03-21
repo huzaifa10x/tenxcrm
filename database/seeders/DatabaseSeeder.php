@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use SeoTaskSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PaymentMethodsSeeder::class,
             ProjectSeeder::class,
             TaskSeeder::class,
+            // AttendanceSeeder::class,
         ]);
     }
 }

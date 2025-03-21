@@ -183,6 +183,12 @@
             </li>
             @if (auth()->user()->hasRole('ADMIN'))
                 <li>
+                    <a href="{{ route('admin.attendance') }}">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
+                        <span>Monthly Attendance</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('settings.index') }}">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
                         <span>System Setting</span>

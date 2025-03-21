@@ -105,18 +105,11 @@ class TaskController extends Controller
             ->pluck('count', 'type')
             ->toArray();
 
-        // Calculate progress percentages
-        $progressData = [];
-        foreach ($taskCounts as $type => $total) {
-            $completed = $completedTaskCounts[$type] ?? 0;
-            $percentage = $total > 0 ? round(($completed / $total) * 100) : 0;
-            $progressData[$type] = $percentage;
-        }
         $tasks = $taskQuery->get();
         if ($request->input('view_type') == "board") {
-            return view('tasks.board', compact('tasks', 'projects', 'users', 'departments', 'progressData'));
+            return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
         } else {
-            return view('tasks.list', compact('tasks', 'projects', 'users', 'departments', 'progressData'));
+            return view('tasks.list', compact('tasks', 'projects', 'users', 'departments'));
         }
     }
 

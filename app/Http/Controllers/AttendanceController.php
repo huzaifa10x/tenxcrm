@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\GeneralSetting;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -91,5 +92,23 @@ class AttendanceController extends Controller
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         return $earthRadius * $c; // Distance in KM
+    }
+
+    public function monthlyAttendance(Request $request)
+    {
+        $users = User::all(); // List of users for filtering
+        $query = Attendance::with('user');
+
+        // Filters
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('date', [$request->from_date, $request->to_date]);
+        }
+
+        $attendances = $query->orderBy('date', 'desc')->get();
+
+        return view('attendance.index', compact('attendances', 'users'));
     }
 }
