@@ -45,8 +45,8 @@
         </div>
     </div>
 
-    <div class="d-flex align-items-center justify-content-between">
-        <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-sm mb-3 btn-outline-primary">
+    <div class="d-flex my-10 align-items-center justify-content-between">
+        <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-sm btn-outline-primary">
             Create Task
         </button>
         <div>
@@ -56,85 +56,82 @@
             </select>
         </div>
     </div>
-    <div class="card mb-3 basic-data-table">
-        <div class="card-header d-flex justify-content-start flex-wrap gap-10 align-items-center">
-            <div class="row mb-10 gy-3">
-                <div class="col-lg-4">
-                    <input type="date" id="start_date_search" name="start_date_search" class="form-control"
-                        placeholder="Select Start Date">
-                </div>
-                <div class="col-lg-4">
-                    <input type="date" id="end_date_search" name="end_date_search" class="form-control"
-                        placeholder="Select End Date">
-                </div>
-                <div class="col-lg-4 d-flex align-items-center">
-                    <button id="search_tasks" class="btn btn-primary me-2">Search</button>
-                    <button id="reset_filters" class="btn btn-secondary">Reset</button>
-                </div>
+
+    <div class="row mb-10 gy-3">
+        <div class="col">
+            <input type="date" id="start_date_search" name="start_date_search" class="form-control"
+                placeholder="Select Start Date">
+        </div>
+        <div class="col">
+            <input type="date" id="end_date_search" name="end_date_search" class="form-control"
+                placeholder="Select End Date">
+        </div>
+        <div class="col d-flex align-items-center">
+            <button id="search_tasks" class="btn btn-primary me-2">Search</button>
+            <button id="reset_filters" class="btn btn-secondary">Reset</button>
+        </div>
+    </div>
+    <div class="row mb-10 gy-3">
+        @if (auth()->user()->hasRole('ADMIN') || route('tasks.assigned.index') == url()->current())
+            <div class="col-lg-4">
+                <select id="taskType" class="form-select">
+                    <option value="" disabled selected>Filter by task type</option>
+                    <option value="ALL">ALL</option>
+                    <option value="CONTENT">CONTENT</option>
+                    <option value="ONSITE">ONSITE</option>
+                    <option value="TECH MANAGER">TECH MANAGER</option>
+                    <option value="OFFSITE">OFFSITE</option>
+                    <option value="DESIGN">DESIGN</option>
+                    <option value="DEVELOPMENT">DEVELOPMENT</option>
+                    <option value="AM">AM</option>
+                    <option value="SEO ADMIN">SEO ADMIN</option>
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="SALES MANAGER">SALES MANAGER</option>
+                    <option value="SALES">SALES</option>
+                    <option value="ADHOC">ADHOC</option>
+                    <option value="SOCIAL MEDIA MANAGER">SOCIAL MEDIA MANAGER</option>
+                </select>
             </div>
-            <div class="row mb-10 gy-3">
-                @if (auth()->user()->hasRole('ADMIN') || route('tasks.assigned.index') == url()->current())
-                    <div class="col-lg-4">
-                        <select id="taskType" class="form-select">
-                            <option value="" disabled selected>Filter by task type</option>
-                            <option value="ALL">ALL</option>
-                            <option value="CONTENT">CONTENT</option>
-                            <option value="ONSITE">ONSITE</option>
-                            <option value="TECH MANAGER">TECH MANAGER</option>
-                            <option value="OFFSITE">OFFSITE</option>
-                            <option value="DESIGN">DESIGN</option>
-                            <option value="DEVELOPMENT">DEVELOPMENT</option>
-                            <option value="AM">AM</option>
-                            <option value="SEO ADMIN">SEO ADMIN</option>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="SALES MANAGER">SALES MANAGER</option>
-                            <option value="SALES">SALES</option>
-                            <option value="ADHOC">ADHOC</option>
-                            <option value="SOCIAL MEDIA MANAGER">SOCIAL MEDIA MANAGER</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-4">
-                        <select id="byUser" class="form-select">
-                            <option value="" selected disabled>Filter by assigned to</option>
-                            <option value="ALL">ALL</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                @endif
-                <div class="col-lg-4">
-                    <select id="byAssignedFrom" class="form-select">
-                        <option value="" selected disabled>Filter by assigned from</option>
-                        <option value="ALL">ALL</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-lg-4">
-                    <select id="byProject" class="form-select">
-                        <option value="" selected disabled>Filter by project</option>
-                        <option value="ALL">ALL</option>
-                        @foreach ($projects as $project)
-                            <option value="{{ $project->id }}">{{ $project->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-lg-12">
-                    <div class="input-group">
-                        <input type="text" id="taskSearch" class="form-control"
-                            placeholder="Search Task by Title...">
-                        <div id="input2" class="list-group"
-                            style="position: absolute;
-                        top: 44px;
-                        z-index: 1000;
-                        left: 1px;
-                        max-height: 300px;
-                        overflow-y: auto;
-                        width: 100%;">
-                        </div>
-                    </div>
+            <div class="col-lg-4">
+                <select id="byUser" class="form-select">
+                    <option value="" selected disabled>Filter by assigned to</option>
+                    <option value="ALL">ALL</option>
+                    @foreach ($users->sortBy('name') as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+        <div class="col-lg-4">
+            <select id="byAssignedFrom" class="form-select">
+                <option value="" selected disabled>Filter by assigned from</option>
+                <option value="ALL">ALL</option>
+                @foreach ($users->sortBy('name') as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-lg-4">
+            <select id="byProject" class="form-select">
+                <option value="" selected disabled>Filter by project</option>
+                <option value="ALL">ALL</option>
+                @foreach ($projects->sortBy('title') as $project)
+                    <option value="{{ $project->id }}">{{ $project->title }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-lg-12">
+            <div class="input-group">
+                <input type="text" id="taskSearch" class="form-control"
+                    placeholder="Search Task by Title...">
+                <div id="input2" class="list-group"
+                    style="position: absolute;
+                top: 44px;
+                z-index: 1000;
+                left: 1px;
+                max-height: 300px;
+                overflow-y: auto;
+                width: 100%;">
                 </div>
             </div>
         </div>
