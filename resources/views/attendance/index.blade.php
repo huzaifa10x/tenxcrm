@@ -29,39 +29,132 @@
                 </div>
             </div>
         </form>
-
         @if (request()->query('user_id'))
             <div class="row gy-3 mb-10">
+                <!-- Attendance Trading Chart (Bar Chart) -->
                 <div class="col-lg-6">
-                    <div class="card border">
-                        <div id="attendanceChart"></div>
+                    <div class="card border h-100 p-3">
+                        <div id="attendanceTradingChart"></div>
+                    </div>
+                </div>
+
+                <!-- Total Attendance Chart (Donut Chart) -->
+                <div class="col-lg-6">
+                    <div class="card border h-100 p-3">
+                        <div id="totalAttendanceChart"></div>
                     </div>
                 </div>
             </div>
             <script>
-                var options = {
+                // Bar Chart: Attendance by Day
+                var attendanceData = [
+                    @for ($day = 1; $day <= $totalDays; $day++)
+                        {
+                            x: '{{ \Carbon\Carbon::parse(now()->startOfMonth()->addDays($day - 1))->format('D d') }}', // e.g., "Mon 01"
+                            y: {{ rand(0, 10) }} // Replace with actual attendance count
+                        },
+                    @endfor
+                ];
+
+                var optionsBar = {
+                    series: [{
+                        name: "Attendance",
+                        data: attendanceData
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 235,
+                        toolbar: {
+                            show: false
+                        },
+                    },
+                    plotOptions: {
+                        bar: {
+                            borderRadius: 6,
+                            horizontal: false,
+                            columnWidth: '52%',
+                            endingShape: 'rounded',
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    fill: {
+                        type: 'gradient',
+                        colors: ['#dae5ff'],
+                        gradient: {
+                            shade: 'light',
+                            type: 'vertical',
+                            shadeIntensity: 0.5,
+                            gradientToColors: ['#b4c9ff'],
+                            inverseColors: false,
+                            opacityFrom: 1,
+                            opacityTo: 1,
+                            stops: [0, 100],
+                        },
+                    },
+                    grid: {
+                        show: false
+                    },
+                    xaxis: {
+                        type: 'category',
+                        labels: {
+                            style: {
+                                fontSize: '12px',
+                                fontWeight: 'bold'
+                            }
+                        }
+                    },
+                    yaxis: {
+                        show: false
+                    },
+                };
+
+                var chartBar = new ApexCharts(document.querySelector("#attendanceTradingChart"), optionsBar);
+                chartBar.render();
+
+                // Donut Chart: Total Attendance Stats (Count Only, No Percentage)
+                var optionsDonut = {
                     series: [{{ $totalPresent }}, {{ $totalLate }}, {{ $totalAbsent }}],
                     chart: {
                         type: 'donut',
-                        height: 350
+                        height: 300
                     },
-                    labels: ['Present Days', 'Late Arrivals', 'Absent Days'],
+                    labels: ['Present', 'Late', 'Absent'],
                     colors: ['#28a745', '#ffc107', '#dc3545'],
-                    responsive: [{
-                        breakpoint: 480,
-                        options: {
-                            chart: {
-                                width: 300
-                            },
-                            legend: {
-                                position: 'bottom'
+                    legend: {
+                        position: 'bottom'
+                    },
+                    dataLabels: {
+                        enabled: false
+                    }, // Hide percentage
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    name: {
+                                        show: true
+                                    },
+                                    value: {
+                                        show: true
+                                    }, // Show only the count
+                                    total: {
+                                        show: true,
+                                        label: 'Total',
+                                        formatter: function(w) {
+                                            return {{ $totalPresent + $totalLate + $totalAbsent }};
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }]
+                    }
                 };
 
-                var chart = new ApexCharts(document.querySelector("#attendanceChart"), options);
-                chart.render();
+                var chartDonut = new ApexCharts(document.querySelector("#totalAttendanceChart"), optionsDonut);
+                chartDonut.render();
             </script>
         @endif
 
