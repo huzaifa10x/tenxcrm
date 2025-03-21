@@ -15970,7 +15970,7 @@ ul#comment-list {
   }
 }
 
-.animate-bell iconify-icon {
+.animate-bell .iconify-icon {
   animation: bell-shake 0.6s ease-in-out infinite;
 }
 
