@@ -42,7 +42,7 @@
                 @if (auth()->user()->hasRole('ADMIN') || route('tasks.assigned.index') == url()->current())
                     <div class="col-lg-4">
                         <select id="taskType" class="form-select">
-                            <option value="" disabled selected>Filter By Type</option>
+                            <option value="" disabled selected>Filter by task type</option>
                             <option value="ALL">ALL</option>
                             <option value="CONTENT">CONTENT</option>
                             <option value="ONSITE">ONSITE</option>
@@ -61,7 +61,7 @@
                     </div>
                     <div class="col-lg-4">
                         <select id="byUser" class="form-select">
-                            <option value="" selected disabled>Filter By User</option>
+                            <option value="" selected disabled>Filter by assigned to</option>
                             <option value="ALL">ALL</option>
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -69,19 +69,39 @@
                         </select>
                     </div>
                 @endif
-                <div class="input-group">
-                    <input type="text" id="taskSearch" class="form-control" placeholder="Search Task by Title...">
-                    <div id="input2" class="list-group"
-                        style="position: absolute;
+                <div class="col-lg-4">
+                    <select id="byAssignedFrom" class="form-select">
+                        <option value="" selected disabled>Filter by assigned from</option>
+                        <option value="ALL">ALL</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-lg-4">
+                    <select id="byProject" class="form-select">
+                        <option value="" selected disabled>Filter by project</option>
+                        <option value="ALL">ALL</option>
+                        @foreach ($projects as $project)
+                            <option value="{{ $project->id }}">{{ $project->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-lg-12">
+                    <div class="input-group">
+                        <input type="text" id="taskSearch" class="form-control"
+                            placeholder="Search Task by Title...">
+                        <div id="input2" class="list-group"
+                            style="position: absolute;
                         top: 44px;
                         z-index: 1000;
                         left: 1px;
                         max-height: 300px;
                         overflow-y: auto;
                         width: 100%;">
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -94,68 +114,166 @@
             'Blocked' => 'bg-danger-600',
         ];
     @endphp
-    <div class="overflow-x-auto scroll-sm pb-8">
-        <div class="kanban-wrapper">
-            <div class="d-flex align-items-start gap-24" id="sortable-wrapper">
-                @foreach (['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'] as $status)
-                    <div class="w-25 kanban-item radius-12 progress-card kanban-column scroll-sm position-relative">
-                        @php
-                            $colorClass = $statusColors[$status] ?? 'bg-secondary-600';
-                            $taskCount = $tasks->where('status', $status)->count();
-                        @endphp
-                        <span
-                            class="position-absolute top-0 end-0 m-10 badge text-sm fw-semibold w-32-px h-32-px d-flex justify-content-center align-items-center rounded-circle {{ $colorClass }} text-white">
-                            {{ $taskCount }}
-                        </span>
-                        <div class="card p-0 radius-12 overflow-hidden shadow-none">
-                            <div class="card-body p-0 pb-24">
-                                <div class="d-flex align-items-center gap-2 justify-content-between ps-24 pt-24 pe-24">
-                                    <h6 class="text-lg fw-semibold mb-0">{{ $status }}</h6>
-                                </div>
-                                <div class="connectedSortable ps-24 pt-24 pe-24 kanban-items"
-                                    id="{{ strtolower(str_replace(' ', '-', $status)) }}"
-                                    data-status="{{ $status }}">
-                                    @foreach ($tasks->where('status', $status) as $task)
-                                        <div data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-                                            aria-controls="offcanvasRight"
-                                            onclick="loadTaskDetails({{ $task->id }})"
-                                            class="kanban-item kanban-card bg-neutral-50 p-16 radius-8 mb-24 position-relative"
-                                            data-task-id="{{ $task->id }}" data-status="{{ $status }}">
-                                            <span
-                                                class="fs-7 mb-10 bg-cyan-100 badge rounded fs-8 text-secondary position-absolute top-0 start-0 fw-light">#{{ $task->id }}</span>
-                                            <span
-                                                class="fs-7 mb-10 bg-warning-gradient mt-12 badge rounded text-dark">{{ $task->project->title ?? '' }}</span>
-                                            <h6 class="kanban-title text-lg fw-semibold fs-6 mb-0">{{ $task->title }}
-                                            </h6>
-                                            @if ($userPermissions->contains('can create tasks'))
+    {{-- MAIN SCREEN --}}
+    @if (request()->query('view_type') === 'board')
+        <div class="overflow-x-auto scroll-sm pb-8">
+            <div class="kanban-wrapper">
+                <div class="d-flex align-items-start gap-24" id="sortable-wrapper">
+                    @foreach (['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'] as $status)
+                        <div class="w-25 kanban-item radius-12 progress-card kanban-column scroll-sm position-relative">
+                            @php
+                                $colorClass = $statusColors[$status] ?? 'bg-secondary-600';
+                                $taskCount = $tasks->where('status', $status)->count();
+                            @endphp
+                            <span
+                                class="position-absolute top-0 end-0 m-10 badge text-sm fw-semibold w-32-px h-32-px d-flex justify-content-center align-items-center rounded-circle {{ $colorClass }} text-white">
+                                {{ $taskCount }}
+                            </span>
+                            <div class="card p-0 radius-12 overflow-hidden shadow-none">
+                                <div class="card-body p-0 pb-24">
+                                    <div
+                                        class="d-flex align-items-center gap-2 justify-content-between ps-24 pt-24 pe-24">
+                                        <h6 class="text-lg fw-semibold mb-0">{{ $status }}</h6>
+                                    </div>
+                                    <div class="connectedSortable ps-24 pt-24 pe-24 kanban-items"
+                                        id="{{ strtolower(str_replace(' ', '-', $status)) }}"
+                                        data-status="{{ $status }}">
+                                        @foreach ($tasks->where('status', $status) as $task)
+                                            <div data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                                                aria-controls="offcanvasRight"
+                                                onclick="loadTaskDetails({{ $task->id }})"
+                                                class="kanban-item kanban-card bg-neutral-50 p-16 radius-8 mb-24 position-relative"
+                                                data-task-id="{{ $task->id }}" data-status="{{ $status }}">
                                                 <span
-                                                    class="text-capitalize bg-cyan-100 badge rounded fs-8 text-secondary mb-10">assigned
-                                                    to:
-                                                    {{ $task->assignedTo ? $task->assignedTo->name : 'n/a' }}</span>
-                                            @endif
-                                            <div class="d-flex align-items-center justify-content-between gap-10">
-                                                <div
-                                                    class="d-flex fs-7 align-items-center justify-content-between gap-10">
-                                                    Start Date:
-                                                    <span class="start-date text-secondary-light">
-                                                        {{ $task->start_date
-                                                            ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
-                                                            : 'Not Set' }}
-                                                    </span>
+                                                    class="fs-7 mb-10 bg-cyan-100 badge rounded fs-8 text-secondary position-absolute top-0 start-0 fw-light">#{{ $task->id }}</span>
+                                                <span
+                                                    class="fs-7 mb-10 bg-warning-gradient mt-12 badge rounded text-dark">{{ $task->project->title ?? '' }}</span>
+                                                <h6 class="kanban-title text-lg fw-semibold fs-6 mb-0">
+                                                    {{ $task->title }}
+                                                </h6>
+                                                @if ($userPermissions->contains('can create tasks'))
+                                                    <span
+                                                        class="text-capitalize bg-cyan-100 badge rounded fs-8 text-secondary mb-10">assigned
+                                                        to:
+                                                        {{ $task->assignedTo ? $task->assignedTo->name : 'n/a' }}</span>
+                                                @endif
+                                                <div class="d-flex align-items-center justify-content-between gap-10">
+                                                    <div
+                                                        class="d-flex fs-7 align-items-center justify-content-between gap-10">
+                                                        Start Date:
+                                                        <span class="start-date text-secondary-light">
+                                                            {{ $task->start_date
+                                                                ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
+                                                                : 'Not Set' }}
+                                                        </span>
+
+                                                    </div>
 
                                                 </div>
-
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
-    </div>
+    @else
+        <div class="row gy-3 mb-10">
+            <div class="col-lg-12">
+                <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
+                    <div
+                        class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
+                        <ul class="nav border-gradient-tab nav-pills mb-0" id="pills-tab" role="tablist">
+                            @foreach (['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'] as $index => $status)
+                                <li class="nav-item" role="presentation">
+                                    <button
+                                        class="nav-link d-flex align-items-center {{ $index === 0 ? 'active' : '' }}"
+                                        id="{{ strtolower(str_replace(' ', '-', $status)) }}-tab"
+                                        data-bs-toggle="pill"
+                                        data-bs-target="#{{ strtolower(str_replace(' ', '-', $status)) }}-task"
+                                        type="button" role="tab">
+                                        {{ $status }} Tasks
+                                        <span
+                                            class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">
+                                            ({{ $tasks->where('status', $status)->count() }})
+                                        </span>
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="tab-content" id="task-tabContent">
+                            @foreach (['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'] as $index => $status)
+                                <div style="max-height: 500px; overflow-y: auto;"
+                                    class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}"
+                                    id="{{ strtolower(str_replace(' ', '-', $status)) }}-task" role="tabpanel">
+                                    <table class="table bordered-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Project</th>
+                                                <th>Title</th>
+                                                @if (route('tasks.assigned.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
+                                                    <th>Assigned To</th>
+                                                @endif
+                                                <th>Created By</th>
+                                                <th>Start Date</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($tasks->where('status', $status) as $task)
+                                                <tr onclick="loadTaskDetails({{ $task->id }})">
+                                                    <td>{{ $task->id }}</td>
+                                                    <td><a target="_blank"
+                                                            href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title ?? 'N/A' }}</a>
+                                                    </td>
+                                                    <td>
+                                                        <a data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                                                            aria-controls="offcanvasRight"
+                                                            onclick="loadTaskDetails({{ $task->id }})"
+                                                            href="#">
+                                                            {{ $task->title }}
+                                                        </a>
+                                                    </td>
+                                                    @if (route('tasks.assigned.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
+                                                        <td>{{ $task->assignedTo->name ?? 'N/A' }}</td>
+                                                    @endif
+                                                    <td>
+                                                        {{ $task->createdBy->name ?? '' }}
+                                                    </td>
+                                                    <td>
+                                                        {{ $task->start_date
+                                                            ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
+                                                            : 'Not Set' }}
+                                                    </td>
+                                                    <td>
+                                                        <a target="_blank"
+                                                            href="{{ route('tasks.show', $task->id) }}"
+                                                            class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                                                            <iconify-icon icon="majesticons:eye-line"
+                                                                class="icon text-xl"></iconify-icon>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- MAIN SCREEN --}}
+
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header bg-base">
             <h6 class="text-md mb-0 fw-medium">Task Detail</h6>
@@ -390,6 +508,48 @@
 
         $(document).ready(function() {
             let urlParams = new URLSearchParams(window.location.search);
+            let userId = urlParams.get('project_id');
+
+            if (userId) {
+                $('#byProject').val(userId);
+            }
+
+            $('#byProject').on('change', function() {
+                let selectedUser = $(this).val();
+                let baseUrl = "{{ request()->url() }}";
+
+                if (selectedUser === 'ALL') {
+                    window.location.href = baseUrl;
+                } else {
+                    urlParams.set('project_id', selectedUser);
+                    window.location.href = baseUrl + "?" + urlParams.toString();
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            let urlParams = new URLSearchParams(window.location.search);
+            let userId = urlParams.get('assigned_from');
+
+            if (userId) {
+                $('#byAssignedFrom').val(userId);
+            }
+
+            $('#byAssignedFrom').on('change', function() {
+                let selectedUser = $(this).val();
+                let baseUrl = "{{ request()->url() }}";
+
+                if (selectedUser === 'ALL') {
+                    window.location.href = baseUrl;
+                } else {
+                    urlParams.set('assigned_from', selectedUser);
+                    window.location.href = baseUrl + "?" + urlParams.toString();
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            let urlParams = new URLSearchParams(window.location.search);
             let viewType = urlParams.get('view_type');
 
             if (viewType) {
@@ -465,7 +625,7 @@
                     success: function(response) {
                         if (response.length > 0) {
                             let suggestions = response.map(task =>
-                                `<a target="_blank" href="{{ url('tasks') }}/${task.id}" class="list-group-item list-group-item-action">${task.id} - ${task.title}</a>`
+                                `<a target="_blank" href="{{ url('tasks') }}/${task.id}" class="list-group-item list-group-item-action">${task.id} - ${task.title} - ${task.project_title}</a>`
                             ).join('');
                             $('#input2').html(suggestions).show();
                         } else {

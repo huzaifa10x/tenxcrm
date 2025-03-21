@@ -44,10 +44,10 @@ class TaskController extends Controller
     }
     public function search(Request $request)
     {
-
         $user = auth()->user();
 
-        $tasks = Task::where('title', 'LIKE', '%' . $request->query('query') . '%')
+        $tasks = Task::with('project:id,title') // Project title fetch karne ke liye
+            ->where('title', 'LIKE', '%' . $request->query('query') . '%')
             ->where(function ($query) use ($user) {
                 $query->where('created_by', $user->id)
                     ->orWhere('assigned_to', $user->id)
@@ -59,14 +59,20 @@ class TaskController extends Controller
                     });
 
                 if ($user->hasRole('ADMIN')) {
-                    $query->orWhereRaw('1=1'); // Admin can see all tasks
+                    $query->orWhereRaw('1=1');
                 }
             })
-            ->select('id', 'title')
+            ->select('id', 'title', 'project_id') 
             ->limit(10)
             ->get();
 
-        return response()->json($tasks);
+        return response()->json($tasks->map(function ($task) {
+            return [
+                'id' => $task->id,
+                'title' => $task->title,
+                'project_title' => optional($task->project)->title ?? 'N/A', 
+            ];
+        }));
     }
 
     public function boardView(Request $request)
@@ -84,6 +90,12 @@ class TaskController extends Controller
         }
         if ($request->has('user_id')) {
             $taskQuery->where('assigned_to', $request->input('user_id'));
+        }
+        if ($request->has('assigned_from')) {
+            $taskQuery->where('created_by', $request->input('assigned_from'));
+        }
+        if ($request->has('project_id')) {
+            $taskQuery->where('project_id', $request->input('project_id'));
         }
         if ($request->has('start_date')) {
             $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
@@ -106,11 +118,7 @@ class TaskController extends Controller
             ->toArray();
 
         $tasks = $taskQuery->get();
-        if ($request->input('view_type') == "board") {
-            return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-        } else {
-            return view('tasks.list', compact('tasks', 'projects', 'users', 'departments'));
-        }
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 
     public function assignedTasks(Request $request)
@@ -135,12 +143,14 @@ class TaskController extends Controller
         if ($request->has('user_id')) {
             $taskQuery->where('assigned_to', $request->input('user_id'));
         }
-        $tasks = $taskQuery->get();
-        if ($request->input('view_type') == "board") {
-            return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-        } else {
-            return view('tasks.list', compact('tasks', 'projects', 'users', 'departments'));
+        if ($request->has('assigned_from')) {
+            $taskQuery->where('created_by', $request->input('assigned_from'));
         }
+        if ($request->has('project_id')) {
+            $taskQuery->where('project_id', $request->input('project_id'));
+        }
+        $tasks = $taskQuery->get();
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 
     public function formeTasks(Request $request)
@@ -165,12 +175,14 @@ class TaskController extends Controller
         if ($request->has('user_id')) {
             $taskQuery->where('assigned_to', $request->input('user_id'));
         }
-        $tasks = $taskQuery->get();
-        if ($request->input('view_type') == "board") {
-            return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-        } else {
-            return view('tasks.list', compact('tasks', 'projects', 'users', 'departments'));
+        if ($request->has('assigned_from')) {
+            $taskQuery->where('created_by', $request->input('assigned_from'));
         }
+        if ($request->has('project_id')) {
+            $taskQuery->where('project_id', $request->input('project_id'));
+        }
+        $tasks = $taskQuery->get();
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 
     public function collaboratedTasks(Request $request)
@@ -197,12 +209,14 @@ class TaskController extends Controller
         if ($request->has('user_id')) {
             $taskQuery->where('assigned_to', $request->input('user_id'));
         }
-        $tasks = $taskQuery->get();
-        if ($request->input('view_type') == "board") {
-            return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-        } else {
-            return view('tasks.list', compact('tasks', 'projects', 'users', 'departments'));
+        if ($request->has('assigned_from')) {
+            $taskQuery->where('created_by', $request->input('assigned_from'));
         }
+        if ($request->has('project_id')) {
+            $taskQuery->where('project_id', $request->input('project_id'));
+        }
+        $tasks = $taskQuery->get();
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
 
     public function create()
