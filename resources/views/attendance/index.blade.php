@@ -9,7 +9,7 @@
                 white-space: nowrap;
                 cursor: grab;
                 user-select: none;
-                max-height: 700px;
+                max-height: 470px;
                 overflow-y: auto;
                 padding-bottom: 5px;
             }
