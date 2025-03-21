@@ -570,7 +570,7 @@
                 <label class="form-label" for="project_id">Project</label>
                 <select class="form-control task-update-field" id="project_id" name="project_id" required>
                     @foreach ($projects as $project)
-                        <option value="{{ $project->id }}">{{ $project->title }}</option>
+                        <option  {{ $task->project_id == $project->id ? 'selected' : '' }} value="{{ $project->id }}">{{ $project->title }}</option>
                     @endforeach
                 </select>
             </div>

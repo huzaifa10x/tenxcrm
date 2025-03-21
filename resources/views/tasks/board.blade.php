@@ -11,6 +11,60 @@
             </ul>
         </div>
     @endif
+    @php
+        $pendingStatuses = ['Todo', 'In Progress', 'Review'];
+        $completedStatuses = ['Completed'];
+        $pendingCount = $tasks->whereIn('status', $pendingStatuses)->count();
+        $completedCount = $tasks->whereIn('status', $completedStatuses)->count();
+    @endphp
+    <div class="col-lg-6">
+        <div class="card h-100 radius-8 border-0 overflow-hidden">
+            <div class="card-body p-24">
+                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                    <h6 class="mb-2 fw-bold text-lg">Tasks</h6>
+                </div>
+
+                <!-- ApexCharts Container -->
+                <div id="TaskCountchart" class="apexcharts-tooltip-z-none" style="height: 250px;"></div>
+
+                <ul class="d-flex flex-wrap align-items-center justify-content-between mt-3 gap-3">
+                    <li class="d-flex align-items-center gap-2">
+                        <span class="w-12-px h-12-px radius-2 bg-primary-600"></span>
+                        <span class="text-secondary-light text-sm fw-normal">Pending Tasks:
+                            <span class="text-primary-light fw-semibold">({{ $pendingCount }})</span>
+                        </span>
+                    </li>
+                    <li class="d-flex align-items-center gap-2">
+                        <span class="w-12-px h-12-px radius-2 bg-yellow"></span>
+                        <span class="text-secondary-light text-sm fw-normal">Completed Tasks:
+                            <span class="text-primary-light fw-semibold">({{ $completedCount }})</span>
+                        </span>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var options = {
+                chart: {
+                    type: 'donut',
+                    height: 250
+                },
+                labels: ['Pending', 'Completed'],
+                series: [{{ $pendingCount }}, {{ $completedCount }}],
+                colors: ['#007bff', '#f1c40f'],
+                legend: {
+                    position: 'bottom'
+                }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#TaskCountchart"), options);
+            chart.render();
+        });
+    </script>
+
     <div class="d-flex align-items-center justify-content-between">
         <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-sm mb-3 btn-outline-primary">
             Create Task
@@ -143,7 +197,8 @@
                                                 aria-controls="offcanvasRight"
                                                 onclick="loadTaskDetails({{ $task->id }})"
                                                 class="kanban-item kanban-card bg-neutral-50 p-16 radius-8 mb-24 position-relative"
-                                                data-task-id="{{ $task->id }}" data-status="{{ $status }}">
+                                                data-task-id="{{ $task->id }}"
+                                                data-status="{{ $status }}">
                                                 <span
                                                     class="fs-7 mb-10 bg-cyan-100 badge rounded fs-8 text-secondary position-absolute top-0 start-0 fw-light">#{{ $task->id }}</span>
                                                 <span
