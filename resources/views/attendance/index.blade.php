@@ -71,40 +71,42 @@
             @endif
 
             <!-- Attendance Table -->
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            @for ($day = 1; $day <= $totalDays; $day++)
-                                <th>{{ $day }}</th>
-                            @endfor
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($users as $user)
+            <div class="card basic-data-table">
+                <div class="card-body table-responsive p-0">
+                    <table class="table bordered-table table-bordered mb-0">
+                        <thead>
                             <tr>
-                                <td>{{ $user->name }}</td>
+                                <th>User</th>
                                 @for ($day = 1; $day <= $totalDays; $day++)
-                                    @php
-                                        $date = $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
-                                        $attendance = $user->attendances->firstWhere('date', $date);
-                                    @endphp
-                                    <td class="text-center">
-                                        @if ($attendance)
-                                            <span class="badge badge-success text-success">In:
-                                                {{ $attendance->punch_in }}</span> <br>
-                                            <span class="badge badge-danger text-danger">Out:
-                                                {{ $attendance->punch_out ?? 'N/A' }}</span>
-                                        @else
-                                            <span class="badge badge-secondary text-secondary">Absent</span>
-                                        @endif
-                                    </td>
+                                    <th>{{ $day }}</th>
                                 @endfor
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($users as $user)
+                                <tr>
+                                    <td>{{ $user->name }}</td>
+                                    @for ($day = 1; $day <= $totalDays; $day++)
+                                        @php
+                                            $date = $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                                            $attendance = $user->attendances->firstWhere('date', $date);
+                                        @endphp
+                                        <td class="text-center">
+                                            @if ($attendance)
+                                                <span class="badge badge-success text-success">In:
+                                                    {{ $attendance->punch_in }}</span> <br>
+                                                <span class="badge badge-danger text-danger">Out:
+                                                    {{ $attendance->punch_out ?? 'N/A' }}</span>
+                                            @else
+                                                <span class="badge badge-secondary text-secondary">Absent</span>
+                                            @endif
+                                        </td>
+                                    @endfor
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     @else
