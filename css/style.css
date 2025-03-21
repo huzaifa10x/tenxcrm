@@ -15984,3 +15984,17 @@ ul#comment-list {
   background-color: red;
   border-radius: 50%;
 }
+
+#scrollable-table {
+  overflow-x: auto;
+  white-space: nowrap;
+  cursor: grab;
+  user-select: none;
+  max-height: 700px;
+  overflow-y: auto;
+  padding-bottom: 5px;
+}
+
+#scrollable-table:active {
+  cursor: grabbing;
+}

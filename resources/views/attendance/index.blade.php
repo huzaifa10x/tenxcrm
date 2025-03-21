@@ -160,7 +160,7 @@
 
         <!-- Attendance Table -->
         <div class="card basic-data-table">
-            <div class="card-body table-responsive p-0">
+            <div class="card-body table-responsive p-0" id="scrollable-table">
                 <table class="table bordered-table table-bordered mb-0">
                     <thead>
                         <tr>
@@ -173,7 +173,7 @@
                     <tbody>
                         @foreach ($users as $user)
                             <tr>
-                                <td>{{ $user->name }}</td>
+                                <td class="position-sticky start-0">{{ $user->name }}</td>
                                 @for ($day = 1; $day <= $totalDays; $day++)
                                     @php
                                         $date = $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
@@ -200,6 +200,40 @@
                 </table>
             </div>
         </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                let tableContainer = document.getElementById("scrollable-table");
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                tableContainer.addEventListener("mousedown", (e) => {
+                    isDown = true;
+                    tableContainer.classList.add("active");
+                    startX = e.pageX - tableContainer.offsetLeft;
+                    scrollLeft = tableContainer.scrollLeft;
+                });
+
+                tableContainer.addEventListener("mouseleave", () => {
+                    isDown = false;
+                    tableContainer.classList.remove("active");
+                });
+
+                tableContainer.addEventListener("mouseup", () => {
+                    isDown = false;
+                    tableContainer.classList.remove("active");
+                });
+
+                tableContainer.addEventListener("mousemove", (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - tableContainer.offsetLeft;
+                    const walk = (x - startX) * 2; // scroll speed
+                    tableContainer.scrollLeft = scrollLeft - walk;
+                });
+            });
+        </script>
     @else
         @include('vendor.not-allowed')
     @endif
