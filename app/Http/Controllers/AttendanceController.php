@@ -26,7 +26,7 @@ class AttendanceController extends Controller
         $officeClosingTime = Carbon::parse($settings->office_close_time);
 
         // Holidays check
-        if (in_array($now->toDateString(), $settings->holidays)) {
+        if (in_array($now->toDateString(), $settings->holidays) || $now->isWeekend()) {
             return response()->json(['error' => 'Today is a holiday!'], 403);
         }
 
@@ -98,17 +98,18 @@ class AttendanceController extends Controller
         $month = $request->input('month', now()->format('Y-m'));
         $userId = $request->input('user_id'); // User filter
 
-        // Get office open time
-        $officeStartTime = \App\Models\GeneralSetting::first()->office_open_time ?? '09:00:00';
+        // Get office settings
+        $generalSettings = \App\Models\GeneralSetting::first();
+        $officeStartTime = $generalSettings->office_open_time ?? '09:00:00';
         $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes(15)->format('H:i:s');
 
         // Convert month to Carbon instance
         $monthCarbon = \Carbon\Carbon::parse($month);
         $totalDays = $monthCarbon->daysInMonth;
+        $holidays = $generalSettings->holidays ?? []; // DB se holidays get karo
 
         // Fetch all users (for dropdown)
         $usersQuery = \App\Models\User::query();
-
         if ($userId) {
             $usersQuery->where('id', $userId);
         }
@@ -118,16 +119,23 @@ class AttendanceController extends Controller
                 ->whereMonth('date', $monthCarbon->month);
         }])->get();
 
-        // Calculate stats for selected user
+        // Initialize counters
         $totalPresent = $totalAbsent = $totalLate = 0;
 
         if ($userId) {
             $user = $users->first();
             if ($user) {
-                $attendanceDates = $user->attendances->pluck('date')->toArray();
-
                 for ($day = 1; $day <= $totalDays; $day++) {
                     $date = $monthCarbon->format('Y-m') . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                    $carbonDate = \Carbon\Carbon::parse($date);
+
+                    // Check if it's a holiday or weekend
+                    $isHoliday = in_array($date, $holidays) || $carbonDate->isWeekend();
+                    if ($isHoliday) {
+                        continue; // Skip holidays & weekends
+                    }
+
+                    // Check attendance
                     $attendance = $user->attendances->firstWhere('date', $date);
 
                     if ($attendance) {
@@ -142,6 +150,6 @@ class AttendanceController extends Controller
             }
         }
 
-        return view('attendance.index', compact('users', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate'));
+        return view('attendance.index', compact('users', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'holidays'));
     }
 }

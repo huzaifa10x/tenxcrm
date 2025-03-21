@@ -89,10 +89,14 @@
                                     @for ($day = 1; $day <= $totalDays; $day++)
                                         @php
                                             $date = $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                                            $carbonDate = \Carbon\Carbon::parse($date);
                                             $attendance = $user->attendances->firstWhere('date', $date);
+                                            $isHoliday = in_array($date, $holidays) || $carbonDate->isWeekend();
                                         @endphp
                                         <td class="text-center">
-                                            @if ($attendance)
+                                            @if ($isHoliday)
+                                                <span class="badge badge-success text-success">Weekend</span>
+                                            @elseif ($attendance)
                                                 <span class="badge badge-success text-success">In:
                                                     {{ $attendance->punch_in }}</span> <br>
                                                 <span class="badge badge-danger text-danger">Out:
