@@ -720,19 +720,17 @@
             <div class="card-header position-sticky top-0">
                 <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
                     <span class="fw-bold">Task Files</span>
-                    @if ($userPermissions->contains('can add task files'))
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#taskAttachmentsModal"
-                            class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-                            Add More
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
-                                <path
-                                    d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                                <path
-                                    d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
-                            </svg>
-                        </button>
-                    @endif
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#taskAttachmentsModal"
+                        class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                        Add More
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-upload" viewBox="0 0 16 16">
+                            <path
+                                d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                            <path
+                                d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="card-body">
@@ -1004,6 +1002,31 @@
                         </form>
                     </div>
                 @endif
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="taskAttachmentsModal" tabindex="-1" aria-labelledby="taskAttachmentsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="taskAttachmentsModalLabel">Upload Task Attachments</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadTaskAttachmentsForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="task_id" value="">
+                    <div class="mb-3">
+                        <label for="taskAttachments" class="form-label">Select Files</label>
+                        <input type="file" name="attachments[]" id="taskAttachments" class="form-control"
+                            multiple required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Upload Files</button>
+                </form>
+                <div id="taskUploadStatus"></div>
             </div>
         </div>
     </div>
@@ -1504,6 +1527,8 @@
             updateTimestamps();
         });
     }
+
+    loadComments()
 
     function updateTimestamps() {
         document.querySelectorAll(".comment-time").forEach(element => {
