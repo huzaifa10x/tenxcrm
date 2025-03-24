@@ -1091,7 +1091,6 @@
                             "X-CSRF-TOKEN": "{{ csrf_token() }}",
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify(data)
                     }).then(response => response.json())
                 .then(data => alert(data.success || data.error));
         }
