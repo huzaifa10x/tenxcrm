@@ -87,8 +87,8 @@
                                 src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? '' }}"
                                 alt="" class="img-fluid mb-16 rounded object-fit-cover rounded-end-4"
                                 style="max-width: 150px;"></a>
-                        <h6 class="text-white text-xl"><a
-                                target="_blank" href="{{ $project->companies->website ?? '' }}">{{ $project->companies->name ?? '' }}</a>
+                        <h6 class="text-white text-xl"><a target="_blank"
+                                href="{{ $project->companies->website ?? '' }}">{{ $project->companies->name ?? '' }}</a>
                         </h6>
                         <div class="">
                             <p class="text-white">
@@ -955,42 +955,47 @@
                     </div>
                 @endif
                 @if (!empty($sequenceTasksFiles))
-                    <div class="col-lg-6">
-                        <div class="card border">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                    <h6 class="mb-2 fw-bold text-lg mb-0">Task Files</h6>
+                    @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                            auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
+                            auth()->user()->hasRole('ADMIN') ||
+                            ($project->createdBy && auth()->user()->id == $project->createdBy->id))
+                        <div class="col-lg-6">
+                            <div class="card border">
+                                <div class="card-header">
+                                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                                        <h6 class="mb-2 fw-bold text-lg mb-0">Task Files</h6>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex flex-column gap-24">
-                                    @foreach ($sequenceTasksFiles as $file)
-                                        <div class="d-flex align-items-center justify-content-between gap-3">
-                                            <div class="d-flex align-items-center gap-12">
-                                                <div class="flex-shrink-0">
-                                                    <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
-                                                        alt="" class="">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column gap-24">
+                                        @foreach ($sequenceTasksFiles as $file)
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="d-flex align-items-center gap-12">
+                                                    <div class="flex-shrink-0">
+                                                        <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
+                                                            alt="" class="">
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="text-md mb-0 fw-normal">
+                                                            <a target="_blank"
+                                                                href="{{ asset('/public/storage') }}/{{ $file['file'] }}">{{ $file['name'] }}</a>
+                                                        </h6>
+                                                    </div>
                                                 </div>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-normal">
-                                                        <a target="_blank"
-                                                            href="{{ asset('/public/storage') }}/{{ $file['file'] }}">{{ $file['name'] }}</a>
-                                                    </h6>
+                                                <div class="flex-align gap-12">
+                                                    <a href="{{ asset('/public/storage') }}/{{ $file['file'] }}"
+                                                        download
+                                                        class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
+                                                        <i class="ri-download-2-fill"></i>
+                                                    </a>
                                                 </div>
                                             </div>
-                                            <div class="flex-align gap-12">
-                                                <a href="{{ asset('/public/storage') }}/{{ $file['file'] }}"
-                                                    download
-                                                    class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
-                                                    <i class="ri-download-2-fill"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                 @endif
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||

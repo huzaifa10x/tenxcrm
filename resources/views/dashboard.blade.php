@@ -8,6 +8,43 @@
     </div>
 
     <div class="row gy-3 mb-10">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header px-20 py-20">
+                    <h6 class="mb-2 fw-bold text-lg mb-0">Office Timings & Attendance Rules</h6>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table bordered-table mb-0">
+                        <tbody>
+                            <tr>
+                                <td>Office Open Time</td>
+                                <td>{{ $office_open_time }}</td>
+                            </tr>
+                            <tr>
+                                <td>Office Close Time</td>
+                                <td>{{ $office_close_time }}</td>
+                            </tr>
+                            <tr>
+                                <td>Late Mark After</td>
+                                <td>{{ $late_threshold }} minutes</td>
+                            </tr>
+                            <tr>
+                                <td>Half Day If Arrived After</td>
+                                <td>{{ $half_day_threshold }}</td>
+                            </tr>
+                            <tr>
+                                <td>Break Ends At</td>
+                                <td>{{ $break_end_time }}</td>
+                            </tr>
+                            <tr>
+                                <td>Early Out If Left Before</td>
+                                <td>{{ $early_out_threshold }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         <div class="col-xxl-6">
             <div class="card h-100">
                 <div
@@ -256,15 +293,6 @@
                     <div class="card-body p-24">
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
                             <h6 class="mb-2 fw-bold text-lg">Campaigns</h6>
-                            {{-- <div class="">
-                                <select
-                                    class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
-                                    <option>Yearly</option>
-                                    <option>Monthly</option>
-                                    <option>Weekly</option>
-                                    <option>Today</option>
-                                </select>
-                            </div> --}}
                         </div>
                         <div class="mt-3">
                             @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
@@ -685,13 +713,6 @@
         </script>
     @elseif ($role === 'CONTENT')
         <div class="row gy-3 mb-10">
-            <div class="col-xxl-4 col-lg-6">
-                <div class="card h-100 border shadow-none radius-8 overflow-hidden">
-                    <div class="card-body p-24">
-
-                    </div>
-                </div>
-            </div>
             <div class="col-xxl-4 col-lg-6">
                 <div class="card h-100 border shadow-none radius-8 overflow-hidden">
                     <div class="card-body p-24">

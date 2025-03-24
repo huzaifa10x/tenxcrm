@@ -37,6 +37,13 @@ class DashboardController extends Controller
             }
         }
 
+        $office_open_time = Carbon::createFromFormat('H:i:s', $settings->office_open_time ?? '09:00:00')->format('h:i A');
+        $office_close_time = Carbon::createFromFormat('H:i:s', $settings->office_close_time ?? '18:00:00')->format('h:i A');
+        $late_threshold = $settings->late_threshold ?? 15;
+        $half_day_threshold = Carbon::createFromFormat('H:i:s', $settings->half_day_threshold ?? '12:00:00')->format('h:i A');
+        $break_end_time = Carbon::createFromFormat('H:i:s', $settings->break_end_time ?? '14:00:00')->format('h:i A');
+        $early_out_threshold = Carbon::createFromFormat('H:i:s', $settings->early_out_threshold ?? $settings->office_close_time)->format('h:i A');
+
         $last15Days = collect(range(0, 14))->map(function ($day) {
             return Carbon::now()->subDays($day)->format('Y-m-d');
         })->reverse()->values();
@@ -198,6 +205,12 @@ class DashboardController extends Controller
                 'completedTasksCountGlobal',
                 'createdTasksCountGlobal',
                 'collaboratorTasksCountGlobal',
+                'office_open_time',
+                'office_close_time',
+                'late_threshold',
+                'half_day_threshold',
+                'break_end_time',
+                'early_out_threshold',
                 $extraData
             ),
         ));

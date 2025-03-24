@@ -72,7 +72,8 @@
                             `<div class="alert alert-success">${data.success}</div>`;
                     })
                     .catch(error => {
-                        console.error('Error:', error);
+                        document.getElementById('responseMessage').innerHTML =
+                            `<div class="alert alert-success">${error}</div>`;
                     });
             });
         </script>
