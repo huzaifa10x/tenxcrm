@@ -23,21 +23,12 @@ class DashboardController extends Controller
         $settings = GeneralSetting::first();
 
         if ($settings) {
-            $holidays = $settings->holidays ?? [];
             $pendingAttendances = Attendance::where('date', '<', today())
                 ->whereNull('punch_out')
                 ->get();
-
             $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
-
             foreach ($pendingAttendances as $attendance) {
                 $carbonDate = Carbon::parse($attendance->date);
-
-                // Skip weekends & holidays
-                if (in_array($attendance->date, $holidays) || $carbonDate->isWeekend()) {
-                    continue;
-                }
-
                 $attendance->punch_out = $closingTime;
                 $attendance->total_hours = Carbon::parse($attendance->punch_in)
                     ->diff(Carbon::parse($closingTime))

@@ -45,7 +45,7 @@ class AttendanceController extends Controller
 
         // Time validation
         if ($now->lt($officeOpeningTime)) {
-            // return response()->json(['error' => 'Office is not open yet!'], 403);
+            return response()->json(['error' => 'Office is not open yet!'], 403);
         }
 
         // Already punched in?
