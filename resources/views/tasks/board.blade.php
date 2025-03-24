@@ -122,8 +122,7 @@
         </div>
         <div class="col-lg-12">
             <div class="input-group">
-                <input type="text" id="taskSearch" class="form-control"
-                    placeholder="Search Task by Title...">
+                <input type="text" id="taskSearch" class="form-control" placeholder="Search Task by Title...">
                 <div id="input2" class="list-group"
                     style="position: absolute;
                 top: 44px;
@@ -497,6 +496,15 @@
                 }
             });
         }
+
+        // Get the full path after domain
+        let path = window.location.pathname; // Example: "/tasks/31"
+        // Split the path into parts
+        let segments = path.split('/');
+        // Assuming task ID is always at index 2 (/tasks/{id})
+        let taskId = segments[2];
+        console.log("Task ID:", taskId);
+        loadTaskDetails(taskId)
     </script>
     <script>
         $(document).ready(function() {

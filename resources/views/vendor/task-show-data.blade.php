@@ -1031,6 +1031,7 @@
         </div>
     </div>
 </div>
+
 <script>
     $(document).ready(function() {
         $("#showMoreCredentials").on("click", function() {
@@ -1132,7 +1133,6 @@
                 }
             });
         }
-
         function loadClosingKwUrls() {
             $.ajax({
                 url: '{{ route('offsite.tasks.closing_kw_urls', ['task_id' => $task->id]) }}',
@@ -1192,7 +1192,6 @@
         $(document).on('click', '.open-add-more-links-wrapper', function() {
             $('.add-more-links-wrapper').slideDown()
         });
-
         function toggleRepeatStatus(taskId, action) {
             $.ajax({
                 url: "{{ url('/tasks') }}/" + taskId + "/" + action,
@@ -1222,7 +1221,6 @@
         $('.completion-form-wrapper').slideDown();
         $(this).fadeOut();
     });
-
     function triggerCompletionSubmit() {
         let button = $('.complete-task-btn');
         $.ajax({
@@ -1457,7 +1455,6 @@
             $(this).parent().remove();
         });
     });
-
     function timeAgo(date) {
         const seconds = Math.floor((new Date() - new Date(date)) / 1000);
         const intervals = [{
@@ -1494,7 +1491,6 @@
         }
         return seconds < 10 ? "Just now" : `${seconds} seconds ago`;
     }
-
     function loadComments() {
         let taskId = $("input[name='task_id']").val();
         $.get("{{ route('comments.index', $task->id) }}", function(data) {
@@ -1527,9 +1523,7 @@
             updateTimestamps();
         });
     }
-
     loadComments()
-
     function updateTimestamps() {
         document.querySelectorAll(".comment-time").forEach(element => {
             const timestamp = element.getAttribute("data-time");
@@ -1562,7 +1556,6 @@
             }
         });
     });
-
     function loadTaskAttachments() {
         let taskId = "{{ $task->id }}";
         $.ajax({
@@ -1573,7 +1566,7 @@
             }
         });
     }
-
+    loadTaskAttachments()
     function renderAttachments(attachments) {
         let html = '';
         attachments.forEach(file => {
