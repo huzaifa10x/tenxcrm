@@ -54,31 +54,23 @@
                 </div>
             </div>
             <script>
-                // Bar Chart: Attendance by Day
-                var attendanceData = [
-                    @for ($day = 1; $day <= $totalDays; $day++)
-                        {
-                            x: '{{ \Carbon\Carbon::parse(now()->startOfMonth()->addDays($day - 1))->format('D d') }}', // e.g., "Mon 01"
-                            y: {{ rand(0, 10) }} // Replace with actual attendance count
-                        },
-                    @endfor
-                ];
-
                 // Donut Chart: Total Attendance Stats (Count Only, No Percentage)
                 var optionsDonut = {
-                    series: [{{ $totalPresent }}, {{ $totalLate }}, {{ $totalAbsent }}],
+                    series: [{{ $totalPresent }}, {{ $totalLate }}, {{ $totalAbsent }}, {{ $totalHalfDay }},
+                        {{ $totalEarlyOut }}, {{ $totalATC }}
+                    ],
                     chart: {
                         type: 'donut',
                         height: 300
                     },
-                    labels: ['Present', 'Late', 'Absent'],
-                    colors: ['#28a745', '#ffc107', '#dc3545'],
+                    labels: ['Present', 'Late', 'Absent', 'Half-Day', 'Early Out', 'ATC (Attended Days)'],
+                    colors: ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#fd7e14', '#6f42c1'],
                     legend: {
                         position: 'bottom'
                     },
                     dataLabels: {
                         enabled: false
-                    }, // Hide percentage
+                    },
                     plotOptions: {
                         pie: {
                             donut: {
@@ -90,12 +82,12 @@
                                     },
                                     value: {
                                         show: true
-                                    }, // Show only the count
+                                    },
                                     total: {
                                         show: true,
                                         label: 'Total',
                                         formatter: function(w) {
-                                            return {{ $totalPresent + $totalLate + $totalAbsent }};
+                                            return {{ $totalPresent + $totalLate + $totalAbsent + $totalHalfDay + $totalEarlyOut + $totalATC }};
                                         }
                                     }
                                 }
@@ -108,6 +100,7 @@
                 chartDonut.render();
             </script>
         @endif
+
 
         <!-- Attendance Table -->
         <div class="card basic-data-table">
@@ -146,7 +139,19 @@
                                             <span class="badge badge-success text-success">In:
                                                 {{ $attendance->punch_in }}</span> <br>
                                             <span class="badge badge-danger text-danger">Out:
-                                                {{ $attendance->punch_out ?? 'N/A' }}</span>
+                                                {{ $attendance->punch_out ?? 'N/A' }}</span> <br>
+
+                                            @if ($attendance->punch_in > $lateThreshold)
+                                                <span class="badge badge-warning text-warning">Late</span> <br>
+                                            @endif
+
+                                            @if ($attendance->punch_in > $halfDayThreshold)
+                                                <span class="badge badge-info text-info">Half-Day</span> <br>
+                                            @endif
+
+                                            @if ($attendance->punch_out && $attendance->punch_out < $earlyOutThreshold && $attendance->punch_out > $breakEndTime)
+                                                <span class="badge badge-primary text-primary">Early Out</span>
+                                            @endif
                                         @else
                                             <span class="badge badge-secondary text-secondary">Absent</span>
                                         @endif

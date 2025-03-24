@@ -9,7 +9,14 @@ class GeneralSetting extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['office_open_time', 'office_close_time', 'holidays'];
+    protected $fillable = [
+        'office_open_time',
+        'office_close_time',
+        'holidays',
+        'half_day_threshold',
+        'break_end_time',
+        'early_out_threshold'
+    ];
 
     protected $casts = [
         'holidays' => 'array',
