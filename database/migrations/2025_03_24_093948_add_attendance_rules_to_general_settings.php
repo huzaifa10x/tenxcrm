@@ -12,9 +12,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('general_settings', function (Blueprint $table) {
-            $table->time('half_day_threshold')->nullable()->after('office_open_time'); // Late after this = Half Day
-            $table->time('break_end_time')->nullable()->after('half_day_threshold'); // Break end time
-            $table->time('early_out_threshold')->nullable()->after('break_end_time'); // Punch out before this = Early Out
+            $table->time('half_day_threshold')->nullable(); // Late after this = Half Day
+            $table->time('break_end_time')->nullable(); // Break end time
+            $table->time('early_out_threshold')->nullable();
         });
     }
 

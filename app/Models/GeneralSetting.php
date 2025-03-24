@@ -13,6 +13,7 @@ class GeneralSetting extends Model
         'office_open_time',
         'office_close_time',
         'holidays',
+        'late_threshold',
         'half_day_threshold',
         'break_end_time',
         'early_out_threshold'
