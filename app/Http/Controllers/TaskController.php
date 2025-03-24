@@ -152,6 +152,7 @@ class TaskController extends Controller
         $tasks = $taskQuery->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
+
     public function formeTasks(Request $request)
     {
         $user = auth()->user();
@@ -183,6 +184,7 @@ class TaskController extends Controller
         $tasks = $taskQuery->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
+
     public function collaboratedTasks(Request $request)
     {
         $user = auth()->user();

@@ -114,11 +114,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/tasks/{task}/attachments', [TaskController::class, 'jsonTaskAttachments'])->name('tasks.attachments.index');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
 
-    Route::middleware('permission:can create tasks')->group(function () {
-        Route::get('/tasks/assigned/index', [TaskController::class, 'assignedTasks'])->name('tasks.assigned.index');
-    });
+    Route::get('/tasks/assigned/index', [TaskController::class, 'assignedTasks'])->name('tasks.assigned.index');
 
-    // Route::get('/tasks/show/{id}', [TaskController::class, 'showTask'])->name('tasks.show.index');
     Route::get('/tasks/clear-session', function () {
         session()->forget('open_task_id');
         return response()->json(['status' => 'cleared']);
