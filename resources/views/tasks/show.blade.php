@@ -1,10 +1,19 @@
-@if (session('is_not_ajax'))
-    <x-app-layout>
-        <x-slot name="header">
-            {{ __('Task') }}
-        </x-slot>
+@if (auth()->user()->hasRole('ADMIN') ||
+        ($task->createdBy && auth()->user()->id == $task->createdBy->id) ||
+        ($task->assignedTo && auth()->user()->id == $task->assignedTo->id) ||
+        ($task->collaborators && $task->collaborators->contains('user_id', auth()->user()->id)))
+    @if (session('is_not_ajax'))
+        <x-app-layout>
+            <x-slot name="header">
+                {{ __('Task') }}
+            </x-slot>
+            @include('vendor.task-show-data')
+        </x-app-layout>
+    @else
         @include('vendor.task-show-data')
-    </x-app-layout>
+    @endif
 @else
-    @include('vendor.task-show-data')
+    <x-app-layout>
+        @include('vendor.not-allowed')
+    </x-app-layout>
 @endif
