@@ -947,6 +947,7 @@
                                     <th>Punch In</th>
                                     <th>Punch Out</th>
                                     <th>Total Hours</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1140,35 +1141,41 @@
                         data: {
                             date: date
                         },
-                        success: function(data) {
+                        success: function(response) {
                             let tbody = '';
-                            if (data.length > 0) {
-                                data.forEach(attendance => {
+                            if (response.attendance.length > 0) {
+                                response.attendance.forEach(attendance => {
                                     tbody += `
-                        <tr>
-                            <td>${attendance.user.name}</td>
-                            <td>${attendance.date}</td>
-                            <td>${attendance.punch_in}</td>
-                            <td>${attendance.punch_out ?? 'Not Punched Out'}</td>
-                            <td>${attendance.total_hours ?? 'Pending'}</td>
-                        </tr>
-                    `;
+                            <tr>
+                                <td>${attendance.user.name}</td>
+                                <td>${attendance.date}</td>
+                                <td>${attendance.punch_in || 'Not Available'}</td>
+                                <td>${attendance.punch_out ?? 'currently working'}</td>
+                                <td>${attendance.total_hours ?? 'Pending'}</td>
+                                <td>
+                                    ${attendance.status_labels 
+                                        ? `<span class="badge rounded fs-7 text-base bg-warning">${attendance.status_labels}</span>` 
+                                        : '<span class="badge rounded fs-7 text-base bg-secondary">Present</span>'}
+                                </td>
+                            </tr>
+                        `;
                                 });
                             } else {
                                 tbody =
-                                    `<tr><td colspan="5" class="text-center">No attendance records found.</td></tr>`;
+                                    `<tr><td colspan="6" class="text-center">No attendance records found.</td></tr>`;
                             }
                             $('#attendanceTable tbody').html(tbody);
                         },
                         error: function(response) {
                             $('#attendanceTable tbody').html(
-                                `<tr><td colspan="5" class="text-center">This is a holyday.</td></tr>`
+                                `<tr><td colspan="6" class="text-center">This is a holiday.</td></tr>`
                             );
                         }
                     });
                 }
 
                 fetchAttendance(today);
+
                 $('#attendanceDate').on('change', function() {
                     let selectedDate = $(this).val();
                     fetchAttendance(selectedDate);
