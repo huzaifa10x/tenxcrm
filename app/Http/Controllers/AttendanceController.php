@@ -105,7 +105,7 @@ class AttendanceController extends Controller
         $breakEndTime = $generalSettings->break_end_time ?? '14:00:00';
         $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
 
-        $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes(15)->format('H:i:s');
+        $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes($generalSettings->late_threshold)->format('H:i:s');
 
         // Convert month to Carbon instance
         $monthCarbon = \Carbon\Carbon::parse($month);
