@@ -35,17 +35,17 @@ class AttendanceController extends Controller
         $officeLongitude = 67.07809279592651;
         $radius = 0.5; // 500 meters
         if (!$request->latitude || !$request->longitude) {
-            return response()->json(['error' => 'Location access denied!'], 403);
+            // return response()->json(['error' => 'Location access denied!'], 403);
         }
 
         $distance = $this->haversineDistance($officeLatitude, $officeLongitude, $request->latitude, $request->longitude);
         if ($distance > $radius) {
-            return response()->json(['error' => 'You are not in the office!'], 403);
+            // return response()->json(['error' => 'You are not in the office!'], 403);
         }
 
         // Time validation
         if ($now->lt($officeOpeningTime)) {
-            return response()->json(['error' => 'Office is not open yet!'], 403);
+            // return response()->json(['error' => 'Office is not open yet!'], 403);
         }
 
         // Already punched in?
