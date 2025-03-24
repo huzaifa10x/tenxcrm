@@ -46,13 +46,6 @@
         </form>
         @if (request()->query('user_id'))
             <div class="row gy-3 mb-10">
-                <!-- Attendance Trading Chart (Bar Chart) -->
-                <div class="col-lg-6">
-                    <div class="card border h-100 p-3">
-                        <div id="attendanceTradingChart"></div>
-                    </div>
-                </div>
-
                 <!-- Total Attendance Chart (Donut Chart) -->
                 <div class="col-lg-6">
                     <div class="card border h-100 p-3">
@@ -70,63 +63,6 @@
                         },
                     @endfor
                 ];
-
-                var optionsBar = {
-                    series: [{
-                        name: "Attendance",
-                        data: attendanceData
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 235,
-                        toolbar: {
-                            show: false
-                        },
-                    },
-                    plotOptions: {
-                        bar: {
-                            borderRadius: 6,
-                            horizontal: false,
-                            columnWidth: '52%',
-                            endingShape: 'rounded',
-                        }
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    fill: {
-                        type: 'gradient',
-                        colors: ['#dae5ff'],
-                        gradient: {
-                            shade: 'light',
-                            type: 'vertical',
-                            shadeIntensity: 0.5,
-                            gradientToColors: ['#b4c9ff'],
-                            inverseColors: false,
-                            opacityFrom: 1,
-                            opacityTo: 1,
-                            stops: [0, 100],
-                        },
-                    },
-                    grid: {
-                        show: false
-                    },
-                    xaxis: {
-                        type: 'category',
-                        labels: {
-                            style: {
-                                fontSize: '12px',
-                                fontWeight: 'bold'
-                            }
-                        }
-                    },
-                    yaxis: {
-                        show: false
-                    },
-                };
-
-                var chartBar = new ApexCharts(document.querySelector("#attendanceTradingChart"), optionsBar);
-                chartBar.render();
 
                 // Donut Chart: Total Attendance Stats (Count Only, No Percentage)
                 var optionsDonut = {
