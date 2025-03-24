@@ -117,7 +117,14 @@
                         <tr>
                             <th>User</th>
                             @for ($day = 1; $day <= $totalDays; $day++)
-                                <th>{{ $day }}</th>
+                                @php
+                                    $dateObj = \Carbon\Carbon::createFromFormat(
+                                        'Y-m-d',
+                                        $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT),
+                                    );
+                                    $dayName = $dateObj->format('D'); // Get day name (Mon, Tue, Wed, etc.)
+                                @endphp
+                                <th>{{ $day }} - {{ $dayName }}</th>
                             @endfor
                         </tr>
                     </thead>
