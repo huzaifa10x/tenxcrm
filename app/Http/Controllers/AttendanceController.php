@@ -167,4 +167,5 @@ class AttendanceController extends Controller
 
         return view('attendance.index', compact('users', 'breakEndTime', 'earlyOutThreshold', 'halfDayThreshold', 'lateThreshold', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'totalHalfDay', 'totalEarlyOut', 'totalATC', 'holidays'));
     }
+    
 }

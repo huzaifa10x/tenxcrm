@@ -23,10 +23,22 @@ class DashboardController extends Controller
         $settings = GeneralSetting::first();
 
         if ($settings) {
+            $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
+            $currentTime = now()->toTimeString();
+
+            // Get all pending attendances before today
             $pendingAttendances = Attendance::where('date', '<', today())
                 ->whereNull('punch_out')
                 ->get();
-            $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
+
+            // Check if today's office time has ended, then include today's attendances
+            if ($currentTime > $closingTime) {
+                $todayAttendances = Attendance::where('date', today())
+                    ->whereNull('punch_out')
+                    ->get();
+                $pendingAttendances = $pendingAttendances->merge($todayAttendances);
+            }
+
             foreach ($pendingAttendances as $attendance) {
                 $carbonDate = Carbon::parse($attendance->date);
                 $attendance->punch_out = $closingTime;
