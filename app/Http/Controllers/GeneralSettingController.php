@@ -21,7 +21,7 @@ class GeneralSettingController extends Controller
             'late_threshold' => 'required|integer',
             'half_day_threshold' => 'required',
             'break_end_time' => 'required',
-            'early_out_threshold' => 'required|before:office_close_time',
+            'early_out_threshold' => 'required',
             'holidays' => 'nullable|string',
         ]);
 
