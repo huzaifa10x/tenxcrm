@@ -17,7 +17,7 @@ class GeneralSettingController extends Controller
     {
         $request->validate([
             'office_open_time' => 'required',
-            'office_close_time' => 'required|after:office_open_time',
+            'office_close_time' => 'required',
             'late_threshold' => 'required|integer',
             'half_day_threshold' => 'required',
             'break_end_time' => 'required',
