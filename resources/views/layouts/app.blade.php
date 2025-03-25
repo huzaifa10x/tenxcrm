@@ -416,9 +416,6 @@
         @endif
     </script>
     <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
-    <script src="https://cdn.tiny.cloud/1/xv2ulo11uhx3jiaj39bykatfcit3wcn9oayhfnkmq96hiypb/tinymce/6/tinymce.min.js"
-        referrerpolicy="origin"></script>
-
 </body>
 
 </html>
