@@ -1736,39 +1736,3 @@
     });
 </script>
 
-<script>
-    tinymce.init({
-        selector: '#description',
-        height: 300,
-        plugins: 'image link media table lists codesample fullscreen',
-        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | codesample fullscreen',
-        menubar: false,
-        content_css: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-
-        /* Image Upload */
-        images_upload_url: "{{ route('tasks.upload-image') }}",
-        automatic_uploads: true,
-        file_picker_types: 'image',
-        file_picker_callback: function(callback, value, meta) {
-            var input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.onchange = function() {
-                var file = this.files[0];
-                var reader = new FileReader();
-                reader.onload = function() {
-                    var id = 'blobid' + (new Date()).getTime();
-                    var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                    var base64 = reader.result.split(',')[1];
-                    var blobInfo = blobCache.create(id, file, base64);
-                    blobCache.add(blobInfo);
-                    callback(blobInfo.blobUri(), {
-                        title: file.name
-                    });
-                };
-                reader.readAsDataURL(file);
-            };
-            input.click();
-        }
-    });
-</script>

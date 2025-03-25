@@ -374,17 +374,6 @@ class TaskController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    public function uploadImage(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        $path = $request->file('file')->store('task_attachments', 'public');
-
-        return response()->json(['location' => asset('/public/storage/' . $path)]);
-    }
-
     public function show(Request $request, Task $task)
     {
         $users = User::all();
