@@ -563,7 +563,7 @@ class TaskController extends Controller
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Task " . $request->field . " updated from " . $task->{$request->field} . " to " . $request->value . " By " . auth()->user()->name,
+            'action' => "Task " . $request->field . " updated By " . auth()->user()->name,
         ]);
         $task->{$request->field} = $request->value;
         $task->save();
