@@ -72,7 +72,7 @@
         </div>
     </div>
     <div class="row mb-10 gy-3">
-        @if (auth()->user()->hasRole('ADMIN') || route('tasks.assigned.index') == url()->current())
+        @if (auth()->user()->hasRole('ADMIN') || route('tasks.assigned.index') == url()->current()||$userPermissions->contains('can view all tasks'))
             <div class="col-lg-4">
                 <select id="taskType" class="form-select">
                     <option value="" disabled selected>Filter by task type</option>
