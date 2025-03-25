@@ -47,7 +47,7 @@
     <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
 
     <style>
-        body{
+        body {
             scroll-behavior: smooth !important;
             transition: all .5s ease-in-out !important;
         }
@@ -385,6 +385,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             flatpickr('input[type="date"]', {
@@ -415,6 +416,9 @@
         @endif
     </script>
     <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://cdn.tiny.cloud/1/xv2ulo11uhx3jiaj39bykatfcit3wcn9oayhfnkmq96hiypb/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
 </body>
 
 </html>

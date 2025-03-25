@@ -503,7 +503,6 @@
         let segments = path.split('/');
         // Assuming task ID is always at index 2 (/tasks/{id})
         let taskId = segments[2];
-        console.log("Task ID:", taskId);
         loadTaskDetails(taskId)
     </script>
     <script>

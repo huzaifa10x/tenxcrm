@@ -62,7 +62,7 @@ class TaskController extends Controller
                     $query->orWhereRaw('1=1');
                 }
             })
-            ->select('id', 'title', 'project_id') 
+            ->select('id', 'title', 'project_id')
             ->limit(10)
             ->get();
 
@@ -70,7 +70,7 @@ class TaskController extends Controller
             return [
                 'id' => $task->id,
                 'title' => $task->title,
-                'project_title' => optional($task->project)->title ?? 'N/A', 
+                'project_title' => optional($task->project)->title ?? 'N/A',
             ];
         }));
     }
@@ -374,6 +374,17 @@ class TaskController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $path = $request->file('file')->store('task_attachments', 'public');
+
+        return response()->json(['location' => asset('/public/storage/' . $path)]);
+    }
+
     public function show(Request $request, Task $task)
     {
         $users = User::all();
@@ -560,13 +571,14 @@ class TaskController extends Controller
     public function updateTaskAjax(Request $request, $id)
     {
         $task = Task::findOrFail($id);
+        $task->{$request->field} = $request->value;
+        $task->save();
+
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
             'action' => "Task " . $request->field . " updated By " . auth()->user()->name,
         ]);
-        $task->{$request->field} = $request->value;
-        $task->save();
 
         return response()->json([
             "message" => ucfirst($request->field) . " updated successfully!"

@@ -143,6 +143,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/tasks/{task}/disable-repeating', [TaskController::class, 'disableRepeating'])->name('tasks.disableRepeating');
         Route::post('/tasks/{task}/enable-repeating', [TaskController::class, 'enableRepeating'])->name('tasks.enableRepeating');
     });
+    Route::post('/tasks/upload-image', [TaskController::class, 'uploadImage'])->name('tasks.upload-image');
+
     Route::middleware('permission:can remove offsite links')->group(function () {
         Route::delete('/project-keyword/{id}', [ProjectKeywordController::class, 'delete'])->name('project-keyword.delete');
     });

@@ -572,10 +572,9 @@
         @if (auth()->user()->hasRole('ADMIN') || $task->createdBy->id == auth()->user()->id)
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
                 <label class="form-label fs-7 m-0" for="priority">Priority</label>
-                <select
-                    class="form-control fs-7 h-auto {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    id="priority" name="priority">
-                    <option value="Low" {{ $task->priority == 'Low' ? 'selected' : '' }}>Low</option>
+                <select class="form-control fs-7 h-auto" id="priority" name="priority"
+                    onchange="updateTaskField(this)" <option value="Low"
+                    {{ $task->priority == 'Low' ? 'selected' : '' }}>Low</option>
                     <option value="Medium" {{ $task->priority == 'Medium' ? 'selected' : '' }}>Medium</option>
                     <option value="High" {{ $task->priority == 'High' ? 'selected' : '' }}>High</option>
                     <option value="Urgent" {{ $task->priority == 'Urgent' ? 'selected' : '' }}>Urgent</option>
@@ -667,8 +666,7 @@
             </div>
             <div class="card-body bg-warning-50">
                 @if ($relatedData && $relatedData->sub_type == 'ADHOC')
-                    <input type="text"
-                        class="m-0 p-0 border-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
+                    <input type="text" class="m-0 p-0 border-0 w-100 h-100" onchange="updateTaskField(this)"
                         id="title" name="title" value="#{{ $task->id }} - {{ $task->title }}" required>
                 @else
                     <input type="text" class="m-0 p-0 border-0 w-100 h-100" id="title" name="title"
@@ -683,9 +681,9 @@
                 <span class="fw-bold">Start Date</span>
             </div>
             <div class="card-body bg-success-50">
-                <input type="datetime" readonly disabled
-                    class="m-0 p-0 border-0 w-100 h-100 date-picker {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    name="start_date" id="start_date" value="{{ $task->start_date }}" required>
+                <input type="datetime" readonly disabled class="m-0 p-0 border-0 w-100 h-100 date-picker"
+                    onchange="updateTaskField(this)" name="start_date" id="start_date"
+                    value="{{ $task->start_date }}" required>
             </div>
         </div>
     </div>
@@ -695,9 +693,9 @@
                 <span class="fw-bold">Due Date</span>
             </div>
             <div class="card-body bg-danger-50">
-                <input type="date"
-                    class="m-0 p-0 border-0 w-100 h-100 date-picker {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    name="due_date" id="due_date" value="{{ $task->due_date }}" required>
+                <input type="date" class="m-0 p-0 border-0 w-100 h-100 date-picker"
+                    onchange="updateTaskField(this)" name="due_date" id="due_date" value="{{ $task->due_date }}"
+                    required>
             </div>
         </div>
     </div>
@@ -709,12 +707,12 @@
                 <span class="fw-bold">Description</span>
             </div>
             <div class="card-body">
-                <textarea
-                    class="border-0 p-0 m-0 w-100 h-100 {{ auth()->user()->hasPermission('can edit task') ? 'task-update-field' : '' }}"
-                    name="description" id="description" cols="30" rows="10">{{ $task->description }}</textarea>
+                <textarea class="border-0 p-0 m-0 w-100 h-100" onchange="updateTaskField(this)" name="description" id="description"
+                    cols="30" rows="10">{{ $task->description }}</textarea>
             </div>
         </div>
     </div>
+
     <div class="col-lg-4">
         <div class="card border border-secondary" style="height: 500px; overflow-y: auto">
             <div class="card-header position-sticky top-0">
@@ -1031,7 +1029,7 @@
         </div>
     </div>
 </div>
-
+<input type="hidden" id="taskId" value="{{ $task->id }}">
 <script>
     $(document).ready(function() {
         $("#showMoreCredentials").on("click", function() {
@@ -1133,6 +1131,7 @@
                 }
             });
         }
+
         function loadClosingKwUrls() {
             $.ajax({
                 url: '{{ route('offsite.tasks.closing_kw_urls', ['task_id' => $task->id]) }}',
@@ -1192,6 +1191,7 @@
         $(document).on('click', '.open-add-more-links-wrapper', function() {
             $('.add-more-links-wrapper').slideDown()
         });
+
         function toggleRepeatStatus(taskId, action) {
             $.ajax({
                 url: "{{ url('/tasks') }}/" + taskId + "/" + action,
@@ -1221,6 +1221,7 @@
         $('.completion-form-wrapper').slideDown();
         $(this).fadeOut();
     });
+
     function triggerCompletionSubmit() {
         let button = $('.complete-task-btn');
         $.ajax({
@@ -1455,6 +1456,7 @@
             $(this).parent().remove();
         });
     });
+
     function timeAgo(date) {
         const seconds = Math.floor((new Date() - new Date(date)) / 1000);
         const intervals = [{
@@ -1491,6 +1493,7 @@
         }
         return seconds < 10 ? "Just now" : `${seconds} seconds ago`;
     }
+
     function loadComments() {
         let taskId = $("input[name='task_id']").val();
         $.get("{{ route('comments.index', $task->id) }}", function(data) {
@@ -1524,6 +1527,7 @@
         });
     }
     loadComments()
+
     function updateTimestamps() {
         document.querySelectorAll(".comment-time").forEach(element => {
             const timestamp = element.getAttribute("data-time");
@@ -1556,6 +1560,7 @@
             }
         });
     });
+
     function loadTaskAttachments() {
         let taskId = "{{ $task->id }}";
         $.ajax({
@@ -1567,6 +1572,7 @@
         });
     }
     loadTaskAttachments()
+
     function renderAttachments(attachments) {
         let html = '';
         attachments.forEach(file => {
@@ -1674,28 +1680,35 @@
             });
         }
     });
-    $(document).on("change", ".task-update-field", function() {
-        let taskId = "{{ $task->id }}";
-        let fieldName = $(this).attr("name");
-        let fieldValue = $(this).val();
-        setTimeout(() => {
-            $.ajax({
-                url: "{{ route('tasks.update.json', ':id') }}".replace(':id', taskId),
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    field: fieldName,
-                    value: fieldValue
-                },
-                success: function(response) {
-                    toastr.success(`${response.message}`, "Success");
-                },
-                error: function(xhr) {
-                    toastr.error("Update failed. Please try again.");
-                }
-            });
-        }, 500);
-    });
+
+    function updateTaskField(element) {
+        let allowEdit = {{ auth()->user()->hasPermission('can edit task') ? '1' : '0' }}
+        let taskId = $("#taskId").val();
+        let fieldName = $(element).attr("name");
+        let fieldValue = $(element).val();
+        if (allowEdit == 1) {
+            setTimeout(() => {
+                $.ajax({
+                    url: "{{ route('tasks.update.json', ':id') }}".replace(':id', taskId),
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        field: fieldName,
+                        value: fieldValue
+                    },
+                    success: function(response) {
+                        toastr.success(`${response.message}`, "Success");
+                    },
+                    error: function(xhr) {
+                        toastr.error("Update failed. Please try again.");
+                    }
+                });
+            }, 500);
+        } else {
+            toastr.error("Editing Not Allowed");
+        }
+    }
+
     $(document).on("change", ".task-status", function() {
         let taskId = "{{ $task->id }}";
         let updateUrl = "{{ route('tasks.updateStatus', ':id') }}".replace(':id', taskId);
@@ -1720,5 +1733,42 @@
                 toastr.error("Task status can't change!", "Error");
             }
         });
+    });
+</script>
+
+<script>
+    tinymce.init({
+        selector: '#description',
+        height: 300,
+        plugins: 'image link media table lists codesample fullscreen',
+        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | codesample fullscreen',
+        menubar: false,
+        content_css: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+
+        /* Image Upload */
+        images_upload_url: "{{ route('tasks.upload-image') }}",
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        file_picker_callback: function(callback, value, meta) {
+            var input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.onchange = function() {
+                var file = this.files[0];
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var id = 'blobid' + (new Date()).getTime();
+                    var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                    var base64 = reader.result.split(',')[1];
+                    var blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+                    callback(blobInfo.blobUri(), {
+                        title: file.name
+                    });
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
     });
 </script>
