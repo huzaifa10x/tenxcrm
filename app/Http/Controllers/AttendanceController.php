@@ -23,6 +23,7 @@ class AttendanceController extends Controller
 
         // Office open/close time
         $officeOpeningTime = Carbon::parse($settings->office_open_time);
+        $earlyPunchInTime = $officeOpeningTime->copy()->subMinutes(15);
         $officeClosingTime = Carbon::parse($settings->office_close_time);
 
         // Holidays check
@@ -30,22 +31,9 @@ class AttendanceController extends Controller
             return response()->json(['error' => 'Today is a holiday!'], 403);
         }
 
-        // Location validation
-        $officeLatitude = 24.904871745119998;
-        $officeLongitude = 67.07809279592651;
-        $radius = 0.5; // 500 meters
-        if (!$request->latitude || !$request->longitude) {
-            // return response()->json(['error' => 'Location access denied!'], 403);
-        }
-
-        $distance = $this->haversineDistance($officeLatitude, $officeLongitude, $request->latitude, $request->longitude);
-        if ($distance > $radius) {
-            // return response()->json(['error' => 'You are not in the office!'], 403);
-        }
-
-        // Time validation
-        if ($now->lt($officeOpeningTime)) {
-            return response()->json(['error' => 'Office is not open yet!'], 403);
+        // Time validation: Allow punch-in 15 mins before but store official opening time
+        if ($now->lt($earlyPunchInTime)) {
+            return response()->json(['error' => 'Punch-in is only allowed 15 minutes before office opens!'], 403);
         }
 
         // Already punched in?
@@ -53,15 +41,19 @@ class AttendanceController extends Controller
             return response()->json(['error' => 'Already punched in!'], 403);
         }
 
+        // If punching in early, set the punch-in time as office opening time
+        $punchInTime = $now->lt($officeOpeningTime) ? $officeOpeningTime->toTimeString() : $now->toTimeString();
+
         Attendance::create([
             'user_id' => $user->id,
             'date' => Carbon::today(),
-            'punch_in' => $now->toTimeString(),
+            'punch_in' => $punchInTime,
             'location' => $request->latitude . ',' . $request->longitude,
         ]);
 
         return response()->json(['success' => 'Punched in successfully!']);
     }
+
 
     public function punchOut()
     {
@@ -167,5 +159,4 @@ class AttendanceController extends Controller
 
         return view('attendance.index', compact('users', 'breakEndTime', 'earlyOutThreshold', 'halfDayThreshold', 'lateThreshold', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'totalHalfDay', 'totalEarlyOut', 'totalATC', 'holidays'));
     }
-    
 }
