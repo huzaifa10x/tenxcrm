@@ -35,6 +35,8 @@ use Illuminate\Validation\ValidationException;
 use App\Notifications\TaskAssigned;
 use App\Notifications\TaskCreatedNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 
 class TaskController extends Controller
 {
@@ -120,7 +122,6 @@ class TaskController extends Controller
         $tasks = $taskQuery->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
-
     public function assignedTasks(Request $request)
     {
         $user = auth()->user();
@@ -184,7 +185,6 @@ class TaskController extends Controller
         $tasks = $taskQuery->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
-
     public function collaboratedTasks(Request $request)
     {
         $user = auth()->user();
@@ -362,12 +362,20 @@ class TaskController extends Controller
             ]);
 
             $user = User::find($request->assigned_to);
-            $url = url("tasks/{$task->id}");
-            $user->notify(new CustomNotification(
-                "New task added by " . auth()->user()->name,
-                "A new task '" . $request->title . "' has been assigned.",
-                $url
-            ));
+
+            DB::table('notifications')->insert([
+                'id' => Str::uuid(),
+                'type' => \App\Notifications\CustomNotification::class,
+                'notifiable_type' => \App\Models\User::class,
+                'notifiable_id' => $user->id,
+                'data' => json_encode([
+                    'title' => "New task added by " . auth()->user()->name,
+                    'message' => "A new task '" . $request->title . "' has been assigned.",
+                    'url' => url("tasks/{$task->id}")
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
             return redirect()->back()->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
@@ -495,12 +503,19 @@ class TaskController extends Controller
         $user = User::find($task->assigned_to);
 
         if ($user) {
-            $url = url("tasks/{$task->id}");
-            $user->notify(new CustomNotification(
-                "Task status updated by " . auth()->user()->name,
-                "The status of '" . $task->title . "' has been updated.",
-                $url
-            ));
+            DB::table('notifications')->insert([
+                'id' => Str::uuid(),
+                'type' => \App\Notifications\CustomNotification::class,
+                'notifiable_type' => \App\Models\User::class,
+                'notifiable_id' => $user->id,
+                'data' => json_encode([
+                    'title' => "Task status updated by " . auth()->user()->name,
+                    'message' => "The status of '" . $task->title . "' has been updated.",
+                    'url' => url("tasks/{$task->id}")
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
         return response()->json(['message' => 'Task status updated successfully']);
@@ -568,6 +583,23 @@ class TaskController extends Controller
             'user_id' => auth()->user()->id,
             'action' => "Task " . $request->field . " updated By " . auth()->user()->name,
         ]);
+
+        $user = User::find($task->assigned_to);
+        if ($user) {
+            DB::table('notifications')->insert([
+                'id' => Str::uuid(),
+                'type' => \App\Notifications\CustomNotification::class,
+                'notifiable_type' => \App\Models\User::class,
+                'notifiable_id' => $user->id,
+                'data' => json_encode([
+                    'title' => "Task updated by " . auth()->user()->name,
+                    'message' => $task->title . " has been updated.",
+                    'url' => url("tasks/{$task->id}")
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         return response()->json([
             "message" => ucfirst($request->field) . " updated successfully!"
@@ -799,6 +831,20 @@ class TaskController extends Controller
             'task_id' => $id,
             'user_id' => auth()->user()->id,
             'action' => auth()->user()->name . " marked this task completed",
+        ]);
+
+        DB::table('notifications')->insert([
+            'id' => Str::uuid(),
+            'type' => \App\Notifications\CustomNotification::class,
+            'notifiable_type' => \App\Models\User::class,
+            'notifiable_id' => $task->createdBy->id,
+            'data' => json_encode([
+                'title' => "Task completed by " . auth()->user()->name,
+                'message' => $task->title . " has been completed.",
+                'url' => url("tasks/{$task->id}")
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
