@@ -603,4 +603,22 @@ class ProjectController extends Controller
 
         return response()->json(['message' => 'Client credentials saved successfully.']);
     }
+    public function deleteClientCredential(Request $request, Project $project)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:client_credentials,id',
+        ]);
+
+        $credential = ClientCredential::where('id', $request->id)
+            ->where('project_id', $project->id)
+            ->first();
+
+        if (!$credential) {
+            return response()->json(['message' => 'Credential not found'], 404);
+        }
+
+        $credential->delete();
+
+        return response()->json(['message' => 'Credential deleted successfully']);
+    }
 }

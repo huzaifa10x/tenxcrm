@@ -385,7 +385,7 @@
                                 <div class="card-body row" style="max-height: 500px; overflow-y: auto;">
                                     @foreach ($project->credentials as $credential)
                                         <div class="col-lg-4 my-10">
-                                            <div class="card border p-3 rounded">
+                                            <div class="card border position-relative p-3 rounded">
                                                 <div class="text-capitalize fs-7"><strong>Access Id:</strong>
                                                     {{ $credential->id }}</div>
                                                 @if ($credential->platform_name)
@@ -408,6 +408,16 @@
                                                         <a href="javascript:void(0);"
                                                             class="toggle-password small">Show</a>
                                                     </div>
+                                                @endif
+                                                @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                                                        auth()->user()->hasRole('ADMIN') ||
+                                                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
+                                                    <button type="button"
+                                                        class="delete-credential position-absolute top-0 end-0 m-10 w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                                        data-id="{{ $credential->id }}">
+                                                        <iconify-icon icon="fluent:delete-24-regular"
+                                                            class="menu-icon"></iconify-icon>
+                                                    </button>
                                                 @endif
                                             </div>
                                         </div>
@@ -1454,33 +1464,30 @@
                 })
                 .catch(error => console.error("Error:", error));
         }
+    </script>
+    <script>
+        $(document).on('click', '.delete-credential', function() {
+            let credId = $(this).data('id');
+            let deleteUrl = "{{ route('credentials.delete', ['project' => $project->id]) }}";
 
-        // document.getElementById('deleteAllAttachmentsBtn').addEventListener('click', function() {
-        //     if (confirm('Are you sure you want to delete all attachments?')) {
-        //         // Send DELETE request using AJAX
-        //         fetch("{{ route('projects.deleteAllFiles', ['project' => $project->id]) }}", {
-        //                 method: 'DELETE',
-        //                 headers: {
-        //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-        //                         'content'),
-        //                     'Content-Type': 'application/json',
-        //                 }
-        //             })
-        //             .then(response => response.json())
-        //             .then(data => {
-        //                 if (data.success) {
-        //                     alert('All attachments deleted successfully!');
-        //                     location.reload(); // Refresh the page to reflect the changes
-        //                 } else {
-        //                     alert('Error: ' + data.message);
-        //                 }
-        //             })
-        //             .catch(error => {
-        //                 console.error('Error:', error);
-        //                 alert('There was an error processing your request.');
-        //             });
-        //     }
-        // });
+            if (!confirm('Are you sure you want to delete this credential?')) return;
+
+            $.ajax({
+                url: deleteUrl,
+                type: 'DELETE',
+                data: {
+                    id: credId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    alert(response.message);
+                    location.reload(); // Reload the page after deletion
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON.message || 'An error occurred');
+                }
+            });
+        });
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {

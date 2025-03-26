@@ -157,6 +157,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/tasks/{id}/complete', [TaskController::class, 'markAsCompleted'])->name('task.markAsCompleted');
     Route::post('/tasks/complete', [TaskController::class, 'completeTask'])->name('tasks.complete');
     Route::post('/projects/{project}/credentials', [ProjectController::class, 'storeClientCredentials'])->name('projects.storeClientCredentials');
+    Route::delete('/projects/{project}/credentials/delete', [ProjectController::class, 'deleteClientCredential'])
+        ->name('credentials.delete');
     Route::post('/projects/{project}/keywords', [ProjectKeywordController::class, 'store'])
         ->name('projects.storeKeywords');
 
