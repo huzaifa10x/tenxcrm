@@ -161,27 +161,101 @@ class AttendanceController extends Controller
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         return $earthRadius * $c; // Distance in KM
     }
+    // public function monthlyAttendance(Request $request)
+    // {
+    //     $month = $request->input('month', now()->format('Y-m'));
+    //     $userId = $request->input('user_id'); // User filter
+
+    //     // Get office settings
+    //     $generalSettings = \App\Models\GeneralSetting::first();
+    //     $officeStartTime = $generalSettings->office_open_time ?? '09:00:00';
+    //     $halfDayThreshold = $generalSettings->half_day_threshold ?? '12:00:00';
+    //     $breakEndTime = $generalSettings->break_end_time ?? '14:00:00';
+    //     $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
+
+    //     $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes($generalSettings->late_threshold)->format('H:i:s');
+
+    //     // Convert month to Carbon instance
+    //     $monthCarbon = \Carbon\Carbon::parse($month);
+    //     $totalDays = $monthCarbon->daysInMonth;
+    //     $holidays = $generalSettings->holidays ?? []; // DB se holidays get karo
+
+    //     // Fetch users (filtered if user_id is provided)
+    //     $usersQuery = \App\Models\User::query();
+    //     if ($userId) {
+    //         $usersQuery->where('id', $userId);
+    //     }
+
+    //     $users = $usersQuery->with(['attendances' => function ($query) use ($monthCarbon) {
+    //         $query->whereYear('date', $monthCarbon->year)
+    //             ->whereMonth('date', $monthCarbon->month);
+    //     }])->get();
+
+    //     // Initialize attendance counters
+    //     $totalPresent = $totalAbsent = $totalLate = $totalHalfDay = $totalEarlyOut = $totalATC = 0;
+
+    //     if ($userId) {
+    //         $user = $users->first();
+    //         if ($user) {
+    //             for ($day = 1; $day <= $totalDays; $day++) {
+    //                 $date = $monthCarbon->format('Y-m') . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+    //                 $carbonDate = \Carbon\Carbon::parse($date);
+
+    //                 // Skip holidays and weekends
+    //                 $isHoliday = in_array($date, $holidays) || $carbonDate->isWeekend();
+    //                 if ($isHoliday) continue;
+
+    //                 // Get attendance
+    //                 $attendance = $user->attendances->firstWhere('date', $date);
+
+    //                 if ($attendance) {
+    //                     $totalPresent++;
+    //                     $totalATC++; // Attended Days Count
+
+    //                     // Late Handling
+    //                     if ($attendance->punch_in > $lateThreshold) {
+    //                         $totalLate++;
+    //                     }
+
+    //                     // Half-Day Handling
+    //                     if ($attendance->punch_in > $halfDayThreshold) {
+    //                         $totalHalfDay++;
+    //                     }
+
+    //                     // Early Out Handling
+    //                     if ($attendance->punch_out && $attendance->punch_out < $earlyOutThreshold && $attendance->punch_out > $breakEndTime) {
+    //                         $totalEarlyOut++;
+    //                     }
+    //                 } else {
+    //                     $totalAbsent++;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return view('attendance.index', compact('users', 'breakEndTime', 'earlyOutThreshold', 'halfDayThreshold', 'lateThreshold', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'totalHalfDay', 'totalEarlyOut', 'totalATC', 'holidays'));
+    // }
     public function monthlyAttendance(Request $request)
     {
         $month = $request->input('month', now()->format('Y-m'));
-        $userId = $request->input('user_id'); // User filter
+        $userId = $request->input('user_id');
 
         // Get office settings
-        $generalSettings = \App\Models\GeneralSetting::first();
+        $generalSettings = GeneralSetting::first();
         $officeStartTime = $generalSettings->office_open_time ?? '09:00:00';
         $halfDayThreshold = $generalSettings->half_day_threshold ?? '12:00:00';
         $breakEndTime = $generalSettings->break_end_time ?? '14:00:00';
         $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
 
-        $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes($generalSettings->late_threshold)->format('H:i:s');
+        $lateThreshold = Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes($generalSettings->late_threshold)->format('H:i:s');
 
         // Convert month to Carbon instance
-        $monthCarbon = \Carbon\Carbon::parse($month);
+        $monthCarbon = Carbon::parse($month);
         $totalDays = $monthCarbon->daysInMonth;
-        $holidays = $generalSettings->holidays ?? []; // DB se holidays get karo
+        $holidays = $generalSettings->holidays ?? [];
 
         // Fetch users (filtered if user_id is provided)
-        $usersQuery = \App\Models\User::query();
+        $usersQuery = User::query();
         if ($userId) {
             $usersQuery->where('id', $userId);
         }
@@ -191,48 +265,63 @@ class AttendanceController extends Controller
                 ->whereMonth('date', $monthCarbon->month);
         }])->get();
 
-        // Initialize attendance counters
-        $totalPresent = $totalAbsent = $totalLate = $totalHalfDay = $totalEarlyOut = $totalATC = 0;
+        $totalPresent = $totalAbsent = $totalLate = $totalHalfDay = $totalEarlyOut = $totalATC = $deductions = 0;
 
         if ($userId) {
             $user = $users->first();
             if ($user) {
+                $lateCount = 0; // Track consecutive late days
+                $halfDayCount = 0; // Track consecutive half-days
+                $deductions = 0; // Total deduction count
+
                 for ($day = 1; $day <= $totalDays; $day++) {
                     $date = $monthCarbon->format('Y-m') . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
-                    $carbonDate = \Carbon\Carbon::parse($date);
+                    $carbonDate = Carbon::parse($date);
 
                     // Skip holidays and weekends
                     $isHoliday = in_array($date, $holidays) || $carbonDate->isWeekend();
                     if ($isHoliday) continue;
 
-                    // Get attendance
                     $attendance = $user->attendances->firstWhere('date', $date);
 
                     if ($attendance) {
-                        $totalPresent++;
                         $totalATC++; // Attended Days Count
 
-                        // Late Handling
-                        if ($attendance->punch_in > $lateThreshold) {
-                            $totalLate++;
-                        }
-
-                        // Half-Day Handling
-                        if ($attendance->punch_in > $halfDayThreshold) {
-                            $totalHalfDay++;
-                        }
-
-                        // Early Out Handling
-                        if ($attendance->punch_out && $attendance->punch_out < $earlyOutThreshold && $attendance->punch_out > $breakEndTime) {
-                            $totalEarlyOut++;
+                        switch ($attendance->status) {
+                            case 'present':
+                                $totalPresent++;
+                                $lateCount = 0; // Reset late count
+                                $halfDayCount = 0; // Reset half-day count
+                                break;
+                            case 'late':
+                                $totalLate++;
+                                $lateCount++;
+                                if ($lateCount == 3) {
+                                    $deductions++;
+                                    $lateCount = 0; // Reset after deduction
+                                }
+                                break;
+                            case 'half_day':
+                                $totalHalfDay++;
+                                $halfDayCount++;
+                                if ($halfDayCount == 3) {
+                                    $deductions++;
+                                    $halfDayCount = 0; // Reset after deduction
+                                }
+                                break;
+                            case 'early_out':
+                                $totalEarlyOut++;
+                                break;
                         }
                     } else {
                         $totalAbsent++;
+                        $lateCount = 0; // Reset late count on absence
+                        $halfDayCount = 0; // Reset half-day count on absence
                     }
                 }
             }
         }
 
-        return view('attendance.index', compact('users', 'breakEndTime', 'earlyOutThreshold', 'halfDayThreshold', 'lateThreshold', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'totalHalfDay', 'totalEarlyOut', 'totalATC', 'holidays'));
+        return view('attendance.index', compact('users', 'breakEndTime', 'earlyOutThreshold', 'halfDayThreshold', 'lateThreshold', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'totalHalfDay', 'totalEarlyOut', 'totalATC', 'deductions', 'holidays'));
     }
 }

@@ -54,17 +54,24 @@
                 </div>
             </div>
             <script>
-                // Donut Chart: Total Attendance Stats (Count Only, No Percentage)
                 var optionsDonut = {
-                    series: [{{ $totalPresent }}, {{ $totalLate }}, {{ $totalAbsent }}, {{ $totalHalfDay }},
-                        {{ $totalEarlyOut }}, {{ $totalATC }}
+                    series: [
+                        {{ $totalPresent }},
+                        {{ $totalLate }},
+                        {{ $totalAbsent }},
+                        {{ $totalHalfDay }},
+                        {{ $totalEarlyOut }},
+                        {{ $totalATC }},
+                        {{ $deductions }}
                     ],
                     chart: {
                         type: 'donut',
                         height: 300
                     },
-                    labels: ['Present', 'Late', 'Absent', 'Half-Day', 'Early Out', 'ATC (Attended Days)'],
-                    colors: ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#fd7e14', '#6f42c1'],
+                    labels: ['Present', 'Late', 'Absent', 'Half-Day', 'Early Out', 'ATC (Attended Days)', 'Deductions'],
+                    colors: ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#fd7e14', '#6f42c1',
+                        '#ff0000'
+                    ], // New color for deductions
                     legend: {
                         position: 'bottom'
                     },
@@ -87,7 +94,7 @@
                                         show: true,
                                         label: 'Total',
                                         formatter: function(w) {
-                                            return {{ $totalPresent + $totalLate + $totalAbsent + $totalHalfDay + $totalEarlyOut + $totalATC }};
+                                            return {{ $totalPresent + $totalLate + $totalAbsent + $totalHalfDay + $totalEarlyOut + $totalATC + $deductions }};
                                         }
                                     }
                                 }
@@ -95,13 +102,10 @@
                         }
                     }
                 };
-
                 var chartDonut = new ApexCharts(document.querySelector("#totalAttendanceChart"), optionsDonut);
                 chartDonut.render();
             </script>
         @endif
-
-
         <!-- Attendance Table -->
         <div class="card basic-data-table">
             <div class="card-body table-responsive p-0" id="scrollable-table">
@@ -163,7 +167,6 @@
                 </table>
             </div>
         </div>
-
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 let tableContainer = document.getElementById("scrollable-table");

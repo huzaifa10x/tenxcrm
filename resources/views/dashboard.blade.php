@@ -1141,11 +1141,7 @@
                                 <td>${attendance.punch_in || 'Not Available'}</td>
                                 <td>${attendance.punch_out ?? 'currently working'}</td>
                                 <td>${attendance.total_hours ?? 'Pending'}</td>
-                                <td>
-                                    ${attendance.status_labels 
-                                        ? `<span class="badge rounded fs-7 text-base bg-warning">${attendance.status_labels}</span>` 
-                                        : '<span class="badge rounded fs-7 text-base bg-secondary">Present</span>'}
-                                </td>
+                                <td>${attendance.status ?? 'Pending'}</td>
                             </tr>
                         `;
                                 });
