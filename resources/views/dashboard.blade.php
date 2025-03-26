@@ -40,6 +40,14 @@
                                 <td>Early Out If Left Before</td>
                                 <td>{{ $early_out_threshold }}</td>
                             </tr>
+                            <tr>
+                                <td>Number of late arrivals that result in one deduction</td>
+                                <td>{{ $late_deduction_threshold }}</td>
+                            </tr>
+                            <tr>
+                                <td>Number of half-days that result in one deduction</td>
+                                <td>{{ $half_day_deduction_threshold }}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -68,7 +76,8 @@
                                     style="min-height: {{ $taskPercentages['pending'] }}%;">
                                     <span
                                         class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-warning-600 rounded-circle mb-12">
-                                        <h6 id="pendingCount" class="mb-0 text-base">{{ $pendingTasksCountGlobal }}</h6>
+                                        <h6 id="pendingCount" class="mb-0 text-base">{{ $pendingTasksCountGlobal }}
+                                        </h6>
                                     </span>
                                     <span class="text-secondary-light">Pending</span>
                                 </div>
@@ -364,8 +373,8 @@
         </div>
         <div class="tab-content card p-0 mb-10" id="task-tabContent">
             <!-- PENDING TASKS TAB -->
-            <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade show active p-0" id="pending-task"
-                role="tabpanel">
+            <div style="max-height: 500px; overflow-y: auto"
+                class="tab-pane card-body table-responsive fade show active p-0" id="pending-task" role="tabpanel">
                 @if ($pendingTasks->count())
                     <table class="table mb-0 bordered-table">
                         <thead>
@@ -401,8 +410,8 @@
                 @endif
             </div>
             <!-- COMPLETED TASKS TAB -->
-            <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade p-0" id="completed-task"
-                role="tabpanel">
+            <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade p-0"
+                id="completed-task" role="tabpanel">
                 @if ($completedTasks->count())
                     <table class="table mb-0 bordered-table">
                         <thead>
@@ -441,8 +450,8 @@
                 @endif
             </div>
             <!-- ASSIGNED TASKS TAB -->
-            <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade p-0" id="assigned-tasks"
-                role="tabpanel">
+            <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade p-0"
+                id="assigned-tasks" role="tabpanel">
                 @if ($assignedTasks->count())
                     <table class="table mb-0 bordered-table">
                         <thead>
@@ -1134,16 +1143,19 @@
                             let tbody = '';
                             if (response.attendance.length > 0) {
                                 response.attendance.forEach(attendance => {
+                                    // Using 'attendance.status' instead of 'status_labels'
+                                    let status = attendance.status || 'Pending';
+
                                     tbody += `
-                            <tr>
-                                <td>${attendance.user.name}</td>
-                                <td>${attendance.date}</td>
-                                <td>${attendance.punch_in || 'Not Available'}</td>
-                                <td>${attendance.punch_out ?? 'currently working'}</td>
-                                <td>${attendance.total_hours ?? 'Pending'}</td>
-                                <td>${attendance.status ?? 'Pending'}</td>
-                            </tr>
-                        `;
+                                 <tr>
+                                     <td>${attendance.user.name}</td>
+                                     <td>${attendance.date}</td>
+                                     <td>${attendance.punch_in || 'Not Available'}</td>
+                                     <td>${attendance.punch_out ?? 'Currently Working'}</td>
+                                     <td>${attendance.total_hours ?? 'Pending'}</td>
+                                     <td>${status}</td>
+                                 </tr>
+                             `;
                                 });
                             } else {
                                 tbody =
@@ -1153,7 +1165,7 @@
                         },
                         error: function(response) {
                             $('#attendanceTable tbody').html(
-                                `<tr><td colspan="6" class="text-center">This is a holiday.</td></tr>`
+                                `<tr><td colspan="6" class="text-center">This is a holiday or weekend.</td></tr>`
                             );
                         }
                     });

@@ -19,6 +19,8 @@ class GeneralSettingController extends Controller
             'office_open_time' => 'required',
             'office_close_time' => 'required',
             'late_threshold' => 'required|integer',
+            'late_deduction_threshold' => 'required|integer',
+            'half_day_deduction_threshold' => 'required|integer',
             'half_day_threshold' => 'required',
             'break_end_time' => 'required',
             'early_out_threshold' => 'required',
@@ -33,6 +35,8 @@ class GeneralSettingController extends Controller
             'late_threshold' => $request->late_threshold,
             'half_day_threshold' => $request->half_day_threshold,
             'break_end_time' => $request->break_end_time,
+            'late_deduction_threshold' => $request->late_deduction_threshold,
+            'half_day_deduction_threshold' => $request->half_day_deduction_threshold,
             'early_out_threshold' => $request->early_out_threshold,
             'holidays' => $request->holidays ? explode(',', $request->holidays) : [],
         ]);

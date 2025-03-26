@@ -71,6 +71,9 @@ class DashboardController extends Controller
         $break_end_time = Carbon::createFromFormat('H:i:s', $settings->break_end_time ?? '14:00:00')->format('h:i A');
         $early_out_threshold = Carbon::createFromFormat('H:i:s', $settings->early_out_threshold ?? $settings->office_close_time)->format('h:i A');
 
+        $late_deduction_threshold = $settings->late_deduction_threshold ?? 3;
+        $half_day_deduction_threshold = $settings->half_day_deduction_threshold ?? 2;
+
         $last15Days = collect(range(0, 14))->map(function ($day) {
             return Carbon::now()->subDays($day)->format('Y-m-d');
         })->reverse()->values();
@@ -238,21 +241,63 @@ class DashboardController extends Controller
                 'half_day_threshold',
                 'break_end_time',
                 'early_out_threshold',
+                'late_deduction_threshold',
+                'half_day_deduction_threshold',
                 $extraData
             ),
         ));
     }
+    // public function filterAttendance(Request $request)
+    // {
+    //     $generalSettings = \App\Models\GeneralSetting::first();
+    //     $officeStartTime = $generalSettings->office_open_time ?? '09:00:00';
+    //     $halfDayThreshold = $generalSettings->half_day_threshold ?? '12:00:00';
+    //     $breakEndTime = $generalSettings->break_end_time ?? '14:00:00';
+    //     $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
+    //     $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)
+    //         ->addMinutes($generalSettings->late_threshold)
+    //         ->format('H:i:s');
+
+    //     $date = $request->date ?? Carbon::today()->toDateString();
+    //     $settings = GeneralSetting::first();
+    //     $holidays = $settings->holidays ?? [];
+    //     $carbonDate = Carbon::parse($date);
+
+    //     if (in_array($date, $holidays) || $carbonDate->isWeekend()) {
+    //         return response()->json(['error' => 'No attendance records on holidays or weekends.'], 400);
+    //     }
+
+    //     $attendances = Attendance::with('user')
+    //         ->whereDate('date', $date)
+    //         ->orderBy('date', 'desc')
+    //         ->get()
+    //         ->map(function ($attendance) use ($lateThreshold, $halfDayThreshold, $breakEndTime, $earlyOutThreshold) {
+    //             $status = [];
+
+    //             if ($attendance->punch_in > $lateThreshold) {
+    //                 $status[] = 'Late';
+    //             }
+
+    //             if ($attendance->punch_in > $halfDayThreshold) {
+    //                 $status[] = 'Half-Day';
+    //             }
+
+    //             if ($attendance->punch_out && $attendance->punch_out < $earlyOutThreshold && $attendance->punch_out > $breakEndTime) {
+    //                 $status[] = 'Early Out';
+    //             }
+
+    //             if (!$attendance->punch_in) {
+    //                 $status[] = 'Absent';
+    //             }
+
+    //             $attendance->status_labels = implode(', ', $status);
+    //             return $attendance;
+    //         });
+
+    //     return response()->json(['attendance' => $attendances]);
+    // }
     public function filterAttendance(Request $request)
     {
-        $generalSettings = \App\Models\GeneralSetting::first();
-        $officeStartTime = $generalSettings->office_open_time ?? '09:00:00';
-        $halfDayThreshold = $generalSettings->half_day_threshold ?? '12:00:00';
-        $breakEndTime = $generalSettings->break_end_time ?? '14:00:00';
-        $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
-        $lateThreshold = \Carbon\Carbon::createFromFormat('H:i:s', $officeStartTime)
-            ->addMinutes($generalSettings->late_threshold)
-            ->format('H:i:s');
-
         $date = $request->date ?? Carbon::today()->toDateString();
         $settings = GeneralSetting::first();
         $holidays = $settings->holidays ?? [];
@@ -266,26 +311,9 @@ class DashboardController extends Controller
             ->whereDate('date', $date)
             ->orderBy('date', 'desc')
             ->get()
-            ->map(function ($attendance) use ($lateThreshold, $halfDayThreshold, $breakEndTime, $earlyOutThreshold) {
-                $status = [];
-
-                if ($attendance->punch_in > $lateThreshold) {
-                    $status[] = 'Late';
-                }
-
-                if ($attendance->punch_in > $halfDayThreshold) {
-                    $status[] = 'Half-Day';
-                }
-
-                if ($attendance->punch_out && $attendance->punch_out < $earlyOutThreshold && $attendance->punch_out > $breakEndTime) {
-                    $status[] = 'Early Out';
-                }
-
-                if (!$attendance->punch_in) {
-                    $status[] = 'Absent';
-                }
-
-                $attendance->status_labels = implode(', ', $status);
+            ->map(function ($attendance) {
+                // Use the 'status' field from the database instead of calculating it
+                $attendance->status_labels = $attendance->status ?? 'Pending';
                 return $attendance;
             });
 

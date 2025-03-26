@@ -16,7 +16,9 @@ class GeneralSetting extends Model
         'late_threshold',
         'half_day_threshold',
         'break_end_time',
-        'early_out_threshold'
+        'early_out_threshold',
+        'late_deduction_threshold',
+        'half_day_deduction_threshold',
     ];
 
     protected $casts = [

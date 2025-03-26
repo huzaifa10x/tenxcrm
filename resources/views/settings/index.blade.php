@@ -24,6 +24,18 @@
             </div>
 
             <div class="form-group">
+                <label>Late Deduction Threshold (Number of late arrivals that result in one deduction):</label>
+                <input type="number" name="late_deduction_threshold"
+                    value="{{ $settings->late_deduction_threshold ?? '3' }}" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label>Half-Day Deduction Threshold (Number of half-days that result in one deduction):</label>
+                <input type="number" name="half_day_deduction_threshold"
+                    value="{{ $settings->half_day_deduction_threshold ?? '3' }}" class="form-control" required>
+            </div>
+
+            <div class="form-group">
                 <label>Half-Day Threshold (Late after this = Half Day):</label>
                 <input type="time" name="half_day_threshold" value="{{ $settings->half_day_threshold ?? '12:00' }}"
                     class="form-control" required>

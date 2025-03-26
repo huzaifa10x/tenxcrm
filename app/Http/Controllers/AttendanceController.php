@@ -249,6 +249,9 @@ class AttendanceController extends Controller
 
         $lateThreshold = Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes($generalSettings->late_threshold)->format('H:i:s');
 
+        $late_deduction_threshold = $generalSettings->late_deduction_threshold ?? 3;
+        $half_day_deduction_threshold = $generalSettings->half_day_deduction_threshold ?? 2;
+
         // Convert month to Carbon instance
         $monthCarbon = Carbon::parse($month);
         $totalDays = $monthCarbon->daysInMonth;
@@ -296,7 +299,8 @@ class AttendanceController extends Controller
                             case 'late':
                                 $totalLate++;
                                 $lateCount++;
-                                if ($lateCount == 3) {
+
+                                if ($lateCount == $late_deduction_threshold) {
                                     $deductions++;
                                     $lateCount = 0; // Reset after deduction
                                 }
@@ -304,7 +308,7 @@ class AttendanceController extends Controller
                             case 'half_day':
                                 $totalHalfDay++;
                                 $halfDayCount++;
-                                if ($halfDayCount == 3) {
+                                if ($halfDayCount == $half_day_deduction_threshold) {
                                     $deductions++;
                                     $halfDayCount = 0; // Reset after deduction
                                 }

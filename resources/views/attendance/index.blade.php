@@ -144,8 +144,11 @@
                                                 {{ $attendance->punch_in }}</span> <br>
                                             <span class="badge badge-danger text-danger">Out:
                                                 {{ $attendance->punch_out ?? 'N/A' }}</span> <br>
+                                            <span
+                                                class="badge badge-dark text-dark">{{ $attendance->status ?? 'N/A' }}</span>
+                                            <br>
 
-                                            @if ($attendance->punch_in > $lateThreshold)
+                                            {{-- @if ($attendance->punch_in > $lateThreshold)
                                                 <span class="badge badge-warning text-warning">Late</span> <br>
                                             @endif
 
@@ -155,7 +158,7 @@
 
                                             @if ($attendance->punch_out && $attendance->punch_out < $earlyOutThreshold && $attendance->punch_out > $breakEndTime)
                                                 <span class="badge badge-primary text-primary">Early Out</span>
-                                            @endif
+                                            @endif --}}
                                         @else
                                             <span class="badge badge-secondary text-secondary">Absent</span>
                                         @endif
