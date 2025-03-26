@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\TaskComment;
 use App\Models\User;
 use App\Notifications\CustomNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TaskCommentController extends Controller
 {
@@ -23,13 +25,28 @@ class TaskCommentController extends Controller
             'comment' => 'required|string'
         ]);
 
-        
         $comment = TaskComment::create([
             'task_id' => $request->task_id,
             'user_id' => auth()->id(),
             'comment' => $request->comment
         ]);
-        
+
+        $user = User::find($comment->task->assigned_to);
+
+        DB::table('notifications')->insert([
+            'id' => Str::uuid(),
+            'type' => \App\Notifications\CustomNotification::class,
+            'notifiable_type' => \App\Models\User::class,
+            'notifiable_id' => $user->id,
+            'data' => json_encode([
+                'title' => auth()->user()->name . " commented on " . $comment->task->title,
+                'message' => auth()->user()->name . " has been commented on " . $comment->task->title,
+                'url' => url("tasks/{$request->task_id}")
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         return response()->json(['success' => true, 'comment' => $comment]);
     }
 

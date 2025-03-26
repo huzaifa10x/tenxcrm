@@ -573,8 +573,8 @@
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
                 <label class="form-label fs-7 m-0" for="priority">Priority</label>
                 <select class="form-control fs-7 h-auto" id="priority" name="priority"
-                    onchange="updateTaskField(this)" <option value="Low"
-                    {{ $task->priority == 'Low' ? 'selected' : '' }}>Low</option>
+                    onchange="updateTaskField(this)">
+                    <option value="Low" {{ $task->priority == 'Low' ? 'selected' : '' }}>Low</option>
                     <option value="Medium" {{ $task->priority == 'Medium' ? 'selected' : '' }}>Medium</option>
                     <option value="High" {{ $task->priority == 'High' ? 'selected' : '' }}>High</option>
                     <option value="Urgent" {{ $task->priority == 'Urgent' ? 'selected' : '' }}>Urgent</option>
@@ -604,8 +604,7 @@
         </div>
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
             <label class="form-label fs-7 m-0" for="status">Status</label>
-            <select
-                class="form-control fs-7 h-auto {{ auth()->user()->hasPermission('can change task status') ? 'task-status' : '' }}"
+            <select class="form-control fs-7 h-auto" onchange="updateTaskField(this)"
                 data-task-id="{{ $task->id }}" required name="status">
                 <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }} value="Todo"
                     {{ $task->status == 'Todo' ? 'selected' : '' }}>Todo</option>
@@ -837,7 +836,8 @@
                         <textarea id="comment-text" class="textarea-max-height form-control border resize-none scroll-sm"
                             placeholder="Write massage"></textarea>
                         <div class="d-flex align-items-center gap-4 ms-16">
-                            <button type="button" id="add-comment"
+                            <button type="button" id="add-commentt" data-taskID="{{ $task->id }}"
+                                onclick="doComment()"
                                 class="btn btn-primary text-sm btn-sm px-12 py-12 w-100 radius-8 d-flex align-items-center justify-content-center gap-1 h-44-px">
                                 <iconify-icon icon="ion:paper-plane-outline"
                                     class="icon text-lg line-height-1"></iconify-icon>
@@ -1050,6 +1050,32 @@
         }
     });
 </script>
+<script>
+    function doComment() {
+        let button = document.getElementById('add-commentt');
+        let taskId = button.getAttribute('data-taskID');
+        let commentText = document.getElementById('comment-text').value;
+
+        fetch("{{ route('comments.store') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    task_id: taskId,
+                    comment: commentText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('comment-text').value = "";
+                loadComments();
+            })
+            .catch(error => console.error("Error:", error));
+    }
+</script>
+
 <script>
     function fetchCollaborators(taskId) {
         $.get("{{ route('task.collaborators', ['task' => ':id']) }}".replace(':id', taskId), function(response) {
@@ -1535,18 +1561,7 @@
         });
     }
     setInterval(updateTimestamps, 30000);
-    $(document).on('click', '#add-comment', function() {
-        let taskId = "{{ $task->id }}";
-        let commentText = $('#comment-text').val();
-        $.post("{{ route('comments.store') }}", {
-            task_id: taskId,
-            comment: commentText,
-            _token: "{{ csrf_token() }}"
-        }, function() {
-            $('#comment-text').val('');
-            loadComments();
-        });
-    });
+
     $(document).on('click', '.delete-comment', function() {
         let commentId = $(this).data('id');
         $.ajax({
@@ -1735,4 +1750,3 @@
         });
     });
 </script>
-
