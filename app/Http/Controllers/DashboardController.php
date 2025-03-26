@@ -7,6 +7,7 @@ use App\Models\GeneralSetting;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskCompletion;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,20 +26,15 @@ class DashboardController extends Controller
         if ($settings) {
             $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
             $currentTime = now()->toTimeString();
-
-            // Get all pending attendances before today
             $pendingAttendances = Attendance::where('date', '<', today())
                 ->whereNull('punch_out')
                 ->get();
-
-            // Check if today's office time has ended, then include today's attendances
             if ($currentTime > $closingTime) {
                 $todayAttendances = Attendance::where('date', today())
                     ->whereNull('punch_out')
                     ->get();
                 $pendingAttendances = $pendingAttendances->merge($todayAttendances);
             }
-
             foreach ($pendingAttendances as $attendance) {
                 $carbonDate = Carbon::parse($attendance->date);
                 $attendance->punch_out = $closingTime;
@@ -46,6 +42,25 @@ class DashboardController extends Controller
                     ->diff(Carbon::parse($closingTime))
                     ->format('%H:%I:%S');
                 $attendance->save();
+            }
+
+            // mark punch out
+            $datesToCheck = [Carbon::yesterday()->toDateString(), Carbon::today()->toDateString()];
+
+            foreach ($datesToCheck as $date) {
+                if ($currentTime > $closingTime || $date == Carbon::yesterday()->toDateString()) {
+                    $absentUsers = User::whereDoesntHave('attendances', function ($query) use ($date) {
+                        $query->whereDate('date', $date);
+                    })->get();
+
+                    foreach ($absentUsers as $user) {
+                        Attendance::create([
+                            'user_id' => $user->id,
+                            'date' => $date,
+                            'status' => 'absent',
+                        ]);
+                    }
+                }
             }
         }
 

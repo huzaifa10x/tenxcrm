@@ -11,6 +11,58 @@ use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
+    // public function punchIn(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $settings = GeneralSetting::first();
+    //     $now = Carbon::now();
+
+    //     if (!$settings) {
+    //         return response()->json(['error' => 'Company settings not configured!'], 403);
+    //     }
+
+    //     // Office open/close time
+    //     $officeOpeningTime = Carbon::parse($settings->office_open_time);
+    //     $officeClosingTime = Carbon::parse($settings->office_close_time);
+
+    //     // Holidays check
+    //     if (in_array($now->toDateString(), $settings->holidays) || $now->isWeekend()) {
+    //         return response()->json(['error' => 'Today is a holiday!'], 403);
+    //     }
+
+    //     // Location validation
+    //     $officeLatitude = 24.904871745119998;
+    //     $officeLongitude = 67.07809279592651;
+    //     $radius = 0.5; // 500 meters
+    //     if (!$request->latitude || !$request->longitude) {
+    //         // return response()->json(['error' => 'Location access denied!'], 403);
+    //     }
+
+    //     $distance = $this->haversineDistance($officeLatitude, $officeLongitude, $request->latitude, $request->longitude);
+    //     if ($distance > $radius) {
+    //         // return response()->json(['error' => 'You are not in the office!'], 403);
+    //     }
+
+    //     // Time validation
+    //     if ($now->lt($officeOpeningTime)) {
+    //         return response()->json(['error' => 'Office is not open yet!'], 403);
+    //     }
+
+    //     // Already punched in?
+    //     if (Attendance::where('user_id', $user->id)->whereDate('date', Carbon::today())->exists()) {
+    //         return response()->json(['error' => 'Already punched in!'], 403);
+    //     }
+
+    //     Attendance::create([
+    //         'user_id' => $user->id,
+    //         'date' => Carbon::today(),
+    //         'punch_in' => $now->toTimeString(),
+    //         'location' => $request->latitude . ',' . $request->longitude,
+    //     ]);
+
+    //     return response()->json(['success' => 'Punched in successfully!']);
+    // }
+
     public function punchIn(Request $request)
     {
         $user = Auth::user();
@@ -26,6 +78,11 @@ class AttendanceController extends Controller
         $earlyPunchInTime = $officeOpeningTime->copy()->subMinutes(15);
         $officeClosingTime = Carbon::parse($settings->office_close_time);
 
+        $halfDayThreshold = Carbon::parse($settings->half_day_threshold ?? '12:00:00')->toTimeString();
+
+        $lateThresholdMinutes = (int) $settings->late_threshold;
+        $lateThreshold = $officeOpeningTime->copy()->addMinutes($lateThresholdMinutes)->format('H:i:s');
+
         // Holidays check
         if (in_array($now->toDateString(), $settings->holidays) || $now->isWeekend()) {
             return response()->json(['error' => 'Today is a holiday!'], 403);
@@ -34,6 +91,15 @@ class AttendanceController extends Controller
         // Time validation: Allow punch-in 15 mins before but store official opening time
         if ($now->lt($earlyPunchInTime)) {
             return response()->json(['error' => 'Punch-in is only allowed 15 minutes before office opens!'], 403);
+        }
+
+        $status = 'present';
+        if ($now->gt($lateThreshold)) {
+            $status = 'late';
+        }
+
+        if ($now->gt($halfDayThreshold)) {
+            $status = 'half_day';
         }
 
         // Already punched in?
@@ -49,24 +115,34 @@ class AttendanceController extends Controller
             'date' => Carbon::today(),
             'punch_in' => $punchInTime,
             'location' => $request->latitude . ',' . $request->longitude,
+            'status' => $status,
         ]);
 
         return response()->json(['success' => 'Punched in successfully!']);
     }
-
 
     public function punchOut()
     {
         $user = Auth::user();
         $attendance = Attendance::where('user_id', $user->id)->whereDate('date', Carbon::today())->first();
 
+        $generalSettings = \App\Models\GeneralSetting::first();
+        $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
+
         if (!$attendance || $attendance->punch_out) {
             return response()->json(['error' => 'You have already punched in and out today. You can punch in again tomorrow.!'], 403);
         }
 
         $now = Carbon::now();
+
+        $status = $attendance->status;
+        if ($now->lt($earlyOutThreshold)) {
+            $status = 'early_out';
+        }
+
         $attendance->punch_out = $now->toTimeString();
         $attendance->total_hours = Carbon::parse($attendance->punch_in)->diff($now)->format('%H:%I:%S');
+        $attendance->status = $status;
         $attendance->save();
 
         return response()->json(['success' => 'Punched out successfully!']);
