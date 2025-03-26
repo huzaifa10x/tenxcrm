@@ -564,8 +564,17 @@
 </div>
 <div class="d-flex flex-column mb-10 align-items-baseline gap-1" style="white-space: nowrap;">
     <label class="form-label fs-7 m-0" for="priority">Project</label>
-    <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
-        {{ $task->project->companies->name ?? 'N/A' }}</a>
+    @if (auth()->user()->id == $task->createdBy->id || auth()->user()->hasRole('ADMIN'))
+        <select class="form-control" name="project_id" onchange="updateTaskField(this)">
+            @foreach ($projects as $project)
+                <option {{ $task->project_id == $project->id ? 'selected' : '' }} value="{{ $project->id }}">
+                    {{ $project->title }}</option>
+            @endforeach
+        </select>
+    @else
+        <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
+            {{ $task->project->companies->name ?? 'N/A' }}</a>
+    @endif
 </div>
 <div class="card border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
@@ -587,13 +596,13 @@
             </div>
         @endif
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
-            <label class="form-label fs-7 m-0" for="sub_type">Assignee</label>
+            <label class="form-label fs-7 m-0" for="assigned_to">Assignee</label>
             <input readonly type="text" class="form-control fs-7 h-auto"
                 value="{{ $task->assignedTo->name ?? '' }}">
         </div>
         @if ($task->department_id)
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
-                <label class="form-label fs-7 m-0" for="sub_type">Department</label>
+                <label class="form-label fs-7 m-0" for="department">Department</label>
                 <input readonly type="text" class="form-control fs-7 h-auto"
                     value="{{ $task->department->name }}">
             </div>
