@@ -1063,32 +1063,7 @@
             ...
         </div>
     </div>
-    <!-- Task Attachments Modal -->
-    <div class="modal fade" id="taskAttachmentsModal" tabindex="-1" aria-labelledby="taskAttachmentsModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span class="modal-title" id="taskAttachmentsModalLabel">Upload Task Attachments</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="uploadTaskAttachmentsForm" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="task_id" value="">
-                        <div class="mb-3">
-                            <label for="taskAttachments" class="form-label">Select Files</label>
-                            <input type="file" name="attachments[]" id="taskAttachments" class="form-control"
-                                multiple required>
-                        </div>
 
-                        <button type="submit" class="btn btn-primary">Upload Files</button>
-                    </form>
-                    <div id="taskUploadStatus"></div>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Modal -->
     <div class="modal fade" id="contactPersonDetailModal" tabindex="-1" aria-labelledby="contactPersonDetailModal"
         aria-hidden="true">

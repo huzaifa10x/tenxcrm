@@ -726,7 +726,7 @@
             <div class="card-header position-sticky top-0">
                 <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
                     <span class="fw-bold">Task Files</span>
-                    <button type="button" data-bs-toggle="modal" data-bs-target="#taskAttachmentsModal"
+                    <button type="button" id="taskAttachments"
                         class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
                         Add More
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -740,6 +740,18 @@
                 </div>
             </div>
             <div class="card-body">
+                <form id="uploadTaskAttachmentsForm" enctype="multipart/form-data" style="display: none">
+                    @csrf
+                    <input type="hidden" name="task_id" value="">
+                    <div class="mb-3">
+                        <label for="taskAttachments" class="form-label">Select Files</label>
+                        <input type="file" name="attachments[]" id="taskAttachments" class="form-control"
+                            multiple required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Upload Files</button>
+                </form>
+                <div id="taskUploadStatus"></div>
                 <div class="mt-32" id="taskAttachmentsContainer">
                 </div>
             </div>
@@ -980,7 +992,8 @@
                                 <span class="fw-semibold fs-7">
                                     {{ ucwords(str_replace('_', ' ', $history->action)) }}
                                 </span>
-                                <small class="text-secondary fs-7">{{ $history->created_at->diffForHumans() }}</small>
+                                <small
+                                    class="text-secondary fs-7">{{ $history->created_at->diffForHumans() }}</small>
                             </div>
                         </div>
                     @endforeach
@@ -1009,31 +1022,6 @@
                         </form>
                     </div>
                 @endif
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="taskAttachmentsModal" tabindex="-1" aria-labelledby="taskAttachmentsModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="modal-title" id="taskAttachmentsModalLabel">Upload Task Attachments</span>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="uploadTaskAttachmentsForm" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="task_id" value="">
-                    <div class="mb-3">
-                        <label for="taskAttachments" class="form-label">Select Files</label>
-                        <input type="file" name="attachments[]" id="taskAttachments" class="form-control"
-                            multiple required>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Upload Files</button>
-                </form>
-                <div id="taskUploadStatus"></div>
             </div>
         </div>
     </div>
@@ -1646,6 +1634,10 @@
         });
         $("#taskAttachmentsContainer").html(html);
     }
+    $('#taskAttachments').click(function(e) {
+        e.preventDefault();
+        $('#uploadTaskAttachmentsForm').slideDown();
+    });
     $("#uploadTaskAttachmentsForm").submit(function(event) {
         event.preventDefault();
         let formData = new FormData(this);
@@ -1665,7 +1657,7 @@
                     $("#taskUploadStatus").html(
                         "<p class='text-success'>Files uploaded successfully!</p>");
                     loadTaskAttachments();
-                    $('#taskAttachmentsModal').modal('hide');
+                    $('#uploadTaskAttachmentsForm').slideUp();
                     toastr.success("Task attachment added!", "Success");
                 } else {
                     $("#taskUploadStatus").html("<p class='text-danger'>Error: " +
