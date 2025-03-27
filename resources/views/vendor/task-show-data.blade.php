@@ -563,7 +563,7 @@
     <div id="responseMessage"></div>
 </div>
 <div class="d-flex flex-column mb-10 align-items-baseline gap-1" style="white-space: nowrap;">
-    <label class="form-label fs-7 m-0" for="priority">Project</label>
+    <label class="form-label fs-7 m-0" for="project">Project</label>
     @if (auth()->user()->id == $task->createdBy->id || auth()->user()->hasRole('ADMIN'))
         <select class="form-control" name="project_id" onchange="updateTaskField(this)">
             @foreach ($projects as $project)
@@ -576,7 +576,7 @@
             {{ $task->project->companies->name ?? 'N/A' }}</a>
     @endif
 </div>
-<div class="card border border-secondary mb-10">
+<div class="card {{ $task->status == 'Completed' ? 'bg-success-200' : '' }} border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
         @if (auth()->user()->hasRole('ADMIN') || $task->createdBy->id == auth()->user()->id)
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
