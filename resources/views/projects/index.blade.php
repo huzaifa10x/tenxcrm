@@ -4,7 +4,12 @@
     </x-slot>
     <div class="card basic-data-table">
         @if ($userPermissions->contains('can add projects'))
-            <div class="card-header">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <input type="text" id="searchProject" class="form-control" placeholder="Search Project..."
+                        autocomplete="off">
+                    <ul id="searchResults" class="dropdown-menu show" style="display: none;"></ul>
+                </div>
                 <a href="{{ route('projects.create') }}" class="btn btn-outline-primary">
                     Add New Project
                 </a>
@@ -160,6 +165,7 @@
             function saveColumnOrder(sortOrder) {
                 localStorage.setItem(storageKey, JSON.stringify(sortOrder));
             }
+
             function loadColumnOrder() {
                 let savedOrder = localStorage.getItem(storageKey);
                 if (!savedOrder) return;
@@ -183,7 +189,7 @@
                     let newCells = new Array(savedOrder.length); // Initialize array to maintain order
                     row.children().each(function(index) {
                         let key = headers.eq(index).attr(
-                        'data-key'); // Find key based on original order
+                            'data-key'); // Find key based on original order
                         let newIndex = savedOrder.indexOf(key); // Find where it should be placed
                         if (newIndex !== -1) {
                             newCells[newIndex] = $(this).detach(); // Place at correct index
@@ -204,6 +210,49 @@
                 }
             });
             loadColumnOrder();
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#searchProject').on('input', function() {
+                let query = $(this).val();
+
+                if (query.length < 2) {
+                    $('#searchResults').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('projects.search') }}",
+                    type: "GET",
+                    data: {
+                        query: query
+                    },
+                    success: function(response) {
+                        let dropdown = $('#searchResults');
+                        dropdown.empty();
+
+                        if (response.length > 0) {
+                            response.forEach(function(project) {
+                                dropdown.append(`
+                                <li class="dropdown-item">
+                                    <a href="{{ url('/projects/${project.id}') }}" class="text-dark d-block">
+                                        ${project.title}
+                                    </a>
+                                </li>
+                            `);
+                            });
+                            dropdown.show();
+                        } else {
+                            dropdown.hide();
+                        }
+                    }
+                });
+            });
+
+            $(document).on('click', '#searchResults li', function() {
+                window.location.href = $(this).find('a').attr('href');
+            });
         });
     </script>
 

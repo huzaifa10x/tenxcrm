@@ -621,4 +621,15 @@ class ProjectController extends Controller
 
         return response()->json(['message' => 'Credential deleted successfully']);
     }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $projects = Project::where('title', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->limit(10)
+            ->get();
+
+        return response()->json($projects);
+    }
 }
