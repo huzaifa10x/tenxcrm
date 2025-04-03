@@ -644,7 +644,7 @@ class TaskController extends Controller
             'fields' => 'required|array',
             'fields.*.name' => 'required|string',
             'fields.*.value' => 'nullable|string',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,webp|max:2048',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,webp',
         ]);
 
         $filePath = null;
