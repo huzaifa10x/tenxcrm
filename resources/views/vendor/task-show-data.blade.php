@@ -578,7 +578,7 @@
 </div>
 <div class="card {{ $task->status == 'Completed' ? 'bg-success-200' : '' }} border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
-        @if (auth()->user()->hasRole('ADMIN') || $task->createdBy->id == auth()->user()->id)
+        @if (auth()->user()->hasRole('ADMIN') || $task->createdBy->id == auth()->user()->id || auth()->user()->hasPermission('can edit task'))
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
                 <label class="form-label fs-7 m-0" for="priority">Priority</label>
                 <select class="form-control fs-7 h-auto" id="priority" name="priority"
@@ -589,17 +589,28 @@
                     <option value="Urgent" {{ $task->priority == 'Urgent' ? 'selected' : '' }}>Urgent</option>
                 </select>
             </div>
+            <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
+                <label class="form-label fs-7 m-0" for="assigned_to">Assignee</label>
+                <select onchange="updateTaskField(this)" class="form-control fs-7 h-auto" name="assigned_to"
+                    id="assigned_to">
+                    @foreach ($users as $user)
+                        <option {{ $user->id == $task->assignedTo->id ? 'selected' : '' }}
+                            value="{{ $user->id }}">
+                            {{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
         @else
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
                 <label class="form-label fs-7 m-0" for="sub_type">Priority</label>
                 <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->priority }}">
             </div>
+            <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
+                <label class="form-label fs-7 m-0" for="assigned_to">Assignee</label>
+                <input readonly type="text" class="form-control fs-7 h-auto"
+                    value="{{ $task->assignedTo->name ?? '' }}">
+            </div>
         @endif
-        <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
-            <label class="form-label fs-7 m-0" for="assigned_to">Assignee</label>
-            <input readonly type="text" class="form-control fs-7 h-auto"
-                value="{{ $task->assignedTo->name ?? '' }}">
-        </div>
         @if ($task->department_id)
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
                 <label class="form-label fs-7 m-0" for="department">Department</label>
