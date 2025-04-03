@@ -7,149 +7,6 @@
         <button class="btn btn-sm btn-danger" id="punchOutBtn">Punch Out</button>
     </div>
 
-    <div class="row gy-3 mb-10">
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-header px-20 py-20">
-                    <h6 class="mb-2 fw-bold text-lg mb-0">Office Timings & Attendance Rules</h6>
-                </div>
-                <div class="card-body table-responsive p-0">
-                    <table class="table bordered-table mb-0">
-                        <tbody>
-                            <tr>
-                                <td>Office Open Time</td>
-                                <td>{{ $office_open_time }}</td>
-                            </tr>
-                            <tr>
-                                <td>Office Close Time</td>
-                                <td>{{ $office_close_time }}</td>
-                            </tr>
-                            <tr>
-                                <td>Late Mark After</td>
-                                <td>{{ $late_threshold }} minutes</td>
-                            </tr>
-                            <tr>
-                                <td>Half Day If Arrived After</td>
-                                <td>{{ $half_day_threshold }}</td>
-                            </tr>
-                            <tr>
-                                <td>Break Ends At</td>
-                                <td>{{ $break_end_time }}</td>
-                            </tr>
-                            <tr>
-                                <td>Early Out If Left Before</td>
-                                <td>{{ $early_out_threshold }}</td>
-                            </tr>
-                            <tr>
-                                <td>Number of late arrivals that result in one deduction</td>
-                                <td>{{ $late_deduction_threshold }}</td>
-                            </tr>
-                            <tr>
-                                <td>Number of half-days that result in one deduction</td>
-                                <td>{{ $half_day_deduction_threshold }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-xxl-6">
-            <div class="card h-100">
-                <div
-                    class="card-header border-bottom-0 pb-0 d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                    <h6 id="card-title" class="mb-2 fw-bold text-lg mb-0">Today Tasks</h6>
-                    <select id="taskFilter"
-                        class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
-                        <option value="today" selected>Today</option>
-                        <option value="weekly">Last Week</option>
-                        <option value="monthly">Last Month</option>
-                        <option value="yearly">Last Year</option>
-                    </select>
-
-                </div>
-                <div class="card-body">
-                    <div class="position-relative h-100 min-h-320-px">
-                        <div class="row g-3 h-100">
-                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
-                                <div id="pendingBar"
-                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-warning"
-                                    style="min-height: {{ $taskPercentages['pending'] }}%;">
-                                    <span
-                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-warning-600 rounded-circle mb-12">
-                                        <h6 id="pendingCount" class="mb-0 text-base">{{ $pendingTasksCountGlobal }}
-                                        </h6>
-                                    </span>
-                                    <span class="text-secondary-light">Pending</span>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
-                                <div id="completedBar"
-                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-lilac"
-                                    style="min-height: {{ $taskPercentages['completed'] }}%;">
-                                    <span
-                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-lilac-600 rounded-circle mb-12">
-                                        <h6 id="completedCount" class="mb-0 text-base">{{ $completedTasksCountGlobal }}
-                                        </h6>
-                                    </span>
-                                    <span class="text-secondary-light">Completed</span>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
-                                <div id="createdBar"
-                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-primary"
-                                    style="min-height: {{ $taskPercentages['created'] }}%;">
-                                    <span
-                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-primary-600 rounded-circle mb-12">
-                                        <h6 id="createdCount" class="mb-0 text-base">{{ $createdTasksCountGlobal }}
-                                        </h6>
-                                    </span>
-                                    <span class="text-secondary-light">Assigned</span>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
-                                <div id="collaboratorBar"
-                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-success"
-                                    style="min-height: {{ $taskPercentages['collaborator'] }}%;">
-                                    <span
-                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-success-600 rounded-circle mb-12">
-                                        <h6 id="collaboratorCount" class="mb-0 text-base">
-                                            {{ $collaboratorTasksCountGlobal }}</h6>
-                                    </span>
-                                    <span class="text-secondary-light">Collaborator</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xxl-6">
-            <div class="card h-100">
-                <div class="card-body p-24">
-                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
-                        <h6 class="mb-2 fw-bold text-lg mb-0">Latest Notifications</h6>
-                    </div>
-                    @foreach ($latestNotifications as $notification)
-                        <a href="{{ $notification['data']['url'] }}" class="d-flex align-items-start gap-2 mb-20">
-                            <span
-                                class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-success-600 rounded-circle mb-12">
-                                <h6 id="collaboratorCount" class="mb-0 text-base">
-                                    {{ $notification->notifiable_id }}
-                                </h6>
-                            </span>
-                            <div class="flex-grow-1">
-                                <h6 class="text-md mb-1 fw-semibold">{{ $notification['data']['title'] }}</h6>
-                                <p class="text-sm text-secondary-light fw-medium mb-1">
-                                    {{ $notification['data']['message'] }}</p>
-                                <span
-                                    class="text-sm text-secondary-light fw-normal">{{ $notification->created_at }}</span>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
     @if ($role === 'AM')
         <style>
             .fc-toolbar-title {
@@ -160,9 +17,13 @@
                 color: #000000 !important;
                 font-size: 10px !important;
             }
+
+            .show-am-projects-info {
+                cursor: pointer;
+            }
         </style>
         <div class="row gy-3 mb-10">
-            <div class="col-xxl-3 col-sm-6">
+            <div class="col-xxl-3 col-sm-6 show-am-projects-info">
                 <div class="card p-3 shadow-2 radius-8 h-100 gradient-deep-two-1 border border-white">
                     <div class="card-body p-0">
                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
@@ -183,6 +44,38 @@
                                 class="bg-success-focus px-6 py-2 rounded-2 fw-medium text-success-main text-sm d-flex align-items-center gap-1">
                                 <i class="ri-arrow-right-up-line"></i> 00
                         </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 am-projects-info" style="display: none">
+                <div class="card p-3 shadow-2 radius-8 h-100 gradient-deep-two-1 border border-white">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Service</th>
+                                    <th>Contract Start Date</th>
+                                    <th>Contract End Date</th>
+                                    <th>Monthly Revenue (w/o VAT)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($projects->whereIn('status', ['Current']) as $project)
+                                    <tr>
+                                        <td><a
+                                                href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a>
+                                        </td>
+                                        <td>{{ $project->project_type }}</td>
+                                        <td>{{ $project->contract_start_date ?? '' }}</td>
+                                        <td>{{ Carbon\Carbon::parse($project->contract_start_date)->addMonths($project->contract_term)->format('Y-m-d') ?? '' }}
+                                        </td>
+                                        <td>{{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 ?? '' }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -591,6 +484,9 @@
             </div>
         </div>
         <script>
+            $(document).on('click', '.show-am-projects-info', function() {
+                $('.am-projects-info').slideDown();
+            })
             document.addEventListener("DOMContentLoaded", function() {
                 let today = new Date().toISOString().split('T')[0];
                 document.getElementById('todoDate').value = today;
@@ -926,8 +822,6 @@
             </div>
         </div>
     @elseif ($role == 'ADMIN')
-    @endif
-    @if (auth()->user()->hasRole('ADMIN'))
         <div class="row gy-3 mb-10">
             <div class="col-12">
                 <div class="card h-100">
@@ -955,7 +849,205 @@
                 </div>
             </div>
         </div>
+        <script>
+            $(document).ready(function() {
+                let today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+                $('#attendanceDate').val(today); // Set default value in date picker
+
+                function fetchAttendance(date) {
+                    $.ajax({
+                        url: "{{ route('admin.attendance.filter') }}",
+                        type: "GET",
+                        data: {
+                            date: date
+                        },
+                        success: function(response) {
+                            let tbody = '';
+                            if (response.attendance.length > 0) {
+                                response.attendance.forEach(attendance => {
+                                    // Using 'attendance.status' instead of 'status_labels'
+                                    let status = attendance.status || 'Pending';
+
+                                    tbody += `
+                                 <tr>
+                                     <td>${attendance.user.name}</td>
+                                     <td>${attendance.date}</td>
+                                     <td>${attendance.punch_in || 'Not Available'}</td>
+                                     <td>${attendance.punch_out ?? 'Currently Working'}</td>
+                                     <td>${attendance.total_hours ?? 'Pending'}</td>
+                                     <td>${status}</td>
+                                 </tr>
+                             `;
+                                });
+                            } else {
+                                tbody =
+                                    `<tr><td colspan="6" class="text-center">No attendance records found.</td></tr>`;
+                            }
+                            $('#attendanceTable tbody').html(tbody);
+                        },
+                        error: function(response) {
+                            $('#attendanceTable tbody').html(
+                                `<tr><td colspan="6" class="text-center">This is a holiday or weekend.</td></tr>`
+                            );
+                        }
+                    });
+                }
+
+                fetchAttendance(today);
+
+                $('#attendanceDate').on('change', function() {
+                    let selectedDate = $(this).val();
+                    fetchAttendance(selectedDate);
+                });
+            });
+        </script>
     @endif
+    <div class="row gy-3 mb-10 mt-10">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header px-20 py-20">
+                    <h6 class="mb-2 fw-bold text-lg mb-0">Office Timings & Attendance Rules</h6>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table bordered-table mb-0">
+                        <tbody>
+                            <tr>
+                                <td>Office Open Time</td>
+                                <td>{{ $office_open_time }}</td>
+                            </tr>
+                            <tr>
+                                <td>Office Close Time</td>
+                                <td>{{ $office_close_time }}</td>
+                            </tr>
+                            <tr>
+                                <td>Late Mark After</td>
+                                <td>{{ $late_threshold }} minutes</td>
+                            </tr>
+                            <tr>
+                                <td>Half Day If Arrived After</td>
+                                <td>{{ $half_day_threshold }}</td>
+                            </tr>
+                            <tr>
+                                <td>Break Ends At</td>
+                                <td>{{ $break_end_time }}</td>
+                            </tr>
+                            <tr>
+                                <td>Early Out If Left Before</td>
+                                <td>{{ $early_out_threshold }}</td>
+                            </tr>
+                            <tr>
+                                <td>Number of late arrivals that result in one deduction</td>
+                                <td>{{ $late_deduction_threshold }}</td>
+                            </tr>
+                            <tr>
+                                <td>Number of half-days that result in one deduction</td>
+                                <td>{{ $half_day_deduction_threshold }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-6">
+            <div class="card h-100">
+                <div
+                    class="card-header border-bottom-0 pb-0 d-flex align-items-center flex-wrap gap-2 justify-content-between">
+                    <h6 id="card-title" class="mb-2 fw-bold text-lg mb-0">Today Tasks</h6>
+                    <select id="taskFilter"
+                        class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
+                        <option value="today" selected>Today</option>
+                        <option value="weekly">Last Week</option>
+                        <option value="monthly">Last Month</option>
+                        <option value="yearly">Last Year</option>
+                    </select>
+
+                </div>
+                <div class="card-body">
+                    <div class="position-relative h-100 min-h-320-px">
+                        <div class="row g-3 h-100">
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="pendingBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-warning"
+                                    style="min-height: {{ $taskPercentages['pending'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-warning-600 rounded-circle mb-12">
+                                        <h6 id="pendingCount" class="mb-0 text-base">
+                                            {{ $pendingTasksCountGlobal }}
+                                        </h6>
+                                    </span>
+                                    <span class="text-secondary-light">Pending</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="completedBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-lilac"
+                                    style="min-height: {{ $taskPercentages['completed'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-lilac-600 rounded-circle mb-12">
+                                        <h6 id="completedCount" class="mb-0 text-base">
+                                            {{ $completedTasksCountGlobal }}
+                                        </h6>
+                                    </span>
+                                    <span class="text-secondary-light">Completed</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="createdBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-primary"
+                                    style="min-height: {{ $taskPercentages['created'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-primary-600 rounded-circle mb-12">
+                                        <h6 id="createdCount" class="mb-0 text-base">
+                                            {{ $createdTasksCountGlobal }}
+                                        </h6>
+                                    </span>
+                                    <span class="text-secondary-light">Assigned</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 d-flex flex-column justify-content-end">
+                                <div id="collaboratorBar"
+                                    class="d-flex flex-column align-items-center p-24 pt-16 rounded-top-4 bg-tb-success"
+                                    style="min-height: {{ $taskPercentages['collaborator'] }}%;">
+                                    <span
+                                        class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-success-600 rounded-circle mb-12">
+                                        <h6 id="collaboratorCount" class="mb-0 text-base">
+                                            {{ $collaboratorTasksCountGlobal }}</h6>
+                                    </span>
+                                    <span class="text-secondary-light">Collaborator</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-6">
+            <div class="card h-100">
+                <div class="card-body p-24">
+                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
+                        <h6 class="mb-2 fw-bold text-lg mb-0">Latest Notifications</h6>
+                    </div>
+                    @foreach ($latestNotifications as $notification)
+                        <a href="{{ $notification['data']['url'] }}" class="d-flex align-items-start gap-2 mb-20">
+                            <span
+                                class="w-40-px h-40-px d-flex flex-shrink-0 justify-content-center align-items-center bg-success-600 rounded-circle mb-12">
+                                <h6 id="collaboratorCount" class="mb-0 text-base">
+                                    {{ $notification->notifiable_id }}
+                                </h6>
+                            </span>
+                            <div class="flex-grow-1">
+                                <h6 class="text-md mb-1 fw-semibold">{{ $notification['data']['title'] }}</h6>
+                                <p class="text-sm text-secondary-light fw-medium mb-1">
+                                    {{ $notification['data']['message'] }}</p>
+                                <span
+                                    class="text-sm text-secondary-light fw-normal">{{ $notification->created_at }}</span>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         var options = {
             series: [{{ $pendingWords ?? 0 }}, {{ $completedWords ?? 0 }}],
@@ -1126,59 +1218,5 @@
         document.getElementById('punchInBtn').addEventListener('click', () => getLocationAndPunch('in'));
         document.getElementById('punchOutBtn').addEventListener('click', () => getLocationAndPunch('out'));
     </script>
-    @if (auth()->user()->hasRole('ADMIN'))
-        <script>
-            $(document).ready(function() {
-                let today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-                $('#attendanceDate').val(today); // Set default value in date picker
-
-                function fetchAttendance(date) {
-                    $.ajax({
-                        url: "{{ route('admin.attendance.filter') }}",
-                        type: "GET",
-                        data: {
-                            date: date
-                        },
-                        success: function(response) {
-                            let tbody = '';
-                            if (response.attendance.length > 0) {
-                                response.attendance.forEach(attendance => {
-                                    // Using 'attendance.status' instead of 'status_labels'
-                                    let status = attendance.status || 'Pending';
-
-                                    tbody += `
-                                 <tr>
-                                     <td>${attendance.user.name}</td>
-                                     <td>${attendance.date}</td>
-                                     <td>${attendance.punch_in || 'Not Available'}</td>
-                                     <td>${attendance.punch_out ?? 'Currently Working'}</td>
-                                     <td>${attendance.total_hours ?? 'Pending'}</td>
-                                     <td>${status}</td>
-                                 </tr>
-                             `;
-                                });
-                            } else {
-                                tbody =
-                                    `<tr><td colspan="6" class="text-center">No attendance records found.</td></tr>`;
-                            }
-                            $('#attendanceTable tbody').html(tbody);
-                        },
-                        error: function(response) {
-                            $('#attendanceTable tbody').html(
-                                `<tr><td colspan="6" class="text-center">This is a holiday or weekend.</td></tr>`
-                            );
-                        }
-                    });
-                }
-
-                fetchAttendance(today);
-
-                $('#attendanceDate').on('change', function() {
-                    let selectedDate = $(this).val();
-                    fetchAttendance(selectedDate);
-                });
-            });
-        </script>
-    @endif
 
 </x-app-layout>
