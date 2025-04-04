@@ -139,10 +139,12 @@ class DashboardController extends Controller
             $projects = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
-            $currentPortfolio = $projects->sum(function ($project) {
-                return ($project->contract_value && $project->contract_term) ?
-                    ($project->contract_value / $project->contract_term) : 0;
-            });
+            $currentPortfolio = Project::whereHas('accountManagers', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->where("status", "Current")
+                ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
+                ->value("total");
+
             $campaignCounts = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->selectRaw("status, COUNT(*) as count")

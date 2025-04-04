@@ -34,7 +34,7 @@
                                         alt="">
                                 </span>
                                 <div>
-                                    <span class="fw-medium text-secondary-light text-md">Current Portfolio</span>
+                                    <span class="fw-medium text-secondary-light text-md">Current Portfolio / MO</span>
                                     <h6 class="fw-semibold mt-2">{{ number_format($currentPortfolio, 2) }}</h6>
                                 </div>
                             </div>
@@ -55,8 +55,9 @@
                                 <tr>
                                     <th>Project</th>
                                     <th>Service</th>
+                                    <th>Contract Value</th>
                                     <th>Contract Start Date</th>
-                                    <th>Contract End Date</th>
+                                    <th>Contract Term</th>
                                     <th>Monthly Revenue (w/o VAT)</th>
                                 </tr>
                             </thead>
@@ -67,9 +68,10 @@
                                                 href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a>
                                         </td>
                                         <td>{{ $project->project_type }}</td>
+                                        <td>{{ $project->contract_value }}</td>
                                         <td>{{ $project->contract_start_date ?? '' }}</td>
-                                        <td>{{ Carbon\Carbon::parse($project->contract_start_date)->addMonths($project->contract_term)->format('Y-m-d') ?? '' }}
-                                        </td>
+                                        {{-- <td>{{ Carbon\Carbon::parse($project->contract_start_date)->addMonths($project->contract_term)->format('Y-m-d') ?? '' }} --}}
+                                        <td>{{ $project->contract_term }} /Mo</td>
                                         <td>{{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 ?? '' }}
                                         </td>
                                     </tr>

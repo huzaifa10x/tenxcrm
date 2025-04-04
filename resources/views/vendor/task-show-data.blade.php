@@ -578,7 +578,9 @@
 </div>
 <div class="card {{ $task->status == 'Completed' ? 'bg-success-200' : '' }} border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
-        @if (auth()->user()->hasRole('ADMIN') || $task->createdBy->id == auth()->user()->id || auth()->user()->hasPermission('can edit task'))
+        @if (auth()->user()->hasRole('ADMIN') ||
+                $task->createdBy->id == auth()->user()->id ||
+                auth()->user()->hasPermission('can edit task'))
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
                 <label class="form-label fs-7 m-0" for="priority">Priority</label>
                 <select class="form-control fs-7 h-auto" id="priority" name="priority"
@@ -1258,6 +1260,12 @@
 
     function triggerCompletionSubmit() {
         let button = $('.complete-task-btn');
+        $('button[type="submit"]').prop('disabled', true);
+        $('button[type="submit"]').text('Loading...');
+        setTimeout(() => {
+            $('button[type="submit"]').prop('disabled', false);
+            $('button[type="submit"]').text('Submit');
+        }, 3000);
         $.ajax({
             url: "{{ route('task.markAsCompleted', $task->id) }}",
             type: "PATCH",
