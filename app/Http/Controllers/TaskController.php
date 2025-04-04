@@ -709,17 +709,17 @@ class TaskController extends Controller
                 break;
 
             case 'Keywords Approval':
-                foreach ($keywordsApprovalTasks as $task) {
+                foreach ($keywordsApprovalTasks as $loopTask) {
                     Task::create([
                         'is_automated' => 1,
-                        'title' => $task['title'],
+                        'title' => $loopTask['title'],
                         'description' => "system generated task",
                         'project_id' => $project->id,
                         'department_id' => null,
                         'created_by' => 1,
-                        'assigned_to' => $task['assignee'],
+                        'assigned_to' => $loopTask['assignee'],
                         'priority' => 'High',
-                        'type' => $task['type'],
+                        'type' => $loopTask['type'],
                         'status' => 'Todo',
                         'due_date' => Carbon::now()->addDays(7),
                         'start_date' => $dubaiTime,
@@ -727,7 +727,6 @@ class TaskController extends Controller
                     ]);
                 }
                 break;
-
             case 'Content Audit':
                 Task::create([
                     'is_automated' => 1,
@@ -757,7 +756,7 @@ class TaskController extends Controller
                 break;
 
             case 'First On-site':
-                $task = Task::create([
+                Task::create([
                     'is_automated' => 1,
                     'created_by' => 1,
                     'project_id' => $project->id,
@@ -837,7 +836,7 @@ class TaskController extends Controller
             'id' => Str::uuid(),
             'type' => \App\Notifications\CustomNotification::class,
             'notifiable_type' => \App\Models\User::class,
-            'notifiable_id' => $task->created_by,
+            'notifiable_id' => $task->createdBy->id,
             'data' => json_encode([
                 'title' => "Task completed by " . auth()->user()->name,
                 'message' => $task->title . " has been completed.",
