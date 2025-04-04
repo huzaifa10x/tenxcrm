@@ -833,19 +833,21 @@ class TaskController extends Controller
             'action' => auth()->user()->name . " marked this task completed",
         ]);
 
-        DB::table('notifications')->insert([
-            'id' => Str::uuid(),
-            'type' => \App\Notifications\CustomNotification::class,
-            'notifiable_type' => \App\Models\User::class,
-            'notifiable_id' => $task->createdBy->id ?? 1,
-            'data' => json_encode([
-                'title' => "Task completed by " . auth()->user()->name,
-                'message' => $task->title . " has been completed.",
-                'url' => url("tasks/{$task->id}")
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        if ($task->createdBy) {
+            DB::table('notifications')->insert([
+                'id' => Str::uuid(),
+                'type' => \App\Notifications\CustomNotification::class,
+                'notifiable_type' => \App\Models\User::class,
+                'notifiable_id' => $task->createdBy->id,
+                'data' => json_encode([
+                    'title' => "Task completed by " . auth()->user()->name,
+                    'message' => $task->title . " has been completed.",
+                    'url' => url("tasks/{$task->id}")
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
     }
