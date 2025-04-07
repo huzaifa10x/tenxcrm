@@ -231,7 +231,7 @@ class TaskController extends Controller
         $description = str_replace('<script>', '[SCRIPT TAG REMOVED]', $description);
         $description = str_replace('</script>', '[SCRIPT TAG REMOVED]', $description);
         $description = str_replace('<', 'CODE STARTING BRACKET REMOVED', $description);
-        $description = str_replace('>', 'CODE STARTING BRACKET REMOVED', $description);
+        $description = str_replace('>', 'CODE CLOSING BRACKET REMOVED', $description);
         return $description;
     }
     public function store(Request $request)
