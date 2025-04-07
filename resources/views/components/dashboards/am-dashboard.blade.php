@@ -213,42 +213,29 @@
         </div>
     </div>
 </div>
-<div class="d-flex align-items-center flex-wrap justify-content-between">
-    <ul class="nav border-gradient-tab nav-pills mb-0" id="pills-tab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link d-flex align-items-center active" id="pending-tab" data-bs-toggle="pill"
-                data-bs-target="#pending-task" type="button" role="tab" type="button" role="tab"
-                aria-controls="pills-to-do-list" aria-selected="true">
-                Pending Tasks
-                <span
-                    class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link d-flex align-items-center" id="completed-tab" data-bs-toggle="pill"
-                data-bs-target="#completed-task" type="button" role="tab" type="button" role="tab"
-                aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
-                Completed Tasks
-                <span
-                    class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link d-flex align-items-center" id="assigned-tab" data-bs-toggle="pill"
-                data-bs-target="#assigned-tasks" type="button" role="tab" type="button" role="tab"
-                aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
-                Tasks I've Assigned
-                <span
-                    class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $assignedTasks->count() }}</span>
-            </button>
-        </li>
-    </ul>
-    <a href="{{ route('tasks.board.index') }}"
-        class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-        Tasks
-        <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
-    </a>
-</div>
+<ul class="nav d-flex align-items-center justify-center flex-nowrap border-gradient-tab nav-pills mb-0 w-100" id="pills-tab" role="tablist">
+    <button class="nav-link d-flex align-items-center w-100 justify-content-center fs-4 fw-semibold active" id="pending-tab" data-bs-toggle="pill"
+        data-bs-target="#pending-task" type="button" role="tab" type="button" role="tab"
+        aria-controls="pills-to-do-list" aria-selected="true">
+        Pending Tasks
+        <span
+            class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
+    </button>
+    <button class="nav-link d-flex align-items-center w-100 justify-content-center fs-4 fw-semibold" id="completed-tab" data-bs-toggle="pill"
+        data-bs-target="#completed-task" type="button" role="tab" type="button" role="tab"
+        aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
+        Completed Tasks
+        <span
+            class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
+    </button>
+    <button class="nav-link d-flex align-items-center w-100 justify-content-center fs-4 fw-semibold" id="assigned-tab" data-bs-toggle="pill"
+        data-bs-target="#assigned-tasks" type="button" role="tab" type="button" role="tab"
+        aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
+        Tasks I've Assigned
+        <span
+            class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $assignedTasks->count() }}</span>
+    </button>
+</ul>
 <div class="tab-content card p-0 mb-10" id="task-tabContent">
     <!-- PENDING TASKS TAB -->
     <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade show active p-0"

@@ -9,6 +9,11 @@
         </a>
     </div>
     <div class="sidebar-menu-area">
+        <a href="{{ route('profile.edit') }}" class="d-flex mb-10 w-100 align-items-center justify-content-center">
+            <img style="height: 140px; width: 140px"
+                src="{{ auth()->user()->img ? asset('/public/storage/' . auth()->user()->img) : asset('/images/avatar/avatar1.png') }}"
+                class="rounded rounded-circle img-fluid object-fit-cover" alt="">
+        </a>
         <ul class="sidebar-menu" id="sidebar-menu">
             <li>
                 <a href="{{ route('dashboard') }}">
