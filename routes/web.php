@@ -6,6 +6,7 @@ use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\IndustryController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OffsiteTaskController;
 use App\Http\Controllers\PaymentMethodController;
@@ -56,6 +57,10 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/search-projects', [ProjectController::class, 'search'])->name('projects.search');
+
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/fetch/{userId}', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
+    Route::post('/messages/send', [MessageController::class, 'sendMessage'])->name('messages.send');
 
     Route::get('/project-notes/{projectId}', [ProjectNoteController::class, 'fetch'])->name('project-notes.fetch');
     Route::post('/project-notes', [ProjectNoteController::class, 'store'])->name('project-notes.store');

@@ -211,6 +211,12 @@
                     </a>
                 </li>
             @endif
+            <li>
+                <a href="{{ route('messages.index') }}">
+                    <iconify-icon icon="mage:email" class="menu-icon"></iconify-icon>
+                    <span>Messages</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>
