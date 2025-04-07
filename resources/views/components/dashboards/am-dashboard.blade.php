@@ -231,7 +231,7 @@
     <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold" id="assigned-tab" data-bs-toggle="pill"
         data-bs-target="#assigned-tasks" type="button" role="tab" type="button" role="tab"
         aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
-        All Tasks I've Assigned
+        All Assigned Tasks
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $assignedTasks->count() }}</span>
     </button>
