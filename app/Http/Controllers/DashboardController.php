@@ -184,9 +184,9 @@ class DashboardController extends Controller
                 ->get()
                 ->pluck('count', 'status');
 
-            $pendingTasks = Task::where('status', 'Todo')->where('assigned_to', $user->id)->get();
+            $pendingTasks = Task::whereIn('status', ['Todo', 'In Progress', 'Review'])->where('assigned_to', $user->id)->get();
             $completedTasks = Task::where('status', 'Completed')->where('assigned_to', $user->id)->get();
-            $pendingTasksCount = Task::where('status', 'Todo')->where('assigned_to', $user->id)->count();
+            $pendingTasksCount = Task::whereIn('status', ['Todo', 'In Progress', 'Review'])->where('assigned_to', $user->id)->count();
             $completedTasksCount = Task::where('status', 'Completed')->where('assigned_to', $user->id)->count();
             $totalTasksCount = Task::where('assigned_to', $user->id)->count();
             $assignedTasks = Task::where('created_by', $user->id)->get();
@@ -201,7 +201,7 @@ class DashboardController extends Controller
                 ->sum('field_value');
             $pendingWords = TaskCompletion::whereHas('task', function ($query) use ($projects) {
                 $query->whereIn('project_id', $projects->pluck('id'))
-                    ->where('status', 'Todo');
+                    ->whereIn('status', ['Todo', 'In Progress', 'Review']);
             })
                 ->where('field_name', 'number_of_words')
                 ->sum('field_value');
