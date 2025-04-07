@@ -213,22 +213,22 @@
         </div>
     </div>
 </div>
-<ul class="nav d-flex align-items-center justify-center flex-nowrap border-gradient-tab nav-pills mb-0 w-100" id="pills-tab" role="tablist">
-    <button class="nav-link d-flex align-items-center w-100 justify-content-center fs-4 fw-semibold active" id="pending-tab" data-bs-toggle="pill"
+<ul class="nav d-flex align-items-center justify-content-between border-gradient-tab nav-pills mb-0 w-100" id="pills-tab" role="tablist">
+    <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold active" id="pending-tab" data-bs-toggle="pill"
         data-bs-target="#pending-task" type="button" role="tab" type="button" role="tab"
         aria-controls="pills-to-do-list" aria-selected="true">
         Pending Tasks
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
     </button>
-    <button class="nav-link d-flex align-items-center w-100 justify-content-center fs-4 fw-semibold" id="completed-tab" data-bs-toggle="pill"
+    <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold" id="completed-tab" data-bs-toggle="pill"
         data-bs-target="#completed-task" type="button" role="tab" type="button" role="tab"
         aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
         Completed Tasks
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
     </button>
-    <button class="nav-link d-flex align-items-center w-100 justify-content-center fs-4 fw-semibold" id="assigned-tab" data-bs-toggle="pill"
+    <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold" id="assigned-tab" data-bs-toggle="pill"
         data-bs-target="#assigned-tasks" type="button" role="tab" type="button" role="tab"
         aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
         Tasks I've Assigned
