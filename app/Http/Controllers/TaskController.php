@@ -226,13 +226,25 @@ class TaskController extends Controller
         $departments = Role::all();
         return redirect()->route('tasks.board.index');
     }
+    private function sanitizeDescription($description)
+    {
+        // Replace potentially problematic characters with a readable placeholder
+        $description = str_replace('<script>', '[SCRIPT TAG REMOVED]', $description);
+        $description = str_replace('</script>', '[SCRIPT TAG REMOVED]', $description);
+        $description = str_replace('<', '&lt;', $description);
+        $description = str_replace('>', '&gt;', $description);
 
+        // Add any other replacements you need here (like replacing other potentially dangerous tags)
+
+        return $description;
+    }
     public function store(Request $request)
     {
+        $sanitizedDescription = $this->sanitizeDescription($request->description);
         try {
             $task = Task::create([
                 'title' => $request->title,
-                'description' => $request->description,
+                'description' => $sanitizedDescription,
                 'project_id' => $request->project_id,
                 'department_id' => $request->department_id,
                 'created_by' => $request->created_by,
