@@ -250,7 +250,6 @@
                         <th>Status</th>
                         <th>Start Date</th>
                         <th>Due Date</th>
-                        <th>Assign To</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -265,7 +264,6 @@
                             <td><x-badge :text="$task->status" type="status" /></td>
                             <td>{{ $task->start_date }}</td>
                             <td>{{ $task->due_date }}</td>
-                            <td>{{ $task->assignedTo->name ?? '' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -286,9 +284,7 @@
                         <th>Subject</th>
                         <th>Status</th>
                         <th>Start Date</th>
-                        <th>Due Date</th>
                         <th>Completion Date</th>
-                        <th>Assign To</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -302,10 +298,8 @@
                             </td>
                             <td><x-badge :text="$task->status" type="status" /></td>
                             <td>{{ $task->start_date }}</td>
-                            <td>{{ $task->due_date }}</td>
                             <td>{{ $task->completions->sortByDesc('id')->first()->created_at ?? 'N/A' }}
                             </td>
-                            <td>{{ $task->assignedTo->name ?? '' }}</td>
                         </tr>
                     @endforeach
                 </tbody>

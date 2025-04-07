@@ -152,14 +152,8 @@ class DashboardController extends Controller
                 ->get()
                 ->pluck('count', 'status');
 
-            $pendingTasks = $projects->flatMap(function ($project) {
-                return $project->tasks->where('status', 'Todo')->values();
-            });
-
-            $completedTasks = $projects->flatMap(function ($project) {
-                return $project->tasks->where('status', 'Completed')->values();
-            });
-
+            $pendingTasks = Task::where('assigned_to', $user->id)->whereIn('status', ['Todo', 'In Progress', 'Review'])->get();
+            $completedTasks = Task::where('assigned_to', $user->id)->where('status', 'Completed')->get();
             $assignedTasks = Task::where('created_by', $user->id)->get();
 
             $accountProjects = Project::whereHas('accountManagers', function ($query) use ($user) {
