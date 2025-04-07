@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [
+            'tasks/*'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
