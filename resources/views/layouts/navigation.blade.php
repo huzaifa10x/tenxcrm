@@ -141,6 +141,17 @@
                         <a href="{{ route('projects.index') }}"><i
                                 class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All projects</a>
                     </li>
+                    @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN'))
+                        <li>
+                            <a href="{{ route('projects.index', ['projects-category' => 'SEO']) }}"><i
+                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All SEO Projects</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('projects.index', ['projects-category' => 'Hosting']) }}"><i
+                                    class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> All Hosting
+                                Projects</a>
+                        </li>
+                    @endif
                     @if ($userPermissions->contains('can add projects'))
                         <li>
                             <a href="{{ route('projects.create') }}"><i

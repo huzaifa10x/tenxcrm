@@ -23,34 +23,32 @@ use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
-    // Display a listing of the resource.
-    public function index()
+    public function index(Request $request)
     {
+        $category = $request->query('projects-category');
         $user = auth()->user();
-        if ($user->hasPermission('can view all projects')) {
-            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins'])
-                ->paginate(10);
-        } else {
-            $projects = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoAdmins'])
-                ->where(function ($query) use ($user) {
-                    $query->where('created_by', $user->id)
-                        ->orWhereHas('salesManagers', function ($q) use ($user) {
-                            $q->where('user_id', $user->id);
-                        })
-                        ->orWhereHas('accountManagers', function ($q) use ($user) {
-                            $q->where('user_id', $user->id);
-                        })
-                        ->orWhereHas('collaborators', function ($query) use ($user) {
-                            $query->where('user_id', $user->id);
-                        })
-                        ->orWhereHas('techManagers', function ($q) use ($user) {
-                            $q->where('user_id', $user->id);
-                        })
-                        ->orWhereHas('seoAdmins', function ($q) use ($user) {
-                            $q->where('user_id', $user->id);
-                        });
-                })
-                ->paginate(10);
+        $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins']);
+
+        // 🔒 Filter by category only for admin/seo admin
+        if (
+            $category && in_array($category, ['SEO', 'Hosting']) &&
+            ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))
+        ) {
+
+            $projects = $query->where('project_type', $category)->paginate(10)->withQueryString();
+        }
+        else if ($user->hasPermission('can view all projects')) {
+            $projects = $query->paginate(10)->withQueryString();
+        }
+        else {
+            $projects = $query->where(function ($q) use ($user) {
+                $q->where('created_by', $user->id)
+                    ->orWhereHas('salesManagers', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('accountManagers', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('collaborators', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('techManagers', fn($q) => $q->where('user_id', $user->id))
+                    ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id));
+            })->paginate(10)->withQueryString();
         }
         return view('projects.index', compact('projects'));
     }
