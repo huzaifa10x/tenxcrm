@@ -228,14 +228,10 @@ class TaskController extends Controller
     }
     private function sanitizeDescription($description)
     {
-        // Replace potentially problematic characters with a readable placeholder
         $description = str_replace('<script>', '[SCRIPT TAG REMOVED]', $description);
         $description = str_replace('</script>', '[SCRIPT TAG REMOVED]', $description);
-        $description = str_replace('<', '&lt;', $description);
-        $description = str_replace('>', '&gt;', $description);
-
-        // Add any other replacements you need here (like replacing other potentially dangerous tags)
-
+        $description = str_replace('<', 'CODE STARTING BRACKET REMOVED', $description);
+        $description = str_replace('>', 'CODE STARTING BRACKET REMOVED', $description);
         return $description;
     }
     public function store(Request $request)
