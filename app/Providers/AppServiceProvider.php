@@ -37,13 +37,11 @@ class AppServiceProvider extends ServiceProvider
         if (App::runningInConsole()) {
             $this->app->resolving(Schedule::class, function (Schedule $schedule) {
                 $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
-                $schedule->command('assign:monthly-tasks')->monthlyOn(1, '00:00');
-                $schedule->command('tasks:contract-renewal')->everyMinute()->withoutOverlapping();
             });
         }
         Carbon::setTestNow(Carbon::now());
         // Carbon::setTestNow(Carbon::now()->startOfMonth());
         // Carbon::setTestNow(Carbon::now()->addHour(12));
-        // Carbon::setTestNow(Carbon::now()->addDays(5));
+        Carbon::setTestNow(Carbon::now()->addDays(80));
     }
 }

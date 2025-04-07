@@ -287,7 +287,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Performance</label>
                             <input type="text" name="fields[0][name]" value="performance" hidden>
-                            <select name="fields[0][value]">
+                            <select name="fields[0][value]" class="form-control">
                                 <option value="Excellent">Excellent</option>
                                 <option value="Needs Improvement">Needs Improvement</option>
                                 <option value="Unsatisfactory">Unsatisfactory</option>
@@ -301,10 +301,10 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">MINUTES OF MEETINGS</label>
                             <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
-                            <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
+                            <textarea name="fields[1][value]" class="form-control" cols="30" rows="10"></textarea>
                             <label class="form-label">Status</label>
                             <input type="hidden" name="fields[0][name]" value="expectations" hidden>
-                            <select name="fields[0][value]">
+                            <select name="fields[0][value]" class="form-control">
                                 <option value="Exceeds Expectations">Exceeds Expectations</option>
                                 <option value="Meets Expectations">Meets Expectations</option>
                                 <option value="Below Expectations">Below Expectations</option>
@@ -318,10 +318,10 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">MINUTES OF MEETINGS</label>
                             <input type="text" name="fields[1][name]" value="minutes_of_meeting" hidden>
-                            <input type="number" name="fields[1][value]" placeholder="enter minutes of meeting">
+                            <textarea name="fields[1][value]" class="form-control" cols="30" rows="10"></textarea>
                             <label class="form-label">Status</label>
                             <input type="hidden" name="fields[0][name]" value="status" hidden>
-                            <select name="fields[0][value]">
+                            <select name="fields[0][value]" class="form-control">
                                 <option value="Very Satisfied">Very Satisfied</option>
                                 <option value="Neutral">Neutral</option>
                                 <option value="Dissatisfied">Dissatisfied</option>
@@ -338,9 +338,9 @@
                                 Reminder</label>
                             <input id="renewal_reminder_status" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
-                            <label class="form-label">Feeling</label>
+                            <label class="form-label w-100">Feeling</label>
                             <input type="hidden" name="fields[1][name]" value="feeling" hidden>
-                            <select name="fields[1][value]">
+                            <select name="fields[1][value]" class="form-control">
                                 <option value="Confident">Confident</option>
                                 <option value="Unsure">Unsure</option>
                                 <option value="No Renewal">No Renewal</option>
@@ -357,9 +357,9 @@
                                 Follow-Up</label>
                             <input id="renewal_contract_status" class="form-check-input" type="checkbox" required
                                 name="fields[0][value]">
-                            <label class="form-label">Feeling</label>
+                            <label class="form-label w-100">Feeling</label>
                             <input type="hidden" name="fields[1][name]" value="feeling" hidden>
-                            <select name="fields[1][value]">
+                            <select name="fields[1][value]" class="form-control">
                                 <option value="Confirmed">Confirmed</option>
                                 <option value="Awaiting Response">Awaiting Response</option>
                                 <option value="Unlikely">Unlikely</option>
@@ -373,7 +373,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Renewal Status</label>
                             <input type="hidden" name="fields[0][name]" value="status" hidden>
-                            <select name="fields[0][value]">
+                            <select name="fields[0][value]" class="form-control">
                                 <option value="Pending">Pending</option>
                                 <option value="Expired">Expired</option>
                             </select>

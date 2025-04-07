@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Automation;
 use App\Models\GeneralSetting;
 use App\Models\Project;
 use App\Models\Task;
@@ -220,6 +221,9 @@ class DashboardController extends Controller
                 'completedWords',
                 'pendingWords',
             ];
+        } elseif ($role == 'ADMIN') {
+            $this->assignMonthlyTasks();
+            $this->contractRenewalCheck();
         }
         return view('dashboard', array_merge(
             compact(
@@ -266,5 +270,96 @@ class DashboardController extends Controller
             });
 
         return response()->json(['attendance' => $attendances]);
+    }
+    public function assignMonthlyTasks()
+    {
+        $automation = Automation::firstOrCreate(['key' => 'monthly_tasks_assigned']);
+
+        if ($automation->last_run_date && Carbon::parse($automation->last_run_date)->isSameMonth(now())) {
+            return;
+        }
+
+        $activeProjects = Project::whereNotIn('status', ['Completed', 'Cancelled', 'Expired'])->get();
+
+        if ($activeProjects->isEmpty()) return;
+
+        $tasks = [
+            'Performance Report' => 'Assign on 1st of each month to AM',
+            'Campaign Meeting (Deep-dive) with Tech' => 'Assign on 1st of each month to AM',
+            'Campaign Meeting (Deep-dive) with Client' => 'Assign on 1st of each month to AM'
+        ];
+
+        foreach ($activeProjects as $project) {
+            $accountManager = $project->accountManagers->pluck('id')->first();
+            foreach ($tasks as $title => $description) {
+                Task::create([
+                    'title' => $title,
+                    'description' => $description,
+                    'assigned_to' => $accountManager,
+                    'status' => 'Todo',
+                    'start_date' => Carbon::now()->startOfMonth(),
+                    'due_date' => Carbon::now()->startOfMonth()->addDays(3),
+                    'created_by' => 1,
+                    'is_automated' => 1,
+                    'project_id' => $project->id,
+                    'type' => 'ADHOC'
+                ]);
+            }
+        }
+        $automation->last_run_date = now();
+        $automation->save();
+    }
+    public function contractRenewalCheck()
+    {
+        $automation = Automation::firstOrCreate(
+            ['key' => 'contract_renewal_check'],
+            ['last_run_date' => null]
+        );
+
+        $now = Carbon::now();
+
+        if (!$automation->last_run_date || !$automation->last_run_date->isSameDay($now)) {
+            $projects = Project::whereNotIn('status', ['Completed', 'Cancelled', 'Expired'])->get();
+            $today = $now->startOfDay();
+
+            foreach ($projects as $project) {
+                $accountManager = $project->accountManagers->pluck('id')->first();
+
+                $contractStart = Carbon::parse($project->contract_start_date);
+                $contractEnd = $contractStart->addMonths($project->contract_term)->startOfDay();
+
+                if ($contractEnd->equalTo($today)) {
+                    $project->update(['status' => 'Expired']);
+                }
+
+                $reminderDate = $contractEnd->copy()->subMonth();
+                $contractDate = $contractEnd->copy();
+                $statusDate = $contractEnd->copy();
+
+                $this->assignRenewalTask($project, $accountManager, "Renewal Reminder", $reminderDate);
+                $this->assignRenewalTask($project, $accountManager, "Renewal Contract", $contractDate);
+                $this->assignRenewalTask($project, $accountManager, "Renewal Status", $statusDate);
+            }
+
+            $automation->update(['last_run_date' => $now]);
+        }
+    }
+    public function assignRenewalTask($project, $assignedTo, $title, $date)
+    {
+        if (Carbon::now()->greaterThanOrEqualTo($date)) {
+            Task::firstOrCreate([
+                'title' => $title,
+                'project_id' => $project->id,
+                'assigned_to' => $assignedTo,
+                'start_date' => $date,
+                'type' => 'ADHOC',
+                'is_automated' => 1
+            ], [
+                'description' => "Renewal Reminder Task",
+                'status' => 'Todo',
+                'due_date' => Carbon::now()->startOfMonth()->addDays(3),
+                'created_by' => 1,
+            ]);
+        }
     }
 }
