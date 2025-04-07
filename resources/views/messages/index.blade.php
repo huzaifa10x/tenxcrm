@@ -13,7 +13,7 @@
             </div>
             <div class="chat-all-list">
                 @foreach ($users as $user)
-                    <div data-id="{{ $user->id }}" class="user chat-sidebar-single active">
+                    <div data-id="{{ $user->id }}" data-name="{{ $user->name }}" data-img="{{ $user->img ? asset('/public/storage/' . $user->img) : asset('/images/avatar/avatar1.png') }}" class="user chat-sidebar-single active">
                         <div class="img">
                             <img class="rounded rounded-circle object-fit-cover"
                                 src="{{ $user->img ? asset('/public/storage/' . $user->img) : asset('/images/avatar/avatar1.png') }}"
@@ -35,10 +35,10 @@
         <div class="chat-main card">
             <div class="chat-sidebar-single active">
                 <div class="img">
-                    <img class="sender-img" src="assets/images/chat/11.png" alt="image">
+                    <img class="sender-img" src="{{ auth()->user()->img ? asset('/public/storage/' . auth()->user()->img) : asset('/images/avatar/avatar1.png') }}" alt="image">
                 </div>
                 <div class="info">
-                    <h6 class="sender-name text-md mb-0">Kathryn Murphy</h6>
+                    <h6 class="sender-name text-md mb-0">Select User</h6>
                     <p class="mb-0">Available</p>
                 </div>
                 <div class="action d-inline-flex align-items-center gap-3">
@@ -101,35 +101,37 @@
 
         $('.user').on('click', function() {
             selectedUser = $(this).data('id');
+            name = $(this).data('name');
+            img = $(this).data('img');
             $('#receiver_id').val(selectedUser);
-            loadMessages(selectedUser);
+            loadMessages(selectedUser, name, img);
         });
 
-        function loadMessages(userId) {
+        function loadMessages(userId, name, img) {
             $.get(`{{ route('messages.fetch', ':id') }}`.replace(':id', userId), function(data) {
                 $('#chatBox').html('');
+                $('.sender-name').text(name);
+                $('.sender-img').attr('src', img);
                 data.forEach(msg => {
-                    $('.sender-name').text(msg.sender_name);
-                    $('.sender-img').attr('src', msg.sender_img);
                     $('#chatBox').append(`
                         ${msg.sender_id == "{{ auth()->id() }}" ? 
                             `<div class="chat-single-message right">
+                                                        <div class="chat-message-content">
+                                                            <p class="mb-3">${msg.message}</p>
+                                                            <p class="chat-time mb-0">
+                                                                <span>${msg.created_at_formatted}</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>` : 
+                            `<div class="chat-single-message left">
+                                             <img src="${msg.sender_img}" alt="image" class="avatar-lg object-fit-cover rounded-circle">
                                                     <div class="chat-message-content">
                                                         <p class="mb-3">${msg.message}</p>
                                                         <p class="chat-time mb-0">
                                                             <span>${msg.created_at_formatted}</span>
                                                         </p>
                                                     </div>
-                                                </div>` : 
-                            `<div class="chat-single-message left">
-                                         <img src="${msg.sender_img}" alt="image" class="avatar-lg object-fit-cover rounded-circle">
-                                                <div class="chat-message-content">
-                                                    <p class="mb-3">${msg.message}</p>
-                                                    <p class="chat-time mb-0">
-                                                        <span>${msg.created_at_formatted}</span>
-                                                    </p>
-                                                </div>
-                                            </div>`
+                                                </div>`
                         }
                     `);
                 });

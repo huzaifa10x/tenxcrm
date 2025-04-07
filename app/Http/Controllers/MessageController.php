@@ -6,6 +6,8 @@ use App\Models\Message;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -46,6 +48,20 @@ class MessageController extends Controller
             'sender_id' => auth()->id(),
             'receiver_id' => $request->receiver_id,
             'message' => $request->message,
+        ]);
+
+        DB::table('notifications')->insert([
+            'id' => Str::uuid(),
+            'type' => \App\Notifications\CustomNotification::class,
+            'notifiable_type' => \App\Models\User::class,
+            'notifiable_id' => $request->receiver_id,
+            'data' => json_encode([
+                'title' => auth()->user()->name . " Sent you a message",
+                'message' => auth()->user()->name . " sent you " . $request->message,
+                'url' => route('messages.index'),
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return response()->json($message);
