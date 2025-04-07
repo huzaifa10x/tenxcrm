@@ -562,18 +562,40 @@
     </div>
     <div id="responseMessage"></div>
 </div>
-<div class="d-flex flex-column mb-10 align-items-baseline gap-1" style="white-space: nowrap;">
-    <label class="form-label fs-7 m-0" for="project">Project</label>
-    @if (auth()->user()->id == $task->createdBy->id || auth()->user()->hasRole('ADMIN'))
-        <select class="form-control" name="project_id" onchange="updateTaskField(this)">
-            @foreach ($projects as $project)
-                <option {{ $task->project_id == $project->id ? 'selected' : '' }} value="{{ $project->id }}">
-                    {{ $project->title }}</option>
-            @endforeach
-        </select>
-    @else
-        <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
-            {{ $task->project->companies->name ?? 'N/A' }}</a>
+<div class="d-flex mb-10 align-items-baseline gap-10">
+    <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
+        <label class="form-label fs-7 m-0" for="project">Project</label>
+        @if (auth()->user()->id == $task->createdBy->id || auth()->user()->hasRole('ADMIN'))
+            <div class="d-flex align-items-start gap-10">
+                <select class="form-control" name="project_id" onchange="updateTaskField(this)">
+                    @foreach ($projects as $project)
+                        <option {{ $task->project_id == $project->id ? 'selected' : '' }}
+                            value="{{ $project->id }}">
+                            {{ $project->title }}</option>
+                    @endforeach
+                </select>
+                <a href="{{ route('projects.show', $task->project->id) }}"
+                    class="btn btn-success btn-sm fs-7"><iconify-icon icon="majesticons:eye-line"
+                        class="icon text-xl"></iconify-icon></a>
+            </div>
+        @else
+            <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
+                {{ $task->project->companies->name ?? 'N/A' }}</a>
+        @endif
+    </div>
+    @if ($task->contentTask && $task->contentTask->number_of_pages)
+        <div class="col-lg-6">
+            <label class="form-label fs-7 m-0" for="number_of_pages">Number Of Pages</label>
+            <input type="text" class="form-control w-auto fs-7" readonly name="number_of_pages"
+                value="{{ $task->contentTask->number_of_pages }}">
+        </div>
+    @endif
+    @if ($task->type == 'DESIGN' && $relatedData)
+        <div class="col-lg-6">
+            <label class="form-label fs-7 m-0" for="input_number">Number Of Designs</label>
+            <input type="text" class="form-control w-auto fs-7" readonly name="input_number"
+                value="{{ $relatedData->input_number }}">
+        </div>
     @endif
 </div>
 <div class="card {{ $task->status == 'Completed' ? 'bg-success-200' : '' }} border border-secondary mb-10">
@@ -978,7 +1000,8 @@
             <div
                 class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between border border-end-0 border-start-0 border-top-0">
                 <span class="fw-bold">Collaborators</span>
-                <select onchange="addCollaborator('{{ $task->id }}')" id="user_id" class="form-select w-auto">
+                <select onchange="addCollaborator('{{ $task->id }}')" id="user_id"
+                    class="form-select w-auto">
                     <option value="">Select User</option>
                     @foreach ($users as $user)
                         <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -1015,6 +1038,7 @@
         </div>
     </div>
 </div>
+
 <div class="row gy-3 mb-10">
     <div class="col-12">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
@@ -1039,6 +1063,7 @@
         </div>
     </div>
 </div>
+
 <input type="hidden" id="taskId" value="{{ $task->id }}">
 <script>
     $(document).ready(function() {

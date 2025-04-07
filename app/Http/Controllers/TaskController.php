@@ -691,6 +691,59 @@ class TaskController extends Controller
             ["type" => "SEO ADMIN", "title" => 'Backlink Audit & DISAVOW', "assignee" => $seoAdmin],
         ];
 
+        if ($task->type == "CONTENT") {
+            $newContentApprovalTask = Task::create([
+                'is_automated' => 1,
+                'title' => "Client Content Approval Request",
+                'description' => 'Please review and obtain client approval for the content related to task ' . url("tasks/{$task->id}") . '.',
+                'project_id' => $project->id,
+                'department_id' => null,
+                'created_by' => 1,
+                'assigned_to' => $accountManager,
+                'priority' => 'High',
+                'type' => "AM",
+                'status' => 'Todo',
+                'due_date' => Carbon::now()->addDays(7),
+                'start_date' => $dubaiTime,
+                'repeat_task' => false,
+            ]);
+            ContentTask::create([
+                "task_id" => $newContentApprovalTask->id,
+                "sub_type" => $task->contentTask->sub_type,
+                "number_of_pages" => $task->contentTask->number_of_pages,
+            ]);
+            foreach ($task->attachments as $attachment) {
+                $newContentApprovalTask->attachments()->create([
+                    'task_id' => $attachment->file_path,
+                    'file_path' => $attachment->file_path,
+                ]);
+            }
+            foreach ($task->comments as $comment) {
+                $newContentApprovalTask->comments()->create([
+                    'task_id' => $comment->task_id,
+                    'user_id' => $comment->user_id,
+                    'comment' => $comment->comment,
+                ]);
+            }
+            foreach ($task->history as $history) {
+                $newContentApprovalTask->history()->create([
+                    'task_id' => $history->task_id,
+                    'user_id' => $history->user_id,
+                    'action' => $history->action,
+                ]);
+            }
+            foreach ($task->collaborators as $collaborator) {
+                $newContentApprovalTask->collaborators()->create([
+                    'task_id' => $collaborator->task_id,
+                    'user_id' => $collaborator->user_id,
+                ]);
+            }
+            $newContentApprovalTask->collaborators()->create([
+                'task_id' => $newContentApprovalTask->id,
+                'user_id' => $task->assigned_to,
+            ]);
+        }
+
         switch ($task->title) {
             case 'First Client Meeting':
                 Task::insert([
