@@ -1051,6 +1051,25 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-xxl-6 col-md-6">
+                    <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                        <div class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between">
+                            <span class="fw-bold">Your Project Notes</span>
+                        </div>
+                        <div class="card-body p-24">
+                            <form id="note-form">
+                                @csrf
+                                <input type="hidden" name="project_id" value="{{ $project->id }}">
+                                <div class="input-group mb-3">
+                                    <input type="text" name="note" class="form-control"
+                                        placeholder="Write a note...">
+                                    <button class="btn btn-primary" type="submit">Add Note</button>
+                                </div>
+                            </form>
+                            <ul class="list-group" id="notes-list"></ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1158,6 +1177,62 @@
             </div>
         </div>
     </div>
+    <script>
+        const projectId = "{{ $project->id }}";
+        const fetchUrl = @json(route('project-notes.fetch', ['projectId' => $project->id]));
+        const storeUrl = @json(route('project-notes.store'));
+        const destroyUrl = (id) => `{{ route('project-notes.destroy', ['note' => ':id']) }}`.replace(':id', id);
+
+        function loadNotes() {
+            $.get(fetchUrl, function(notes) {
+                let html = '';
+                notes.forEach(note => {
+                    html += `
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">${note.user.name} <small class="text-muted">(${new Date(note.created_at).toLocaleString()})</small></div>
+                                ${note.note}
+                            </div>
+                            ${note.user_id === {{ auth()->id() }} ? `
+                                    <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                        </li>`;
+                });
+                $('#notes-list').html(html);
+            });
+        }
+
+        $(document).ready(function() {
+            loadNotes();
+
+            $('#note-form').submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: storeUrl,
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        $('input[name="note"]').val('');
+                        loadNotes();
+                    }
+                });
+            });
+
+            $(document).on('click', '.delete-note', function() {
+                const id = $(this).data('id');
+                $.ajax({
+                    type: 'DELETE',
+                    url: destroyUrl(id),
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function() {
+                        loadNotes();
+                    }
+                });
+            });
+        });
+    </script>
+
     <script type="text/javascript">
         var uploadedDocumentMap = {};
         Dropzone.autoDiscover = false;

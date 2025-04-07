@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectCollaboratorController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectKeywordController;
+use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TaskCollaboratorController;
 use App\Http\Controllers\TaskCommentController;
@@ -55,6 +56,10 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/search-projects', [ProjectController::class, 'search'])->name('projects.search');
+
+    Route::get('/project-notes/{projectId}', [ProjectNoteController::class, 'fetch'])->name('project-notes.fetch');
+    Route::post('/project-notes', [ProjectNoteController::class, 'store'])->name('project-notes.store');
+    Route::delete('/project-notes/{note}', [ProjectNoteController::class, 'destroy'])->name('project-notes.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

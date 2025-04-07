@@ -104,4 +104,8 @@ class Project extends Model
     {
         return $this->belongsToMany(User::class, 'project_content_writer');
     }
+    public function notes()
+    {
+        return $this->hasMany(ProjectNote::class);
+    }
 }

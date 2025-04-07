@@ -217,21 +217,21 @@
     <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold active" id="pending-tab" data-bs-toggle="pill"
         data-bs-target="#pending-task" type="button" role="tab" type="button" role="tab"
         aria-controls="pills-to-do-list" aria-selected="true">
-        Pending Tasks
+        All Pending Tasks
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
     </button>
     <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold" id="completed-tab" data-bs-toggle="pill"
         data-bs-target="#completed-task" type="button" role="tab" type="button" role="tab"
         aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
-        Completed Tasks
+        All Completed Tasks
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
     </button>
     <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold" id="assigned-tab" data-bs-toggle="pill"
         data-bs-target="#assigned-tasks" type="button" role="tab" type="button" role="tab"
         aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
-        Tasks I've Assigned
+        All Tasks I've Assigned
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $assignedTasks->count() }}</span>
     </button>
@@ -363,11 +363,9 @@
         <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Project</th>
                     <th>Service</th>
                     <th>Status</th>
-                    <th>Account Manager</th>
                     <th>Contract End Date</th>
                     <th>Monthly Revenue (w/o VAT)</th>
                     <th>Tech</th>
@@ -379,7 +377,6 @@
             <tbody>
                 @foreach ($projects as $project)
                     <tr>
-                        <td>{{ $project->id }}</td>
                         <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a>
                         </td>
                         <td>{{ $project->project_type }}</td>
@@ -421,7 +418,6 @@
                                 {{ $project->status }}
                             @endif
                         </td>
-                        <td>{{ $project->accountManagers->pluck('name')->first() ?? '' }}</td>
                         <td>{{ Carbon\Carbon::parse($project->contract_start_date)->addMonths($project->contract_term)->format('Y-m-d') ?? '' }}
                         </td>
                         <td>{{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 ?? '' }}
