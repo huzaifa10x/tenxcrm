@@ -62,7 +62,7 @@ class MessageController extends Controller
             'notifiable_id' => $request->receiver_id,
             'data' => json_encode([
                 'title' => auth()->user()->name . " Sent you a message",
-                'message' => auth()->user()->name . " sent you " . $request->message,
+                'message' => $request->message,
                 'url' => route('messages.index'),
             ]),
             'created_at' => now(),
