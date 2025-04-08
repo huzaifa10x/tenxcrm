@@ -11,7 +11,20 @@ class Message extends Model
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-    protected $fillable = ['sender_id', 'receiver_id', 'message', 'is_read'];
+
+    protected $casts = [
+        'deleted_by_sender' => 'boolean',
+        'deleted_by_receiver' => 'boolean',
+    ];
+
+    protected $fillable = [
+        'sender_id',
+        'receiver_id',
+        'message',
+        'is_read',
+        'deleted_by_sender',
+        'deleted_by_receiver',
+    ];
 
     public function sender()
     {

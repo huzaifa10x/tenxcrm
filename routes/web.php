@@ -54,15 +54,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings/update', [GeneralSettingController::class, 'update'])->name('settings.update');
 });
 
-Route::get('/fetch-todo-calendar', function () {
-    return response()->json([
-        'html' => view('components.dashboards.am-calendar')->render()
-    ]);
-})->name('todo.calendar.fetch');
-
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/search-projects', [ProjectController::class, 'search'])->name('projects.search');
+    Route::delete('/messages/delete/me/{id}', [MessageController::class, 'deleteForMe'])->name('messages.delete.me');
+    Route::delete('/messages/delete/everyone/{id}', [MessageController::class, 'deleteForEveryone'])->name('messages.delete.everyone');
+
+    Route::get('/users/unread', [MessageController::class, 'getUsersWithUnreadMessages'])->name('users.getUnreadMessages');
+
+    Route::post('/messages/markAsRead/{userId}', [MessageController::class, 'markMessagesAsRead'])->name('messages.markAsRead');
 
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/fetch/{userId}', [MessageController::class, 'fetchMessages'])->name('messages.fetch');
