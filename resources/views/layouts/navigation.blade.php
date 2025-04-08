@@ -10,22 +10,9 @@
     </div>
     <div class="sidebar-menu-area">
         <a href="{{ route('profile.edit') }}" class="d-flex mb-10 w-100 align-items-center justify-content-center">
-            @php
-                $user = auth()->user();
-                $imageExists = $user->img && file_exists(public_path('storage/' . $user->img));
-                $initial = strtoupper(substr($user->name, 0, 1));
-            @endphp
-
-            @if ($imageExists)
-                <img style="height: 140px; width: 140px" src="{{ asset('storage/' . $user->img) }}"
-                    class="rounded rounded-circle img-fluid object-fit-cover" alt="">
-            @else
-                <div style="height: 140px; width: 140px; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 50px;"
-                    class="rounded rounded-circle text-white fw-bold object-fit-cover">
-                    {{ $initial }}
-                </div>
-            @endif
-
+            <img style="height: 140px; width: 140px"
+                src="{{ auth()->user()->img ? asset('/public/storage/' . auth()->user()->img) : asset('/images/avatar/avatar1.png') }}"
+                class="rounded rounded-circle img-fluid object-fit-cover" alt="">
         </a>
         <ul class="sidebar-menu" id="sidebar-menu">
             <li>
