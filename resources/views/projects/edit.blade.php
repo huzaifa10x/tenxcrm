@@ -162,7 +162,7 @@
                         </div>
 
                         <div class="col-lg-6">
-                            <label class="form-label" for="contract_value">Contract Value</label>
+                            <label class="form-label" for="contract_value">Total Contract Value <span class="fs-7">(w/o VAT - in AED)</span></label>
                             <input type="number" class="form-control" id="contract_value" name="contract_value"
                                 value="{{ $project->contract_value }}" required>
                         </div>

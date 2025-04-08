@@ -12,7 +12,11 @@
                 </div>
                 @if (auth()->user()->hasRole('ADMIN'))
                     <form method="GET" action="{{ route('projects.index') }}">
-                        <select class="form-control w-auto " name="account_manager_id" onchange="this.form.submit()">
+                        {{-- Preserve other query params --}}
+                        @if (request('sales_manager_id'))
+                            <input type="hidden" name="sales_manager_id" value="{{ request('sales_manager_id') }}">
+                        @endif
+                        <select class="form-control w-auto" name="account_manager_id" onchange="this.form.submit()">
                             <option value="">-- Filter by AM --</option>
                             @foreach ($accountManagers as $am)
                                 <option value="{{ $am->id }}"
@@ -23,6 +27,21 @@
                         </select>
                     </form>
                 @endif
+                <form method="GET" action="{{ route('projects.index') }}">
+                    {{-- Preserve other query params --}}
+                    @if (request('account_manager_id'))
+                        <input type="hidden" name="account_manager_id" value="{{ request('account_manager_id') }}">
+                    @endif
+                    <select class="form-control w-auto" name="sales_manager_id" onchange="this.form.submit()">
+                        <option value="">-- Filter by Sales Manager --</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}"
+                                {{ request('sales_manager_id') == $user->id ? 'selected' : '' }}>
+                                {{ $user->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
                 @if ($userPermissions->contains('can add projects'))
                     <a href="{{ route('projects.create') }}" class="btn btn-outline-primary">
                         Add New Project
@@ -86,6 +105,7 @@
                         <th data-key="Monthly_Revenue">Monthly Revenue (w/o VAT)</th>
                         <th data-key="Tech">Tech</th>
                         <th data-key="Created_By">Created By</th>
+                        <th data-key="sales_manager">Sales Manager</th>
                         <th data-key="Pending_Tasks">Pending Tasks</th>
                         <th data-key="Actions">Actions</th>
                     </tr>
@@ -145,6 +165,9 @@
                             <td>{{ $project->techManagers->pluck('name')->first() ?? '' }}</td>
                             <td>
                                 {{ $project->createdBy->name ?? 'N/A' }}
+                            </td>
+                            <td>
+                                {{ $project->salesManagers->first()->name ?? 'N/A' }}
                             </td>
                             <td>
                                 <span

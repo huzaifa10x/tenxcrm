@@ -3,22 +3,13 @@
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
     <x-dashboards.punch-in-out />
-    @if ($role === 'AM')
-        <x-dashboards.am-dashboard :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks"
-            :assignedTasks="$assignedTasks" />
-    @elseif ($role === 'CONTENT')
-        <x-dashboards.content-dashboard :pendingTasksCount="$pendingTasksCount" :completedTasksCount="$completedTasksCount" :pendingWords="$pendingWords" :completedWords="$completedWords"
-            :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
-    @elseif ($role == 'ADMIN')
-        <x-dashboards.admin-dashboard />
-    @endif
-    <div class="row gy-3 mb-10 mt-10">
+    <div class="row gy-3 mb-10">
         <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-header px-20 py-20">
+            <div class="card">
+                <div class="card-header office-timing-button px-20 py-20">
                     <h6 class="mb-2 fw-bold text-lg mb-0">Office Timings & Attendance Rules</h6>
                 </div>
-                <div class="card-body table-responsive p-0">
+                <div class="card-body office-timing-body table-responsive p-0" style="display: none">
                     <table class="table bordered-table mb-0">
                         <tbody>
                             <tr>
@@ -58,6 +49,17 @@
                 </div>
             </div>
         </div>
+    </div>
+    @if ($role === 'AM')
+        <x-dashboards.am-dashboard :newSell="$newSell" :typeCounts="$typeCounts" :statusCounts="$statusCounts" :currentPortfolio="$currentPortfolio" :projects="$projects"
+            :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
+    @elseif ($role === 'CONTENT')
+        <x-dashboards.content-dashboard :pendingTasksCount="$pendingTasksCount" :completedTasksCount="$completedTasksCount" :pendingWords="$pendingWords" :completedWords="$completedWords"
+            :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
+    @elseif ($role == 'ADMIN')
+        <x-dashboards.admin-dashboard />
+    @endif
+    <div class="row gy-3 mb-10 mt-10">
         <x-dashboards.task-counts :taskPercentages="$taskPercentages" :pendingTasksCountGlobal="$pendingTasksCountGlobal" :completedTasksCountGlobal="$completedTasksCountGlobal" :createdTasksCountGlobal="$createdTasksCountGlobal"
             :collaboratorTasksCountGlobal="$collaboratorTasksCountGlobal" />
         <x-dashboards.latest-notifications :latestNotifications="$latestNotifications" />
@@ -88,5 +90,10 @@
         });
     </script>
 
+    <script>
+        $(document).on('click', '.office-timing-button', function() {
+            $('.office-timing-body').slideToggle();
+        });
+    </script>
 
 </x-app-layout>

@@ -146,12 +146,35 @@ class DashboardController extends Controller
                 ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
                 ->value("total");
 
-            $campaignCounts = Project::whereHas('accountManagers', function ($query) use ($user) {
+            $newSell = Project::whereHas('salesManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })->selectRaw("status, COUNT(*) as count")
+            })
+                ->where("status", "Current")
+                ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
+                ->value("total") ?? 0;
+
+            $accountManagerId = $user->id;
+
+            $accountManagers = User::whereHas('roles', fn($q) => $q->where('name', 'AM'))->get();
+
+            $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins']);
+
+            $statusCounts = [];
+            $typeCounts   = [];
+
+            $statusCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            })
+                ->selectRaw('status, count(*) as count')
                 ->groupBy('status')
-                ->get()
                 ->pluck('count', 'status');
+
+            $typeCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            })
+                ->selectRaw('project_type, count(*) as count')
+                ->groupBy('project_type')
+                ->pluck('count', 'project_type');
 
             $pendingTasks = Task::where('assigned_to', $user->id)->whereIn('status', ['Todo', 'In Progress', 'Review'])->get();
             $completedTasks = Task::where('assigned_to', $user->id)->where('status', 'Completed')->get();
@@ -164,11 +187,13 @@ class DashboardController extends Controller
             $extraData += [
                 'currentPortfolio',
                 'projects',
-                'campaignCounts',
                 'pendingTasks',
                 'completedTasks',
                 'assignedTasks',
                 'accountProjects',
+                'statusCounts',
+                'typeCounts',
+                'newSell',
             ];
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {

@@ -297,7 +297,7 @@
                                 <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
-                                        <span class="text-secondary-light">Contract Value</span>
+                                        <span class="text-secondary-light">Total Contract Value <span class="fs-7">(w/o VAT - in AED)</span></span>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span

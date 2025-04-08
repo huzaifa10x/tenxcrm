@@ -16,18 +16,27 @@ class AmDashboard extends Component
     public $pendingTasks;
     public $completedTasks;
     public $assignedTasks;
+    public $statusCounts;
+    public $typeCounts;
+    public $newSell;
     public function __construct(
         $currentPortfolio,
         $projects,
         $pendingTasks,
         $completedTasks,
-        $assignedTasks
+        $assignedTasks,
+        $statusCounts,
+        $typeCounts,
+        $newSell,
     ) {
         $this->currentPortfolio = $currentPortfolio;
         $this->projects = $projects;
         $this->pendingTasks = $pendingTasks;
         $this->completedTasks = $completedTasks;
         $this->assignedTasks = $assignedTasks;
+        $this->statusCounts = $statusCounts;
+        $this->typeCounts = $typeCounts;
+        $this->newSell = $newSell;
     }
 
     /**

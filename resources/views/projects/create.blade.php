@@ -56,8 +56,7 @@
                     <input type="text" name="title" id="title" class="form-control d-none" required>
 
                     <div class="col-lg-3">
-                        <label class="form-label" for="contract_value">contract value <span class="fs-7">(In
-                                AED)</span></label>
+                        <label class="form-label" for="contract_value">Total Contract Value <span class="fs-7">(w/o VAT - in AED)</span></label>
                         <input type="number" class="form-control" id="contract_value" name="contract_value" required>
                     </div>
 

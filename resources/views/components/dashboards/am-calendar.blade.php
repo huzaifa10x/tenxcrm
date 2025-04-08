@@ -1,26 +1,24 @@
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
-<span class="fs-4 fw-semibold mt-24">Todos</span>
-<div class="col-lg-6">
-    <div class="card h-100 p-3 radius-8 border-0">
-        <div id="calendar"></div>
+<button class="btn btn-neutral-900 my-10 d-block " type="button" data-bs-toggle="offcanvas" data-bs-target="#todoOffcanvas"
+    aria-controls="todoOffcanvas">Todos</button>
+<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="todoOffcanvas"
+    aria-labelledby="todoOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="todoOffcanvasLabel">Todos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-</div>
-<div class="col-lg-6">
-    <div class="card h-100 radius-8 border-0">
-        <div class="card-header">
-            <input type="hidden" id="todoDate" class="form-control mb-3">
-            <div id="todoForm" class="d-none">
-                <div class="input-group">
-                    <input type="text" id="todoTask" class="form-control" placeholder="Enter Todo">
-                    <button class="input-group-text bg-base" id="saveTodo"> <iconify-icon
-                            icon="lucide:plus"></iconify-icon>Add</button>
-                </div>
+    <div class="offcanvas-body">
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
+        <div id="calendar"></div>
+        <input type="hidden" id="todoDate" class="form-control mb-3">
+        <div id="todoForm" class="mt-10">
+            <div class="input-group">
+                <input type="text" id="todoTask" class="form-control" placeholder="Enter Todo">
+                <button class="input-group-text bg-base" id="saveTodo"> <iconify-icon
+                        icon="lucide:plus"></iconify-icon>Add</button>
             </div>
         </div>
-        <div class="card-body" style="max-height: 500px; overflow-y: auto">
-            <ul id="todoList" class="list-group mt-2"></ul>
-        </div>
+        <ul id="todoList" class="list-group"></ul>
     </div>
 </div>
 <script>
@@ -41,12 +39,12 @@
                         data.forEach(todo => {
                             let statusIcon = todo.status === 'completed' ? '✅' : '⏳';
                             let actionButton = todo.status === 'pending' ?
-                                `<button class="btn btn-sm btn-success mark-done" data-id="${todo.id}">✔</button>` :
+                                `<button class="p-1 fs-8 btn btn-sm btn-success mark-done" data-id="${todo.id}">✔</button>` :
                                 '';
 
                             let listItem = document.createElement('li');
                             listItem.classList.add('list-group-item', 'd-flex',
-                                'justify-content-between', 'align-items-center');
+                                'justify-content-between', 'align-items-center', 'mt-10');
                             listItem.innerHTML =
                                 `<span>${statusIcon} ${todo.task}</span> ${actionButton}`;
                             todoList.appendChild(listItem);

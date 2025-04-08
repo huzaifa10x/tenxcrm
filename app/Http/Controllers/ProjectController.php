@@ -27,10 +27,12 @@ class ProjectController extends Controller
     {
         $category = $request->query('projects-category');
         $accountManagerId = $request->query('account_manager_id'); // new filter
+        $salesManagerId = $request->query('sales_manager_id'); // new filter
         $user = auth()->user();
 
         // Get all AM users for filter select (using a role slug or name, e.g. 'AM')
         $accountManagers = User::whereHas('roles', fn($q) => $q->where('name', 'AM'))->get();
+        $users = User::all();
 
         $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins']);
 
@@ -38,30 +40,37 @@ class ProjectController extends Controller
         $statusCounts = [];
         $typeCounts   = [];
 
-        // If ADMIN and AM filter is applied, filter projects by that AM and get counts too
-        if ($user->hasRole('ADMIN') && $accountManagerId) {
-            $projects = $query->whereHas('accountManagers', function ($q) use ($accountManagerId) {
-                $q->where('user_id', $accountManagerId);
-            })->paginate(10)->withQueryString();
+        if ($user->hasRole('ADMIN')) {
+            if ($accountManagerId) {
+                $query->whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                    $q->where('user_id', $accountManagerId);
+                });
 
-            // Count projects grouped by status
-            $statusCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
-                $q->where('user_id', $accountManagerId);
-            })
-                ->selectRaw('status, count(*) as count')
-                ->groupBy('status')
-                ->pluck('count', 'status');
+                // Count projects grouped by status
+                $statusCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                    $q->where('user_id', $accountManagerId);
+                })
+                    ->selectRaw('status, count(*) as count')
+                    ->groupBy('status')
+                    ->pluck('count', 'status');
 
-            // Count projects grouped by project type
-            $typeCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
-                $q->where('user_id', $accountManagerId);
-            })
-                ->selectRaw('project_type, count(*) as count')
-                ->groupBy('project_type')
-                ->pluck('count', 'project_type');
-        }
-        // Handle SEO/Hosting projects for ADMIN/SEO ADMIN
-        else if (
+                // Count projects grouped by project type
+                $typeCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                    $q->where('user_id', $accountManagerId);
+                })
+                    ->selectRaw('project_type, count(*) as count')
+                    ->groupBy('project_type')
+                    ->pluck('count', 'project_type');
+            }
+
+            if ($salesManagerId) {
+                $query->whereHas('salesManagers', function ($q) use ($salesManagerId) {
+                    $q->where('user_id', $salesManagerId);
+                });
+            }
+
+            $projects = $query->paginate(10)->withQueryString();
+        } else if (
             $category && in_array($category, ['SEO', 'Hosting']) &&
             ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))
         ) {
@@ -83,7 +92,7 @@ class ProjectController extends Controller
             })->paginate(10)->withQueryString();
         }
 
-        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts'));
+        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users'));
     }
 
     // Show the form for creating a new resource.

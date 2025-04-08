@@ -125,7 +125,7 @@
                         </span>
                         <div>
                             <span class="fw-medium text-secondary-light text-md">New / Renew / UpSell</span>
-                            <h6 class="fw-semibold mt-2">00</h6>
+                            <h6 class="fw-semibold mt-2">{{ number_format($newSell, 2) }}</h6>
                         </div>
                     </div>
                 </div>
@@ -138,6 +138,57 @@
         </div>
     </div>
 </div>
+<x-dashboards.am-calendar />
+@if ($statusCounts->count() && $typeCounts->count())
+    <div class="border border-secondary card mb-10 overflow-hidden position-relative radius-12">
+        <div
+            class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
+            <span class="fw-bold">Projects Status</span>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-lg-5 mt-2 gy-4">
+                @foreach ($statusCounts as $status => $count)
+                    <div class="col mt-1">
+                        <div class="card shadow-none border bg-gradient-start-1 h-100">
+                            <div class="card-body p-20">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <div>
+                                        <p class="fw-medium text-primary-light mb-1">{{ $status }}</p>
+                                        <h6 class="mb-0">{{ $count }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- card end -->
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    <div class="border border-secondary card mb-10 overflow-hidden position-relative radius-12">
+        <div
+            class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
+            <span class="fw-bold">Projects Types</span>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-lg-5 mt-2 gy-4">
+                @foreach ($typeCounts as $type => $count)
+                    <div class="col mt-1">
+                        <div class="card shadow-none border bg-gradient-start-2 h-100">
+                            <div class="card-body p-20">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <div>
+                                        <p class="fw-medium text-primary-light mb-1">{{ $type }}</p>
+                                        <h6 class="mb-0">{{ $count }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- card end -->
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+@endif
 <div class="row gy-3 mb-10">
     <div class="col-lg-12">
         <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
@@ -151,64 +202,23 @@
         </div>
     </div>
 </div>
-<button class="btn btn-neutral-900 show-todo-calendar">Todos</button>
-<div class="row gy-3 mb-10 todo-calendar" style="display: none">
-    <x-dashboards.am-calendar />
-</div>
-<div class="row gy-3 mb-10">
-    <div class="col-lg-3">
-        <div class="card h-100 radius-8 border-0">
-            <div class="card-body p-24">
-                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                    <h6 class="mb-2 fw-bold text-lg">Campaigns</h6>
-                </div>
-                <div class="mt-3">
-                    @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
-                        <div class="d-flex align-items-center justify-content-between gap-3 mb-12">
-                            <div class="d-flex align-items-center">
-                                <span
-                                    class="text-xxl line-height-1 d-flex align-content-center flex-shrink-0 text-{{ strtolower(str_replace(' ', '-', $status)) }}">
-                                    <iconify-icon icon="ri:discount-percent-fill" class="icon"></iconify-icon>
-                                </span>
-                                <span class="text-primary-light fw-medium text-sm ps-12">{{ $status }}</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2 w-100">
-                                <div class="w-100 max-w-66 ms-auto">
-                                    <div class="progress progress-sm rounded-pill" role="progressbar"
-                                        aria-valuenow="{{ $campaignCounts[$status] ?? 0 }}" aria-valuemin="0"
-                                        aria-valuemax="100">
-                                        <div class="progress-bar bg-{{ strtolower(str_replace(' ', '-', $status)) }} rounded-pill"
-                                            style="width: {{ ($campaignCounts[$status] ?? 0) * 10 }}%;">
-                                        </div>
-                                    </div>
-                                </div>
-                                <span
-                                    class="text-secondary-light font-xs fw-semibold">{{ $campaignCounts[$status] ?? 0 }}</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <ul class="nav d-flex align-items-center justify-content-between border-gradient-tab nav-pills mb-0 w-100"
     id="pills-tab" role="tablist">
-    <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold active" id="pending-tab"
+    <button class="nav-link d-flex align-items-center justify-content-center fs-4 fw-semibold active" id="pending-tab"
         data-bs-toggle="pill" data-bs-target="#pending-task" type="button" role="tab" type="button"
         role="tab" aria-controls="pills-to-do-list" aria-selected="true">
         All Pending Tasks
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
     </button>
-    <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold" id="completed-tab"
+    <button class="nav-link d-flex align-items-center justify-content-center fs-4 fw-semibold" id="completed-tab"
         data-bs-toggle="pill" data-bs-target="#completed-task" type="button" role="tab" type="button"
         role="tab" aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
         All Completed Tasks
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
     </button>
-    <button class="nav-link d-flex align-items-center justify-content-center fs-3 fw-semibold" id="assigned-tab"
+    <button class="nav-link d-flex align-items-center justify-content-center fs-4 fw-semibold" id="assigned-tab"
         data-bs-toggle="pill" data-bs-target="#assigned-tasks" type="button" role="tab" type="button"
         role="tab" aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
         All Assigned Tasks
