@@ -197,12 +197,21 @@
                     </li>
                 </ul>
             </li>
-            <li>
-                <a href="{{ route('admin.attendance') }}">
-                    <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
-                    <span>Monthly Attendance</span>
-                </a>
-            </li>
+            @if (auth()->user()->hasRole('ADMIN'))
+                <li>
+                    <a href="{{ route('admin.attendance') }}">
+                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
+                        <span>Monthly Attendance</span>
+                    </a>
+                </li>
+            @else
+                <li>
+                    <a href="{{ route('admin.attendance', ['user_id' => auth()->user()->id]) }}">
+                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
+                        <span>Monthly Attendance</span>
+                    </a>
+                </li>
+            @endif
             @if (auth()->user()->hasRole('ADMIN'))
                 <li>
                     <a href="{{ route('settings.index') }}">
