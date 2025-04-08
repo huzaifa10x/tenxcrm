@@ -54,7 +54,7 @@
                 @endif
             </div>
             @php
-                $taskTypes = ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM'];
+                $taskTypes = ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'ADHOC'];
             @endphp
             <div class="d-flex flex-wrap align-items-center gap-3">
                 @foreach ($taskTypes as $type)
@@ -67,7 +67,8 @@
                             'DESIGN' => 'neutral',
                             'DEVELOPMENT' => 'danger',
                             'AM' => 'primary',
-                            default => 'secondary', // Fallback for unknown types
+                            'ADHOC' => 'info',
+                            default => 'secondary',
                         };
                     @endphp
 
@@ -1200,7 +1201,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
