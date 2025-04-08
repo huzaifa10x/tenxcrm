@@ -26,20 +26,52 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $category = $request->query('projects-category');
+        $accountManagerId = $request->query('account_manager_id'); // new filter
         $user = auth()->user();
+
+        // Get all AM users for filter select (using a role slug or name, e.g. 'AM')
+        $accountManagers = User::whereHas('roles', fn($q) => $q->where('name', 'AM'))->get();
+
         $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins']);
 
-        // 🔒 Filter by category only for admin/seo admin
-        if (
+        // Initialize counts arrays
+        $statusCounts = [];
+        $typeCounts   = [];
+
+        // If ADMIN and AM filter is applied, filter projects by that AM and get counts too
+        if ($user->hasRole('ADMIN') && $accountManagerId) {
+            $projects = $query->whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            })->paginate(10)->withQueryString();
+
+            // Count projects grouped by status
+            $statusCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            })
+                ->selectRaw('status, count(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status');
+
+            // Count projects grouped by project type
+            $typeCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            })
+                ->selectRaw('project_type, count(*) as count')
+                ->groupBy('project_type')
+                ->pluck('count', 'project_type');
+        }
+        // Handle SEO/Hosting projects for ADMIN/SEO ADMIN
+        else if (
             $category && in_array($category, ['SEO', 'Hosting']) &&
             ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))
         ) {
-
             $projects = $query->where('project_type', $category)->paginate(10)->withQueryString();
         }
+        // If user has global view permission
         else if ($user->hasPermission('can view all projects')) {
             $projects = $query->paginate(10)->withQueryString();
         }
+        // Restricted to user's own or related projects
         else {
             $projects = $query->where(function ($q) use ($user) {
                 $q->where('created_by', $user->id)
@@ -50,7 +82,8 @@ class ProjectController extends Controller
                     ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id));
             })->paginate(10)->withQueryString();
         }
-        return view('projects.index', compact('projects'));
+
+        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts'));
     }
 
     // Show the form for creating a new resource.

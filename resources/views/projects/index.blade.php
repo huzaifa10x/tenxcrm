@@ -3,24 +3,76 @@
         {{ __('Projects') }}
     </x-slot>
     <div class="card basic-data-table">
-        @if ($userPermissions->contains('can add projects'))
-            <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="card-header">
+            <div class="d-flex align-items-center justify-content-start gap-10">
                 <div>
                     <input type="text" id="searchProject" class="form-control" placeholder="Search Project..."
                         autocomplete="off">
                     <ul id="searchResults" class="dropdown-menu show" style="display: none;"></ul>
                 </div>
-                <a href="{{ route('projects.create') }}" class="btn btn-outline-primary">
-                    Add New Project
-                </a>
+                @if (auth()->user()->hasRole('ADMIN'))
+                    <form method="GET" action="{{ route('projects.index') }}">
+                        <select class="form-control w-auto " name="account_manager_id" onchange="this.form.submit()">
+                            <option value="">-- Filter by AM --</option>
+                            @foreach ($accountManagers as $am)
+                                <option value="{{ $am->id }}"
+                                    {{ request('account_manager_id') == $am->id ? 'selected' : '' }}>
+                                    {{ $am->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                @endif
+                @if ($userPermissions->contains('can add projects'))
+                    <a href="{{ route('projects.create') }}" class="btn btn-outline-primary">
+                        Add New Project
+                    </a>
+                @endif
             </div>
-        @endif
+            @if (request('account_manager_id'))
+                <div class="row mt-10">
+                    <div class="row row-cols-lg-5 mt-2 gy-4">
+                        @foreach ($statusCounts as $status => $count)
+                            <div class="col mt-1">
+                                <div class="card shadow-none border bg-gradient-start-1 h-100">
+                                    <div class="card-body p-20">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                            <div>
+                                                <p class="fw-medium text-primary-light mb-1">{{ $status }}</p>
+                                                <h6 class="mb-0">{{ $count }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- card end -->
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="row row-cols-lg-5 mt-2 gy-4">
+                        @foreach ($typeCounts as $type => $count)
+                            <div class="col mt-1">
+                                <div class="card shadow-none border bg-gradient-start-2 h-100">
+                                    <div class="card-body p-20">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                            <div>
+                                                <p class="fw-medium text-primary-light mb-1">{{ $type }}</p>
+                                                <h6 class="mb-0">{{ $count }}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- card end -->
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
         <style>
             th {
                 cursor: grab;
                 background: #f8f9fa;
             }
         </style>
+
         <div class="card-body table-responsive">
             <table class="table bordered-table mb-0" id="project-data-table">
                 <thead>
@@ -54,7 +106,8 @@
                                                 {{ $project->status == 'Current' ? 'selected' : '' }}>
                                                 Current
                                             </option>
-                                            <option value="Paused" {{ $project->status == 'Paused' ? 'selected' : '' }}>
+                                            <option value="Paused"
+                                                {{ $project->status == 'Paused' ? 'selected' : '' }}>
                                                 Paused
                                             </option>
                                             <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>
