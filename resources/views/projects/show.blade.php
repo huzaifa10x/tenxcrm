@@ -233,7 +233,7 @@
                                         <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Video shoots Per Month</h6>
+                                                    <h6 class="text-md mb-0 fw-medium">Video shoots</h6>
                                                     <span
                                                         class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->video_shoots_per_month ?? '' }}</span>
                                                 </div>
