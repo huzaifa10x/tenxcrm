@@ -431,11 +431,7 @@
     </div>
 </div>
 <script>
-    $(document).on('click', '.show-todo-calendar', function() {
-        $('.todo-calendar').slideDown();
-        $(this).hide();
-    })
     $(document).on('click', '.show-am-projects-info', function() {
-        $('.am-projects-info').slideDown();
+        $('.am-projects-info').slideToggle();
     })
 </script>
