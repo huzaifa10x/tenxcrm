@@ -54,6 +54,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings/update', [GeneralSettingController::class, 'update'])->name('settings.update');
 });
 
+Route::get('/fetch-todo-calendar', function () {
+    return response()->json([
+        'html' => view('components.dashboards.am-calendar')->render()
+    ]);
+})->name('todo.calendar.fetch');
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/search-projects', [ProjectController::class, 'search'])->name('projects.search');

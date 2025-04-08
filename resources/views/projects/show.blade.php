@@ -46,6 +46,12 @@
                         <input type="text" readonly class="form-control fs-7 h-auto" value="{{ $project->status }}">
                     </div>
                 @endif
+                @if (auth()->user()->hasRole('ADMIN'))
+                    <a href="{{ route('projects.edit', $project->id) }}"
+                        class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                        <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
+                    </a>
+                @endif
             </div>
             @php
                 $taskTypes = ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM'];
@@ -1194,7 +1200,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                    <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);

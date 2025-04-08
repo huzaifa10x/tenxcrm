@@ -36,6 +36,7 @@ class DashboardController extends Controller
                     ->get();
                 $pendingAttendances = $pendingAttendances->merge($todayAttendances);
             }
+
             foreach ($pendingAttendances as $attendance) {
                 $carbonDate = Carbon::parse($attendance->date);
                 $attendance->punch_out = $closingTime;
@@ -45,7 +46,6 @@ class DashboardController extends Controller
                 $attendance->save();
             }
 
-            // mark punch out
             $datesToCheck = [Carbon::yesterday()->toDateString(), Carbon::today()->toDateString()];
 
             foreach ($datesToCheck as $date) {
