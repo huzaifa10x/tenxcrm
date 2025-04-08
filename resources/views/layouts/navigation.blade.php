@@ -197,13 +197,13 @@
                     </li>
                 </ul>
             </li>
+            <li>
+                <a href="{{ route('admin.attendance') }}">
+                    <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
+                    <span>Monthly Attendance</span>
+                </a>
+            </li>
             @if (auth()->user()->hasRole('ADMIN'))
-                <li>
-                    <a href="{{ route('admin.attendance') }}">
-                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
-                        <span>Monthly Attendance</span>
-                    </a>
-                </li>
                 <li>
                     <a href="{{ route('settings.index') }}">
                         <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>

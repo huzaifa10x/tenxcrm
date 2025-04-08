@@ -13,8 +13,7 @@ class MessageController extends Controller
 {
     public function index()
     {
-        $users = User::where('id', '!=', auth()->user()->id)->get();
-        return view('messages.index', compact('users'));
+        return view('messages.index');
     }
 
     public function fetchMessages($userId)
@@ -97,16 +96,14 @@ class MessageController extends Controller
     }
     public function getUsersWithUnreadMessages()
     {
-        $users = User::all()->map(function ($user) {
+        $users = User::where('id', '!=', auth()->user()->id)->get()->map(function ($user) {
             $unreadCount = Message::where('receiver_id', auth()->id())
                 ->where('sender_id', $user->id)
                 ->where('is_read', false)
                 ->count();
-
             $user->unread_count = $unreadCount;
             return $user;
         });
-
         return response()->json($users);
     }
     public function markMessagesAsRead($userId)
