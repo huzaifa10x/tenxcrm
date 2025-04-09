@@ -138,8 +138,18 @@
                                             <span class="badge badge-danger text-danger">Out:
                                                 {{ $attendance->punch_out ?? 'N/A' }}</span> <br>
                                         @endif
+                                        @php
+                                            $statusColor = match ($attendance->status) {
+                                                'present' => 'success',
+                                                'late' => 'warning',
+                                                'half_day' => 'info',
+                                                'early_out' => 'primary',
+                                                'absent' => 'danger',
+                                                default => 'secondary',
+                                            };
+                                        @endphp
                                         <span
-                                            class="badge badge-dark text-dark">{{ $attendance->status ?? 'N/A' }}</span>
+                                            class="badge bg-{{ $statusColor }}">{{ ucfirst($attendance->status) }}</span>
                                     @else
                                         @if ($carbonDate->isPast() && !$carbonDate->isToday())
                                             <span class="badge badge-secondary text-secondary">Absent</span>
