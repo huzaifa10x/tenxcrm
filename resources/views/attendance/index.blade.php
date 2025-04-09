@@ -17,7 +17,6 @@
             cursor: grabbing;
         }
     </style>
-    <!-- Filters -->
     <form method="GET" action="{{ route('attendance.monthly') }}" class="mb-3">
         <div class="row">
             <!-- Month Filter -->
@@ -101,7 +100,6 @@
             chartDonut.render();
         </script>
     @endif
-    <!-- Attendance Table -->
     <div class="card basic-data-table">
         <div class="card-body table-responsive p-0" id="scrollable-table">
             <table class="table bordered-table table-bordered mb-0">
@@ -131,7 +129,8 @@
                                     $attendance = $user->attendances->firstWhere('date', $date);
                                     $isHoliday = in_array($date, $holidays) || $carbonDate->isWeekend();
                                 @endphp
-                                <td class="text-center">
+                                <td class="text-center clickable-attendance"
+                                    data-attendance-id="{{ $attendance->id ?? '' }}">
                                     @if ($isHoliday)
                                         <span class="badge badge-success text-success">Weekend</span>
                                     @elseif ($attendance)
@@ -168,30 +167,42 @@
             </table>
         </div>
     </div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="attendanceNotesDrawer">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Attendance Notes</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="input-group add-new-note-wrapper mb-10">
+                <input type="text" class="form-control" id="noteInput" placeholder="Add Note...">
+                <button class="btn btn-primary" data-attendance-id="{{ $todayAttendanceId }}"
+                    id="addNoteButton">Add</button>
+            </div>
+            <ul class="list-group mb-3" id="notesList">
+                <!-- Notes will be loaded here -->
+            </ul>
+        </div>
+    </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             let tableContainer = document.getElementById("scrollable-table");
             let isDown = false;
             let startX;
             let scrollLeft;
-
             tableContainer.addEventListener("mousedown", (e) => {
                 isDown = true;
                 tableContainer.classList.add("active");
                 startX = e.pageX - tableContainer.offsetLeft;
                 scrollLeft = tableContainer.scrollLeft;
             });
-
             tableContainer.addEventListener("mouseleave", () => {
                 isDown = false;
                 tableContainer.classList.remove("active");
             });
-
             tableContainer.addEventListener("mouseup", () => {
                 isDown = false;
                 tableContainer.classList.remove("active");
             });
-
             tableContainer.addEventListener("mousemove", (e) => {
                 if (!isDown) return;
                 e.preventDefault();
@@ -201,4 +212,91 @@
             });
         });
     </script>
+    <script>
+        let selectedAttendanceId = null;
+
+        $(document).on('click', '.clickable-attendance', function() {
+            selectedAttendanceId = $(this).data('attendance-id');
+
+            if (!selectedAttendanceId) return;
+
+            if (selectedAttendanceId != {{ $todayAttendanceId }}) {
+                $('.add-new-note-wrapper').hide();
+            }else{
+                $('.add-new-note-wrapper').show();
+            }
+
+            const offcanvas = new bootstrap.Offcanvas(document.getElementById('attendanceNotesDrawer'));
+            offcanvas.show();
+
+            $('#notesList').html('<li class="list-group-item text-muted">Loading notes...</li>');
+            $('#noteInput').val('');
+            $('#addNoteButton').data('attendance-id', selectedAttendanceId);
+
+            $.ajax({
+                url: '{{ route('attendance.notes.index', ':attendanceId') }}'.replace(':attendanceId',
+                    selectedAttendanceId),
+                method: 'GET',
+                success: function(res) {
+                    let notes = res.notes;
+                    if (!notes || notes.length === 0) {
+                        $('#notesList').html(
+                            '<li class="list-group-item text-muted">No notes yet</li>');
+                        return;
+                    }
+                    let notesHtml = '';
+                    notes.forEach(note => {
+                        notesHtml += `
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>${note.user.name}</strong>: ${note.note}<br>
+                                <small class="text-muted">${note.created_at}</small>
+                            </div>
+                        </li>`;
+                    });
+                    $('#notesList').html(notesHtml);
+                },
+                error: function() {
+                    $('#notesList').html(
+                        '<li class="list-group-item text-danger">Failed to load notes</li>');
+                }
+            });
+        });
+
+        $('#addNoteButton').click(function() {
+            const note = $('#noteInput').val().trim();
+            const attendanceId = $(this).data('attendance-id');
+            if (!note || !attendanceId) return;
+
+            $(this).prop('disabled', true).text('Saving...');
+
+            $.ajax({
+                url: '{{ route('attendance.notes.store', ':attendanceId') }}'.replace(':attendanceId',
+                    attendanceId),
+                type: 'POST',
+                data: {
+                    note: note,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $('#notesList').append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>${response.note.user.name}</strong>: ${response.note.note}<br>
+                            <small class="text-muted">${response.note.created_at}</small>
+                        </div>
+                    </li>
+                `);
+                    $('#noteInput').val('');
+                },
+                error: function(err) {
+                    alert(err.responseJSON?.message || 'Failed to add note');
+                },
+                complete: function() {
+                    $('#addNoteButton').prop('disabled', false).text('Add Note');
+                }
+            });
+        });
+    </script>
+
 </x-app-layout>

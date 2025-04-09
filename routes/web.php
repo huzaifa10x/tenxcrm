@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceNoteController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\DashboardController;
@@ -55,6 +56,10 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Attendance Notes Routes
+    Route::post('/attendance/{attendanceId}/notes', [AttendanceNoteController::class, 'store'])->name('attendance.notes.store');
+    Route::get('/attendance/{attendanceId}/notes', [AttendanceNoteController::class, 'index'])->name('attendance.notes.index');
 
     Route::get('/search-projects', [ProjectController::class, 'search'])->name('projects.search');
     Route::get('/search-company', [CompanyController::class, 'search'])->name('company.search');
