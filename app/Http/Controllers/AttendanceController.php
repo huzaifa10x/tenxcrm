@@ -201,8 +201,9 @@ class AttendanceController extends Controller
             }
         }
 
-        $todayAttendanceId = Attendance::where('user_id', auth()->user()->id)->where('date', today())->first()->id;
-
+        $todayAttendance = Attendance::where('user_id', auth()->id())->where('date', today())->first();
+        $todayAttendanceId = $todayAttendance?->id ?? null;
+        
         return view('attendance.index', compact(
             'users',
             'breakEndTime',
