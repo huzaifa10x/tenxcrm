@@ -40,37 +40,34 @@ class ProjectController extends Controller
         $statusCounts = [];
         $typeCounts   = [];
 
-        if ($user->hasRole('ADMIN')) {
-            if ($accountManagerId) {
-                $query->whereHas('accountManagers', function ($q) use ($accountManagerId) {
-                    $q->where('user_id', $accountManagerId);
-                });
+        if ($accountManagerId) {
+            $query->whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            });
 
-                // Count projects grouped by status
-                $statusCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
-                    $q->where('user_id', $accountManagerId);
-                })
-                    ->selectRaw('status, count(*) as count')
-                    ->groupBy('status')
-                    ->pluck('count', 'status');
+            $statusCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            })
+                ->selectRaw('status, count(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status');
 
-                // Count projects grouped by project type
-                $typeCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
-                    $q->where('user_id', $accountManagerId);
-                })
-                    ->selectRaw('project_type, count(*) as count')
-                    ->groupBy('project_type')
-                    ->pluck('count', 'project_type');
-            }
-
-            if ($salesManagerId) {
-                $query->whereHas('salesManagers', function ($q) use ($salesManagerId) {
-                    $q->where('user_id', $salesManagerId);
-                });
-            }
-
+            $typeCounts = Project::whereHas('accountManagers', function ($q) use ($accountManagerId) {
+                $q->where('user_id', $accountManagerId);
+            })
+                ->selectRaw('project_type, count(*) as count')
+                ->groupBy('project_type')
+                ->pluck('count', 'project_type');
             $projects = $query->paginate(10)->withQueryString();
-        } else if (
+        }
+        if ($salesManagerId) {
+            $query->whereHas('salesManagers', function ($q) use ($salesManagerId) {
+                $q->where('user_id', $salesManagerId);
+            });
+            $projects = $query->paginate(10)->withQueryString();
+        }
+
+        if (
             $category && in_array($category, ['SEO', 'Hosting']) &&
             ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))
         ) {

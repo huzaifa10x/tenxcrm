@@ -140,18 +140,22 @@ class DashboardController extends Controller
             $projects = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
+
             $currentPortfolio = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })->where("status", "Current")
-                ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
-                ->value("total");
+            })
+                ->where('status', 'Current')
+                ->whereBetween('contract_start_date', [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->endOfMonth()])
+                ->selectRaw('SUM(contract_value / NULLIF(contract_term, 0)) as total')
+                ->value('total') ?? 0;
 
             $newSell = Project::whereHas('salesManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
-                ->where("status", "Current")
-                ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
-                ->value("total") ?? 0;
+                ->where('status', 'Current')
+                ->whereBetween('contract_start_date', [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->endOfMonth()])
+                ->selectRaw('SUM(contract_value / NULLIF(contract_term, 0)) as total')
+                ->value('total') ?? 0;
 
             $accountManagerId = $user->id;
 

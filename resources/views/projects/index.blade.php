@@ -5,6 +5,11 @@
     <div class="card basic-data-table">
         <div class="card-header">
             <div class="d-flex align-items-center justify-content-start gap-10">
+                @if ($userPermissions->contains('can add projects'))
+                    <a href="{{ route('projects.create') }}" class="btn btn-neutral-900">
+                        Add New Project
+                    </a>
+                @endif
                 <div>
                     <input type="text" id="searchProject" class="form-control" placeholder="Search Project..."
                         autocomplete="off">
@@ -26,6 +31,15 @@
                             @endforeach
                         </select>
                     </form>
+                @else
+                    <form method="GET" action="{{ route('projects.index') }}">
+                        {{-- Preserve other query params --}}
+                        @if (request('sales_manager_id'))
+                            <input type="hidden" name="sales_manager_id" value="{{ request('sales_manager_id') }}">
+                        @endif
+                        <input type="hidden" name="account_manager_id" value="{{ auth()->user()->id }}">
+                        <button class="btn btn-info-700 btn-sm" type="submit">Where I'am AM</button>
+                    </form>
                 @endif
                 <form method="GET" action="{{ route('projects.index') }}">
                     {{-- Preserve other query params --}}
@@ -42,11 +56,11 @@
                         @endforeach
                     </select>
                 </form>
-                @if ($userPermissions->contains('can add projects'))
-                    <a href="{{ route('projects.create') }}" class="btn btn-outline-primary">
-                        Add New Project
-                    </a>
-                @endif
+                <form method="GET" action="{{ route('projects.index') }}">
+                    <input type="hidden" name="sales_manager_id" value="">
+                    <input type="hidden" name="account_manager_id" value="">
+                    <button class="btn btn-danger-500 btn-sm" type="submit">Reset</button>
+                </form>
             </div>
             @if (request('account_manager_id'))
                 <div class="row mt-10">
