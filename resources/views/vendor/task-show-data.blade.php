@@ -787,7 +787,7 @@
                     <button type="submit" class="btn btn-primary">Upload Files</button>
                 </form>
                 <div id="taskUploadStatus"></div>
-                <div class="mt-32" id="taskAttachmentsContainer">
+                <div id="taskAttachmentsContainer">
                 </div>
             </div>
         </div>
@@ -804,8 +804,8 @@
                     <table class="table table-striped table-bordered">
                         <thead class="position-static">
                             <tr>
-                                <th class="fw-light">Field Name</th>
-                                <th class="fw-light">Field Value</th>
+                                <th class="fw-light">Closing Title</th>
+                                <th class="fw-light">Closing Input</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1633,48 +1633,40 @@
         let html = '';
         attachments.forEach(file => {
             let filePath = "{{ asset('/public/storage/') }}/" + file.file_path;
-            let fileName = file.file_path.slice(-10);
+            let original_name = file?.original_name;
             let extension = file.file_path.split('.').pop();
             let imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-            if (imageExtensions.includes(extension)) {
-                html += `
-                <span class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                    <div class="d-flex align-items-center">
-                        <a href="${filePath}" target="_blank">
-                            <img src="${filePath}" alt=""
-                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
+            let createdAt = new Date(file.created_at).toLocaleString();
+            html += `
+            <div class="card mb-10 border">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span class="fs-7 d-block">${file?.user?.name}</span>
+                    <div class="gap-10 d-flex align-items-center">
+                        <a href="${filePath}" download="${original_name}" class="btn border-0 m-0 p-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="green" class="bi bi-download" viewBox="0 0 16 16">
+                              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                              <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                            </svg>
                         </a>
-                        <div class="flex-grow-1">
-                            <h6 class="text-md mb-0 fw-medium">${fileName}</h6>
-                        </div>
-                    </div>
-                     <button type="button" class="text-secondary m-2 delete-attachment border-0 btn p-0 m-0"
-                        data-attachment-id="${file.id}"
-                        data-delete-url="{{ route('tasks.attachments.destroy', ':id') }}".replace(':id', file.id)">
-                        <iconify-icon icon="material-symbols:delete-outline" class="icon line-height-1"></iconify-icon>
-                    </button>
-                </span>`;
-            } else {
-                html += `
-                 <span class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                    <div class="d-flex align-items-center">
-                        <img src="{{ asset('/images/doc.png') }}" alt=""
-                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                        <div class="flex-grow-1">
-                            <a href="${filePath}" class="text-md mb-0 fw-medium">${fileName}</a>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-10 align-items-baseline">
-                         <button type="button" class="text-secondary m-2 delete-attachment border-0 btn p-0 m-0"
+                        <button type="button" class="delete-attachment btn border-0 m-0 p-0"
                             data-attachment-id="${file.id}"
                             data-delete-url="{{ route('tasks.attachments.destroy', ':id') }}".replace(':id', file.id)">
-                            <iconify-icon icon="material-symbols:delete-outline" class="icon line-height-1"></iconify-icon>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="red" class="bi bi-trash" viewBox="0 0 16 16">
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                            </svg>
                         </button>
-                        <a href="${filePath}" download class="class="btn border-0 m-0 p-0""><iconify-icon icon="solar:download-linear" class="text-xl"></iconify-icon></a> 
                     </div>
-                </span>`;
-            }
+                </div>
+                <div class="card-body d-flex align-items-center">
+                    <img src="${imageExtensions.includes(extension)? filePath : '{{ asset('/images/doc.png') }}'}" alt=""
+                        class="w-40-px h-40-px object-fit-cover ${imageExtensions.includes(extension)?'rounded':''} me-12">
+                    <div class="flex-grow-1 fs-6">
+                        <a href="${filePath}" class="text-md mb-0 fw-medium fs-6">${original_name}</a>
+                        <span class="fs-7 d-block">${createdAt}</span>
+                    </div>
+                </div>
+            </div>`;
         });
         $("#taskAttachmentsContainer").html(html);
     }

@@ -60,6 +60,8 @@ class ProcessRepeatingTasks extends Command
                     TaskAttachment::create([
                         'task_id' => $newTask->id,
                         'file_path' => $file->file_path,
+                        'user_id' => auth()->id(),
+                        'original_name' => $file->original_name,
                     ]);
                 }
             }

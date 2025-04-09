@@ -76,7 +76,6 @@ class TaskController extends Controller
             ];
         }));
     }
-
     public function boardView(Request $request)
     {
         $user = auth()->user();
@@ -153,7 +152,6 @@ class TaskController extends Controller
         $tasks = $taskQuery->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
-
     public function formeTasks(Request $request)
     {
         $user = auth()->user();
@@ -218,7 +216,6 @@ class TaskController extends Controller
         $tasks = $taskQuery->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
-
     public function create()
     {
         $projects = Project::all();
@@ -226,7 +223,6 @@ class TaskController extends Controller
         $departments = Role::all();
         return redirect()->route('tasks.board.index');
     }
-
     public function store(Request $request)
     {
         try {
@@ -335,9 +331,12 @@ class TaskController extends Controller
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     $path = $file->store('task_attachments', 'public');
+
                     TaskAttachment::create([
                         'task_id' => $task->id,
+                        'user_id' => auth()->id(),
                         'file_path' => $path,
+                        'original_name' => $file->getClientOriginalName(),
                     ]);
                 }
             }
@@ -429,14 +428,11 @@ class TaskController extends Controller
 
         return view('tasks.show', compact('task', 'projects', 'users', 'departments', 'relatedData'));
     }
-
-    // Delete task
     public function showTask($id)
     {
         session()->flash('open_task_id', $id);
         return redirect()->route('tasks.board.index');
     }
-
     public function destroy(Task $task)
     {
         $user = User::find($task->assigned_to);
@@ -445,20 +441,19 @@ class TaskController extends Controller
         $task->delete();
         return redirect()->back()->with('success', 'Task deleted successfully!');
     }
-
     public function addAttachment(Request $request, Task $task)
     {
         $request->validate([
             'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,webp',
         ]);
 
-        // Store the file in the 'task_attachments' directory
         $filePath = $request->file('file')->store('task_attachments', 'public');
 
-        // Create the attachment entry in the database
         $attachment = TaskAttachment::create([
             'task_id' => $task->id,
+            'user_id' => auth()->id(),
             'file_path' => $filePath,
+            'original_name' => $request->file('file')->getClientOriginalName(),
         ]);
 
         TaskHistory::create([
@@ -471,14 +466,10 @@ class TaskController extends Controller
     }
     public function removeAttachment(Task $task, TaskAttachment $attachment)
     {
-        // Delete the file from storage
         if (file_exists(storage_path('app/public/' . $attachment->file_path))) {
             unlink(storage_path('app/public/' . $attachment->file_path));
         }
-
-        // Delete the attachment record from the database
         $attachment->delete();
-
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
@@ -543,18 +534,23 @@ class TaskController extends Controller
             'attachments' => 'required|array',
             'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,webp',
         ]);
+
         $uploadedCount = 0;
+
         foreach ($request->file('attachments') as $file) {
             $path = $file->store('task_attachments', 'public');
 
             $task->attachments()->create([
                 'file_path' => $path,
                 'file_type' => $file->getClientMimeType(),
+                'original_name' => $file->getClientOriginalName(),
+                'user_id' => auth()->id(),
             ]);
+
             $uploadedCount++;
         }
 
-        $attachments = $task->attachments()->get();
+        $attachments = $task->attachments()->with('user')->get();
 
         if ($uploadedCount > 0) {
             TaskHistory::create([
@@ -564,12 +560,16 @@ class TaskController extends Controller
             ]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Attachments uploaded successfully.', 'attachments' => $attachments]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Attachments uploaded successfully.',
+            'attachments' => $attachments,
+        ]);
     }
     public function jsonTaskAttachments(Task $task)
     {
         return response()->json([
-            'attachments' => $task->attachments()->get()
+            'attachments' => $task->attachments()->with('user')->get()
         ]);
     }
     public function updateTaskAjax(Request $request, $id)
@@ -620,7 +620,6 @@ class TaskController extends Controller
             'message' => 'Task repeating has been disabled.'
         ]);
     }
-
     public function enableRepeating(Task $task)
     {
         $task->update(['repeat_task' => 1]);
@@ -636,7 +635,6 @@ class TaskController extends Controller
             'message' => 'Task repeating has been enabled.'
         ]);
     }
-
     public function completeTask(Request $request)
     {
         $request->validate([
@@ -668,7 +666,6 @@ class TaskController extends Controller
             'file_path' => $filePath,
         ], 200);
     }
-
     public function markAsCompleted($id)
     {
         $task = Task::findOrFail($id);

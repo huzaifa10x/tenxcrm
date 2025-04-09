@@ -73,7 +73,6 @@ class ProjectController extends Controller
         ) {
             $projects = $query->where('project_type', $category)->paginate(10)->withQueryString();
         }
-        // If user has global view permission
         else if ($user->hasPermission('can view all projects')) {
             $projects = $query->paginate(10)->withQueryString();
         }
