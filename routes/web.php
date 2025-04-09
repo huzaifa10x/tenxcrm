@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/search-projects', [ProjectController::class, 'search'])->name('projects.search');
+    Route::get('/search-company', [CompanyController::class, 'search'])->name('company.search');
     Route::delete('/messages/delete/me/{id}', [MessageController::class, 'deleteForMe'])->name('messages.delete.me');
     Route::delete('/messages/delete/everyone/{id}', [MessageController::class, 'deleteForEveryone'])->name('messages.delete.everyone');
 

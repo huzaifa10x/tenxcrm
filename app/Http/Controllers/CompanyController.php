@@ -115,4 +115,15 @@ class CompanyController extends Controller
         $company->delete();
         return redirect()->route('companies.index')->with('success', 'Company deleted successfully!');
     }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $companies = Company::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('website', 'LIKE', "%{$query}%")
+            ->limit(10)
+            ->get();
+
+        return response()->json($companies);
+    }
 }

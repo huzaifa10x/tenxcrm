@@ -7,8 +7,15 @@
         @if ($userPermissions->contains('can manage companies'))
             <div class="card-header d-flex align-items-center gap-10">
                 <a class="btn btn-outline-primary" href="{{ route('companies.create') }}">Create New Company</a>
-                <a class="btn btn-outline-primary-600" href="{{ route('companies.index', ['sort_by' => 'name', 'sort_order' => 'asc']) }}">(Asc)</a>
-                <a class="btn btn-outline-primary-800" href="{{ route('companies.index', ['sort_by' => 'name', 'sort_order' => 'desc']) }}">(Desc)</a>
+                <a class="btn btn-outline-primary-600"
+                    href="{{ route('companies.index', ['sort_by' => 'name', 'sort_order' => 'asc']) }}">(Asc)</a>
+                <a class="btn btn-outline-primary-800"
+                    href="{{ route('companies.index', ['sort_by' => 'name', 'sort_order' => 'desc']) }}">(Desc)</a>
+                <div>
+                    <input type="text" id="searchCompany" class="form-control" placeholder="Search Company..."
+                        autocomplete="off">
+                    <ul id="searchResults" class="dropdown-menu show" style="display: none;"></ul>
+                </div>
             </div>
         @endif
         <div class="card-body table-responsive">
@@ -75,4 +82,47 @@
             {{ $companies->links('vendor.pagination.custom') }}
         </div>
     </div>
+    <script>
+        $(document).ready(function() {
+            $('#searchCompany').on('input', function() {
+                let query = $(this).val();
+
+                if (query.length < 2) {
+                    $('#searchResults').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('company.search') }}",
+                    type: "GET",
+                    data: {
+                        query: query
+                    },
+                    success: function(response) {
+                        let dropdown = $('#searchResults');
+                        dropdown.empty();
+
+                        if (response.length > 0) {
+                            response.forEach(function(company) {
+                                dropdown.append(`
+                                <li class="dropdown-item">
+                                    <a href="{{ url('/companies/${company.id}') }}" class="text-dark d-block">
+                                        ${company.name}
+                                    </a>
+                                </li>
+                            `);
+                            });
+                            dropdown.show();
+                        } else {
+                            dropdown.hide();
+                        }
+                    }
+                });
+            });
+
+            $(document).on('click', '#searchResults li', function() {
+                window.location.href = $(this).find('a').attr('href');
+            });
+        });
+    </script>
 </x-app-layout>
