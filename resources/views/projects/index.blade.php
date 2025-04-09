@@ -38,7 +38,7 @@
                             <input type="hidden" name="sales_manager_id" value="{{ request('sales_manager_id') }}">
                         @endif
                         <input type="hidden" name="account_manager_id" value="{{ auth()->user()->id }}">
-                        <button class="btn btn-info-700 btn-sm" type="submit">Where I'am AM</button>
+                        <button class="btn btn-info-700 btn-sm" type="submit">Projects I Manage</button>
                     </form>
                 @endif
                 <form method="GET" action="{{ route('projects.index') }}">
