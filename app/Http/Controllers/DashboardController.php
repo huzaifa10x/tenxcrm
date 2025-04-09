@@ -146,12 +146,20 @@ class DashboardController extends Controller
                 ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
                 ->value("total");
 
-            $newSell = Project::whereHas('salesManagers', function ($query) use ($user) {
+            $baseNewSellQuery = Project::whereHas('salesManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
-                ->where("status", "Current")
-                ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
-                ->value("total") ?? 0;
+                ->where('status', 'Current')
+                ->whereBetween('contract_start_date', [
+                    Carbon::now()->subMonth()->startOfMonth(),
+                    Carbon::now()->endOfMonth(),
+                ]);
+
+            $newSell = (clone $baseNewSellQuery)
+                ->selectRaw('SUM(contract_value / NULLIF(contract_term, 0)) as total')
+                ->value('total') ?? 0;
+
+            $newSellProjects = (clone $baseNewSellQuery)->get();
 
             $accountManagerId = $user->id;
 
@@ -194,6 +202,7 @@ class DashboardController extends Controller
                 'statusCounts',
                 'typeCounts',
                 'newSell',
+                'newSellProjects',
             ];
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {

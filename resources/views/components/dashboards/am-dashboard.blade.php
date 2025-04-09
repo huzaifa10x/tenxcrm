@@ -8,7 +8,8 @@
         font-size: 10px !important;
     }
 
-    .show-am-projects-info {
+    .show-am-projects-info,
+    .show-am-new-sell-projects {
         cursor: pointer;
     }
 </style>
@@ -114,7 +115,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xxl-3 col-sm-6">
+    <div class="col-xxl-3 col-sm-6 show-am-new-sell-projects">
         <div class="card p-3 shadow-2 radius-8 h-100 gradient-deep-two-4 border border-white">
             <div class="card-body p-0">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
@@ -134,6 +135,39 @@
                         class="bg-success-focus px-6 py-2 rounded-2 fw-medium text-success-main text-sm d-flex align-items-center gap-1">
                         <i class="ri-arrow-right-up-line"></i>00
                 </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 am-new-sell-projects" style="display: none">
+        <div class="card p-3 shadow-2 radius-8 h-100 gradient-deep-two-1 border border-white">
+            <div class="card-body p-0 table-responsive">
+                <table class="table bordered-table mb-0" id="dataTable" data-page-length='10'>
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Service</th>
+                            <th>Contract Value</th>
+                            <th>Contract Start Date</th>
+                            <th>Contract Term</th>
+                            <th>Monthly Revenue (w/o VAT)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($newSellProjects as $project)
+                            <tr>
+                                <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a>
+                                </td>
+                                <td>{{ $project->project_type }}</td>
+                                <td>{{ $project->contract_value }}</td>
+                                <td>{{ $project->contract_start_date ?? '' }}</td>
+                                <td>{{ $project->contract_term }} /Mo</td>
+                                <td>{{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 ?? '' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+
+                </table>
             </div>
         </div>
     </div>
@@ -433,5 +467,8 @@
 <script>
     $(document).on('click', '.show-am-projects-info', function() {
         $('.am-projects-info').slideToggle();
+    })
+    $(document).on('click', '.show-am-new-sell-projects', function() {
+        $('.am-new-sell-projects').slideToggle();
     })
 </script>

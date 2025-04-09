@@ -51,8 +51,8 @@
         </div>
     </div>
     @if ($role === 'AM')
-        <x-dashboards.am-dashboard :newSell="$newSell" :typeCounts="$typeCounts" :statusCounts="$statusCounts" :currentPortfolio="$currentPortfolio" :projects="$projects"
-            :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
+        <x-dashboards.am-dashboard :newSellProjects="$newSellProjects" :newSell="$newSell" :typeCounts="$typeCounts" :statusCounts="$statusCounts"
+            :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
     @elseif ($role === 'CONTENT')
         <x-dashboards.content-dashboard :pendingTasksCount="$pendingTasksCount" :completedTasksCount="$completedTasksCount" :pendingWords="$pendingWords" :completedWords="$completedWords"
             :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
