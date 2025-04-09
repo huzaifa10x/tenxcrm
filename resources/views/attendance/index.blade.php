@@ -88,7 +88,7 @@
                                 value: {
                                     show: true
                                 },
-                              
+
                             }
                         }
                     }
@@ -141,7 +141,11 @@
                                         <span
                                             class="badge badge-dark text-dark">{{ $attendance->status ?? 'N/A' }}</span>
                                     @else
-                                        <span class="badge badge-secondary text-secondary">Absent</span>
+                                        @if ($carbonDate->isPast() && !$carbonDate->isToday())
+                                            <span class="badge badge-secondary text-secondary">Absent</span>
+                                        @else
+                                            <span class="badge badge-warning text-warning">Pending</span>
+                                        @endif
                                     @endif
                                 </td>
                             @endfor

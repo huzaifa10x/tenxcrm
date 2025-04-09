@@ -282,7 +282,9 @@ class AttendanceController extends Controller
                                 break;
                         }
                     } else {
-                        $totalAbsent++;
+                        if ($carbonDate->isPast() && !$carbonDate->isToday()) {
+                            $totalAbsent++;
+                        }
                         $lateCount = $halfDayCount = 0;
                     }
                 }
