@@ -26,7 +26,9 @@
                 <input type="month" name="month" id="month" class="form-control"
                     value="{{ request('month', now()->format('Y-m')) }}">
             </div>
-
+            @if (request('user_id'))
+                <input type="hidden" name="user_id" value="{{ request('user_id') }}">
+            @endif
             @if (auth()->user()->hasRole('ADMIN'))
                 <!-- User Filter -->
                 <div class="col-md-4">
@@ -41,18 +43,11 @@
                     </select>
                 </div>
             @endif
-
-            <!-- Preserve extra query params -->
-            @foreach (request()->except(['month', 'user_id']) as $key => $value)
-                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-            @endforeach
-
             <div class="col-md-4 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </div>
     </form>
-
     @if (request()->query('user_id'))
         <div class="row gy-3 mb-10">
             <!-- Total Attendance Chart (Donut Chart) -->
