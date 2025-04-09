@@ -240,7 +240,7 @@ class AttendanceController extends Controller
         }])->get();
 
         // Attendance Logic
-        $totalPresent = $totalAbsent = $totalLate = $totalHalfDay = $totalEarlyOut = $totalATC = $deductions = 0;
+        $totalPresent = $totalAbsent = $totalLate = $totalHalfDay = $totalEarlyOut = $deductions = 0;
 
         if ($userId) {
             $user = $users->first();
@@ -256,7 +256,6 @@ class AttendanceController extends Controller
                     $attendance = $user->attendances->firstWhere('date', $date);
 
                     if ($attendance) {
-                        $totalATC++;
                         switch ($attendance->status) {
                             case 'present':
                                 $totalPresent++;
@@ -304,7 +303,6 @@ class AttendanceController extends Controller
             'totalLate',
             'totalHalfDay',
             'totalEarlyOut',
-            'totalATC',
             'deductions',
             'holidays'
         ));

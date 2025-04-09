@@ -62,17 +62,14 @@
                     {{ $totalAbsent }},
                     {{ $totalHalfDay }},
                     {{ $totalEarlyOut }},
-                    {{ $totalATC }},
                     {{ $deductions }}
                 ],
                 chart: {
                     type: 'donut',
                     height: 300
                 },
-                labels: ['Present', 'Late', 'Absent', 'Half-Day', 'Early Out', 'ATC (Attended Days)', 'Deductions'],
-                colors: ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#fd7e14', '#6f42c1',
-                    '#ff0000'
-                ], // New color for deductions
+                labels: ['Present', 'Late', 'Absent', 'Half-Day', 'Early Out', 'Deductions'],
+                colors: ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#fd7e14', '#ff0000'],
                 legend: {
                     position: 'bottom'
                 },
@@ -91,13 +88,7 @@
                                 value: {
                                     show: true
                                 },
-                                total: {
-                                    show: true,
-                                    label: 'Total',
-                                    formatter: function(w) {
-                                        return {{ $totalPresent + $totalLate + $totalAbsent + $totalHalfDay + $totalEarlyOut + $totalATC + $deductions }};
-                                    }
-                                }
+                              
                             }
                         }
                     }
