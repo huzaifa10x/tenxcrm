@@ -126,9 +126,21 @@
                 </thead>
                 <tbody>
                     @foreach ($projects as $project)
+                        @php
+                            $contractEndDate = Carbon\Carbon::parse($project->contract_start_date)->addMonths(
+                                $project->contract_term,
+                            );
+                            $isExpiringSoon =
+                                $contractEndDate->isBefore(Carbon\Carbon::now()->addMonths(2)) &&
+                                $contractEndDate->isAfter(Carbon\Carbon::now());
+                        @endphp
                         <tr>
                             <td>{{ $project->id }}</td>
-                            <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a></td>
+                            <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a> 
+                                @if ($isExpiringSoon)
+                                    <span class="text-white bg-danger-600 fs-7 border border-danger-600 radius-4 px-8 py-4 text-sm line-height-1 fw-medium">Expiring soon!</span>
+                                @endif
+                            </td>
                             <td>{{ $project->project_type }}</td>
                             <td>
                                 @if ($userPermissions->contains('can update project status'))
