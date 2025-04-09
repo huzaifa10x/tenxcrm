@@ -50,17 +50,11 @@
                             <th>Monthly Revenue (w/o VAT)</th>
                         </tr>
                     </thead>
-                    @php
-                        $startOfLastMonth = \Carbon\Carbon::now()->subMonth()->startOfMonth();
-                        $endOfThisMonth = \Carbon\Carbon::now()->endOfMonth();
-                    @endphp
-
                     <tbody>
-                        @foreach ($projects->where('status', 'Current')->filter(function ($project) use ($startOfLastMonth, $endOfThisMonth) {
-        return $project->contract_start_date && \Carbon\Carbon::parse($project->contract_start_date)->between($startOfLastMonth, $endOfThisMonth);
-    }) as $project)
+                        @foreach ($projects->whereIn('status', ['Current']) as $project)
                             <tr>
-                                <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a></td>
+                                <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a>
+                                </td>
                                 <td>{{ $project->project_type }}</td>
                                 <td>{{ $project->contract_value }}</td>
                                 <td>{{ $project->contract_start_date ?? '' }}</td>
@@ -70,7 +64,6 @@
                             </tr>
                         @endforeach
                     </tbody>
-
                 </table>
             </div>
         </div>
