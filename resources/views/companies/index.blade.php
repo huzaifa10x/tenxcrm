@@ -5,8 +5,10 @@
 
     <div class="card basic-data-table">
         @if ($userPermissions->contains('can manage companies'))
-            <div class="card-header">
+            <div class="card-header d-flex align-items-center gap-10">
                 <a class="btn btn-outline-primary" href="{{ route('companies.create') }}">Create New Company</a>
+                <a class="btn btn-outline-primary-600" href="{{ route('companies.index', ['sort_by' => 'name', 'sort_order' => 'asc']) }}">(Asc)</a>
+                <a class="btn btn-outline-primary-800" href="{{ route('companies.index', ['sort_by' => 'name', 'sort_order' => 'desc']) }}">(Desc)</a>
             </div>
         @endif
         <div class="card-body table-responsive">

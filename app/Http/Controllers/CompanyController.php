@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\Validator;
 
 class CompanyController extends Controller
 {
-    // List all companies
-    public function index()
+    public function index(Request $request)
     {
-        $companies = Company::paginate(15);
+        $sortBy = $request->get('sort_by', 'name'); // Default to 'name'
+        $sortOrder = $request->get('sort_order', 'asc'); // Default to ascending
+
+        $companies = Company::orderBy($sortBy, $sortOrder)->paginate(15);
         return view('companies.index', compact('companies'));
     }
 
