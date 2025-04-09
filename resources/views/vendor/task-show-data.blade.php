@@ -775,7 +775,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form id="uploadTaskAttachmentsForm" enctype="multipart/form-data" style="display: none">
+                <form id="uploadTaskAttachmentsForm" class="mb-3" enctype="multipart/form-data" style="display: none">
                     @csrf
                     <input type="hidden" name="task_id" value="">
                     <div class="mb-3">
