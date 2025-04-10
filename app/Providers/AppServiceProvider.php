@@ -39,9 +39,10 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
             });
         }
-        Carbon::setTestNow(Carbon::now());
+        // Carbon::setTestNow(Carbon::now());
         // Carbon::setTestNow(Carbon::now()->startOfMonth());
         // Carbon::setTestNow(Carbon::now()->addHour(12));
-        // Carbon::setTestNow(Carbon::now()->addDays(80));
+        // Carbon::setTestNow(Carbon::now()->addDays(0));
+        Carbon::setTestNow(Carbon::now()->addMonth(8));
     }
 }

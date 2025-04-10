@@ -114,30 +114,24 @@
         <div id="taskAttachmentsDropzone" class="dropzone"></div>
     </div>
 
-    <!-- Repeat Task Checkbox -->
-    <div class="form-group">
-        <select name="repeat_task" id="repeat_task" class="form-control">
-            <option selected value="0">Not a recurring task</option>
-            <option value="1">Recurring task</option>
-        </select>
-    </div>
-
-    <!-- Repeat Every Dropdown -->
-    <div class="row" id="repeat_every_group" style="display: none;">
-        <div class="form-group">
-            <label for="repeat_every">Repeat Every</label>
-            <select id="repeat_every" name="repeat_every" class="form-control">
-                <option value="1">Every Hour</option>
-                <option value="24">Every Day</option>
-                <option value="168">Every Week</option>
-                <option value="720">Every Month</option>
-                <option value="8760">Every Year</option>
-            </select>
+    <div class="card">
+        <div class="card-header">
+            <label for="repeat_task">Repeat this task every</label>
+            <input type="checkbox" id="repeat_task" name="repeat_task" value="1">
         </div>
-        <div class="form-group">
-            <label for="repeat_count">Repeat Count <span class="fs-7">(leave blank if its
-                    infinite)</span></label>
-            <input type="number" name="repeat_count" class="form-control">
+        <div class="card-body" id="repeat_options" style="display: none;">
+            <div class="d-flex align-items-center gap-10 w-100">
+                <input type="number" name="count" id="count" class="form-control rounded w-100-px border"
+                    min="1" value="1">
+                <select name="repeat_every" id="repeat_every" class="w-auto rounded form-control border">
+                    <option value="week">Week</option>
+                    <option value="month">Month</option>
+                </select>
+                <input type="date" placeholder="start from" name="start_from" id="start_from"
+                    class="form-control w-auto rounded border">
+                <input placeholder="end date (optional):" type="date" name="end_date" id="end_date"
+                    class="form-control w-auto rounded border">
+            </div>
         </div>
     </div>
 
@@ -206,10 +200,8 @@
             }
 
         });
-
         $(document).ready(function() {
             let index = 1;
-
             $(".addKeyword").click(function() {
                 $("#keywordFields").append(`
                         <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
@@ -224,12 +216,10 @@
                     `);
                 index++;
             });
-
             $(document).on("click", ".remove-btn", function() {
                 $(this).parent().remove();
             });
         });
-
         $('#department_id').change(function() {
             let departmentName = $("#department_id option:selected").text();
             if (departmentName) {

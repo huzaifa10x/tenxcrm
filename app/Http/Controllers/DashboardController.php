@@ -2,11 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminTask;
+use App\Models\AmTask;
 use App\Models\Attendance;
 use App\Models\Automation;
+use App\Models\ContentTask;
+use App\Models\DesignTask;
+use App\Models\DevelopmentTask;
 use App\Models\GeneralSetting;
+use App\Models\OffsiteTask;
+use App\Models\OnsiteTask;
 use App\Models\Project;
+use App\Models\ProjectKeyword;
+use App\Models\RepeatingTask;
+use App\Models\SalesTask;
+use App\Models\SeoAdminTask;
 use App\Models\Task;
+use App\Models\TaskAttachment;
 use App\Models\TaskCompletion;
 use App\Models\User;
 use Carbon\Carbon;
@@ -21,6 +33,91 @@ class DashboardController extends Controller
         $extraData = [];
         $role = $user->roles->first()->name;
         $latestNotifications = $user->notifications()->latest()->take(5)->get();
+
+        $repeatingTasks = RepeatingTask::all();
+        $now = Carbon::now('Asia/Dubai');
+
+        foreach ($repeatingTasks as $repeatingTask) {
+            if ($repeatingTask->shouldRepeat()) {
+                // Calculate the next due date based on the repeat interval (week/month)
+                $nextDueDate = Carbon::parse($repeatingTask->start_from);
+
+                if ($repeatingTask->repeat_every == 'week') {
+                    $nextDueDate->addWeeks($repeatingTask->completed_repeats * $repeatingTask->count);
+                } elseif ($repeatingTask->repeat_every == 'month') {
+                    $nextDueDate->addMonths($repeatingTask->completed_repeats * $repeatingTask->count);
+                }
+
+                // Create a new recurring task
+                $newRecurringTask = Task::create([
+                    'is_automated' => 1,
+                    'title' => $repeatingTask->task->title,
+                    'description' => $repeatingTask->task->description,
+                    'project_id' => $repeatingTask->task->project_id,
+                    'department_id' => $repeatingTask->task->department_id,
+                    'created_by' => $repeatingTask->task->created_by,
+                    'assigned_to' => $repeatingTask->task->assigned_to,
+                    'priority' => $repeatingTask->task->priority,
+                    'type' => $repeatingTask->task->type,
+                    'status' => 'Todo',
+                    'due_date' => $nextDueDate,
+                    'start_date' => $nextDueDate,
+                    'repeat_task' => 0,
+                    'parent_task_id' => $repeatingTask->task->id,
+                ]);
+
+                // Attachments
+                if ($repeatingTask->task->attachments()->exists()) {
+                    foreach ($repeatingTask->task->attachments as $file) {
+                        TaskAttachment::create([
+                            'task_id' => $newRecurringTask->id,
+                            'file_path' => $file->file_path,
+                            'user_id' => auth()->id(),
+                            'original_name' => $file->original_name,
+                        ]);
+                    }
+                }
+
+                // Comments
+                if ($repeatingTask->task->comments()->exists()) {
+                    foreach ($repeatingTask->task->comments as $comment) {
+                        $newRecurringTask->comments()->create([
+                            'task_id' => $newRecurringTask->id,
+                            'user_id' => $comment->user_id,
+                            'comment' => $comment->comment,
+                        ]);
+                    }
+                }
+
+                // History
+                if ($repeatingTask->task->history()->exists()) {
+                    foreach ($repeatingTask->task->history as $history) {
+                        $newRecurringTask->history()->create([
+                            'task_id' => $newRecurringTask->id,
+                            'user_id' => $history->user_id,
+                            'action' => $history->action,
+                        ]);
+                    }
+                }
+
+                // Collaborators
+                if ($repeatingTask->task->collaborators()->exists()) {
+                    foreach ($repeatingTask->task->collaborators as $collaborator) {
+                        $newRecurringTask->collaborators()->create([
+                            'task_id' => $newRecurringTask->id,
+                            'user_id' => $collaborator->user_id,
+                        ]);
+                    }
+                }
+
+                // Handle specific task types
+                $this->createTaskTypeEntry($repeatingTask->task, $newRecurringTask->id);
+
+                // Update the completed repeats counter
+                $repeatingTask->completed_repeats += 1;
+                $repeatingTask->save();
+            }
+        }
 
         $settings = GeneralSetting::first();
 
@@ -280,6 +377,133 @@ class DashboardController extends Controller
                 $extraData
             ),
         ));
+    }
+
+    private function createTaskTypeEntry($task, $newTaskID)
+    {
+        // Get the related data based on the task type
+        $relatedData = null;
+        switch ($task->type) {
+            case 'CONTENT':
+                $relatedData = ContentTask::where('task_id', $task->id)->first();
+                break;
+            case 'ONSITE':
+                $relatedData = OnsiteTask::where('task_id', $task->id)->first();
+                break;
+            case 'OFFSITE':
+                $relatedData = OffsiteTask::where('task_id', $task->id)->first();
+                break;
+            case 'DESIGN':
+                $relatedData = DesignTask::where('task_id', $task->id)->first();
+                break;
+            case 'DEVELOPMENT':
+                $relatedData = DevelopmentTask::where('task_id', $task->id)->first();
+                break;
+            case 'AM':
+                $relatedData = AmTask::where('task_id', $task->id)->first();
+                break;
+            case 'ADMIN':
+                $relatedData = AdminTask::where('task_id', $task->id)->first();
+                break;
+            case 'SALES':
+                $relatedData = SalesTask::where('task_id', $task->id)->first();
+                break;
+            case 'SEO ADMIN':
+                $relatedData = SeoAdminTask::where('task_id', $task->id)->first();
+                break;
+            default:
+                // Handle default if necessary
+                $relatedData = null;
+                break;
+        }
+        // Now, create the related task type entry for the new task
+        switch ($task->type) {
+            case 'CONTENT':
+                ContentTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => $relatedData->sub_type,
+                    'number_of_pages' => $relatedData->number_of_pages,
+                    'no_of_words' => $relatedData->no_of_words,
+                    'closing_input' => $relatedData->closing_input,
+                ]);
+                break;
+
+            case 'ONSITE':
+                OnsiteTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => $relatedData->sub_type,
+                    'closing_input' => $relatedData->closing_input,
+                ]);
+                break;
+
+            case 'OFFSITE':
+                $offsiteTask = OffsiteTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => $relatedData->sub_type,
+                ]);
+
+                // If there are starting keywords, copy them to the new task
+                $startingKeywords = ProjectKeyword::where('task_id', $task->id)->where('type', 'starting')->get();
+                foreach ($startingKeywords as $data) {
+                    ProjectKeyword::create([
+                        'project_id' => $task->project_id,
+                        'task_id' => $newTaskID,
+                        'keyword' => $data->keyword,
+                        'url' => $data->url,
+                        'type' => 'starting',
+                    ]);
+                }
+                break;
+
+            case 'DESIGN':
+                DesignTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => $relatedData->sub_type,
+                    'input_number' => $relatedData->input_number,
+                    'closing_input' => $relatedData->closing_input,
+                ]);
+                break;
+
+            case 'DEVELOPMENT':
+                DevelopmentTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => $relatedData->sub_type,
+                    'closing_input' => $relatedData->closing_input,
+                ]);
+                break;
+
+            case 'AM':
+                AmTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => $relatedData->sub_type,
+                ]);
+                break;
+
+            case 'SEO ADMIN':
+                SeoAdminTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => 'ADHOC', // Assuming sub_type is 'ADHOC' for this case
+                ]);
+                break;
+
+            case 'ADMIN':
+                AdminTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => 'ADHOC', // Assuming sub_type is 'ADHOC' for this case
+                ]);
+                break;
+
+            case 'SALES':
+                SalesTask::create([
+                    'task_id' => $newTaskID,
+                    'sub_type' => 'ADHOC', // Assuming sub_type is 'ADHOC' for this case
+                ]);
+                break;
+
+            default:
+                // If no task type is matched, you can log an error or handle it differently
+                break;
+        }
     }
 
     public function filterAttendance(Request $request)

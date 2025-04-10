@@ -241,8 +241,6 @@ class TaskController extends Controller
                 'repeat_task' => $request->repeat_task ?? false,
             ]);
 
-            $kwUrls = is_string($request->kw_url) ? json_decode($request->kw_url, true) : $request->kw_url;
-
             switch ($request->type) {
                 case 'CONTENT':
                     ContentTask::create([
@@ -342,15 +340,18 @@ class TaskController extends Controller
             }
 
             if ($request->has('repeat_task') && $request->repeat_task) {
-                $repeatEvery = (int)$request->repeat_every;
-                $repeat_count = (int)$request->repeat_count;
-                $nextRunAt = Carbon::now()->addHours($repeatEvery);
+                $repeatEvery = $request->repeat_every;
+                $count = $request->count;
+                $startFrom = $request->start_from;
+                $endDate = $request->end_date;
 
                 RepeatingTask::create([
                     'task_id' => $task->id,
                     'repeat_every' => $repeatEvery,
-                    'next_run_at' => $nextRunAt,
-                    'repeat_count' => $repeat_count ? $repeat_count : null,
+                    'count' => $count,
+                    'start_from' => $startFrom,
+                    'end_date' => $endDate,
+                    'completed_repeats' => 0,
                 ]);
             }
 
@@ -711,27 +712,29 @@ class TaskController extends Controller
             ]);
             foreach ($task->attachments as $attachment) {
                 $newContentApprovalTask->attachments()->create([
-                    'task_id' => $attachment->file_path,
                     'file_path' => $attachment->file_path,
+                    'file_type' => $attachment->getClientMimeType(),
+                    'original_name' => $attachment->getClientOriginalName(),
+                    'user_id' => auth()->id(),
                 ]);
             }
             foreach ($task->comments as $comment) {
                 $newContentApprovalTask->comments()->create([
-                    'task_id' => $comment->task_id,
+                    'task_id' => $newContentApprovalTask->id,
                     'user_id' => $comment->user_id,
                     'comment' => $comment->comment,
                 ]);
             }
             foreach ($task->history as $history) {
                 $newContentApprovalTask->history()->create([
-                    'task_id' => $history->task_id,
+                    'task_id' => $newContentApprovalTask->id,
                     'user_id' => $history->user_id,
                     'action' => $history->action,
                 ]);
             }
             foreach ($task->collaborators as $collaborator) {
                 $newContentApprovalTask->collaborators()->create([
-                    'task_id' => $collaborator->task_id,
+                    'task_id' => $newContentApprovalTask->id,
                     'user_id' => $collaborator->user_id,
                 ]);
             }

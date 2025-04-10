@@ -72,7 +72,9 @@
         </div>
     </div>
     <div class="row mb-10 gy-3">
-        @if (auth()->user()->hasRole('ADMIN') || route('tasks.assigned.index') == url()->current()||$userPermissions->contains('can view all tasks'))
+        @if (auth()->user()->hasRole('ADMIN') ||
+                route('tasks.assigned.index') == url()->current() ||
+                $userPermissions->contains('can view all tasks'))
             <div class="col-lg-4">
                 <select id="taskType" class="form-select">
                     <option value="" disabled selected>Filter by task type</option>
@@ -257,11 +259,16 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($tasks->where('status', $status) as $task)
+                                            @foreach ($tasks->where('status', $status)->where('repeat_task', '0') as $task)
                                                 <tr onclick="loadTaskDetails({{ $task->id }})">
                                                     <td>{{ $task->id }}</td>
                                                     <td><a target="_blank"
-                                                            href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title ?? 'N/A' }}</a>
+                                                            href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title ?? 'N/A' }}
+                                                            @if ($task->is_automated)
+                                                                <span
+                                                                    class="text-white bg-danger-600 fs-7 border border-danger-600 radius-4 px-8 py-4 text-sm line-height-1 fw-medium">automated</span>
+                                                            @endif
+                                                        </a>
                                                     </td>
                                                     <td>
                                                         <a data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
@@ -402,14 +409,13 @@
         });
     </script>
     <script>
-        $(document).ready(function() {
-            $('#repeat_task').change(function() {
-                if ($(this).val() == 1) {
-                    $('#repeat_every_group').slideDown();
-                } else {
-                    $('#repeat_every_group').slideUp();
-                }
-            });
+        document.getElementById('repeat_task').addEventListener('change', function() {
+            var repeatOptions = document.getElementById('repeat_options');
+            if (this.checked) {
+                repeatOptions.style.display = 'block';
+            } else {
+                repeatOptions.style.display = 'none';
+            }
         });
     </script>
     <script>

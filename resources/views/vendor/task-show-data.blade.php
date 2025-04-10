@@ -577,6 +577,11 @@
                 <a href="{{ route('projects.show', $task->project->id) }}"
                     class="btn btn-success btn-sm fs-7"><iconify-icon icon="majesticons:eye-line"
                         class="icon text-xl"></iconify-icon></a>
+                @if ($task->repeatingTask)
+                    <span class="fs-7 badge btn btn-danger rounded mt-1">Repeating
+                        Every {{ $task->repeatingTask->count }}
+                        {{ $task->repeatingTask->repeat_every }}</span>
+                @endif
             </div>
         @else
             <a href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }} -
@@ -699,6 +704,10 @@
                     Repeat</button>
             @endif
         @endif
+        @if ($task->parent_task_id)
+            <a href="{{ route('tasks.show', $task->parent_task_id) }}" class="btn btn-sm fs-7 btn-success">Parent
+                Task</a>
+        @endif
     </div>
 </div>
 <div class="row gy-3 mb-10">
@@ -775,7 +784,8 @@
                 </div>
             </div>
             <div class="card-body">
-                <form id="uploadTaskAttachmentsForm" class="mb-3" enctype="multipart/form-data" style="display: none">
+                <form id="uploadTaskAttachmentsForm" class="mb-3" enctype="multipart/form-data"
+                    style="display: none">
                     @csrf
                     <input type="hidden" name="task_id" value="">
                     <div class="mb-3">
@@ -971,8 +981,8 @@
                 <input type="hidden" name="type" value="starting">
                 <div class="keywordFields">
                     <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
-                        <input class="form-control" type="text" name="keywords[0][keyword]" placeholder="Keyword"
-                            required>
+                        <input class="form-control" type="text" name="keywords[0][keyword]"
+                            placeholder="Keyword" required>
                         <input class="form-control" type="text" name="keywords[0][url]" placeholder="URL"
                             required>
                         <button type="button"
