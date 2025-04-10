@@ -39,6 +39,7 @@ class ProjectController extends Controller
         // Initialize counts arrays
         $statusCounts = [];
         $typeCounts   = [];
+        $extraData = [];
 
         if ($accountManagerId) {
             $query->whereHas('accountManagers', function ($q) use ($accountManagerId) {
@@ -59,6 +60,31 @@ class ProjectController extends Controller
                 ->groupBy('project_type')
                 ->pluck('count', 'project_type');
             $projects = $query->paginate(10)->withQueryString();
+
+            $projects = Project::whereHas('accountManagers', function ($query) use ($accountManagerId) {
+                $query->where('user_id', $accountManagerId);
+            })->get();
+
+            $currentPortfolio = Project::whereHas('accountManagers', function ($query) use ($accountManagerId) {
+                $query->where('user_id', $accountManagerId);
+            })->where("status", "Current")
+                ->selectRaw("SUM(contract_value / NULLIF(contract_term, 0)) as total")
+                ->value("total");
+
+            $newSell = Project::whereHas('salesManagers', function ($query) use ($accountManagerId) {
+                $query->where('user_id', $accountManagerId);
+            })
+                ->where('status', 'Current')
+                ->whereBetween('contract_start_date', [
+                    Carbon::now()->subMonth()->startOfMonth(),
+                    Carbon::now()->endOfMonth(),
+                ])->selectRaw('SUM(contract_value / NULLIF(contract_term, 0)) as total')
+                ->value('total') ?? 0;
+
+            $extraData += [
+                'currentPortfolio',
+                'newSell',
+            ];
         }
         if ($salesManagerId) {
             $query->whereHas('salesManagers', function ($q) use ($salesManagerId) {
@@ -72,8 +98,7 @@ class ProjectController extends Controller
             ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))
         ) {
             $projects = $query->where('project_type', $category)->paginate(10)->withQueryString();
-        }
-        else if ($user->hasPermission('can view all projects')) {
+        } else if ($user->hasPermission('can view all projects')) {
             $projects = $query->paginate(10)->withQueryString();
         }
         // Restricted to user's own or related projects
@@ -88,7 +113,7 @@ class ProjectController extends Controller
             })->paginate(10)->withQueryString();
         }
 
-        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users'));
+        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users', $extraData));
     }
 
     // Show the form for creating a new resource.

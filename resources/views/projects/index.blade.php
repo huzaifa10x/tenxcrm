@@ -97,6 +97,60 @@
                         @endforeach
                     </div>
                 </div>
+                <div class="row gy-3 my-10">
+                    <div class="col-xxl-3 col-sm-6">
+                        <div class="card p-3 shadow-2 radius-8 h-100 gradient-deep-two-1 border border-white">
+                            <div class="card-body p-0">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
+                                    <div class="d-flex align-items-center gap-10">
+                                        <span
+                                            class="mb-0 w-48-px h-48-px bg-cyan-600 flex-shrink-0 text-white d-flex justify-content-center align-items-center rounded-circle h6 mb-0">
+                                            <img src="{{ asset('/images/home-eleven/icons/home-eleven-icon1.svg') }}"
+                                                alt="">
+                                        </span>
+                                        <div>
+                                            <span class="fw-medium text-secondary-light text-md">Current Portfolio /
+                                                MO</span>
+                                            <h6 class="fw-semibold mt-2">{{ number_format($currentPortfolio, 2) }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p
+                                    class="text-sm mb-0 d-flex align-items-center flex-wrap gap-12 mt-12 text-secondary-light">
+                                    <span
+                                        class="bg-success-focus px-6 py-2 rounded-2 fw-medium text-success-main text-sm d-flex align-items-center gap-1">
+                                        <i class="ri-arrow-right-up-line"></i> 00
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-3 col-sm-6">
+                        <div class="card p-3 shadow-2 radius-8 h-100 gradient-deep-two-4 border border-white">
+                            <div class="card-body p-0">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
+                                    <div class="d-flex align-items-center gap-10">
+                                        <span
+                                            class="mb-0 w-48-px h-48-px bg-success-600 flex-shrink-0 text-white d-flex justify-content-center align-items-center rounded-circle h6 mb-0">
+                                            <img src="{{ asset('/images/home-eleven/icons/home-eleven-icon4.svg') }}"
+                                                alt="">
+                                        </span>
+                                        <div>
+                                            <span class="fw-medium text-secondary-light text-md">New / Renew /
+                                                UpSell</span>
+                                            <h6 class="fw-semibold mt-2">{{ number_format($newSell, 2) }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p
+                                    class="text-sm mb-0 d-flex align-items-center flex-wrap gap-12 mt-12 text-secondary-light">
+                                    <span
+                                        class="bg-success-focus px-6 py-2 rounded-2 fw-medium text-success-main text-sm d-flex align-items-center gap-1">
+                                        <i class="ri-arrow-right-up-line"></i>00
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endif
         </div>
         <style>
@@ -136,9 +190,11 @@
                         @endphp
                         <tr>
                             <td>{{ $project->id }}</td>
-                            <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a> 
+                            <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a>
                                 @if ($isExpiringSoon)
-                                    <span class="text-white bg-danger-600 fs-7 border border-danger-600 radius-4 px-8 py-4 text-sm line-height-1 fw-medium">Expiring soon!</span>
+                                    <span
+                                        class="text-white bg-danger-600 fs-7 border border-danger-600 radius-4 px-8 py-4 text-sm line-height-1 fw-medium">Expiring
+                                        soon!</span>
                                 @endif
                             </td>
                             <td>{{ $project->project_type }}</td>
