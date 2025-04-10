@@ -114,25 +114,8 @@
         <div id="taskAttachmentsDropzone" class="dropzone"></div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <label for="repeat_task">Repeat this task every</label>
-            <input type="checkbox" id="repeat_task" name="repeat_task" value="1">
-        </div>
-        <div class="card-body" id="repeat_options" style="display: none;">
-            <div class="d-flex align-items-center gap-10 w-100">
-                <input type="number" name="count" id="count" class="form-control rounded w-100-px border"
-                    min="1" value="1">
-                <select name="repeat_every" id="repeat_every" class="w-auto rounded form-control border">
-                    <option value="week">Week</option>
-                    <option value="month">Month</option>
-                </select>
-                <input type="date" placeholder="start from" name="start_from" id="start_from"
-                    class="form-control w-auto rounded border">
-                <input placeholder="end date (optional):" type="date" name="end_date" id="end_date"
-                    class="form-control w-auto rounded border">
-            </div>
-        </div>
+    <div class="card" id="repeat_options">
+
     </div>
 
     <script>

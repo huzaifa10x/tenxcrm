@@ -1,5 +1,5 @@
 @if ($paginator->hasPages())
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-24">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 my-24">
         <span>Showing {{ $paginator->firstItem() }} to {{ $paginator->lastItem() }} of {{ $paginator->total() }}
             entries</span>
         <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">

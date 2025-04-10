@@ -91,7 +91,7 @@
             </button>
         </li>
     </ul>
-    <a href="{{ route('tasks.board.index') }}"
+    <a href="{{ route('tasks.index') }}"
         class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
         Tasks
         <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>

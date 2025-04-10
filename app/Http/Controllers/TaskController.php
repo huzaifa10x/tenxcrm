@@ -40,9 +40,77 @@ use Illuminate\Support\Str;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return redirect()->route('tasks.board.index');
+        $user = auth()->user();
+        $projects = Project::all();
+        $users = User::all();
+        $departments = Role::all();
+
+        // Determine task query based on the 'type' parameter
+        $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks();
+
+        // Handle different task types based on the 'type' query parameter
+        if ($request->has('type')) {
+            $type = $request->input('type');
+
+            switch ($type) {
+                case 'task-created-by-me':
+                    // Tasks created by the user
+                    $taskQuery->where('created_by', $user->id);
+                    break;
+
+                case 'where-im-collaborator':
+                    // Tasks where the user is a collaborator
+                    $taskQuery->whereHas('collaborators', function ($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    });
+                    break;
+
+                case 'assigned-to-me':
+                    // Tasks assigned to the user
+                    $taskQuery->where('assigned_to', $user->id);
+                    break;
+
+                case 'all-tasks':
+                    // Tasks accessible to admins or users with 'can view all tasks' permission
+                    if (!$user->hasPermission('can view all tasks')) {
+                        abort(403, 'You do not have permission to view all tasks.');
+                    }
+                    break;
+
+                default:
+                    $taskQuery->where('assigned_to', $user->id);
+                    break;
+            }
+        } else {
+            // If no 'type' is provided, you can default to showing tasks assigned to the user
+            $taskQuery->where('assigned_to', $user->id);
+        }
+
+        // Apply additional filters based on other query parameters
+        if ($request->has('start_date')) {
+            $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
+        }
+        if ($request->has('end_date')) {
+            $taskQuery->whereDate('created_at', '<=', $request->input('end_date'));
+        }
+        if ($request->has('user_id')) {
+            $taskQuery->where('assigned_to', $request->input('user_id'));
+        }
+        if ($request->has('assigned_from')) {
+            $taskQuery->where('created_by', $request->input('assigned_from'));
+        }
+        if ($request->has('project_id')) {
+            $taskQuery->where('project_id', $request->input('project_id'));
+        }
+
+        // Fetch tasks
+        // $tasks = $taskQuery->get();
+        $tasks = $taskQuery->paginate(10);
+        $tasks->appends($request->query());
+
+        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
     public function search(Request $request)
     {
@@ -76,152 +144,12 @@ class TaskController extends Controller
             ];
         }));
     }
-    public function boardView(Request $request)
-    {
-        $user = auth()->user();
-        $projects = Project::all();
-        $users = User::all();
-        $departments = Role::all();
-        $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks();
-        if ($request->has('type')) {
-            $request->validate([
-                'type' => 'in:CONTENT,ONSITE,TECH MANAGER,OFFSITE,DESIGN,DEVELOPMENT,AM,SEO ADMIN,ADMIN,SALES MANAGER,SALES,ADHOC,SOCIAL MEDIA MANAGER'
-            ]);
-            $taskQuery->where('type', $request->input('type'));
-        }
-        if ($request->has('user_id')) {
-            $taskQuery->where('assigned_to', $request->input('user_id'));
-        }
-        if ($request->has('assigned_from')) {
-            $taskQuery->where('created_by', $request->input('assigned_from'));
-        }
-        if ($request->has('project_id')) {
-            $taskQuery->where('project_id', $request->input('project_id'));
-        }
-        if ($request->has('start_date')) {
-            $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
-        }
-        if ($request->has('end_date')) {
-            $taskQuery->whereDate('created_at', '<=', $request->input('end_date'));
-        }
-        if (!$user->hasPermission('can view all tasks')) {
-            $taskQuery->where('assigned_to', $user->id);
-        }
-        $taskCounts = Task::selectRaw('type, COUNT(*) as count')
-            ->groupBy('type')
-            ->pluck('count', 'type')
-            ->toArray();
-
-        $completedTaskCounts = Task::where('status', 'completed')
-            ->selectRaw('type, COUNT(*) as count')
-            ->groupBy('type')
-            ->pluck('count', 'type')
-            ->toArray();
-
-        $tasks = $taskQuery->get();
-        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-    }
-    public function assignedTasks(Request $request)
-    {
-        $user = auth()->user();
-        $projects = Project::all();
-        $users = User::all();
-        $departments = Role::all();
-        $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->where('created_by', $user->id)->visibleTasks();
-        if ($request->has('start_date')) {
-            $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
-        }
-        if ($request->has('end_date')) {
-            $taskQuery->whereDate('created_at', '<=', $request->input('end_date'));
-        }
-        if ($request->has('type')) {
-            $request->validate([
-                'type' => 'in:CONTENT,ONSITE,TECH MANAGER,OFFSITE,DESIGN,DEVELOPMENT,AM,SEO ADMIN,ADMIN,SALES MANAGER,SALES,ADHOC,SOCIAL MEDIA MANAGER'
-            ]);
-            $taskQuery->where('type', $request->input('type'));
-        }
-        if ($request->has('user_id')) {
-            $taskQuery->where('assigned_to', $request->input('user_id'));
-        }
-        if ($request->has('assigned_from')) {
-            $taskQuery->where('created_by', $request->input('assigned_from'));
-        }
-        if ($request->has('project_id')) {
-            $taskQuery->where('project_id', $request->input('project_id'));
-        }
-        $tasks = $taskQuery->get();
-        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-    }
-    public function formeTasks(Request $request)
-    {
-        $user = auth()->user();
-        $projects = Project::all();
-        $users = User::all();
-        $departments = Role::all();
-        $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->where('assigned_to', $user->id)->visibleTasks();
-        if ($request->has('start_date')) {
-            $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
-        }
-        if ($request->has('end_date')) {
-            $taskQuery->whereDate('created_at', '<=', $request->input('end_date'));
-        }
-        if ($request->has('type')) {
-            $request->validate([
-                'type' => 'in:CONTENT,ONSITE,TECH MANAGER,OFFSITE,DESIGN,DEVELOPMENT,AM,SEO ADMIN,ADMIN,SALES MANAGER,SALES,ADHOC,SOCIAL MEDIA MANAGER'
-            ]);
-            $taskQuery->where('type', $request->input('type'));
-        }
-        if ($request->has('user_id')) {
-            $taskQuery->where('assigned_to', $request->input('user_id'));
-        }
-        if ($request->has('assigned_from')) {
-            $taskQuery->where('created_by', $request->input('assigned_from'));
-        }
-        if ($request->has('project_id')) {
-            $taskQuery->where('project_id', $request->input('project_id'));
-        }
-        $tasks = $taskQuery->get();
-        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-    }
-    public function collaboratedTasks(Request $request)
-    {
-        $user = auth()->user();
-        $projects = Project::all();
-        $users = User::all();
-        $departments = Role::all();
-        $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->whereHas('collaborators', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->visibleTasks();
-        if ($request->has('start_date')) {
-            $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
-        }
-        if ($request->has('end_date')) {
-            $taskQuery->whereDate('created_at', '<=', $request->input('end_date'));
-        }
-        if ($request->has('type')) {
-            $request->validate([
-                'type' => 'in:CONTENT,ONSITE,TECH MANAGER,OFFSITE,DESIGN,DEVELOPMENT,AM,SEO ADMIN,ADMIN,SALES MANAGER,SALES,ADHOC,SOCIAL MEDIA MANAGER'
-            ]);
-            $taskQuery->where('type', $request->input('type'));
-        }
-        if ($request->has('user_id')) {
-            $taskQuery->where('assigned_to', $request->input('user_id'));
-        }
-        if ($request->has('assigned_from')) {
-            $taskQuery->where('created_by', $request->input('assigned_from'));
-        }
-        if ($request->has('project_id')) {
-            $taskQuery->where('project_id', $request->input('project_id'));
-        }
-        $tasks = $taskQuery->get();
-        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
-    }
     public function create()
     {
         $projects = Project::all();
         $users = User::all();
         $departments = Role::all();
-        return redirect()->route('tasks.board.index');
+        return redirect()->route('tasks.index');
     }
     public function store(Request $request)
     {
@@ -432,12 +360,12 @@ class TaskController extends Controller
     public function showTask($id)
     {
         session()->flash('open_task_id', $id);
-        return redirect()->route('tasks.board.index');
+        return redirect()->route('tasks.index');
     }
     public function destroy(Task $task)
     {
         $user = User::find($task->assigned_to);
-        $url = route('tasks.board.index');
+        $url = route('tasks.index');
         $user->notify(new CustomNotification("Task deleted by " . auth()->user()->name, $task->title . " deleted", $url));
         $task->delete();
         return redirect()->back()->with('success', 'Task deleted successfully!');
@@ -512,7 +440,6 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Task status updated successfully']);
     }
-
     public function deleteAttachment(TaskAttachment $attachment)
     {
         Storage::disk('public')->delete($attachment->file_path);
@@ -604,36 +531,6 @@ class TaskController extends Controller
 
         return response()->json([
             "message" => ucfirst($request->field) . " updated successfully!"
-        ]);
-    }
-    public function disableRepeating(Task $task)
-    {
-        $task->update(['repeat_task' => 0]);
-
-        TaskHistory::create([
-            'task_id' => $task->id,
-            'user_id' => auth()->user()->id,
-            'action' => auth()->user()->name . " has been stopped repeating of this task",
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Task repeating has been disabled.'
-        ]);
-    }
-    public function enableRepeating(Task $task)
-    {
-        $task->update(['repeat_task' => 1]);
-
-        TaskHistory::create([
-            'task_id' => $task->id,
-            'user_id' => auth()->user()->id,
-            'action' => auth()->user()->name . " has been start repeating of this task",
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Task repeating has been enabled.'
         ]);
     }
     public function completeTask(Request $request)

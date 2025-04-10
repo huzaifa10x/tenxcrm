@@ -89,7 +89,6 @@
 
                             updateTime();
                         </script>
-
                     </div>
                 </div>
                 <div class="col-auto px-1">

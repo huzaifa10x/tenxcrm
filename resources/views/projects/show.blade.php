@@ -2,7 +2,6 @@
     <x-slot name="header">
         {{ __('Project - ' . $project->title) }}
     </x-slot>
-
     <div class="card border">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-10">
             <div class="d-flex align-items-center gap-3">
@@ -52,6 +51,17 @@
                         <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
                     </a>
                 @endif
+                <button title="Create Recurring Task" data-bs-toggle="modal" data-recurring="1"
+                    data-bs-target="#taskCreateModal"
+                    class="bg-danger-focus text-danger-600 taskCreateModal bg-hover-danger-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                        <path
+                            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                        <path fill-rule="evenodd"
+                            d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                    </svg>
+                </button>
             </div>
             @php
                 $taskTypes = ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'ADHOC'];
@@ -297,7 +307,8 @@
                                 <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
-                                        <span class="text-secondary-light">Total Contract Value <span class="fs-7">(w/o VAT - in AED)</span></span>
+                                        <span class="text-secondary-light">Total Contract Value <span
+                                                class="fs-7">(w/o VAT - in AED)</span></span>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span
@@ -598,7 +609,7 @@
                                         </button>
                                     </li>
                                 </ul>
-                                <a href="{{ route('tasks.board.index') }}"
+                                <a href="{{ route('tasks.index') }}"
                                     class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
                                     Tasks
                                     <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
@@ -1184,7 +1195,37 @@
             </div>
         </div>
     </div>
+
     <script>
+        $(document).on('click', '.taskCreateModal', function() {
+            if ($(this).data('recurring')) {
+                $('#repeat_options').html(
+                    `
+                    <div class="card-header">
+                        <label for="repeat_task">Repeat this task every</label>
+                        <input type="checkbox" checked id="repeat_task" name="repeat_task" value="1">
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-10 w-100">
+                            <input type="number" name="count" id="count" class="form-control rounded w-100-px border"
+                                min="1" value="1">
+                            <select name="repeat_every" id="repeat_every" class="w-auto rounded form-control border">
+                                <option value="week">Week</option>
+                                <option value="month">Month</option>
+                            </select>
+                            <label for="start_from" class="form-label">start from</label>
+                            <input type="date" placeholder="start from" name="start_from" id="start_from"
+                            class="form-control w-auto rounded border">
+                            <label for="end_date" class="form-label">end date (optional)</label>
+                            <input placeholder="end date (optional):" type="date" name="end_date" id="end_date"
+                                class="form-control w-auto rounded border">
+                        </div>
+                    </div>
+                    `
+                );
+            }
+        })
+
         const projectId = "{{ $project->id }}";
         const fetchUrl = @json(route('project-notes.fetch', ['projectId' => $project->id]));
         const storeUrl = @json(route('project-notes.store'));
@@ -1201,7 +1242,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
@@ -1295,7 +1336,7 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    window.location.href = "{{ route('tasks.board.index') }}"
+                    window.location.href = "{{ route('tasks.index') }}"
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);

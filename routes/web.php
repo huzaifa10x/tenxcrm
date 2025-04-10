@@ -134,21 +134,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/projects/collaborators/{collaborator}', [ProjectCollaboratorController::class, 'destroy'])->name('project.collaborators.destroy');
 
     Route::resource('tasks', TaskController::class);
-    Route::get('tasks/board/index', [TaskController::class, 'boardView'])->name('tasks.board.index');
     Route::get('/tasks/search/index', [TaskController::class, 'search'])->name('tasks.search.index');
     Route::get('/tasks/{task}/attachments', [TaskController::class, 'jsonTaskAttachments'])->name('tasks.attachments.index');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
-
-    Route::get('/tasks/assigned/index', [TaskController::class, 'assignedTasks'])->name('tasks.assigned.index');
 
     Route::get('/tasks/clear-session', function () {
         session()->forget('open_task_id');
         return response()->json(['status' => 'cleared']);
     })->name('tasks.clearSession');
-
-    Route::get('/tasks/forme/index', [TaskController::class, 'formeTasks'])->name('tasks.forme.index');
-
-    Route::get('/tasks/collaborated/index', [TaskController::class, 'collaboratedTasks'])->name('tasks.collaborated.index');
 
     Route::middleware('permission:can add task files')->group(function () {
         Route::post('/tasks/{task}/add-attachment', [TaskController::class, 'addAttachment'])->name('tasks.addAttachment');
@@ -165,8 +158,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::middleware('permission:can edit task')->group(function () {
         Route::post('/tasks/update/{id}', [TaskController::class, 'updateTaskAjax'])->name('tasks.update.json');
-        Route::post('/tasks/{task}/disable-repeating', [TaskController::class, 'disableRepeating'])->name('tasks.disableRepeating');
-        Route::post('/tasks/{task}/enable-repeating', [TaskController::class, 'enableRepeating'])->name('tasks.enableRepeating');
     });
     Route::middleware('permission:can remove offsite links')->group(function () {
         Route::delete('/project-keyword/{id}', [ProjectKeywordController::class, 'delete'])->name('project-keyword.delete');

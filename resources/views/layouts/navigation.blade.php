@@ -173,29 +173,30 @@
                 <ul class="sidebar-submenu">
                     @if ($userPermissions->contains('can view all tasks'))
                         <li>
-                            <a href="{{ route('tasks.board.index') }}">
+                            <a href="{{ route('tasks.index') }}?type=all-tasks">
                                 <span>All Tasks</span>
                             </a>
                         </li>
                     @endif
                     @if ($userPermissions->contains('can create tasks'))
                         <li>
-                            <a href="{{ route('tasks.assigned.index') }}">
+                            <a href="{{ route('tasks.index') }}?type=task-created-by-me">
                                 <span>Created by Me</span>
                             </a>
                         </li>
                     @endif
                     <li>
-                        <a href="{{ route('tasks.forme.index') }}">
+                        <a href="{{ route('tasks.index') }}?type=assigned-to-me">
                             <span>Tasks for Me</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('tasks.collaborated.index') }}">
+                        <a href="{{ route('tasks.index') }}?type=where-im-collaborator">
                             <span>Tasks I'm a Collaborator In</span>
                         </a>
                     </li>
                 </ul>
+
             </li>
             @if (auth()->user()->hasRole('ADMIN'))
                 <li>

@@ -73,7 +73,7 @@
     </div>
     <div class="row mb-10 gy-3">
         @if (auth()->user()->hasRole('ADMIN') ||
-                route('tasks.assigned.index') == url()->current() ||
+                route('tasks.index') == url()->current() ||
                 $userPermissions->contains('can view all tasks'))
             <div class="col-lg-4">
                 <select id="taskType" class="form-select">
@@ -148,6 +148,7 @@
     @endphp
     {{-- MAIN SCREEN --}}
     @if (request()->query('view_type') === 'board')
+        {{ $tasks->links('vendor.pagination.custom') }}
         <div class="overflow-x-auto scroll-sm pb-8">
             <div class="kanban-wrapper">
                 <div class="d-flex align-items-start gap-24" id="sortable-wrapper">
@@ -170,7 +171,7 @@
                                     <div class="connectedSortable ps-24 pt-24 pe-24 kanban-items"
                                         id="{{ strtolower(str_replace(' ', '-', $status)) }}"
                                         data-status="{{ $status }}">
-                                        @foreach ($tasks->where('status', $status) as $task)
+                                        @foreach ($tasks->where('status', $status)->where('repeat_task', '0') as $task)
                                             <div data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                                 aria-controls="offcanvasRight"
                                                 onclick="loadTaskDetails({{ $task->id }})"
@@ -214,6 +215,7 @@
             </div>
         </div>
     @else
+        {{ $tasks->links('vendor.pagination.custom') }}
         <div class="row gy-3 mb-10">
             <div class="col-lg-12">
                 <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
@@ -241,7 +243,7 @@
                     <div class="card-body p-0">
                         <div class="tab-content" id="task-tabContent">
                             @foreach (['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'] as $index => $status)
-                                <div style="max-height: 500px; overflow-y: auto;"
+                                <div style="max-height: 550px; overflow-y: auto;"
                                     class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}"
                                     id="{{ strtolower(str_replace(' ', '-', $status)) }}-task" role="tabpanel">
                                     <table class="table bordered-table mb-0">
@@ -250,7 +252,7 @@
                                                 <th>ID</th>
                                                 <th>Project</th>
                                                 <th>Title</th>
-                                                @if (route('tasks.assigned.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
+                                                @if (route('tasks.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
                                                     <th>Assigned To</th>
                                                 @endif
                                                 <th>Created By</th>
@@ -278,7 +280,7 @@
                                                             {{ $task->title }}
                                                         </a>
                                                     </td>
-                                                    @if (route('tasks.assigned.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
+                                                    @if (route('tasks.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
                                                         <td>{{ $task->assignedTo->name ?? 'N/A' }}</td>
                                                     @endif
                                                     <td>
@@ -399,7 +401,7 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    window.location.href = "{{ route('tasks.board.index') }}"
+                    window.location.href = "{{ route('tasks.index') }}"
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
@@ -408,16 +410,7 @@
             });
         });
     </script>
-    <script>
-        document.getElementById('repeat_task').addEventListener('change', function() {
-            var repeatOptions = document.getElementById('repeat_options');
-            if (this.checked) {
-                repeatOptions.style.display = 'block';
-            } else {
-                repeatOptions.style.display = 'none';
-            }
-        });
-    </script>
+
     <script>
         $(document).ready(function() {
             $(".kanban-items").sortable({
