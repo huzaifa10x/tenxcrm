@@ -1073,6 +1073,9 @@
         </div>
     </div>
 </div>
+<button class="btn-save-pulse btn btn-lg btn-success">
+    Save
+</button>
 
 <input type="hidden" id="taskId" value="{{ $task->id }}">
 <script>
@@ -1094,8 +1097,7 @@
             $(this).text('Show');
         }
     });
-</script>
-<script>
+
     function doComment() {
         let button = document.getElementById('add-commentt');
         let taskId = button.getAttribute('data-taskID');
@@ -1119,9 +1121,7 @@
             })
             .catch(error => console.error("Error:", error));
     }
-</script>
 
-<script>
     function fetchCollaborators(taskId) {
         $.get("{{ route('task.collaborators', ['task' => ':id']) }}".replace(':id', taskId), function(response) {
             $('#collaborators-list').empty();
@@ -1168,10 +1168,9 @@
             }
         });
     }
-    $(document).ready(() => {
-        fetchCollaborators("{{ $task->id }}");
-    });
     $(document).ready(function() {
+        fetchCollaborators("{{ $task->id }}");
+
         function loadStartingKwUrls() {
             $.ajax({
                 url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => $task->id]) }}',
@@ -1318,7 +1317,7 @@
                     setTimeout(() => {
                         $('.completion-anim-wrapper').fadeOut();
                         setTimeout(() => {
-                            window.location.reload();
+                            window.location.href = "{{ route('tasks.index') }}";
                         }, 1000);
                     }, 1000);
                 } else {
@@ -1603,7 +1602,6 @@
             updateTimestamps();
         });
     }
-    loadComments()
 
     function updateTimestamps() {
         document.querySelectorAll(".comment-time").forEach(element => {
@@ -1612,7 +1610,6 @@
         });
     }
     setInterval(updateTimestamps, 30000);
-
     $(document).on('click', '.delete-comment', function() {
         let commentId = $(this).data('id');
         $.ajax({
@@ -1637,7 +1634,6 @@
             }
         });
     }
-    loadTaskAttachments()
 
     function renderAttachments(attachments) {
         let html = '';
@@ -1743,6 +1739,18 @@
         }
     });
 
+    var saveBtnTimeout;
+    $(document).on('change input', 'select, input, textarea', function() {
+        clearTimeout(saveBtnTimeout);
+        saveBtnTimeout = setTimeout(() => {
+            $('.btn-save-pulse').fadeIn();
+        }, 200);
+    });
+
+    $(document).on('click', '.btn-save-pulse', function() {
+        $(this).fadeOut()
+    });
+
     function updateTaskField(element) {
         let allowEdit = {{ auth()->user()->hasPermission('can edit task') ? '1' : '0' }}
         let taskId = $("#taskId").val();
@@ -1770,7 +1778,6 @@
             toastr.error("Editing Not Allowed");
         }
     }
-
     $(document).on("change", ".task-status", function() {
         let taskId = "{{ $task->id }}";
         let updateUrl = "{{ route('tasks.updateStatus', ':id') }}".replace(':id', taskId);
@@ -1795,5 +1802,9 @@
                 toastr.error("Task status can't change!", "Error");
             }
         });
+    });
+    $(document).ready(function() {
+        loadComments()
+        loadTaskAttachments()
     });
 </script>
