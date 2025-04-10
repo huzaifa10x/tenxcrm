@@ -962,11 +962,11 @@
                                                     </div>
                                                 </div>
                                                 <div class="flex-align gap-12">
-                                                    <button type="button"
+                                                    {{-- <button type="button"
                                                         onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
                                                         class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-danger-100 text-danger-600 bg-hover-danger-600 text-hover-white text-md rounded-circle">
                                                         <i class="ri-delete-bin-5-line"></i>
-                                                    </button>
+                                                    </button> --}}
                                                     <a href="{{ $filePath }}" download
                                                         class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
                                                         <i class="ri-download-2-fill"></i>
