@@ -43,7 +43,12 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $projects = Project::all();
+        $projects = Project::where('created_by', $user->id)
+            ->orWhereHas('salesManagers', fn($q) => $q->where('user_id', $user->id))
+            ->orWhereHas('accountManagers', fn($q) => $q->where('user_id', $user->id))
+            ->orWhereHas('collaborators', fn($q) => $q->where('user_id', $user->id))
+            ->orWhereHas('techManagers', fn($q) => $q->where('user_id', $user->id))
+            ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id))->get();
         $users = User::all();
         $departments = Role::all();
 
