@@ -10,6 +10,7 @@ use App\Models\ContentTask;
 use App\Models\DesignTask;
 use App\Models\DevelopmentTask;
 use App\Models\GeneralSetting;
+use App\Models\Message;
 use App\Models\OffsiteTask;
 use App\Models\OnsiteTask;
 use App\Models\Project;
@@ -22,7 +23,9 @@ use App\Models\TaskAttachment;
 use App\Models\TaskCompletion;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -357,6 +360,13 @@ class DashboardController extends Controller
         } elseif ($role == 'ADMIN') {
             $this->assignMonthlyTasks();
             $this->contractRenewalCheck();
+            if (now()->isStartOfMonth()) {
+                $cacheKey = 'late_warnings_sent_' . now()->format('Y_m');
+                if (!Cache::has($cacheKey)) {
+                    $this->sendLateWarnings();
+                    Cache::put($cacheKey, true, now()->endOfDay());
+                }
+            }
         }
         return view('dashboard', array_merge(
             compact(
@@ -383,7 +393,6 @@ class DashboardController extends Controller
 
     private function createTaskTypeEntry($task, $newTaskID)
     {
-        // Get the related data based on the task type
         $relatedData = null;
         switch ($task->type) {
             case 'CONTENT':
@@ -418,7 +427,6 @@ class DashboardController extends Controller
                 $relatedData = null;
                 break;
         }
-        // Now, create the related task type entry for the new task
         switch ($task->type) {
             case 'CONTENT':
                 ContentTask::create([
@@ -443,8 +451,6 @@ class DashboardController extends Controller
                     'task_id' => $newTaskID,
                     'sub_type' => $relatedData->sub_type,
                 ]);
-
-                // If there are starting keywords, copy them to the new task
                 $startingKeywords = ProjectKeyword::where('task_id', $task->id)->where('type', 'starting')->get();
                 foreach ($startingKeywords as $data) {
                     ProjectKeyword::create([
@@ -524,6 +530,58 @@ class DashboardController extends Controller
         ]);
 
         return response()->json($response->json());
+    }
+    private function sendLateWarnings()
+    {
+        $apiKey = env('GROQ_API_KEY');
+        $adminId = 1;
+        $startDate = Carbon::now()->subMonths(2)->startOfMonth()->toDateString();
+        $endDate = Carbon::now()->endOfMonth()->toDateString();
+        $lateUsers = User::whereHas('attendances', function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('date', [$startDate, $endDate])
+                ->where('status', 'late');
+        })
+            ->with(['attendances' => function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate])
+                    ->where('status', 'late');
+            }])
+            ->get();
+        foreach ($lateUsers as $user) {
+            $lateCount = $user->attendances->count();
+            if ($lateCount > 1) {
+                $prompt = "User {$user->name} has been late {$lateCount} times in the last 2 months. Generate a professional, but firm warning message in English to motivate punctuality, Sign it off with 'Muhammad Ali, 10x Digital'.";
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $apiKey,
+                ])->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'llama3-70b-8192',
+                    'messages' => [
+                        ['role' => 'user', 'content' => $prompt]
+                    ]
+                ]);
+                $aiMessage = $response->json('choices.0.message.content') ?? 'You’ve received a late warning.';
+                Message::create([
+                    'sender_id' => $adminId,
+                    'receiver_id' => $user->id,
+                    'message' => $aiMessage,
+                ]);
+                DB::table('notifications')->insert([
+                    'id' => \Str::uuid(),
+                    'type' => \App\Notifications\CustomNotification::class,
+                    'notifiable_type' => \App\Models\User::class,
+                    'notifiable_id' => $user->id,
+                    'data' => json_encode([
+                        'title' => 'Late Warning Message',
+                        'message' => $aiMessage,
+                        'url' => route('messages.index'),
+                    ]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return response()->json(['status' => 'Late warnings sent successfully.']);
     }
     public function filterAttendance(Request $request)
     {
