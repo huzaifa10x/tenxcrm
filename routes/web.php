@@ -28,8 +28,10 @@ use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
-
 use Illuminate\Support\Facades\Route;
+
+Route::post('/groq-chat', [DashboardController::class, 'chat'])->name('groq.chat');
+
 Route::get('/', function () {
     return redirect()->route('login');
 });

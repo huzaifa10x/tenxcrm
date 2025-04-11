@@ -37,7 +37,6 @@ use App\Notifications\TaskCreatedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-
 class TaskController extends Controller
 {
     public function index(Request $request)

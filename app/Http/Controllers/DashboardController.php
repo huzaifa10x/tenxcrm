@@ -507,7 +507,24 @@ class DashboardController extends Controller
                 break;
         }
     }
+    public function chat(Request $request)
+    {
+        $prompt = $request->input('prompt');
 
+        $apiKey = env('GROQ_API_KEY'); // Keep your key safe in .env
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $apiKey,
+        ])->post('https://api.groq.com/openai/v1/chat/completions', [
+            'model' => 'llama3-70b-8192',
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ]
+        ]);
+
+        return response()->json($response->json());
+    }
     public function filterAttendance(Request $request)
     {
         $date = $request->date ?? Carbon::today()->toDateString();
