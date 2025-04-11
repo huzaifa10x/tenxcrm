@@ -148,7 +148,7 @@
     @endphp
     {{-- MAIN SCREEN --}}
     @if (request()->query('view_type') === 'board')
-        {{ $tasks->links('vendor.pagination.custom') }}
+        {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
         <div class="overflow-x-auto scroll-sm pb-8">
             <div class="kanban-wrapper">
                 <div class="d-flex align-items-start gap-24" id="sortable-wrapper">
@@ -215,7 +215,7 @@
             </div>
         </div>
     @else
-        {{ $tasks->links('vendor.pagination.custom') }}
+        {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
         <div class="row gy-3 mb-10">
             <div class="col-lg-12">
                 <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">

@@ -28,16 +28,10 @@ use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
-use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
-});
-
-Route::get('/live-time', function () {
-    return response()->json([
-        'time' => Carbon::now('Asia/Dubai')->format('H:i:s') // Current time in UAE timezone
-    ]);
 });
 
 Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');

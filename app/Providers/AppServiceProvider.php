@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Middleware\CheckPermission;
+use App\Services\ChatGPTService;
 use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\App;
+use OpenAI;
+use OpenAI\Client;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+     
     }
 
     /**

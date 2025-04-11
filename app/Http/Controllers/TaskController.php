@@ -111,9 +111,9 @@ class TaskController extends Controller
         }
 
         // Fetch tasks
-        // $tasks = $taskQuery->get();
-        $tasks = $taskQuery->paginate(10);
-        $tasks->appends($request->query());
+        $tasks = $taskQuery->get();
+        // $tasks = $taskQuery->paginate(10);
+        // $tasks->appends($request->query());
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
