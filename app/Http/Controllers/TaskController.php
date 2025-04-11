@@ -52,7 +52,6 @@ class TaskController extends Controller
         $users = User::all();
         $departments = Role::all();
 
-        // Determine task query based on the 'type' parameter
         $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks();
 
         // Handle different task types based on the 'type' query parameter
@@ -110,10 +109,7 @@ class TaskController extends Controller
             $taskQuery->where('project_id', $request->input('project_id'));
         }
 
-        // Fetch tasks
         $tasks = $taskQuery->get();
-        // $tasks = $taskQuery->paginate(10);
-        // $tasks->appends($request->query());
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
