@@ -50,44 +50,31 @@ class TaskController extends Controller
             ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id))->get();
         $users = User::all();
         $departments = Role::all();
-
         $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks();
-
-        // Handle different task types based on the 'type' query parameter
         if ($request->has('type')) {
             $type = $request->input('type');
-
             switch ($type) {
                 case 'task-created-by-me':
-                    // Tasks created by the user
                     $taskQuery->where('created_by', $user->id);
                     break;
-
                 case 'where-im-collaborator':
-                    // Tasks where the user is a collaborator
                     $taskQuery->whereHas('collaborators', function ($query) use ($user) {
                         $query->where('user_id', $user->id);
                     });
                     break;
-
                 case 'assigned-to-me':
-                    // Tasks assigned to the user
                     $taskQuery->where('assigned_to', $user->id);
                     break;
-
                 case 'all-tasks':
-                    // Tasks accessible to admins or users with 'can view all tasks' permission
                     if (!$user->hasPermission('can view all tasks')) {
                         abort(403, 'You do not have permission to view all tasks.');
                     }
                     break;
-
                 default:
                     $taskQuery->where('assigned_to', $user->id);
                     break;
             }
         } else {
-            // If no 'type' is provided, you can default to showing tasks assigned to the user
             $taskQuery->where('assigned_to', $user->id);
         }
 

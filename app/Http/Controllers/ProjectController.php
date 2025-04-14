@@ -26,17 +26,15 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $category = $request->query('projects-category');
-        $accountManagerId = $request->query('account_manager_id'); // new filter
-        $salesManagerId = $request->query('sales_manager_id'); // new filter
+        $accountManagerId = $request->query('account_manager_id');
+        $salesManagerId = $request->query('sales_manager_id');
         $user = auth()->user();
 
-        // Get all AM users for filter select (using a role slug or name, e.g. 'AM')
         $accountManagers = User::whereHas('roles', fn($q) => $q->where('name', 'AM'))->get();
         $users = User::all();
 
         $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins']);
 
-        // Initialize counts arrays
         $statusCounts = [];
         $typeCounts   = [];
         $extraData = [];

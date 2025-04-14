@@ -653,7 +653,7 @@
         </div>
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
             <label class="form-label fs-7 m-0" for="status">Status</label>
-            <select class="form-control fs-7 h-auto" onchange="updateTaskField(this)"
+            <select class="form-control fs-7 task-status h-auto" onchange="handleTaskStatusChange(this)"
                 data-task-id="{{ $task->id }}" required name="status">
                 <option {{ auth()->user()->hasPermission('can change task status') ? '' : 'disabled' }} value="Todo"
                     {{ $task->status == 'Todo' ? 'selected' : '' }}>Todo</option>
@@ -1778,15 +1778,17 @@
             toastr.error("Editing Not Allowed");
         }
     }
-    $(document).on("change", ".task-status", function() {
-        let taskId = "{{ $task->id }}";
+
+    function handleTaskStatusChange(element) {
+        let taskId = $(element).data("task-id");
         let updateUrl = "{{ route('tasks.updateStatus', ':id') }}".replace(':id', taskId);
-        let newStatus = $(this).val();
+        let newStatus = $(element).val();
+
         $.ajax({
             url: updateUrl,
             type: "POST",
             data: {
-                _token: $('meta[name="csrf-token"]').attr("content"), // CSRF Token
+                _token: $('meta[name="csrf-token"]').attr("content"),
                 status: newStatus,
                 task_id: taskId,
             },
@@ -1802,7 +1804,9 @@
                 toastr.error("Task status can't change!", "Error");
             }
         });
-    });
+    }
+
+
     $(document).ready(function() {
         loadComments()
         loadTaskAttachments()
