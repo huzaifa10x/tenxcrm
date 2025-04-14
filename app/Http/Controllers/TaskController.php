@@ -360,7 +360,7 @@ class TaskController extends Controller
     public function addAttachment(Request $request, Task $task)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,webp',
+            'file' => 'required|file',
         ]);
 
         $filePath = $request->file('file')->store('task_attachments', 'public');
@@ -447,7 +447,7 @@ class TaskController extends Controller
     {
         $request->validate([
             'attachments' => 'required|array',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,webp',
+            'attachments.*' => 'file',
         ]);
 
         $uploadedCount = 0;
@@ -527,7 +527,7 @@ class TaskController extends Controller
             'fields' => 'required|array',
             'fields.*.name' => 'required|string',
             'fields.*.value' => 'nullable|string',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,webp',
+            'file' => 'nullable|file',
         ]);
 
         $filePath = null;
