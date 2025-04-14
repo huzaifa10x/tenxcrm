@@ -140,7 +140,7 @@ class ProjectController extends Controller
             'contract_value' => 'required|numeric',
             'free_months' => 'nullable|integer',
             'contract_copy' => 'nullable|array',
-            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,webp',
+            'contract_copy.*' => 'file',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'handover_notes' => 'nullable|string',
             'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other',
@@ -334,7 +334,7 @@ class ProjectController extends Controller
             'contract_value' => 'required|numeric',
             'free_months' => 'nullable|integer',
             'contract_copy' => 'nullable|array',
-            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'contract_copy.*' => 'file',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'handover_notes' => 'nullable|string',
             'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other',
@@ -467,7 +467,7 @@ class ProjectController extends Controller
 
         $validator = Validator::make($request->all(), [
             'contract_copy' => 'required|array',
-            'contract_copy.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+            'contract_copy.*' => 'file',
         ]);
 
         if ($validator->fails()) {

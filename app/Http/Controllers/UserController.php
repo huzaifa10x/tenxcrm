@@ -112,7 +112,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'roles' => 'nullable|array',
-            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'img' => 'nullable|image',
         ]);
 
         // Handle image upload
