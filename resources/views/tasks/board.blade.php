@@ -385,10 +385,6 @@
         $('.task-submit').click(function(e) {
             $(this).attr('disabled', true);
             $(this).text('Saving...');
-            setTimeout(() => {
-                $(this).attr('disabled', false);
-                $(this).text('Submit');
-            }, 3000);
             e.preventDefault();
             var formData = new FormData($("#task-create-form")[0]);
             myDropzone.files.forEach(function(file) {
@@ -401,7 +397,10 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    window.location.href = "{{ route('tasks.index') }}"
+                    toastr.success('Task created successfully');
+                    setTimeout(() => {
+                        window.location.href = "{{ route('tasks.index') }}"
+                    }, 3000);
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
