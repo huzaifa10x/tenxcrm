@@ -20,6 +20,7 @@ class Task extends Model
         'priority',
         'type',
         'status',
+        'completed_date',
         'due_date',
         'start_date',
         'parent_task_id',
