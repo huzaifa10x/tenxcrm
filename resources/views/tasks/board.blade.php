@@ -266,18 +266,6 @@
                                                     <td>{{ $task->id }}</td>
                                                     <td><a target="_blank"
                                                             href="{{ route('projects.show', $task->project->id) }}">
-                                                            @php
-                                                                $priorityColor = match ($task->priority) {
-                                                                    'Low' => 'bg-success-600', // Green
-                                                                    'Medium' => 'bg-primary-600', // Blue
-                                                                    'High' => 'bg-warning-600', // Yellow
-                                                                    'Urgent' => 'bg-danger-600', // Red
-                                                                    default => 'bg-secondary-600', // Gray fallback
-                                                                };
-                                                            @endphp
-
-                                                            <span
-                                                                class="translate-middle-y rounded-pill {{ $priorityColor }} border-0 w-8-px h-8-px"></span>
 
                                                             {{ $task->project->title ?? 'N/A' }}
                                                             @if ($task->is_automated)
@@ -291,6 +279,17 @@
                                                             aria-controls="offcanvasRight"
                                                             onclick="loadTaskDetails({{ $task->id }})"
                                                             href="#">
+                                                            @php
+                                                                $priorityColor = match ($task->priority) {
+                                                                    'Low' => 'bg-success-600', // Green
+                                                                    'Medium' => 'bg-primary-600', // Blue
+                                                                    'High' => 'bg-warning-600', // Yellow
+                                                                    'Urgent' => 'bg-danger-600', // Red
+                                                                    default => 'bg-secondary-600', // Gray fallback
+                                                                };
+                                                            @endphp
+                                                            <span
+                                                                class="translate-middle-y rounded-pill {{ $priorityColor }} border-0 w-8-px h-8-px"></span>
                                                             {{ $task->title }}
                                                         </a>
                                                     </td>
