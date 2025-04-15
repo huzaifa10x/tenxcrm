@@ -71,7 +71,7 @@
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
                         <span id="live-time"
-                            class="badge text-sm fw-semibold rounded-pill bg-light-600 px-10 py-1 radius-4 text-dark fs-7">00:00</span> {{ \Carbon\Carbon::now()->format('d M, Y') }}
+                            class="badge text-sm fw-semibold rounded-pill bg-light-600 px-10 py-1 radius-4 text-dark fs-7">00:00</span>
                         <script>
                             function updateTime() {
                                 const options = {
