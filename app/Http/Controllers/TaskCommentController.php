@@ -31,13 +31,28 @@ class TaskCommentController extends Controller
             'comment' => $request->comment
         ]);
 
-        $user = User::find($comment->task->assigned_to);
+        $assignee = User::find($comment->task->assigned_to);
+        $creator = User::find($comment->task->created_by);
 
         DB::table('notifications')->insert([
             'id' => Str::uuid(),
             'type' => \App\Notifications\CustomNotification::class,
             'notifiable_type' => \App\Models\User::class,
-            'notifiable_id' => $user->id,
+            'notifiable_id' => $assignee->id,
+            'data' => json_encode([
+                'title' => auth()->user()->name . " commented on " . $comment->task->title,
+                'message' => auth()->user()->name . " has been commented on " . $comment->task->title,
+                'url' => url("tasks/{$request->task_id}")
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('notifications')->insert([
+            'id' => Str::uuid(),
+            'type' => \App\Notifications\CustomNotification::class,
+            'notifiable_type' => \App\Models\User::class,
+            'notifiable_id' => $creator->id,
             'data' => json_encode([
                 'title' => auth()->user()->name . " commented on " . $comment->task->title,
                 'message' => auth()->user()->name . " has been commented on " . $comment->task->title,
