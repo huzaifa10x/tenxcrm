@@ -57,7 +57,7 @@ class ProjectController extends Controller
                 ->selectRaw('project_type, count(*) as count')
                 ->groupBy('project_type')
                 ->pluck('count', 'project_type');
-            $projects = $query->paginate(5)->withQueryString();
+            $projects = $query->paginate(10)->withQueryString();
 
             $projects = Project::whereHas('accountManagers', function ($query) use ($accountManagerId) {
                 $query->where('user_id', $accountManagerId);
@@ -88,16 +88,16 @@ class ProjectController extends Controller
             $query->whereHas('salesManagers', function ($q) use ($salesManagerId) {
                 $q->where('user_id', $salesManagerId);
             });
-            $projects = $query->paginate(5)->withQueryString();
+            $projects = $query->paginate(10)->withQueryString();
         }
 
         if (
             $category && in_array($category, ['SEO', 'Hosting']) &&
             ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))
         ) {
-            $projects = $query->where('project_type', $category)->paginate(5)->withQueryString();
+            $projects = $query->where('project_type', $category)->paginate(10)->withQueryString();
         } else if ($user->hasPermission('can view all projects')) {
-            $projects = $query->paginate(5)->withQueryString();
+            $projects = $query->paginate(10)->withQueryString();
         }
         // Restricted to user's own or related projects
         else {
@@ -108,7 +108,7 @@ class ProjectController extends Controller
                     ->orWhereHas('collaborators', fn($q) => $q->where('user_id', $user->id))
                     ->orWhereHas('techManagers', fn($q) => $q->where('user_id', $user->id))
                     ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id));
-            })->paginate(5)->withQueryString();
+            })->paginate(10)->withQueryString();
         }
 
         return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users', $extraData));
