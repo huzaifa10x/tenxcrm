@@ -277,20 +277,21 @@ class TaskController extends Controller
             ]);
 
             $user = User::find($request->assigned_to);
-
-            DB::table('notifications')->insert([
-                'id' => Str::uuid(),
-                'type' => \App\Notifications\CustomNotification::class,
-                'notifiable_type' => \App\Models\User::class,
-                'notifiable_id' => $user->id,
-                'data' => json_encode([
-                    'title' => "New task added by " . auth()->user()->name,
-                    'message' => "A new task '" . $request->title . "' has been assigned.",
-                    'url' => url("tasks/{$task->id}")
-                ]),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            if (!$request->has('repeat_task') && !$request->repeat_task) {
+                DB::table('notifications')->insert([
+                    'id' => Str::uuid(),
+                    'type' => \App\Notifications\CustomNotification::class,
+                    'notifiable_type' => \App\Models\User::class,
+                    'notifiable_id' => $user->id,
+                    'data' => json_encode([
+                        'title' => "New task added by " . auth()->user()->name,
+                        'message' => "A new task '" . $request->title . "' has been assigned.",
+                        'url' => url("tasks/{$task->id}")
+                    ]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             return redirect()->back()->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
