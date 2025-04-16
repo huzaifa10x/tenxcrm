@@ -846,7 +846,7 @@
                                                             <td>{{ $task->start_date }}</td>
                                                             <td>{{ $task->due_date }}</td>
                                                             <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
-                                                            <td>{{ $task->assignedTo->completed_date ?? 'N/A' }}</td>
+                                                            <td>{{ $task->completed_date ?? 'N/A' }}</td>
                                                             {{-- <td><x-badge :text="$task->priority" type="priority" /></td> --}}
                                                         </tr>
                                                         @if ($task->comments()->latest()->first())
