@@ -1027,7 +1027,6 @@
                 @endif
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
-                        auth()->user()->id == $project->techManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
