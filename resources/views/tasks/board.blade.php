@@ -14,8 +14,8 @@
     @php
         $pendingStatuses = ['Todo', 'In Progress', 'Review'];
         $completedStatuses = ['Completed'];
-        $pendingCount = $tasks->whereIn('status', $pendingStatuses)->count();
-        $completedCount = $tasks->whereIn('status', $completedStatuses)->count();
+        $pendingCount = $tasks->whereIn('status', $pendingStatuses)->where('repeat_task', '0')->count();
+        $completedCount = $tasks->whereIn('status', $completedStatuses)->where('repeat_task', '0')->count();
     @endphp
 
     <div class="row gy-3 mb-10">
@@ -156,7 +156,7 @@
                         <div class="w-25 kanban-item radius-12 progress-card kanban-column scroll-sm position-relative">
                             @php
                                 $colorClass = $statusColors[$status] ?? 'bg-secondary-600';
-                                $taskCount = $tasks->where('status', $status)->count();
+                                $taskCount = $tasks->where('status', $status)->where('repeat_task', '0')->count();
                             @endphp
                             <span
                                 class="position-absolute top-0 end-0 m-10 badge text-sm fw-semibold w-32-px h-32-px d-flex justify-content-center align-items-center rounded-circle {{ $colorClass }} text-white">
@@ -233,7 +233,7 @@
                                         {{ $status }} Tasks
                                         <span
                                             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">
-                                            ({{ $tasks->where('status', $status)->count() }})
+                                            ({{ $tasks->where('status', $status)->where('repeat_task', '0')->count() }})
                                         </span>
                                     </button>
                                 </li>
