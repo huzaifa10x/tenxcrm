@@ -626,7 +626,18 @@ class DashboardController extends Controller
 
         foreach ($activeProjects as $project) {
             $accountManager = $project->accountManagers->pluck('id')->first();
+
             foreach ($tasks as $title => $description) {
+
+                $existing = Task::where('title', $title)
+                    ->where('project_id', $project->id)
+                    ->whereMonth('start_date', now()->month)
+                    ->whereYear('start_date', now()->year)
+                    ->where('is_automated', 1)
+                    ->exists();
+
+                if ($existing) continue;
+
                 Task::create([
                     'title' => $title,
                     'description' => $description,
@@ -641,6 +652,7 @@ class DashboardController extends Controller
                 ]);
             }
         }
+
         $automation->last_run_date = now();
         $automation->save();
     }
