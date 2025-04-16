@@ -78,7 +78,6 @@ class TaskController extends Controller
             $taskQuery->where('assigned_to', $user->id);
         }
 
-        // Apply additional filters based on other query parameters
         if ($request->has('start_date')) {
             $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
         }

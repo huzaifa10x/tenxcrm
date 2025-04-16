@@ -154,8 +154,8 @@ class Task extends Model
         return $query->where(function ($q) {
             $q->whereNotNull('parent_task_id')
                 ->orWhere(function ($q) {
-                    $q->where('is_automated', 0);
-                        // ->orWhere('start_date', '<=', Carbon::now());
+                    $q->where('is_automated', 0)
+                        ->orWhere('start_date', '<=', Carbon::now());
                 });
         });
     }
