@@ -1,12 +1,10 @@
 @if (auth()->user()->hasRole('ADMIN') ||
         ($task->createdBy && auth()->user()->id == $task->createdBy->id) ||
-        auth()->user()->id == $task->project->accountManagers[0]->id ||
-        auth()->user()->id == $task->project->seoAdmins[0]->id ||
+        ($task->project->accountManagers->first() &&
+            auth()->user()->id == $task->project->accountManagers->first()->id) ||
+        ($task->project->seoAdmins->first() && auth()->user()->id == $task->project->seoAdmins->first()->id) ||
         ($task->assignedTo && auth()->user()->id == $task->assignedTo->id) ||
         ($task->collaborators && $task->collaborators->contains('user_id', auth()->user()->id)))
-    {{ print_r($task->project->accountManagers[0]->id) }}
-    {{ print_r($task->project->seoAdmins[0]->id) }}
- 
     @if (session('is_not_ajax'))
         <x-app-layout>
             <x-slot name="header">
