@@ -2,7 +2,7 @@
     <x-slot name="header">
         {{ __('Projects') }}
     </x-slot>
-    <div class="card basic-data-table">
+    <div class="card basic-data-table container-fluid">
         <div class="card-header">
             <div class="d-flex align-items-center justify-content-start gap-10">
                 @if ($userPermissions->contains('can add projects'))
@@ -160,126 +160,87 @@
             }
         </style>
 
-        <div class="card-body table-responsive">
-            <table class="table bordered-table mb-0" id="project-data-table">
-                <thead>
-                    <tr>
-                        <th data-key="p-id">#</th>
-                        <th data-key="Project">Project</th>
-                        <th data-key="Service">Service</th>
-                        <th data-key="Status">Status</th>
-                        <th data-key="Account_Manager">Account Manager</th>
-                        <th data-key="Contract_End_Date">Contract End Date</th>
-                        <th data-key="Monthly_Revenue">Monthly Revenue (w/o VAT)</th>
-                        <th data-key="Tech">Tech</th>
-                        <th data-key="Created_By">Created By</th>
-                        <th data-key="sales_manager">Sales Manager</th>
-                        <th data-key="Pending_Tasks">Pending Tasks</th>
-                        <th data-key="Actions">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($projects as $project)
-                        @php
-                            $contractEndDate = Carbon\Carbon::parse($project->contract_start_date)->addMonths(
-                                $project->contract_term,
-                            );
-                            $isExpiringSoon =
-                                $contractEndDate->isBefore(Carbon\Carbon::now()->addMonths(2)) &&
-                                $contractEndDate->isAfter(Carbon\Carbon::now());
-                        @endphp
-                        <tr>
-                            <td>{{ $project->id }}</td>
-                            <td><a href="{{ route('projects.show', $project->id) }}">{{ $project->title }}</a>
-                                @if ($isExpiringSoon)
-                                    <span
-                                        class="text-white bg-danger-600 fs-7 border border-danger-600 radius-4 px-8 py-4 text-sm line-height-1 fw-medium">Expiring
-                                        soon!</span>
-                                @endif
-                            </td>
-                            <td>{{ $project->project_type }}</td>
-                            <td>
-                                @if ($userPermissions->contains('can update project status'))
-                                    @if (auth()->user()->hasRole('ADMIN') || ($project->createdBy && $project->createdBy->id == auth()->user()->id))
-                                        <select class="form-control project-status"
-                                            data-project-id="{{ $project->id }}" required>
-                                            <option selected disabled value="">Select status</option>
-                                            <option value="Current"
-                                                {{ $project->status == 'Current' ? 'selected' : '' }}>
-                                                Current
-                                            </option>
-                                            <option value="Paused"
-                                                {{ $project->status == 'Paused' ? 'selected' : '' }}>
-                                                Paused
-                                            </option>
-                                            <option value="WFF" {{ $project->status == 'WFF' ? 'selected' : '' }}>
-                                                WFF
-                                            </option>
-                                            <option value="Expired"
-                                                {{ $project->status == 'Expired' ? 'selected' : '' }}>
-                                                Expired
-                                            </option>
-                                            <option value="Debt Collection"
-                                                {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt
-                                                Collection
-                                            </option>
-                                            <option value="Cancelled"
-                                                {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
-                                                Cancelled
-                                            </option>
-                                            <option value="Completed"
-                                                {{ $project->status == 'Completed' ? 'selected' : '' }}>
-                                                Completed
-                                            </option>
-                                        </select>
-                                    @else
-                                        {{ $project->status }}
-                                    @endif
-                                @else
-                                    {{ $project->status }}
-                                @endif
-                            </td>
-                            <td>{{ $project->accountManagers->pluck('name')->first() ?? '' }}</td>
-                            <td>{{ Carbon\Carbon::parse($project->contract_start_date)->addMonths($project->contract_term)->format('Y-m-d') ?? '' }}
-                            </td>
-                            <td>{{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 ?? '' }}
-                            </td>
-                            <td>{{ $project->techManagers->pluck('name')->first() ?? '' }}</td>
-                            <td>
-                                {{ $project->createdBy->name ?? 'N/A' }}
-                            </td>
-                            <td>
-                                {{ $project->salesManagers->first()->name ?? 'N/A' }}
-                            </td>
-                            <td>
-                                <span
-                                    class="badge text-sm fw-semibold w-32-px h-32-px d-flex justify-content-center align-items-center rounded-circle border border-danger-600 text-danger-600 radius-4 text-white">
-                                    {{ $project->tasks->where('status', 'Todo')->count() ?? 0 }}
-                                </span>
-                            </td>
-                            <td class="">
-                                <div class="d-flex align-items-center gap-10">
-                                    <a href="{{ route('projects.show', $project->id) }}"
-                                        class="bg-info-focus bg-hover-info-200 text-info-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                        <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
-                                    </a>
+        <div class="row gy-4">
+            @foreach ($projects as $project)
+                @php
+                    $contractEndDate = Carbon\Carbon::parse($project->contract_start_date)->addMonths(
+                        $project->contract_term,
+                    );
+                    $isExpiringSoon =
+                        $contractEndDate->isBefore(now()->addMonths(2)) && $contractEndDate->isAfter(now());
+                    $pendingTasks = $project->tasks->where('status', 'Todo')->count();
+                @endphp
 
-                                    @if ($userPermissions->contains('can edit projects'))
-                                        @if (auth()->user()->hasRole('ADMIN') || ($project->createdBy && $project->createdBy->id == auth()->user()->id))
-                                            <a href="{{ route('projects.edit', $project->id) }}"
-                                                class="bg-success-focus text-success-600 bg-hover-success-200 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle">
-                                                <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
-                                            </a>
-                                        @endif
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                <div class="col-lg-4 p-3">
+                    <div class="card h-100 radius-12 text-center">
+                        <div class="card-body p-24">
+                            <div
+                                class="d-inline-flex align-items-center justify-content-center bg-gradient-danger text-danger-600 mb-16 p-3 radius-12">
+                                <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? '' }}"
+                                    alt="" class="img-fluid rounded object-fit-cover rounded-end-4"
+                                    style="max-width: 50px;">
+                            </div>
+
+                            <h6 class="mb-8 fw-semibold">
+                                <a href="{{ route('projects.show', $project->id) }}" class="text-decoration-none">
+                                    {{ $project->title }}
+                                </a>
+                                @if ($isExpiringSoon)
+                                    <span class="badge bg-danger text-white fs-8 ms-1">Expiring Soon</span>
+                                @endif
+                            </h6>
+
+                            <hr class="mb-1">
+
+                            <p class="card-text mb-8 text-secondary-light small">
+                                <strong>#{{ $project->id }}</strong> • {{ $project->project_type }}<br>
+                                <strong>Service:</strong> {{ $project->project_type }}<br>
+                                <strong>Account Manager:</strong>
+                                {{ $project->accountManagers->pluck('name')->first() ?? 'N/A' }}<br>
+                                @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                                        auth()->user()->hasRole('ADMIN') ||
+                                        ($project->createdBy && auth()->user()->id == $project->createdBy->id))
+                                    <strong>Status:</strong> {{ $project->status }}<br>
+                                    <strong>End Date:</strong> {{ $contractEndDate->format('Y-m-d') }}<br>
+                                    <strong>Monthly Revenue:</strong>
+                                    {{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 }}<br>
+                                    <strong>Tech:</strong>
+                                    {{ $project->techManagers->pluck('name')->first() ?? 'N/A' }}<br>
+                                    <strong>Created By:</strong> {{ optional($project->createdBy)->name ?? 'N/A' }}<br>
+                                    <strong>Sales Manager:</strong>
+                                    {{ $project->salesManagers->pluck('name')->first() ?? 'N/A' }}<br>
+                                    <strong>Pending Tasks:</strong>
+                                    <span class="badge text-danger-600 border border-danger-600 radius-4 px-6 py-2">
+                                        {{ $pendingTasks }}
+                                    </span>
+                                @endif
+                            </p>
+
+                            <div class="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
+                                <a href="{{ route('projects.show', $project->id) }}"
+                                    class="btn text-danger-600 hover-text-danger px-0 py-10 d-inline-flex align-items-center gap-2">
+                                    View <iconify-icon icon="iconamoon:eye-light" class="text-xl"></iconify-icon>
+                                </a>
+
+                                @if (
+                                    $userPermissions->contains('can edit projects') &&
+                                        (auth()->user()->hasRole('ADMIN') || optional($project->createdBy)->id == auth()->user()->id))
+                                    <a href="{{ route('projects.edit', $project->id) }}"
+                                        class="btn text-success-600 hover-text-success px-0 py-10 d-inline-flex align-items-center gap-2">
+                                        Edit <iconify-icon icon="lucide:edit" class="text-xl"></iconify-icon>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="mt-3">
             {{ $projects->links('vendor.pagination.custom') }}
         </div>
+
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
