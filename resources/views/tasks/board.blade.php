@@ -171,7 +171,7 @@
                                     <div class="connectedSortable ps-24 pt-24 pe-24 kanban-items"
                                         id="{{ strtolower(str_replace(' ', '-', $status)) }}"
                                         data-status="{{ $status }}">
-                                        @foreach ($tasks->where('status', $status) as $task)
+                                        @foreach ($tasks->where('status', $status)->where('repeat_task', '0') as $task)
                                             <div data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                                 aria-controls="offcanvasRight"
                                                 onclick="loadTaskDetails({{ $task->id }})"
@@ -261,7 +261,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($tasks->where('status', $status) as $task)
+                                            @foreach ($tasks->where('status', $status)->where('repeat_task', '0') as $task)
                                                 <tr onclick="loadTaskDetails({{ $task->id }})">
                                                     <td>{{ $task->id }}</td>
                                                     <td><a target="_blank"

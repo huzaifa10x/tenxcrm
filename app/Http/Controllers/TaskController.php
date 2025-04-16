@@ -152,7 +152,7 @@ class TaskController extends Controller
                 'status' => $request->status,
                 'due_date' => $request->due_date,
                 'start_date' => $request->start_date,
-                'repeat_task' => $request->repeat_task ?? false,
+                'repeat_task' => $request->repeat_task ?? 0,
             ]);
 
             switch ($request->type) {

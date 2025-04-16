@@ -208,7 +208,7 @@ class ProjectController extends Controller
                     'status' => 'Todo',
                     'due_date' => Carbon::now()->addDays(7),
                     'start_date' => Carbon::now(),
-                    'repeat_task' => false,
+                    'repeat_task' => 0,
                 ]);
             }
         } elseif ($request->project_type == 'Social Media') {
