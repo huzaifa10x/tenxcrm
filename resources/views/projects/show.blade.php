@@ -629,7 +629,6 @@
                                                         <th>Status</th>
                                                         <th>Start Date</th>
                                                         <th>Due Date</th>
-                                                        <th>Completion Date</th>
                                                         <th>Assignee</th>
                                                         {{-- <th>ACTION</th> --}}
                                                     </tr>
@@ -644,7 +643,6 @@
                                                             <td><x-badge :text="$task->status" type="status" /></td>
                                                             <td>{{ $task->start_date }}</td>
                                                             <td>{{ $task->due_date }}</td>
-                                                            <td>{{ $task->assignedTo->completed_date ?? 'N/A' }}</td>
                                                             <td>{{ $task->assignedTo->name ?? 'N/A' }}</td>
                                                             {{-- <td><x-badge :text="$task->priority" type="priority" /></td> --}}
                                                         </tr>
@@ -833,6 +831,7 @@
                                                         <th>Start Date</th>
                                                         <th>Due Date</th>
                                                         <th>Assignee</th>
+                                                        <th>Completion Date</th>
                                                         {{-- <th>ACTION</th> --}}
                                                     </tr>
                                                 </thead>
@@ -847,6 +846,7 @@
                                                             <td>{{ $task->start_date }}</td>
                                                             <td>{{ $task->due_date }}</td>
                                                             <td>{{ $task->assignedTo->name ?? 'Unassigned' }}</td>
+                                                            <td>{{ $task->assignedTo->completed_date ?? 'N/A' }}</td>
                                                             {{-- <td><x-badge :text="$task->priority" type="priority" /></td> --}}
                                                         </tr>
                                                         @if ($task->comments()->latest()->first())
@@ -1244,7 +1244,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                        <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
