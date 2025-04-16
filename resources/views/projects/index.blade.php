@@ -172,7 +172,7 @@
                 @endphp
 
                 <div class="col-lg-4 p-3">
-                    <div class="card h-100 radius-12 text-center">
+                    <div class="card border shadow shadow-sm h-100 radius-12 text-center">
                         <div class="card-body p-24">
                             <div
                                 class="d-inline-flex align-items-center justify-content-center bg-gradient-danger text-danger-600 mb-16 p-1 radius-12">
