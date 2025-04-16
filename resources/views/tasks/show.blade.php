@@ -4,6 +4,9 @@
         auth()->user()->id == $task->project->seoAdmins[0]->id ||
         ($task->assignedTo && auth()->user()->id == $task->assignedTo->id) ||
         ($task->collaborators && $task->collaborators->contains('user_id', auth()->user()->id)))
+    {{ print_r($task->project->accountManagers[0]->id) }}
+    {{ print_r($task->project->seoAdmins[0]->id) }}
+ 
     @if (session('is_not_ajax'))
         <x-app-layout>
             <x-slot name="header">
