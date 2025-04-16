@@ -178,7 +178,7 @@
                                 class="d-inline-flex align-items-center justify-content-center bg-gradient-danger text-danger-600 mb-16 p-1 radius-12">
                                 <img src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? '' }}"
                                     alt="" class="img-fluid rounded object-fit-cover rounded-end-4"
-                                    style="max-width: 50px;">
+                                    style="max-width: 150px;">
                             </div>
 
                             <h6 class="mb-8 fw-semibold">
