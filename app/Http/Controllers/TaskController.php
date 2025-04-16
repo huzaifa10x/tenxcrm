@@ -95,8 +95,6 @@ class TaskController extends Controller
             $taskQuery->where('project_id', $request->input('project_id'));
         }
 
-        // $tasks = $taskQuery->get();
-        $taskQuery->orderByRaw("FIELD(priority, 'Urgent', 'High', 'Medium', 'Low')");
         $tasks = $taskQuery->get();
 
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
