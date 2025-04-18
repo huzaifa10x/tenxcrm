@@ -12,7 +12,7 @@ class ProjectKeywordController extends Controller
     {
         $request->validate([
             'keywords' => 'required|array',
-            'keywords.*.keyword' => 'required|string',
+            'keywords.*.keyword' => 'required',
             'keywords.*.url' => 'required',
             'task_id' => 'required|exists:tasks,id',
             'type' => 'required',
