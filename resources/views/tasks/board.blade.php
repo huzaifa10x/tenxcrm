@@ -399,6 +399,10 @@
         $('.task-submit').click(function(e) {
             $(this).attr('disabled', true);
             $(this).text('Saving...');
+            setTimeout(() => {
+                $(this).attr('disabled', false);
+                $(this).text('submit');
+            }, 3000);
             e.preventDefault();
             var formData = new FormData($("#task-create-form")[0]);
             myDropzone.files.forEach(function(file) {
