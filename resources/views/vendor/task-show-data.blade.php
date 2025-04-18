@@ -400,7 +400,8 @@
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
-                    @elseif (in_array($task->title, ['Request for R1', 'Request for R2', 'Request for R3', 'Request Backlinks']) ||
+                    @elseif (
+                        $task->title == 'Request Backlinks' ||
                             ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
                         <form id="keywordForm">
                             @csrf
@@ -457,7 +458,10 @@
                                 <button class="btn btn-sm fs-7 btn-neutral-900" type="submit">Submit</button>
                             </div>
                         </form>
-                    @elseif($task->title == 'Add KW Mapping')
+                    @elseif(
+                        $task->title == 'Add KW Mapping' ||
+                            in_array($task->title, ['Request for R1', 'Request for R2', 'Request for R3']) ||
+                            in_array($task->title, ['Schedule R1', 'Schedule R2', 'Schedule R3']))
                         <form id="keywordForm3" class="mt-4">
                             @csrf
                             <input type="hidden" name="type" value="closing">
