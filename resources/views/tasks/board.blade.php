@@ -397,6 +397,16 @@
             }
         });
         $('.task-submit').click(function(e) {
+            if ($('#department_id').val() == null) {
+                toastr.error('Please select Department!');
+                $('#department_id').focus()
+                return;
+            }
+            if ($('#sub_type').val() == null) {
+                toastr.error('Please select Task Type!');
+                $('#sub_type').focus();
+                return;
+            }
             $(this).attr('disabled', true);
             $(this).text('Saving...');
             setTimeout(() => {
