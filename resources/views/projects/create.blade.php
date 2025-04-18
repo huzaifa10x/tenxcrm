@@ -56,7 +56,8 @@
                     <input type="text" name="title" id="title" class="form-control d-none" required>
 
                     <div class="col-lg-3">
-                        <label class="form-label" for="contract_value">Total Contract Value <span class="fs-7">(w/o VAT - in AED)</span></label>
+                        <label class="form-label" for="contract_value">Total Contract Value <span class="fs-7">(w/o
+                                VAT - in AED)</span></label>
                         <input type="number" class="form-control" id="contract_value" name="contract_value" required>
                     </div>
 
@@ -159,12 +160,24 @@
                 <div class="row gy-3 card-body">
                     <input type="hidden" value="{{ auth()->user()->id }}" name="created_by">
                     <div class="col-lg-6">
-                        <label class="form-label" for="title">Project Description</label>
-                        <textarea class="form-control" name="description" id="" cols="30" rows="10"></textarea>
+                        <label class="form-label fs-6" for="project_desc">(DESCRIPTION FOR BACK OFFICE – NO SENSITIVE
+                            INFORMATION – DO NOT DUPLICATE)</label>
+                        <span class="d-block fs-7 text-bg-warning text-secondary-dark p-1 rounded mb-3">
+                            (Use this section to give the Back Office team a clear project overview. Include project
+                            scope, general timeline, deliverables, or any special instructions. Avoid sensitive data or
+                            repeating information from the AM Notes.)
+                        </span>
+                        <textarea class="form-control" name="description" id="project_desc" cols="30" rows="10">Project Description</textarea>
                     </div>
                     <div class="col-lg-6">
-                        <label class="form-label" for="handover_notes">Handover notes</label>
-                        <textarea required class="form-control" name="handover_notes" id="handover_notes" cols="30" rows="10"></textarea>
+                        <label class="form-label fs-6" for="handover_notes">(HANDOVER NOTES FOR AM)</label>
+                        <span class="d-block fs-7 text-bg-warning text-secondary-dark p-1 rounded mb-3">
+                            (Use this section to provide the Account Manager with key client-related info such as
+                            payment
+                            terms, cheque details, contract start/end dates, and primary contact info. Please ensure
+                            accuracy and relevance.)
+                        </span>
+                        <textarea required class="form-control" name="handover_notes" id="handover_notes" cols="30" rows="10">handover notes...</textarea>
                     </div>
                 </div>
             </div>
