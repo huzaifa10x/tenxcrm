@@ -171,7 +171,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/projects/{project}/credentials', [ProjectController::class, 'storeClientCredentials'])->name('projects.storeClientCredentials');
     Route::delete('/projects/{project}/credentials/delete', [ProjectController::class, 'deleteClientCredential'])
         ->name('credentials.delete');
-    Route::post('/projects/{project}/keywords', [ProjectKeywordController::class, 'store'])
+    Route::post('/projects/{project}/keywords', [ProjectKeywordController::class, 'store'])->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
         ->name('projects.storeKeywords');
 
     Route::get('/task/{task}/collaborators', [TaskCollaboratorController::class, 'index'])->name('task.collaborators');

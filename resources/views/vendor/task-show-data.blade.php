@@ -381,7 +381,13 @@
                                 Task</button>
                         </form>
                     @elseif (
-                        !in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) &&
+                        !in_array($task->title, [
+                            'Add KW Mapping',
+                            'Request for R1',
+                            'Request for R2',
+                            'Request for R3',
+                            'Request Backlinks',
+                        ]) &&
                             !($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])) &&
                             !$task->title == 'Add the Client Credentials')
                         <form id="taskForm" enctype="multipart/form-data">
@@ -394,7 +400,7 @@
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
-                    @elseif (in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) ||
+                    @elseif (in_array($task->title, ['Request for R1', 'Request for R2', 'Request for R3', 'Request Backlinks']) ||
                             ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
                         <form id="keywordForm">
                             @csrf
@@ -449,6 +455,46 @@
                                 <button class="btn btn-sm fs-7 btn-neutral-500" type="button" id="addCredential">Add
                                     More</button>
                                 <button class="btn btn-sm fs-7 btn-neutral-900" type="submit">Submit</button>
+                            </div>
+                        </form>
+                    @elseif($task->title == 'Add KW Mapping')
+                        <form id="keywordForm3" class="mt-4">
+                            @csrf
+                            <input type="hidden" name="type" value="closing">
+
+                            <div id="urlGroups">
+                                <div class="url-group card shadow-sm border-0 mb-3 border">
+                                    <div class="card-body bg-light-subtle">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">URL</label>
+                                            <input type="url" class="form-control url-input"
+                                                placeholder="https://example.com" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Keywords <small class="text-muted">(One
+                                                    per line)</small></label>
+                                            <textarea class="form-control keyword-textarea" rows="4" placeholder="Enter keywords, one per line..."
+                                                required></textarea>
+                                        </div>
+
+                                        <div class="text-end">
+                                            <button type="button"
+                                                class="btn btn-outline-danger btn-sm remove-url-group">
+                                                <i class="bi bi-trash me-1"></i> Remove URL Group
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4">
+                                <button type="button" class="btn btn-outline-primary" id="addUrlGroup">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Another URL Group
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle me-1"></i> Submit Keywords
+                                </button>
                             </div>
                         </form>
                     @elseif ($task->title === 'Connect the GA, GSC, GTM, and GMB')
@@ -917,7 +963,6 @@
     </div>
 </div>
 <div class="row gy-3 mb-10">
-
     <div class="col-lg-6 starting-kw-url-wrapper" style="display: none">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
@@ -967,7 +1012,13 @@
     </div>
 
     @if ($userPermissions->contains('can add offsite links'))
-        @if (in_array($task->title, ['Add KW Mapping', 'Schedule R1', 'Schedule R2', 'Schedule R3', 'Request Backlinks']) ||
+        @if (in_array($task->title, [
+                'Add KW Mapping',
+                'Request for R1',
+                'Request for R2',
+                'Request for R3',
+                'Request Backlinks',
+            ]) ||
                 ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
             <div class="d-flex justify-content-end align-items-center">
                 <button class="btn btn-primary btn-sm open-add-more-links-wrapper">
@@ -1048,7 +1099,6 @@
         </div>
     </div>
 </div>
-
 <div class="row gy-3 mb-10">
     <div class="col-12">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
@@ -1080,11 +1130,95 @@
 <input type="hidden" id="taskId" value="{{ $task->id }}">
 <script>
     $(document).ready(function() {
-        $("#showMoreCredentials").on("click", function() {
-            $(".credential-item.d-none").removeClass("d-none");
-            $(this).hide(); // Button hide after clicking
+
+        $('#addUrlGroup').click(function() {
+            $('#urlGroups').append(`
+    <div class="url-group card shadow-sm border-0 mb-3 border">
+        <div class="card-body bg-light-subtle">
+            <div class="mb-3">
+                <label class="form-label fw-bold">URL</label>
+                <input type="url" class="form-control url-input" placeholder="https://example.com" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Keywords <small class="text-muted">(One per line)</small></label>
+                <textarea class="form-control keyword-textarea" rows="4"
+                    placeholder="Enter keywords, one per line..." required></textarea>
+            </div>
+
+            <div class="text-end">
+                <button type="button" class="btn btn-outline-danger btn-sm remove-url-group">
+                    <i class="bi bi-trash me-1"></i> Remove URL Group
+                </button>
+            </div>
+        </div>
+    </div>
+    `);
+        });
+
+        // Remove URL group
+        $(document).on('click', '.remove-url-group', function() {
+            $(this).closest('.url-group').remove();
+        });
+
+        // Handle form submission
+        $('#keywordForm3').submit(function(e) {
+            e.preventDefault();
+
+            let combinedKeywords = [];
+
+            $('.url-group').each(function() {
+                const url = $(this).find('.url-input').val().trim();
+                const keywordsRaw = $(this).find('.keyword-textarea').val();
+
+                if (url && keywordsRaw) {
+                    const keywords = keywordsRaw
+                        .split('\n')
+                        .map(k => k.trim())
+                        .filter(k => k.length > 0); // remove blanks
+
+                    keywords.forEach(keyword => {
+                        combinedKeywords.push({
+                            keyword: keyword,
+                            url: url
+                        });
+                    });
+                }
+            });
+
+            if (combinedKeywords.length === 0) {
+                toastr.error("Please enter at least one keyword.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("task_id", "{{ $task->id }}");
+            formData.append("type", "closing");
+            combinedKeywords.forEach((item, index) => {
+                formData.append(`keywords[${index}][keyword]`, item.keyword);
+                formData.append(`keywords[${index}][url]`, item.url);
+            });
+
+            $.ajax({
+                url: "{{ route('projects.storeKeywords', $task->project->id) }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response, textStatus, xhr) {
+                    toastr.success(response.message);
+                    if (xhr.status === 200) {
+                        triggerCompletionSubmit();
+                    }
+                },
+                error: function(xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
         });
     });
+
+
     $(document).on('click', '.toggle-password', function() {
         let passwordSpan = $(this).prev('.password-toggle');
         let actualPassword = passwordSpan.data('password');
@@ -1168,6 +1302,7 @@
             }
         });
     }
+
     $(document).ready(function() {
         fetchCollaborators("{{ $task->id }}");
 
@@ -1287,6 +1422,7 @@
             toggleRepeatStatus(taskId, "enable-repeating");
         });
     });
+
     $('.complete-task-btn').on('click', function() {
         $('.completion-form-wrapper').slideDown();
         $(this).fadeOut();
@@ -1331,6 +1467,7 @@
             }
         });
     }
+
     $(document).ready(function() {
         $("#taskForm").submit(function(e) {
             e.preventDefault();
@@ -1375,6 +1512,7 @@
             });
         });
     });
+
     $(document).ready(function() {
         let credentialIndex = 1;
         $("#addCredential").click(function() {
@@ -1455,6 +1593,7 @@
             });
         });
     });
+
     $(document).ready(function() {
         $("#keywordForm").submit(function(e) {
             e.preventDefault();
@@ -1512,6 +1651,7 @@
             });
         });
     });
+
     $(document).ready(function() {
         let index = 1;
         $(".addKeyword").click(function() {
@@ -1610,6 +1750,7 @@
         });
     }
     setInterval(updateTimestamps, 30000);
+
     $(document).on('click', '.delete-comment', function() {
         let commentId = $(this).data('id');
         $.ajax({
@@ -1676,10 +1817,12 @@
         });
         $("#taskAttachmentsContainer").html(html);
     }
+
     $('#taskAttachments').click(function(e) {
         e.preventDefault();
         $('#uploadTaskAttachmentsForm').slideDown();
     });
+
     $("#uploadTaskAttachmentsForm").submit(function(event) {
         event.preventDefault();
         let formData = new FormData(this);
@@ -1713,6 +1856,7 @@
             }
         });
     });
+
     $(document).on("click", ".delete-attachment", function() {
         let attachmentId = $(this).attr("data-attachment-id");
         if (confirm("Are you sure you want to delete this attachment?")) {
@@ -1805,7 +1949,6 @@
             }
         });
     }
-
 
     $(document).ready(function() {
         loadComments()

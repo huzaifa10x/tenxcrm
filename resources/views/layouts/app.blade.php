@@ -42,6 +42,8 @@
     <!-- Select2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
     <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
