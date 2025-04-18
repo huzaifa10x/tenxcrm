@@ -645,7 +645,7 @@ class DashboardController extends Controller
                     'status' => 'Todo',
                     'start_date' => Carbon::now()->startOfMonth(),
                     'due_date' => Carbon::now()->startOfMonth()->addDays(3),
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'is_automated' => 1,
                     'project_id' => $project->id,
                     'type' => 'ADHOC'

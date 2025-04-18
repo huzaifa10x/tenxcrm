@@ -201,7 +201,7 @@ class ProjectController extends Controller
                     'description' => null,
                     'project_id' => $project->id,
                     'department_id' => null,
-                    'created_by' => auth()->id(),
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'assigned_to' => $request->account_manager_ids[0],
                     'priority' => 'Medium',
                     'type' => 'AM',

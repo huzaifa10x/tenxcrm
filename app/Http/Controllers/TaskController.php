@@ -581,7 +581,7 @@ class TaskController extends Controller
                 'description' => 'Please review and obtain client approval for the content related to task ' . url("tasks/{$task->id}") . '.',
                 'project_id' => $project->id,
                 'department_id' => null,
-                'created_by' => 1,
+                'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                 'assigned_to' => $accountManager,
                 'priority' => 'High',
                 'type' => "AM",
@@ -634,7 +634,7 @@ class TaskController extends Controller
                 Task::insert([
                     [
                         'is_automated' => 1,
-                        'created_by' => 1,
+                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                         'project_id' => $project->id,
                         'title' => 'Keywords Approval',
                         'assigned_to' => $accountManager,
@@ -654,7 +654,7 @@ class TaskController extends Controller
                         'description' => "system generated task",
                         'project_id' => $project->id,
                         'department_id' => null,
-                        'created_by' => 1,
+                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                         'assigned_to' => $loopTask['assignee'],
                         'priority' => 'High',
                         'type' => $loopTask['type'],
@@ -668,7 +668,7 @@ class TaskController extends Controller
             case 'Content Audit':
                 Task::create([
                     'is_automated' => 1,
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
                     'title' => 'SEO Content Request',
                     'description' => 'SEO Content Request ( CONTENT AUDIT+ KW MAPPING +CONTENT INTAKE FORM)',
@@ -682,7 +682,7 @@ class TaskController extends Controller
             case 'SEO Content Request':
                 Task::create([
                     'is_automated' => 1,
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
                     'title' => 'PUBLISH CONTENT',
                     'assigned_to' => $accountManager,
@@ -696,7 +696,7 @@ class TaskController extends Controller
             case 'First On-site':
                 Task::create([
                     'is_automated' => 1,
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
                     'title' => 'Request for R1',
                     'assigned_to' => $seoAdmin,
@@ -708,7 +708,7 @@ class TaskController extends Controller
 
                 Task::create([
                     'is_automated' => 1,
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
                     'title' => 'Request for R2',
                     'assigned_to' => $seoAdmin,
@@ -720,9 +720,9 @@ class TaskController extends Controller
 
                 Task::create([
                     'is_automated' => 1,
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
-                    'title' => 'Request for R3',
+                    'title' => 'Schedule R3',
                     'assigned_to' => $seoAdmin,
                     'status' => 'Todo',
                     'start_date' => now()->addDays(60),
@@ -735,7 +735,7 @@ class TaskController extends Controller
             case 'Create the Project on SE Ranking':
                 Task::create([
                     'is_automated' => 1,
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
                     'title' => 'Request Local Listing',
                     'assigned_to' => $seoAdmin,
@@ -749,7 +749,7 @@ class TaskController extends Controller
             case 'Intro Call':
                 Task::create([
                     'is_automated' => 1,
-                    'created_by' => 1,
+                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
                     'title' => 'Request Backlinks',
                     'assigned_to' => $seoAdmin,
