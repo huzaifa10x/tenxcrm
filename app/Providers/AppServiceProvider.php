@@ -37,11 +37,11 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('userPermissions', $permissions);
             }
         });
-        if (App::runningInConsole()) {
-            $this->app->resolving(Schedule::class, function (Schedule $schedule) {
-                $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
-            });
-        }
+        // if (App::runningInConsole()) {
+        //     $this->app->resolving(Schedule::class, function (Schedule $schedule) {
+        //         $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
+        //     });
+        // }
         Carbon::setTestNow(Carbon::now());
         // Carbon::setTestNow(Carbon::now()->startOfMonth());
         // Carbon::setTestNow(Carbon::now()->addHour(12));
