@@ -764,6 +764,7 @@
                 <input type="hidden" name="type" value="starting">
                 <input type="text" class="form-control mb-3" id="mainKeyword" placeholder="Enter Keyword"
                     required>
+                <input type="hidden" name="type" value="closing">
                 <textarea class="form-control mb-3" id="urlList" placeholder="Enter URLs (one per line)" rows="6" required></textarea>
 
                 <div class="d-flex align-items-center justify-content-end gap-10">
