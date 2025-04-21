@@ -962,7 +962,7 @@
                 <form action="#" class="row gy-3 p-10 position-absolute bottom-0 left-0 w-100 bg-base-50">
                     <div class="d-flex align-items-center justify-content-between">
                         <textarea id="comment-text" class="textarea-max-height form-control border resize-none scroll-sm"
-                            placeholder="Write massage"></textarea>
+                            placeholder="Write message"></textarea>
                         <div class="d-flex align-items-center gap-4 ms-16">
                             <button type="button" id="add-commentt" data-taskID="{{ $task->id }}"
                                 onclick="doComment()"
