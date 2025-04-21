@@ -167,7 +167,11 @@
                             scope, general timeline, deliverables, or any special instructions. Avoid sensitive data or
                             repeating information from the AM Notes.)
                         </span>
-                        <textarea class="form-control" name="description" id="project_desc" cols="30" rows="10">Project Description</textarea>
+                        <textarea class="form-control" name="description" id="project_desc" cols="30" rows="10">
+                            Give the Back Office team a clear project overview. Include project scope, 
+                            general timeline, deliverables, or any special instructions. 
+                            Avoid sensitive data or repeating information from the AM Notes.
+                        </textarea>
                     </div>
                     <div class="col-lg-6">
                         <label class="form-label fs-6" for="handover_notes">(HANDOVER NOTES FOR AM)</label>
@@ -177,7 +181,11 @@
                             terms, cheque details, contract start/end dates, and primary contact info. Please ensure
                             accuracy and relevance.)
                         </span>
-                        <textarea required class="form-control" name="handover_notes" id="handover_notes" cols="30" rows="10">handover notes...</textarea>
+                        <textarea required class="form-control" name="handover_notes" id="handover_notes" cols="30" rows="10">
+                            Provide the Account Manager with key client-related info such as payment terms, 
+                            cheque details, contract start/end dates, and primary contact info.
+                            Please ensure accuracy and relevance.
+                        </textarea>
                     </div>
                 </div>
             </div>
