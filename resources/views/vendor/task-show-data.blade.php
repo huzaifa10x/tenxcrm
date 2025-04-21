@@ -761,7 +761,6 @@
         <div class="col-lg-12 add-more-links-wrapper" style="display: none">
             <form id="keywordForm2">
                 @csrf
-                <input type="hidden" name="type" value="starting">
                 <input type="text" class="form-control mb-3" id="mainKeyword" placeholder="Enter Keyword"
                     required>
                 <input type="hidden" name="type" value="closing">
