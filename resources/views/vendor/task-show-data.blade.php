@@ -381,15 +381,10 @@
                                 Task</button>
                         </form>
                     @elseif (
-                        !in_array($task->title, [
-                            'Add KW Mapping',
-                            'Request for R1',
-                            'Request for R2',
-                            'Request for R3',
-                            'Request Backlinks',
-                        ]) &&
-                            !($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])) &&
-                            !$task->title == 'Add the Client Credentials')
+                        !in_array($task->title, ['Request for R1', 'Request for R2', 'Request for R3']) ||
+                            (!in_array($task->title, ['Schedule R1', 'Schedule R2', 'Schedule R3']) &&
+                                !($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])) &&
+                                !$task->title == 'Add the Client Credentials'))
                         <form id="taskForm" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
@@ -403,28 +398,15 @@
                     @elseif (
                         $task->title == 'Request Backlinks' ||
                             ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
-                        <form id="keywordForm">
+                        <form id="taskForm" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="type" value="closing">
-                            <div class="keywordFields">
-                                <div
-                                    class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
-                                    <input class="form-control" type="text" name="keywords[0][keyword]"
-                                        placeholder="Keyword" required>
-                                    <input class="form-control" type="text" name="keywords[0][url]"
-                                        placeholder="URL" required>
-                                    <button type="button"
-                                        class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
-                                        <iconify-icon icon="fluent:delete-24-regular"
-                                            class="menu-icon"></iconify-icon>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-end gap-10">
-                                <button class="btn bnt-sm btn-outline-info-900 addKeyword" type="button">Add
-                                    More</button>
-                                <button class="btn bnt-sm btn-info-900" type="submit">Complete Task</button>
-                            </div>
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                            <label class="form-label">Notes</label>
+                            <input type="text" name="fields[0][name]" value="notes" hidden>
+                            <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
+                                placeholder="Enter Notes"></textarea>
+                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
+                                Task</button>
                         </form>
                     @elseif ($task->title == 'Add the Client Credentials')
                         <form id="clientCredentialsForm">
@@ -458,10 +440,7 @@
                                 <button class="btn btn-sm fs-7 btn-neutral-900" type="submit">Submit</button>
                             </div>
                         </form>
-                    @elseif(
-                        $task->title == 'Add KW Mapping' ||
-                            in_array($task->title, ['Request for R1', 'Request for R2', 'Request for R3']) ||
-                            in_array($task->title, ['Schedule R1', 'Schedule R2', 'Schedule R3']))
+                    @elseif($task->title == 'Add KW Mapping')
                         <form id="keywordForm3" class="mt-4">
                             @csrf
                             <input type="hidden" name="type" value="closing">
@@ -761,6 +740,39 @@
     </div>
 </div>
 <div class="row gy-3 mb-10">
+
+    @if ($userPermissions->contains('can add offsite links'))
+        @if (in_array($task->title, [
+                'Request for R1',
+                'Request for R2',
+                'Request for R3',
+                'Schedule R1',
+                'Schedule R2',
+                'Schedule R3',
+                'Request Backlinks',
+            ]) ||
+                ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
+            <div class="d-flex justify-content-end align-items-center">
+                <button class="btn btn-primary btn-sm open-add-more-links-wrapper">
+                    Add kw/urls
+                </button>
+            </div>
+        @endif
+        <div class="col-lg-12 add-more-links-wrapper" style="display: none">
+            <form id="keywordForm2">
+                @csrf
+                <input type="hidden" name="type" value="starting">
+                <input type="text" class="form-control mb-3" id="mainKeyword" placeholder="Enter Keyword"
+                    required>
+                <textarea class="form-control mb-3" id="urlList" placeholder="Enter URLs (one per line)" rows="6" required></textarea>
+
+                <div class="d-flex align-items-center justify-content-end gap-10">
+                    <button class="btn bnt-sm btn-info-900" type="submit">Save Keywords</button>
+                </div>
+            </form>
+        </div>
+    @endif
+
     <div class="col-lg-4">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
@@ -966,7 +978,9 @@
         </div>
     </div>
 </div>
+
 <div class="row gy-3 mb-10">
+
     <div class="col-lg-6 starting-kw-url-wrapper" style="display: none">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
@@ -994,9 +1008,9 @@
     <div class="col-lg-6 closing-kw-url-wrapper" style="display: none">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
-                <span class="fw-bold">Closing Keywords & Urls</span>
+                <span class="fw-bold">Task Keywords & Urls</span>
             </div>
-            <div class="card-body table-responsive p-0">
+            <div class="card-body table-responsive p-0" style="height: 500px; overflow: auto;">
                 <table class="table table-bordered m-0">
                     <thead>
                         <tr>
@@ -1014,46 +1028,6 @@
             </div>
         </div>
     </div>
-
-    @if ($userPermissions->contains('can add offsite links'))
-        @if (in_array($task->title, [
-                'Add KW Mapping',
-                'Request for R1',
-                'Request for R2',
-                'Request for R3',
-                'Request Backlinks',
-            ]) ||
-                ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
-            <div class="d-flex justify-content-end align-items-center">
-                <button class="btn btn-primary btn-sm open-add-more-links-wrapper">
-                    Add more kw/urls
-                </button>
-            </div>
-        @endif
-        <div class="col-lg-12 add-more-links-wrapper" style="display: none">
-            <form id="keywordForm2">
-                @csrf
-                <input type="hidden" name="type" value="starting">
-                <div class="keywordFields">
-                    <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
-                        <input class="form-control" type="text" name="keywords[0][keyword]"
-                            placeholder="Keyword" required>
-                        <input class="form-control" type="text" name="keywords[0][url]" placeholder="URL"
-                            required>
-                        <button type="button"
-                            class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
-                            <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
-                        </button>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center justify-content-end gap-10">
-                    <button class="btn bnt-sm btn-outline-info-900 addKeyword" type="button">Add
-                        More</button>
-                    <button class="btn bnt-sm btn-info-900" type="submit">Save Keywords</button>
-                </div>
-            </form>
-        </div>
-    @endif
 
     <input type="hidden" id="task_id" value="{{ $task->id }}">
     <input type="hidden" name="created_by" value="{{ auth()->user()->id }}">
@@ -1307,74 +1281,75 @@
         });
     }
 
-    $(document).ready(function() {
-        fetchCollaborators("{{ $task->id }}");
+    function loadStartingKwUrls() {
+        $.ajax({
+            url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => $task->id]) }}',
+            type: "GET",
+            success: function(data) {
+                var tableBody = $("#startingKwUrlsTable");
+                tableBody.empty();
+                data.forEach(function(kwUrl) {
+                    tableBody.append(`
+                    <tr id="row-${kwUrl.id}">
+                        <td>${kwUrl.keyword}</td>
+                        <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
+                        @if ($userPermissions->contains('can remove offsite links'))
+                        <td>
+                            <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
+                            </td>
+                            @endif
+                            </tr>
+                            `);
+                });
+                if (data.length > 0) {
+                    $('.starting-kw-url-wrapper').slideDown()
+                }
+            },
+            error: function() {
+                $("#startingKwUrlsTable").html(
+                    '<tr><td colspan="4">Error Loading Data</td></tr>');
+            }
+        });
+    }
 
-        function loadStartingKwUrls() {
-            $.ajax({
-                url: '{{ route('offsite.tasks.starting_kw_urls', ['task_id' => $task->id]) }}',
-                type: "GET",
-                success: function(data) {
-                    var tableBody = $("#startingKwUrlsTable");
-                    tableBody.empty();
-                    data.forEach(function(kwUrl) {
-                        tableBody.append(`
+    function loadClosingKwUrls() {
+        $.ajax({
+            url: '{{ route('offsite.tasks.closing_kw_urls', ['task_id' => $task->id]) }}',
+            type: "GET",
+            success: function(data) {
+                var tableBody = $("#closingKwUrlsTable");
+                tableBody.empty();
+                data.forEach(function(kwUrl) {
+                    tableBody.append(`
                         <tr id="row-${kwUrl.id}">
                             <td>${kwUrl.keyword}</td>
                             <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
                             @if ($userPermissions->contains('can remove offsite links'))
                             <td>
                                 <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
-                                </td>
-                                @endif
-                                </tr>
-                                `);
-                    });
-                    if (data.length > 0) {
-                        $('.starting-kw-url-wrapper').slideDown()
-                    }
-                },
-                error: function() {
-                    $("#startingKwUrlsTable").html(
-                        '<tr><td colspan="4">Error Loading Data</td></tr>');
+                            </td>
+                            @endif
+                        </tr>
+                    `);
+                });
+                if (data.length > 0) {
+                    $('.closing-kw-url-wrapper').slideDown()
                 }
-            });
-        }
+            },
+            error: function() {
+                $("#closingKwUrlsTable").html(
+                    '<tr><td colspan="4">Error Loading Data</td></tr>');
+            }
+        });
+    }
+    setTimeout(() => {
+        loadStartingKwUrls();
+        loadClosingKwUrls();
+    }, 2000);
 
-        function loadClosingKwUrls() {
-            $.ajax({
-                url: '{{ route('offsite.tasks.closing_kw_urls', ['task_id' => $task->id]) }}',
-                type: "GET",
-                success: function(data) {
-                    var tableBody = $("#closingKwUrlsTable");
-                    tableBody.empty();
-                    data.forEach(function(kwUrl) {
-                        tableBody.append(`
-                            <tr id="row-${kwUrl.id}">
-                                <td>${kwUrl.keyword}</td>
-                                <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                                @if ($userPermissions->contains('can remove offsite links'))
-                                <td>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
-                                </td>
-                                @endif
-                            </tr>
-                        `);
-                    });
-                    if (data.length > 0) {
-                        $('.closing-kw-url-wrapper').slideDown()
-                    }
-                },
-                error: function() {
-                    $("#closingKwUrlsTable").html(
-                        '<tr><td colspan="4">Error Loading Data</td></tr>');
-                }
-            });
-        }
-        setTimeout(() => {
-            loadStartingKwUrls();
-            loadClosingKwUrls();
-        }, 2000);
+    $(document).ready(function() {
+        fetchCollaborators("{{ $task->id }}");
+
         var deleteUrlTemplate = '{{ route('project-keyword.delete', ['id' => ':id']) }}';
         $(document).off("click", ".delete-btn").on("click", ".delete-btn", function(event) {
             event.preventDefault();
@@ -1599,82 +1574,49 @@
     });
 
     $(document).ready(function() {
-        $("#keywordForm").submit(function(e) {
-            e.preventDefault();
-            let formData = new FormData(this);
-            formData.append("task_id", "{{ $task->id }}");
-            $.ajax({
-                url: "{{ route('projects.storeKeywords', $task->project->id) }}",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response, textStatus, xhr) {
-                    toastr.success(response.message);
-                    if (xhr.status === 200) {
-                        triggerCompletionSubmit();
-                    }
-                },
-                error: function(xhr) {
-                    alert("Error: " + xhr.responseText);
-                }
-            });
-        });
+
         $("#keywordForm2").submit(function(e) {
             e.preventDefault();
-            let formData = new FormData(this);
+
+            let keyword = $("#mainKeyword").val().trim();
+            let urls = $("#urlList").val().trim().split("\n").filter(url => url.trim() !== "");
+
+            if (!keyword || urls.length === 0) {
+                alert("Please enter a keyword and at least one valid URL.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("_token", $('input[name="_token"]').val());
+            formData.append("type", $('input[name="type"]').val());
             formData.append("task_id", "{{ $task->id }}");
+
+            urls.forEach((url, index) => {
+                formData.append(`keywords[${index}][keyword]`, keyword);
+                formData.append(`keywords[${index}][url]`, url.trim());
+            });
+
             $.ajax({
                 url: "{{ route('projects.storeKeywords', $task->project->id) }}",
                 type: "POST",
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response, textStatus, xhr) {
+                success: function(response) {
                     toastr.success(response.message);
-                    var tableBody = $("#startingKwUrlsTable");
-                    tableBody.empty();
                     response.data.forEach(function(kwUrl) {
-                        tableBody.append(`
-                            <tr id="row-${kwUrl.id}">
-                                <td>${kwUrl.keyword}</td>
-                                <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                                @if ($userPermissions->contains('can remove offsite links'))
-                                <td>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
-                                </td>
-                                @endif
-                            </tr>
-                        `);
+                        loadClosingKwUrls();
+                        $('.add-more-links-wrapper').fadeOut()
                     });
-                    $('.add-more-links-wrapper').fadeOut();
+                    $("#mainKeyword").val('');
+                    $("#urlList").val('');
                 },
                 error: function(xhr) {
                     alert("Error: " + xhr.responseText);
                 }
             });
         });
-    });
 
-    $(document).ready(function() {
-        let index = 1;
-        $(".addKeyword").click(function() {
-            $(".keywordFields").append(`
-                <div class="mb-10 keyword-group gap-10 d-flex align-items-center justify-content-start">
-                   <input class="form-control" type="text" name="keywords[${index}][keyword]" placeholder="Keyword"
-                       required>
-                   <input class="form-control" type="text" name="keywords[${index}][url]" placeholder="URL" required>
-                   <button type="button"
-                       class="remove-btn remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded px-10">
-                       <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
-                   </button>
-                </div>
-            `);
-            index++;
-        });
-        $(document).on("click", ".remove-btn", function() {
-            $(this).parent().remove();
-        });
     });
 
     function timeAgo(date) {

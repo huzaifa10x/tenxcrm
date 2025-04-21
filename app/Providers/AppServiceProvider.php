@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\App;
-use OpenAI;
-use OpenAI\Client;
 
 class AppServiceProvider extends ServiceProvider
 {
