@@ -575,7 +575,7 @@
                                             aria-controls="pills-to-do-list" aria-selected="true">
                                             Regular Tasks
                                             <span
-                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $regularTasks->count() }}</span>
+                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $regularTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count() }}</span>
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
@@ -620,7 +620,7 @@
                                     <!-- Regular Tasks -->
                                     <div style="max-height: 500px; overflow-y: auto;"
                                         class="tab-pane fade show active" id="regular-task" role="tabpanel">
-                                        @if ($regularTasks->count())
+                                        @if ($regularTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count())
                                             <table class="table bordered-table mb-0">
                                                 <thead>
                                                     <tr>
@@ -634,7 +634,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach ($regularTasks as $task)
+                                                    @foreach ($regularTasks->whereIn('status', ['Todo', 'In Progress', 'Review']) as $task)
                                                         <tr>
                                                             <td>{{ $task->id }}</td>
                                                             <td><a

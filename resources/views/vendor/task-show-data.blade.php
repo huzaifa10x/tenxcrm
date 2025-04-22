@@ -821,7 +821,8 @@
                 <span class="fw-bold">Description</span>
             </div>
             <div class="card-body">
-                <textarea class="border-0 p-0 m-0 w-100 h-100" onchange="updateTaskField(this)" name="description" id="description"
+                <textarea class="border-0 p-0 m-0 w-100 h-100"
+                    @if (auth()->user()->hasRole('ADMIN')) onchange="updateTaskField(this)" @endif name="description" id="description"
                     cols="30" rows="10">{{ $task->description }}</textarea>
             </div>
         </div>
