@@ -6,6 +6,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeneralSettingController;
+use App\Http\Controllers\ImageCompressorController;
 use App\Http\Controllers\IndustryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
@@ -39,6 +40,8 @@ Route::get('/', function () {
 Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
 Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread.count');
+Route::get('/compress', [ImageCompressorController::class, 'showForm'])->name('compress.form');
+Route::post('/compress', [ImageCompressorController::class, 'compress'])->name('compress.run');
 
 Route::middleware('auth')->group(function () {
     Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');

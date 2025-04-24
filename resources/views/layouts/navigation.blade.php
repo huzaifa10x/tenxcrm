@@ -227,6 +227,12 @@
                     <span>Messages</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('compress.form') }}">
+                    <iconify-icon icon="mdi:folder-zip-outline" class="menu-icon"></iconify-icon>
+                    <span>Image Compressor</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>
