@@ -591,7 +591,7 @@
     </div>
     <div id="responseMessage"></div>
 </div>
-<div class="d-flex mb-10 align-items-baseline gap-10">
+<div class="d-flex mb-10 align-items-end gap-10">
     <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
         <label class="form-label fs-7 m-0" for="project">Project</label>
         @if (auth()->user()->id == $task->createdBy->id || auth()->user()->hasRole('ADMIN'))
@@ -631,6 +631,10 @@
                 value="{{ $relatedData->input_number }}">
         </div>
     @endif
+    <button onclick="taskLinkCopy('{{ route('tasks.show', $task->id) }}')"
+        class="btn btn-outline-primary d-inline-flex align-items-center gap-1">
+        <i class="bi bi-share-fill"></i> Share
+    </button>
 </div>
 <div class="card {{ $task->status == 'Completed' ? 'bg-success-200' : '' }} border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
@@ -1901,4 +1905,15 @@
         loadComments()
         loadTaskAttachments()
     });
+
+    function taskLinkCopy(link) {
+        navigator.clipboard.writeText(link)
+            .then(() => {
+                toastr.success('Task link copied to clipboard!');
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                toastr.success('Could not copy the link.');
+            });
+    }
 </script>
