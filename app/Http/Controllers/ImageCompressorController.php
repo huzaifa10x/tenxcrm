@@ -20,7 +20,7 @@ class ImageCompressorController extends Controller
     {
         $request->validate([
             'images' => 'required|array',
-            'images.*' => 'mimes:jpeg,jpg,png,webp|max:10240',
+            'images.*' => 'mimes:jpeg,jpg,png,webp',
             'target_size' => 'required|integer|min:10',
         ]);
 

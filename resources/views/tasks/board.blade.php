@@ -291,7 +291,7 @@
                                                         <a data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                                                             aria-controls="offcanvasRight"
                                                             onclick="loadTaskDetails({{ $task->id }})"
-                                                            href="#">
+                                                            href="#" class="task-title-class-for-highlight">
                                                             {{ $task->title }}
                                                         </a>
                                                     </td>
@@ -643,6 +643,11 @@
                 else urlParams.delete('end_date');
 
                 window.location.search = urlParams.toString(); // Reload with updated params
+            });
+
+            $('.task-title-class-for-highlight').on('click', function() {
+                $('.task-title-class-for-highlight').css('color', '#000')
+                $(this).css('color', '#45B369')
             });
 
             $('#reset_filters').on('click', function() {
