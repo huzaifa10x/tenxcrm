@@ -255,6 +255,7 @@
                                                 @if (route('tasks.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
                                                     <th>Assigned To</th>
                                                 @endif
+                                                <th>Priority</th>
                                                 <th>Created By</th>
                                                 <th>Start Date</th>
                                                 <th>Action</th>
@@ -297,6 +298,9 @@
                                                     @if (route('tasks.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
                                                         <td>{{ $task->assignedTo->name ?? 'N/A' }}</td>
                                                     @endif
+                                                    <td>
+                                                        {{ $task->priority }}
+                                                    </td>
                                                     <td>
                                                         {{ $task->createdBy->name ?? '' }}
                                                     </td>
