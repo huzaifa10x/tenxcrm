@@ -252,7 +252,7 @@
                                                 <th>ID</th>
                                                 <th>Project</th>
                                                 <th>Title</th>
-                                                @if (route('tasks.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
+                                                @if (request('type') == 'task-created-by-me' || auth()->user()->hasRole('ADMIN'))
                                                     <th>Assigned To</th>
                                                 @endif
                                                 <th>Priority</th>
@@ -295,7 +295,7 @@
                                                             {{ $task->title }}
                                                         </a>
                                                     </td>
-                                                    @if (route('tasks.index') == url()->current() || auth()->user()->hasRole('ADMIN'))
+                                                    @if (request('type') == 'task-created-by-me' || auth()->user()->hasRole('ADMIN'))
                                                         <td>{{ $task->assignedTo->name ?? 'N/A' }}</td>
                                                     @endif
                                                     <td>
