@@ -28,6 +28,7 @@ class ProjectController extends Controller
         $category = $request->query('projects-category');
         $accountManagerId = $request->query('account_manager_id');
         $salesManagerId = $request->query('sales_manager_id');
+        $techManagerId = $request->query('tech_manager_id');
         $user = auth()->user();
 
         $accountManagers = User::whereHas('roles', fn($q) => $q->where('name', 'AM'))->get();
@@ -90,7 +91,12 @@ class ProjectController extends Controller
             });
             $projects = $query->paginate(10)->withQueryString();
         }
-
+        if ($techManagerId) {
+            $query->whereHas('techManagers', function ($q) use ($techManagerId) {
+                $q->where('user_id', $techManagerId);
+            });
+            $projects = $query->paginate(10)->withQueryString();
+        }
         if (
             $category && in_array($category, ['SEO', 'Hosting']) &&
             ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))

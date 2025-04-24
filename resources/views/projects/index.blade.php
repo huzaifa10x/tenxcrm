@@ -57,6 +57,21 @@
                     </select>
                 </form>
                 <form method="GET" action="{{ route('projects.index') }}">
+                    {{-- Preserve other query params --}}
+                    @if (request('account_manager_id'))
+                        <input type="hidden" name="account_manager_id" value="{{ request('account_manager_id') }}">
+                    @endif
+                    <select class="form-control w-auto" name="tech_manager_id" onchange="this.form.submit()">
+                        <option value="">-- Filter by Tech Manager --</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}"
+                                {{ request('tech_manager_id') == $user->id ? 'selected' : '' }}>
+                                {{ $user->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+                <form method="GET" action="{{ route('projects.index') }}">
                     <input type="hidden" name="sales_manager_id" value="">
                     <input type="hidden" name="account_manager_id" value="">
                     <button class="btn btn-danger-500 btn-sm" type="submit">Reset</button>
