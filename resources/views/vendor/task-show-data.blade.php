@@ -632,7 +632,7 @@
         </div>
     @endif
     <button onclick="taskLinkCopy('{{ route('tasks.show', $task->id) }}')"
-        class="btn btn-outline-primary d-inline-flex align-items-center gap-1">
+        class="btn btn-outline-primary fs-7 d-inline-flex align-items-center gap-1">
         <i class="bi bi-share-fill"></i> Share
     </button>
 </div>
