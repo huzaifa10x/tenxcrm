@@ -27,6 +27,11 @@ class ImageCompressorController extends Controller
         $targetSizeKB = $request->input('target_size');
         $savedImages = [];
 
+        $dir = storage_path('app/public/compressed');
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
         $oldImages = CompressedImage::all();
         foreach ($oldImages as $img) {
             Storage::delete('public/compressed/' . $img->compressed_filename);
