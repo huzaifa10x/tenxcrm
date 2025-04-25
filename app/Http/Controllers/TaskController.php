@@ -648,23 +648,30 @@ class TaskController extends Controller
 
             case 'Keywords Approval':
                 foreach ($keywordsApprovalTasks as $loopTask) {
-                    Task::create([
-                        'is_automated' => 1,
-                        'title' => $loopTask['title'],
-                        'description' => "system generated task",
-                        'project_id' => $project->id,
-                        'department_id' => null,
-                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                        'assigned_to' => $loopTask['assignee'],
-                        'priority' => 'High',
-                        'type' => $loopTask['type'],
-                        'status' => 'Todo',
-                        'due_date' => Carbon::now()->addDays(7),
-                        'start_date' => $dubaiTime,
-                        'repeat_task' => false,
-                    ]);
+                    $alreadyExists = Task::where('project_id', $project->id)
+                        ->where('title', $loopTask['title'])
+                        ->exists();
+
+                    if (!$alreadyExists) {
+                        Task::create([
+                            'is_automated' => 1,
+                            'title' => $loopTask['title'],
+                            'description' => "system generated task",
+                            'project_id' => $project->id,
+                            'department_id' => null,
+                            'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                            'assigned_to' => $loopTask['assignee'],
+                            'priority' => 'High',
+                            'type' => $loopTask['type'],
+                            'status' => 'Todo',
+                            'due_date' => Carbon::now()->addDays(7),
+                            'start_date' => $dubaiTime,
+                            'repeat_task' => false,
+                        ]);
+                    }
                 }
                 break;
+
             case 'Content Audit':
                 Task::create([
                     'is_automated' => 1,
