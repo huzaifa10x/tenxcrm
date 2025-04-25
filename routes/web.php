@@ -57,6 +57,10 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
+    Route::get('/leads-view', [ClientLeadController::class, 'index']);
+    Route::get('/leads/by-site/{website_name}', [ClientLeadController::class, 'getLeadsByWebsite'])
+        ->name('leads.bySite');
+
     // Attendance Notes Routes
     Route::post('/attendance/{attendanceId}/notes', [AttendanceNoteController::class, 'store'])->name('attendance.notes.store');
     Route::get('/attendance/{attendanceId}/notes', [AttendanceNoteController::class, 'index'])->name('attendance.notes.index');
