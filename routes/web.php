@@ -34,8 +34,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/groq-chat', [DashboardController::class, 'chat'])->name('groq.chat');
 
-Route::post('/store-lead', [ClientLeadController::class, 'store'])->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
