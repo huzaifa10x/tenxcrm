@@ -20,4 +20,8 @@ class ClientLeadController extends Controller
 
         return response()->json(['success' => true, 'lead_id' => $lead->id], 201);
     }
+    public function show(Request $request)
+    {
+        return response()->json(['message' => 'sfdf']);
+    }
 }
