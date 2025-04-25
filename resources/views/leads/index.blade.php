@@ -1,47 +1,45 @@
 <x-app-layout>
-    <x-slot name="header">
-        {{ __('Client Leads') }}
-    </x-slot>
+    @if (auth()->user()->hasRole('AM') || auth()->user()->hasRole('SEO ADMIN') || auth()->user()->hasRole('ADMIN'))
+        <x-slot name="header">
+            {{ __('Client Leads') }}
+        </x-slot>
 
-    <div class="container mt-4">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="website-selector" class="form-label">
-                    <i class="bi bi-globe2"></i> Select Website
-                </label>
-                <select id="website-selector" class="form-select">
-                    <option value="">-- Select Website --</option>
-                    @foreach ($websites as $site)
-                        <option value="{{ $site }}">{{ $site }}</option>
-                    @endforeach
-                </select>
+        <div class="container mt-4">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="website-selector" class="form-label">
+                        <i class="bi bi-globe2"></i> Select Website
+                    </label>
+                    <select id="website-selector" class="form-select">
+                        <option value="">-- Select Website --</option>
+                        @foreach ($websites as $site)
+                            <option value="{{ $site }}">{{ $site }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
+
+            <div id="leads-container"></div>
         </div>
 
-        <div id="leads-container"></div>
-    </div>
+        <script>
+            const baseRoute = @json(route('leads.bySite', ['website_name' => '__PLACEHOLDER__']));
 
-    {{-- Bootstrap Icons CDN --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+            $('#website-selector').on('change', function() {
+                const selected = $(this).val();
+                const container = $('#leads-container');
 
-    <script>
-        const baseRoute = @json(route('leads.bySite', ['website_name' => '__PLACEHOLDER__']));
+                if (!selected) {
+                    container.html('');
+                    return;
+                }
 
-        $('#website-selector').on('change', function() {
-            const selected = $(this).val();
-            const container = $('#leads-container');
+                const finalUrl = baseRoute.replace('__PLACEHOLDER__', encodeURIComponent(selected));
 
-            if (!selected) {
-                container.html('');
-                return;
-            }
-
-            const finalUrl = baseRoute.replace('__PLACEHOLDER__', encodeURIComponent(selected));
-
-            $.get(finalUrl, function(data) {
-                if (data.length) {
-                    let columns = Object.keys(data[0].form_data);
-                    let html = `
+                $.get(finalUrl, function(data) {
+                    if (data.length) {
+                        let columns = Object.keys(data[0].form_data);
+                        let html = `
                         <div class="card shadow">
                             <div class="card-header bg-primary text-white">
                                 <i class="bi bi-person-lines-fill"></i> Leads for <strong>${selected}</strong>
@@ -51,36 +49,39 @@
                                     <thead class="table-light">
                                         <tr>`;
 
-                    columns.forEach(col => {
-                        html += `<th>${col}</th>`;
-                    });
-                    html += `<th>Submitted At</th></tr></thead><tbody>`;
-
-                    data.forEach(lead => {
-                        html += '<tr>';
                         columns.forEach(col => {
-                            html += `<td>${lead.form_data[col] ?? '-'}</td>`;
+                            html += `<th>${col}</th>`;
                         });
-                        html += `<td><i class="bi bi-clock"></i> ${lead.created_at}</td></tr>`;
-                    });
+                        html += `<th>Submitted At</th></tr></thead><tbody>`;
 
-                    html += '</tbody></table></div></div>';
-                    container.html(html);
-                } else {
-                    container.html(`
+                        data.forEach(lead => {
+                            html += '<tr>';
+                            columns.forEach(col => {
+                                html += `<td>${lead.form_data[col] ?? '-'}</td>`;
+                            });
+                            html += `<td><i class="bi bi-clock"></i> ${lead.created_at}</td></tr>`;
+                        });
+
+                        html += '</tbody></table></div></div>';
+                        container.html(html);
+                    } else {
+                        container.html(`
                         <div class="alert alert-warning d-flex align-items-center" role="alert">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>
                             No leads found for this website.
                         </div>
                     `);
-                }
-            }).fail(() => {
-                container.html(`
+                    }
+                }).fail(() => {
+                    container.html(`
                     <div class="alert alert-danger" role="alert">
                         <i class="bi bi-x-circle-fill me-2"></i> Failed to fetch leads. Please try again later.
                     </div>
                 `);
+                });
             });
-        });
-    </script>
+        </script>
+    @else
+        @include('vendor.not-allowed')
+    @endif
 </x-app-layout>

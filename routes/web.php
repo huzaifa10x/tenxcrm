@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/leads-view', [ClientLeadController::class, 'index']);
+    Route::get('/leads-view', [ClientLeadController::class, 'index'])->name('leads.view');
     Route::get('/leads/by-site/{website_name}', [ClientLeadController::class, 'getLeadsByWebsite'])
         ->name('leads.bySite');
 
