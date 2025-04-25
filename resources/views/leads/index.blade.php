@@ -1,5 +1,5 @@
 <x-app-layout>
-    @if (auth()->user()->hasRole('AM') || auth()->user()->hasRole('SEO ADMIN') || auth()->user()->hasRole('ADMIN'))
+    @if (auth()->user()->hasRole('AM') || auth()->user()->hasRole('ADMIN'))
         <x-slot name="header">
             {{ __('Client Leads') }}
         </x-slot>
