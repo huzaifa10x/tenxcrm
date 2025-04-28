@@ -594,7 +594,7 @@
 <div class="d-flex mb-10 align-items-end gap-10">
     <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
         <label class="form-label fs-7 m-0" for="project">Project</label>
-        @if (auth()->user()->id == $task->createdBy->id || auth()->user()->hasRole('ADMIN'))
+        @if (($task->createdBy && $task->createdBy->id == auth()->user()->id) || auth()->user()->hasRole('ADMIN'))
             <div class="d-flex align-items-start gap-10">
                 <select class="form-control" name="project_id" onchange="updateTaskField(this)">
                     @foreach ($projects as $project)
@@ -639,7 +639,7 @@
 <div class="card {{ $task->status == 'Completed' ? 'bg-success-200' : '' }} border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
         @if (auth()->user()->hasRole('ADMIN') ||
-                $task->createdBy->id == auth()->user()->id ||
+                ($task->createdBy && $task->createdBy->id == auth()->user()->id) ||
                 auth()->user()->hasPermission('can edit task'))
             <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
                 <label class="form-label fs-7 m-0" for="priority">Priority</label>
@@ -656,7 +656,10 @@
                 <select onchange="updateTaskField(this)" class="form-control fs-7 h-auto" name="assigned_to"
                     id="assigned_to">
                     @foreach ($users as $user)
-                        <option {{ $user->id == $task->assignedTo->id ? 'selected' : '' }}
+                        @if (!$task->assignedTo)
+                            <option disabled value="-" selected>System</option>
+                        @endif
+                        <option {{ $task->assignedTo && $user->id == $task->assignedTo->id ? 'selected' : '' }}
                             value="{{ $user->id }}">
                             {{ $user->name }}</option>
                     @endforeach
@@ -682,7 +685,7 @@
         @endif
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
             <label class="form-label fs-7 m-0" for="sub_type">Created by</label>
-            <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->createdBy->name }}">
+            <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->createdBy->name ?? 'System or user deleted' }}">
         </div>
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
             <label class="form-label fs-7 m-0" for="status">Status</label>

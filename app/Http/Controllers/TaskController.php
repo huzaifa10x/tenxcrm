@@ -781,7 +781,7 @@ class TaskController extends Controller
             'id' => Str::uuid(),
             'type' => \App\Notifications\CustomNotification::class,
             'notifiable_type' => \App\Models\User::class,
-            'notifiable_id' => $task->createdBy->id,
+            'notifiable_id' => $task->createdBy->id ?? 1,
             'data' => json_encode([
                 'title' => "Task completed by " . auth()->user()->name,
                 'message' => $task->title . " has been completed.",

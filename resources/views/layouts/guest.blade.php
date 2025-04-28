@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>10X CRM | login 10x Crm</title>
+    <title>10X One | login 10X One</title>
     <link rel="icon" href="{{ asset('/public/fav-icon.webp') }}" type="image/png" sizes="16x16">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -38,7 +38,7 @@
     <section class="auth bg-base d-flex flex-wrap">
         <div class="auth-left d-lg-block d-none">
             <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-                <img style="filter: hue-rotate(240deg);" src="{{ asset('/images/auth/auth-img.png') }}" alt="">
+                <h1 class="display-1 fw-bold">10X One</h1>
             </div>
         </div>
         <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">

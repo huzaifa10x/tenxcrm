@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->longText('description')->nullable();
             $table->foreignId('department_id')->nullable()->constrained('roles')->onDelete('set null');
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('set null');
             $table->enum('priority', ['Low', 'Medium', 'High', 'Urgent'])->default('Medium');
             $table->enum('type', ['CONTENT', 'ONSITE', 'TECH MANAGER', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'SEO ADMIN', 'ADMIN', 'SALES MANAGER', 'SALES', 'ADHOC', 'SOCIAL MEDIA MANAGER'])->default('ADHOC');

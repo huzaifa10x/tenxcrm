@@ -302,7 +302,7 @@
                                                         {{ $task->priority }}
                                                     </td>
                                                     <td>
-                                                        {{ $task->createdBy->name ?? '' }}
+                                                        {{ $task->createdBy->name ?? 'System or user deleted' }}
                                                     </td>
                                                     <td>
                                                         {{ $task->start_date
