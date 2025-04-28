@@ -1301,7 +1301,7 @@
                     <tr id="row-${kwUrl.id}">
                         <td>${kwUrl.keyword}</td>
                         <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                        @if ($userPermissions->contains('can remove offsite links') && $task->status !== "Completed" && ($task->createdBy && $task->createdBy->id == auth()->user->id) )
+                        @if ($userPermissions->contains('can remove offsite links') && $task->status !== "Completed" && ($task->createdBy && $task->createdBy->id == auth()->user()->id) )
                             <td>
                                 <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
                             </td>
