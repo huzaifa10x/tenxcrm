@@ -162,7 +162,8 @@
                         </div>
 
                         <div class="col-lg-6">
-                            <label class="form-label" for="contract_value">Total Contract Value <span class="fs-7">(w/o VAT - in AED)</span></label>
+                            <label class="form-label" for="contract_value">Total Contract Value <span
+                                    class="fs-7">(w/o VAT - in AED)</span></label>
                             <input type="number" class="form-control" id="contract_value" name="contract_value"
                                 value="{{ $project->contract_value }}" required>
                         </div>
@@ -288,6 +289,9 @@
                                 <option value="Web Development"
                                     {{ $project->project_type == 'Web Development' ? 'selected' : '' }}>Web Development
                                 </option>
+                                <option value="Web Maintenance"
+                                    {{ $project->project_type == 'Web Maintenance' ? 'selected' : '' }}>Web Maintenance
+                                </option>
                                 <option value="Hosting" {{ $project->project_type == 'Hosting' ? 'selected' : '' }}>
                                     Hosting</option>
                                 <option value="Other" {{ $project->project_type == 'Other' ? 'selected' : '' }}>Other
@@ -313,8 +317,8 @@
                                 <div class="col-lg-6">
                                     <label class="form-label" for="milestone_1_date">Guarantee for 1st Milestone
                                         Date</label>
-                                    <input required class="form-control date-picker" type="date" id="milestone_1_date"
-                                        name="milestone_1_date"
+                                    <input required class="form-control date-picker" type="date"
+                                        id="milestone_1_date" name="milestone_1_date"
                                         value="{{ $project->seoProject->milestone_1_date ?? '' }}">
                                 </div>
                                 <div class="col-lg-6">
@@ -327,8 +331,8 @@
                                 <div class="col-lg-6">
                                     <label class="form-label" for="milestone_2_date">Guarantee for 2nd Milestone
                                         Date</label>
-                                    <input required class="form-control date-picker" type="date" id="milestone_2_date"
-                                        name="milestone_2_date"
+                                    <input required class="form-control date-picker" type="date"
+                                        id="milestone_2_date" name="milestone_2_date"
                                         value="{{ $project->seoProject->milestone_2_date ?? '' }}">
                                 </div>
                                 <div class="col-lg-6">
@@ -341,8 +345,8 @@
                                 <div class="col-lg-6">
                                     <label class="form-label" for="milestone_3_date">Guarantee for 3rd Milestone
                                         Date</label>
-                                    <input required class="form-control date-picker" type="date" id="milestone_3_date"
-                                        name="milestone_3_date"
+                                    <input required class="form-control date-picker" type="date"
+                                        id="milestone_3_date" name="milestone_3_date"
                                         value="{{ $project->seoProject->milestone_3_date ?? '' }}">
                                 </div>
                             @elseif ($project->project_type == 'Social Media')

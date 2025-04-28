@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods')->onDelete('set null');
             $table->foreignId('created_by')->constrained('users')->onDelete('set null');
             $table->longText('handover_notes');
-            $table->enum('project_type', ['SEO', 'Google Ads', 'Social Media', 'Web Development', 'Hosting', 'Other']);
+            $table->enum('project_type', ['SEO', 'Google Ads', 'Social Media', 'Web Development', 'Hosting', 'Other', 'Web Maintenance']);
             $table->timestamps();
         });
 

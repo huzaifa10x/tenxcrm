@@ -25,8 +25,9 @@
                             <option value="Google Ads">Google Ads</option>
                             <option value="Social Media">Social Media</option>
                             <option value="Web Development">Web Development</option>
+                            <option value="Web Maintenance">Web Maintenance</option>
                             <option value="Hosting">Hosting</option>
-                            <option value="Hosting">Other</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="col-lg-3">
