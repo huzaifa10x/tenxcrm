@@ -375,7 +375,7 @@
             paramName: "attachments", // Ensure Laravel handles it as an array
             maxFiles: 10,
             maxFilesize: 5, // 5MB per file
-            acceptedFiles: ".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp",
+            acceptedFiles: ".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.txt",
             addRemoveLinks: true,
             headers: {
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"

@@ -151,47 +151,47 @@
                     $('#chatBox').append(`
                         ${msg.sender_id == "{{ auth()->id() }}" ? 
                             `<div class="chat-single-message position-relative right">
-                                                                                                                                        <div class="chat-message-content">
-                                                                                                                                            <p class="mb-3">${msg.message}</p>
-                                                                                                                                            <p class="chat-time mb-0">
-                                                                                                                                                <span>${msg.created_at_formatted}</span>
-                                                                                                                                                  <div class="btn-group position-absolute top-0 end-0 m-10 mt-20">
-                                                                            <button type="button" class="text-xl text-light" data-bs-toggle="dropdown"
-                                                                                data-bs-display="static" aria-expanded="false">
-                                                                                <iconify-icon icon="tabler:dots-vertical"></iconify-icon>
-                                                                            </button>
-                                                                            <ul class="dropdown-menu dropdown-menu-lg-end border">
-                                                                                <li>
-                                                                                    <button onclick="deleteMessage(${msg.id}, 'me')"
-                                                                                        class="dropdown-item rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-2"
-                                                                                        type="button">
-                                                                                        <iconify-icon icon="mdi:clear-circle-outline"></iconify-icon>
-                                                                                        Delete for me
-                                                                                    </button>
-                                                                                </li>
-                                                                                <li>
-                                                                                    <button
-                                                                                    onclick="deleteMessage(${msg.id}, 'everyone')"
-                                                                                        class="dropdown-item rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-2"
-                                                                                        type="button">
-                                                                                        <iconify-icon icon="ic:baseline-block"></iconify-icon>
-                                                                                        Delete for Everyone
-                                                                                    </button>
-                                                                                </li>
-                                                                            </ul>
-                                                                        </div>
-                                                                                                                                            </p>
-                                                                                                                                        </div>
-                                                                                                                                    </div>` : 
+                                                                                                                                                    <div class="chat-message-content">
+                                                                                                                                                        <p class="mb-3">${msg.message}</p>
+                                                                                                                                                        <p class="chat-time mb-0">
+                                                                                                                                                            <span>${msg.created_at_formatted}</span>
+                                                                                                                                                              <div class="btn-group position-absolute top-0 end-0 m-10 mt-20">
+                                                                                        <button type="button" class="text-xl text-light" data-bs-toggle="dropdown"
+                                                                                            data-bs-display="static" aria-expanded="false">
+                                                                                            <iconify-icon icon="tabler:dots-vertical"></iconify-icon>
+                                                                                        </button>
+                                                                                        <ul class="dropdown-menu dropdown-menu-lg-end border">
+                                                                                            <li>
+                                                                                                <button onclick="deleteMessage(${msg.id}, 'me')"
+                                                                                                    class="dropdown-item rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-2"
+                                                                                                    type="button">
+                                                                                                    <iconify-icon icon="mdi:clear-circle-outline"></iconify-icon>
+                                                                                                    Delete for me
+                                                                                                </button>
+                                                                                            </li>
+                                                                                            <li>
+                                                                                                <button
+                                                                                                onclick="deleteMessage(${msg.id}, 'everyone')"
+                                                                                                    class="dropdown-item rounded text-secondary-light bg-hover-neutral-200 text-hover-neutral-900 d-flex align-items-center gap-2"
+                                                                                                    type="button">
+                                                                                                    <iconify-icon icon="ic:baseline-block"></iconify-icon>
+                                                                                                    Delete for Everyone
+                                                                                                </button>
+                                                                                            </li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                                                                                        </p>
+                                                                                                                                                    </div>
+                                                                                                                                                </div>` : 
                             `<div class="chat-single-message left">
-                                                                                                                             <img src="${msg.sender_img}" alt="image" class="avatar-lg object-fit-cover rounded-circle">
-                                                                                                                                    <div class="chat-message-content">
-                                                                                                                                        <p class="mb-3">${msg.message}</p>
-                                                                                                                                        <p class="chat-time mb-0">
-                                                                                                                                            <span>${msg.created_at_formatted}</span>
-                                                                                                                                        </p>
-                                                                                                                                    </div>
-                                                                                                                                </div>`
+                                                                                                                                         <img src="${msg.sender_img}" alt="image" class="avatar-lg object-fit-cover rounded-circle">
+                                                                                                                                                <div class="chat-message-content">
+                                                                                                                                                    <p class="mb-3">${msg.message}</p>
+                                                                                                                                                    <p class="chat-time mb-0">
+                                                                                                                                                        <span>${msg.created_at_formatted}</span>
+                                                                                                                                                    </p>
+                                                                                                                                                </div>
+                                                                                                                                            </div>`
                         }
                     `);
                 });
@@ -215,11 +215,11 @@
 
         $('#messageForm').on('submit', function(e) {
             e.preventDefault();
-            
+
             const message = $('#messageInput').val();
             const receiver = $('#receiver_id').val();
             if (!message || !receiver) return;
-            
+
             if (receiver === 'ai') {
                 $('#chatBox').append(`
                     <div class="chat-single-message position-relative right">
@@ -283,8 +283,8 @@
                         <div class="info">
                             <h6 class="text-sm mb-1">${user.name}</h6>
                             ${user.unread_count > 0 ? `
-                                                <p class="mb-0 text-xs unreadCount">${user.unread_count} new messages</p>
-                                                ` : ''}
+                                                            <p class="mb-0 text-xs unreadCount">${user.unread_count} new messages</p>
+                                                            ` : ''}
                         </div>
                         <div class="action unreadBadge text-end">
                             ${unreadBadge}
@@ -306,3 +306,6 @@
     </script>
 
 </x-app-layout>
+
+
+
