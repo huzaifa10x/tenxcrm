@@ -93,6 +93,9 @@ class TaskController extends Controller
         if ($request->has('project_id')) {
             $taskQuery->where('project_id', $request->input('project_id'));
         }
+        if ($request->has('all-automated')) {
+            $taskQuery->where('is_automated', 1);
+        }
 
         $taskQuery->orderByRaw("FIELD(priority, 'Urgent', 'High', 'Medium', 'Low')");
         $tasks = $taskQuery->get();

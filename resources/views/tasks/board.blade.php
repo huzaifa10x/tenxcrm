@@ -46,7 +46,7 @@
     </div>
 
     <div class="d-flex my-10 align-items-center justify-content-between">
-        <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-sm btn-outline-primary">
+        <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="btn btn-info-900">
             Create Task
         </button>
         <div>
@@ -121,6 +121,9 @@
                     <option value="{{ $project->id }}">{{ $project->title }}</option>
                 @endforeach
             </select>
+        </div>
+        <div class="col-lg-4">
+            <button id="showAllAutomated" class="btn btn-outline-primary">All Automated Tasks</button>
         </div>
         <div class="col-lg-12">
             <div class="input-group">
@@ -569,6 +572,14 @@
                     urlParams.set('project_id', selectedUser);
                     window.location.href = baseUrl + "?" + urlParams.toString();
                 }
+            });
+        });
+
+        $(document).ready(function() {
+            let urlParams = new URLSearchParams(window.location.search);
+            $('#showAllAutomated').on('click', function() {
+                let baseUrl = "{{ request()->url() }}";
+                window.location.href = baseUrl + "?" + 'all-automated';
             });
         });
 
