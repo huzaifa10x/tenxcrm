@@ -81,6 +81,12 @@ class TaskController extends Controller
         if ($request->has('start_date')) {
             $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
         }
+        if ($request->has('completed_date_start')) {
+            $taskQuery->whereDate('completed_date', '>=', $request->input('completed_date_start'));
+        }
+        if ($request->has('completed_date_end')) {
+            $taskQuery->whereDate('completed_date', '<=', $request->input('completed_date_end'));
+        }
         if ($request->has('end_date')) {
             $taskQuery->whereDate('created_at', '<=', $request->input('end_date'));
         }

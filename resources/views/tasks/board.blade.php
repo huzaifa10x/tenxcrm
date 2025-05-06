@@ -71,6 +71,7 @@
             <button id="reset_filters" class="btn btn-secondary">Reset</button>
         </div>
     </div>
+
     <div class="row mb-10 gy-3">
         @if (auth()->user()->hasRole('ADMIN') ||
                 route('tasks.index') == url()->current() ||
@@ -123,6 +124,14 @@
             </select>
         </div>
         <div class="col-lg-4">
+            <input type="date" id="completed_date_start" name="completed_date_start" class="form-control"
+                placeholder="Select Completed Date From">
+        </div>
+        <div class="col-lg-4">
+            <input type="date" id="completed_date_end" name="completed_date_end" class="form-control"
+                placeholder="Select Completed Date To">
+        </div>
+        <div class="col-lg-4">
             <button id="showAllAutomated" class="btn btn-outline-primary">All Automated Tasks</button>
         </div>
         <div class="col-lg-12">
@@ -140,6 +149,7 @@
             </div>
         </div>
     </div>
+
     @php
         $statusColors = [
             'Todo' => 'bg-info-600',
@@ -149,14 +159,15 @@
             'Blocked' => 'bg-danger-600',
         ];
     @endphp
+
     {{-- MAIN SCREEN --}}
     @if (request()->query('view_type') === 'board')
-        {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
         <div class="overflow-x-auto scroll-sm pb-8">
             <div class="kanban-wrapper">
                 <div class="d-flex align-items-start gap-24" id="sortable-wrapper">
                     @foreach (['Todo', 'In Progress', 'Review', 'Completed', 'Blocked'] as $status)
-                        <div class="w-25 kanban-item radius-12 progress-card kanban-column scroll-sm position-relative">
+                        <div
+                            class="w-25 kanban-item radius-12 progress-card kanban-column scroll-sm position-relative">
                             @php
                                 $colorClass = $statusColors[$status] ?? 'bg-secondary-600';
                                 $taskCount = $tasks->where('status', $status)->where('repeat_task', '0')->count();
@@ -218,7 +229,6 @@
             </div>
         </div>
     @else
-        {{-- {{ $tasks->links('vendor.pagination.custom') }} --}}
         <div class="row gy-3 mb-10">
             <div class="col-lg-12">
                 <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
@@ -261,6 +271,7 @@
                                                 <th>Priority</th>
                                                 <th>Created By</th>
                                                 <th>Start Date</th>
+                                                <th>Completed Date</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -310,6 +321,11 @@
                                                     <td>
                                                         {{ $task->start_date
                                                             ? \Carbon\Carbon::parse($task->start_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
+                                                            : 'Not Set' }}
+                                                    </td>
+                                                    <td>
+                                                        {{ $task->completed_date
+                                                            ? \Carbon\Carbon::parse($task->completed_date)->setTimezone('Asia/Dubai')->format('d-m-Y h:i A')
                                                             : 'Not Set' }}
                                                     </td>
                                                     <td>
@@ -565,7 +581,7 @@
             $('#byProject').on('change', function() {
                 let selectedUser = $(this).val();
                 let baseUrl = "{{ request()->url() }}";
-                
+
                 if (selectedUser === 'ALL') {
                     window.location.href = baseUrl;
                 } else {
@@ -574,7 +590,7 @@
                 }
             });
         });
-        
+
         $(document).ready(function() {
             let urlParams = new URLSearchParams(window.location.search);
             $('#showAllAutomated').on('click', function() {
@@ -625,6 +641,8 @@
             let urlParams = new URLSearchParams(window.location.search);
             let startDate = urlParams.get('start_date');
             let endDate = urlParams.get('end_date');
+            let completedDateStart = urlParams.get('completed_date_start');
+            let completedDateEnd = urlParams.get('completed_date_end');
 
             flatpickr("#start_date_search", {
                 enableTime: false,
@@ -633,6 +651,24 @@
                 altFormat: "F j, Y",
                 allowInput: true,
                 defaultDate: startDate ? startDate : null // Set date from URL if exists
+            });
+
+            flatpickr("#completed_date_start", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: true,
+                defaultDate: completedDateStart ? completedDateStart : null // Set date from URL if exists
+            });
+
+            flatpickr("#completed_date_end", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: true,
+                defaultDate: completedDateEnd ? completedDateEnd : null // Set date from URL if exists
             });
 
             flatpickr("#end_date_search", {
@@ -647,12 +683,21 @@
             $('#search_tasks').on('click', function() {
                 let startDate = $('#start_date_search').val();
                 let endDate = $('#end_date_search').val();
+                let completedDateStart = $('#completed_date_start').val();
+                let completedDateEnd = $('#completed_date_end').val();
 
                 if (startDate) urlParams.set('start_date', startDate);
                 else urlParams.delete('start_date');
 
                 if (endDate) urlParams.set('end_date', endDate);
                 else urlParams.delete('end_date');
+
+
+                if (completedDateStart) urlParams.set('completed_date_start', completedDateStart);
+                else urlParams.delete('completed_date_start');
+
+                if (completedDateEnd) urlParams.set('completed_date_end', completedDateEnd);
+                else urlParams.delete('completed_date_end');
 
                 window.location.search = urlParams.toString(); // Reload with updated params
             });
@@ -665,6 +710,8 @@
             $('#reset_filters').on('click', function() {
                 $('#start_date_search').flatpickr().clear(); // Clear start date
                 $('#end_date_search').flatpickr().clear(); // Clear end date
+                $('#completed_date_start').flatpickr().clear(); // Clear end date
+                $('#completed_date_end').flatpickr().clear(); // Clear end date
                 window.location.search = ''; // Reset URL params
             });
         });
