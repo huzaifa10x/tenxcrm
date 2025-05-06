@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Events\TaskCompleted;
 use App\Jobs\CreateDelayedTask;
 use App\Jobs\CreateRecurringTaskJob;
@@ -77,7 +78,6 @@ class TaskController extends Controller
         } else {
             $taskQuery->where('assigned_to', $user->id);
         }
-
         if ($request->has('start_date')) {
             $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
         }
@@ -90,16 +90,17 @@ class TaskController extends Controller
         if ($request->has('assigned_from')) {
             $taskQuery->where('created_by', $request->input('assigned_from'));
         }
+        if ($request->has('category')) {
+            $taskQuery->where('type', $request->input('category'));
+        }
         if ($request->has('project_id')) {
             $taskQuery->where('project_id', $request->input('project_id'));
         }
         if ($request->has('all-automated')) {
             $taskQuery->where('is_automated', 1);
         }
-
         $taskQuery->orderByRaw("FIELD(priority, 'Urgent', 'High', 'Medium', 'Low')");
         $tasks = $taskQuery->get();
-
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
     public function search(Request $request)
@@ -122,7 +123,7 @@ class TaskController extends Controller
                     $query->orWhereRaw('1=1');
                 }
             })
-            ->select('id', 'title', 'project_id')
+            ->select('id', 'title', 'project_id', 'status')
             ->limit(10)
             ->get();
 
@@ -131,6 +132,7 @@ class TaskController extends Controller
                 'id' => $task->id,
                 'title' => $task->title,
                 'project_title' => optional($task->project)->title ?? 'N/A',
+                'status' => $task->status,
             ];
         }));
     }
@@ -309,6 +311,10 @@ class TaskController extends Controller
 
         $relatedData = null;
 
+        $url = url("tasks/{$task->id}");
+
+        $qrCode = QrCode::size(200)->generate($url);
+
         switch ($task->type) {
             case 'CONTENT':
                 $relatedData = ContentTask::where('task_id', $task->id)->first();
@@ -346,7 +352,7 @@ class TaskController extends Controller
             session()->flash('is_not_ajax', true);
         }
 
-        return view('tasks.show', compact('task', 'projects', 'users', 'departments', 'relatedData'));
+        return view('tasks.show', compact('task', 'projects', 'users', 'departments', 'relatedData', 'qrCode'));
     }
     public function showTask($id)
     {
@@ -524,37 +530,95 @@ class TaskController extends Controller
             "message" => ucfirst($request->field) . " updated successfully!"
         ]);
     }
+    // public function completeTask(Request $request)
+    // {
+    //     $request->validate([
+    //         'task_id' => 'required|exists:tasks,id',
+    //         'fields' => 'required|array',
+    //         'fields.*.name' => 'required|string',
+    //         'fields.*.value' => 'nullable|string',
+    //         'file' => 'nullable|file',
+    //     ]);
+
+    //     $filePath = null;
+
+    //     if ($request->hasFile('file')) {
+    //         $filePath = $request->file('file')->store('task_attachments', 'public');
+    //     }
+
+    //     foreach ($request->fields as $index => $field) {
+    //         TaskCompletion::create([
+    //             'task_id' => $request->task_id,
+    //             'field_name' => $field['name'],
+    //             'field_value' => ($index === 0 && $filePath)
+    //                 ? $filePath
+    //                 : $field['value'],
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'message' => 'Task fields saved successfully',
+    //         'file_path' => $filePath,
+    //     ], 200);
+    // }
+    // public function completeTask(Request $request)
+    // {
+    //     $request->validate([
+    //         'task_id' => 'required|exists:tasks,id',
+    //         'fields' => 'required|array',
+    //         'fields.*.name' => 'required|string',
+    //         'files' => 'nullable|array',
+    //         'files.*' => 'file',
+    //     ]);
+
+    //     foreach ($request->fields as $index => $field) {
+    //         $filePath = null;
+
+    //         if ($request->hasFile("files.$index")) {
+    //             $filePath = $request->file("files.$index")->store('task_attachments', 'public');
+    //         }
+
+    //         TaskCompletion::create([
+    //             'task_id' => $request->task_id,
+    //             'field_name' => $field['name'],
+    //             'field_value' => $filePath ?? null,
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'message' => 'Task fields saved successfully',
+    //     ]);
+    // }
+
     public function completeTask(Request $request)
     {
         $request->validate([
             'task_id' => 'required|exists:tasks,id',
             'fields' => 'required|array',
             'fields.*.name' => 'required|string',
-            'fields.*.value' => 'nullable|string',
-            'file' => 'nullable|file',
         ]);
 
-        $filePath = null;
-
-        if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('task_attachments', 'public');
-        }
-
         foreach ($request->fields as $index => $field) {
+            $fieldName = $field['name'];
+            $fieldValue = $field['value'] ?? null;
+
+            if ($request->hasFile("fields.$index.value")) {
+                $file = $request->file("fields.$index.value");
+                $fieldValue = $file->store('task_attachments', 'public');
+            }
+
             TaskCompletion::create([
                 'task_id' => $request->task_id,
-                'field_name' => $field['name'],
-                'field_value' => ($index === 0 && $filePath)
-                    ? $filePath
-                    : $field['value'],
+                'field_name' => $fieldName,
+                'field_value' => $fieldValue,
             ]);
         }
 
         return response()->json([
             'message' => 'Task fields saved successfully',
-            'file_path' => $filePath,
-        ], 200);
+        ]);
     }
+
     public function markAsCompleted($id)
     {
         $task = Task::findOrFail($id);
@@ -598,14 +662,17 @@ class TaskController extends Controller
                 "sub_type" => $task->contentTask->sub_type,
                 "number_of_pages" => $task->contentTask->number_of_pages,
             ]);
+
             foreach ($task->attachments as $attachment) {
+                // Assuming 'file_type' and 'original_name' are stored in the attachment model
                 $newContentApprovalTask->attachments()->create([
                     'file_path' => $attachment->file_path,
-                    'file_type' => $attachment->getClientMimeType(),
-                    'original_name' => $attachment->getClientOriginalName(),
+                    'file_type' => $attachment->file_type,  // Assuming it's stored in the model
+                    'original_name' => $attachment->original_name,  // Assuming it's stored in the model
                     'user_id' => auth()->id(),
                 ]);
             }
+
             foreach ($task->comments as $comment) {
                 $newContentApprovalTask->comments()->create([
                     'task_id' => $newContentApprovalTask->id,

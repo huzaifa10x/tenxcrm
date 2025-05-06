@@ -516,7 +516,7 @@
     </script>
     <script>
         $(document).ready(function() {
-            let type = new URLSearchParams(window.location.search).get('type');
+            let type = new URLSearchParams(window.location.search).get('category');
             if (type) {
                 $('#taskType').val(type);
             }
@@ -524,9 +524,9 @@
                 let selectedType = $(this).val();
                 let urlParams = new URLSearchParams(window.location.search);
                 if (selectedType && selectedType !== "ALL") {
-                    urlParams.set('type', selectedType);
+                    urlParams.set('category', selectedType);
                 } else {
-                    urlParams.delete('type');
+                    urlParams.delete('category');
                 }
 
                 window.location.search = urlParams.toString();
@@ -565,7 +565,7 @@
             $('#byProject').on('change', function() {
                 let selectedUser = $(this).val();
                 let baseUrl = "{{ request()->url() }}";
-
+                
                 if (selectedUser === 'ALL') {
                     window.location.href = baseUrl;
                 } else {
@@ -574,12 +574,13 @@
                 }
             });
         });
-
+        
         $(document).ready(function() {
             let urlParams = new URLSearchParams(window.location.search);
             $('#showAllAutomated').on('click', function() {
                 let baseUrl = "{{ request()->url() }}";
-                window.location.href = baseUrl + "?" + 'all-automated';
+                urlParams.set('all-automated', 1);
+                window.location.href = baseUrl + "?" + urlParams.toString();
             });
         });
 
@@ -686,7 +687,7 @@
                     success: function(response) {
                         if (response.length > 0) {
                             let suggestions = response.map(task =>
-                                `<a target="_blank" href="{{ url('tasks') }}/${task.id}" class="list-group-item list-group-item-action">${task.id} - ${task.title} - ${task.project_title}</a>`
+                                `<a target="_blank" href="{{ url('tasks') }}/${task.id}" class="list-group-item list-group-item-action">${task.id} - ${task.title} - ${task.project_title} - ${task.status}</a>`
                             ).join('');
                             $('#input2').html(suggestions).show();
                         } else {

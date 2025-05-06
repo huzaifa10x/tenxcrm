@@ -17,7 +17,8 @@
         "laravel/sanctum": "^4.1",
         "laravel/tinker": "^2.9",
         "openai-php/laravel": "^0.11.0",
-        "pusher/pusher-php-server": "^7.2"
+        "pusher/pusher-php-server": "^7.2",
+        "simplesoftwareio/simple-qrcode": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -381,21 +381,6 @@
                                 Task</button>
                         </form>
                     @elseif (
-                        !in_array($task->title, ['Request for R1', 'Request for R2', 'Request for R3']) ||
-                            (!in_array($task->title, ['Schedule R1', 'Schedule R2', 'Schedule R3']) &&
-                                !($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])) &&
-                                !$task->title == 'Add the Client Credentials'))
-                        <form id="taskForm" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <label class="form-label">Notes</label>
-                            <input type="text" name="fields[0][name]" value="notes" hidden>
-                            <textarea class="form-control" name="fields[0][value]" cols="30" rows="10" required
-                                placeholder="Enter Notes"></textarea>
-                            <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
-                                Task</button>
-                        </form>
-                    @elseif (
                         $task->title == 'Request Backlinks' ||
                             ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
                         <form id="taskForm" enctype="multipart/form-data">
@@ -685,7 +670,8 @@
         @endif
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
             <label class="form-label fs-7 m-0" for="sub_type">Created by</label>
-            <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->createdBy->name ?? 'System or user deleted' }}">
+            <input readonly type="text" class="form-control fs-7 h-auto"
+                value="{{ $task->createdBy->name ?? 'System or user deleted' }}">
         </div>
         <div class="d-flex flex-column align-items-baseline gap-1" style="white-space: nowrap;">
             <label class="form-label fs-7 m-0" for="status">Status</label>
@@ -1000,7 +986,7 @@
                         <tr>
                             <th>Keyword</th>
                             <th>URL</th>
-                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== "Completed")
+                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                                 <th>Action</th>
                             @endif
                         </tr>
@@ -1024,7 +1010,7 @@
                         <tr>
                             <th>Keyword</th>
                             <th>URL</th>
-                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== "Completed")
+                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                                 <th>Action</th>
                             @endif
                         </tr>
@@ -1301,7 +1287,10 @@
                     <tr id="row-${kwUrl.id}">
                         <td>${kwUrl.keyword}</td>
                         <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                        @if ($userPermissions->contains('can remove offsite links') && $task->status !== "Completed" && ($task->createdBy && $task->createdBy->id == auth()->user()->id) )
+                        @if (
+                            $userPermissions->contains('can remove offsite links') &&
+                                $task->status !== 'Completed' &&
+                                ($task->createdBy && $task->createdBy->id == auth()->user()->id))
                             <td>
                                 <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
                             </td>
@@ -1332,7 +1321,7 @@
                         <tr id="row-${kwUrl.id}">
                             <td>${kwUrl.keyword}</td>
                             <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== "Completed")
+                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                             <td>
                                 <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
                             </td>
