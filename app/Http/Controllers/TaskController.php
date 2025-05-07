@@ -830,17 +830,17 @@ class TaskController extends Controller
                 break;
 
             case 'Intro Call':
-                Task::create([
-                    'is_automated' => 1,
-                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    'project_id' => $project->id,
-                    'title' => 'Request Backlinks',
-                    'assigned_to' => $seoAdmin,
-                    'status' => 'Todo',
-                    'start_date' => now()->addDays(30),
-                    'type' => 'SEO ADMIN',
-                    'description' => 'system generated task'
-                ]);
+                // Task::create([
+                //     'is_automated' => 1,
+                //     'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                //     'project_id' => $project->id,
+                //     'title' => 'Request Backlinks',
+                //     'assigned_to' => $seoAdmin,
+                //     'status' => 'Todo',
+                //     'start_date' => now()->addDays(30),
+                //     'type' => 'SEO ADMIN',
+                //     'description' => 'system generated task'
+                // ]);
                 break;
 
             default:
