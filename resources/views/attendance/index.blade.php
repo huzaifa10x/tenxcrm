@@ -100,65 +100,97 @@
             chartDonut.render();
         </script>
     @endif
-    <div class="card basic-data-table">
+    <div class="card basic-data-table shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center bg-light">
+            <span class="mb-0">
+                <i class="bi bi-calendar3 me-2"></i>Attendance - {{ \Carbon\Carbon::parse($month)->format('F Y') }}
+            </span>
+        </div>
+
         <div class="card-body table-responsive p-0" id="scrollable-table">
-            <table class="table bordered-table table-bordered mb-0">
-                <thead>
+            <table class="table table-bordered table-hover align-middle mb-0 text-center">
+                <thead class="table-light position-sticky top-0 shadow-sm" style="z-index: 1;">
                     <tr>
-                        <th>User</th>
+                        <th class="position-sticky start-0 bg-light fs-6" style="z-index: 2;">User</th>
                         @for ($day = 1; $day <= $totalDays; $day++)
                             @php
                                 $dateObj = \Carbon\Carbon::createFromFormat(
                                     'Y-m-d',
                                     $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT),
                                 );
-                                $dayName = $dateObj->format('D'); // Get day name (Mon, Tue, Wed, etc.)
+                                $dayName = $dateObj->format('D');
                             @endphp
-                            <th>{{ $day }} - {{ $dayName }}</th>
+                            <th class="fs-6 @if ($dateObj->isToday()) bg-info text-white @endif">
+                                {{ $day }}<br><small>{{ $dayName }}</small></th>
                         @endfor
                     </tr>
                 </thead>
+
                 <tbody>
+                    @php
+                        $icons = [
+                            'present' => 'bi-check-circle',
+                            'late' => 'bi-clock-history',
+                            'half_day' => 'bi-hourglass-split',
+                            'early_out' => 'bi-box-arrow-left',
+                            'absent' => 'bi-x-circle',
+                            'weekend' => 'bi-calendar-week',
+                            'pending' => 'bi-question-circle',
+                        ];
+                    @endphp
+
                     @foreach ($users as $user)
                         <tr>
-                            <td class="position-sticky start-0">{{ $user->name }}</td>
+                            <td class="position-sticky start-0 fs-6 bg-white text-start fw-semibold text-nowrap"
+                                style="z-index: 1;">
+                                <i class="bi bi-person-circle me-1 text-primary"></i>{{ $user->name }}
+                            </td>
+
                             @for ($day = 1; $day <= $totalDays; $day++)
                                 @php
                                     $date = $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
                                     $carbonDate = \Carbon\Carbon::parse($date);
                                     $attendance = $user->attendances->firstWhere('date', $date);
                                     $isHoliday = in_array($date, $holidays) || $carbonDate->isWeekend();
+                                    $status =
+                                        $attendance->status ??
+                                        ($isHoliday
+                                            ? 'weekend'
+                                            : ($carbonDate->isPast() && !$carbonDate->isToday()
+                                                ? 'absent'
+                                                : 'pending'));
+                                    $statusColor = match ($status) {
+                                        'present' => 'success',
+                                        'late' => 'warning',
+                                        'half_day' => 'info',
+                                        'early_out' => 'primary',
+                                        'absent' => 'danger',
+                                        'weekend' => 'dark',
+                                        'pending' => 'secondary',
+                                        default => 'secondary',
+                                    };
                                 @endphp
-                                <td class="text-center clickable-attendance"
+
+                                <td class="clickable-attendance fs-6 @if ($carbonDate->isToday()) bg-info-subtle @endif"
                                     data-attendance-id="{{ $attendance->id ?? '' }}">
-                                    @if ($isHoliday)
-                                        <span class="badge badge-success text-success">Weekend</span>
-                                    @elseif ($attendance)
-                                        @if ($attendance->status != 'absent')
-                                            <span class="badge badge-success text-success">In:
-                                                {{ $attendance->punch_in }}</span> <br>
-                                            <span class="badge badge-danger text-danger">Out:
-                                                {{ $attendance->punch_out ?? 'N/A' }}</span> <br>
-                                        @endif
-                                        @php
-                                            $statusColor = match ($attendance->status) {
-                                                'present' => 'success',
-                                                'late' => 'warning',
-                                                'half_day' => 'info',
-                                                'early_out' => 'primary',
-                                                'absent' => 'danger',
-                                                default => 'secondary',
-                                            };
-                                        @endphp
-                                        <span
-                                            class="badge bg-{{ $statusColor }}">{{ ucfirst($attendance->status) }}</span>
-                                    @else
-                                        @if ($carbonDate->isPast() && !$carbonDate->isToday())
-                                            <span class="badge badge-secondary text-secondary">Absent</span>
-                                        @else
-                                            <span class="badge badge-warning text-warning">Pending</span>
-                                        @endif
+
+                                    @if ($attendance && $attendance->status != 'absent')
+                                        <div>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="bi bi-box-arrow-in-right"></i> {{ $attendance->punch_in }}
+                                            </span>
+                                            <br>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="bi bi-box-arrow-right"></i>
+                                                {{ $attendance->punch_out ?? 'N/A' }}
+                                            </span>
+                                        </div>
                                     @endif
+
+                                    <span class="badge bg-{{ $statusColor }} mt-1">
+                                        <i class="bi {{ $icons[$status] ?? 'bi-question-circle' }}"></i>
+                                        {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                    </span>
                                 </td>
                             @endfor
                         </tr>
@@ -222,7 +254,7 @@
 
             if (selectedAttendanceId != {{ $todayAttendanceId }}) {
                 $('.add-new-note-wrapper').hide();
-            }else{
+            } else {
                 $('.add-new-note-wrapper').show();
             }
 

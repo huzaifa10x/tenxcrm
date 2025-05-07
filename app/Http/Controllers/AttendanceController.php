@@ -165,12 +165,11 @@ class AttendanceController extends Controller
                         switch ($attendance->status) {
                             case 'present':
                                 $totalPresent++;
-                                $lateCount = $halfDayCount = 0;
                                 break;
                             case 'late':
                                 $totalLate++;
                                 $lateCount++;
-                                if ($lateCount == $late_deduction_threshold) {
+                                if ($lateCount == $late_deduction_threshold ?? 3) {
                                     $deductions++;
                                     $lateCount = 0;
                                 }
@@ -178,7 +177,7 @@ class AttendanceController extends Controller
                             case 'half_day':
                                 $totalHalfDay++;
                                 $halfDayCount++;
-                                if ($halfDayCount == $half_day_deduction_threshold) {
+                                if ($halfDayCount == $half_day_deduction_threshold ?? 2) {
                                     $deductions++;
                                     $halfDayCount = 0;
                                 }
@@ -194,8 +193,9 @@ class AttendanceController extends Controller
                     } else {
                         if ($carbonDate->isPast() && !$carbonDate->isToday()) {
                             $totalAbsent++;
+                            $lateCount = 0;
+                            $halfDayCount = 0;
                         }
-                        $lateCount = $halfDayCount = 0;
                     }
                 }
             }
@@ -203,7 +203,30 @@ class AttendanceController extends Controller
 
         $todayAttendance = Attendance::where('user_id', auth()->id())->where('date', today())->first();
         $todayAttendanceId = $todayAttendance?->id ?? null;
-        
+
+        // return response()->json(
+        //     [
+        //         'users' => $users,
+        //         'breakEndTime' => $breakEndTime,
+        //         'earlyOutThreshold' => $earlyOutThreshold,
+        //         'halfDayThreshold' => $halfDayThreshold,
+        //         'lateThreshold' => $lateThreshold,
+        //         'month' => $month,
+        //         'totalDays' => $totalDays,
+        //         'userId' => $userId,
+        //         'totalPresent' => $totalPresent,
+        //         'totalAbsent' => $totalAbsent,
+        //         'totalLate' => $totalLate,
+        //         'totalHalfDay' => $totalHalfDay,
+        //         'totalEarlyOut' => $totalEarlyOut,
+        //         'deductions' => $deductions,
+        //         'holidays' => $holidays,
+        //         'todayAttendanceId' => $todayAttendanceId,
+        //     ]
+        // );
+
+        // exit;
+
         return view('attendance.index', compact(
             'users',
             'breakEndTime',

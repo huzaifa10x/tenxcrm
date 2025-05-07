@@ -42,6 +42,44 @@ class DashboardController extends Controller
         $repeatingTasks = RepeatingTask::all();
         $now = Carbon::now('Asia/Dubai');
 
+        // Dates
+        $dates = collect(range(6, 0))->map(function ($i) {
+            return Carbon::today()->subDays($i)->format('Y-m-d');
+        });
+
+        // Grouped closed task counts per day
+        $closedTasksPerDay = Task::completed()
+            ->select(DB::raw('DATE(completed_date) as date'), DB::raw('count(*) as count'))
+            ->where('assigned_to', $user->id)
+            ->whereBetween('completed_date', [Carbon::now()->subDays(6), Carbon::today()])
+            ->groupBy('date')
+            ->pluck('count', 'date');
+
+        // Build stats for line chart
+        $taskStats = $dates->map(function ($date) use ($closedTasksPerDay) {
+            return $closedTasksPerDay[$date] ?? 0;
+        });
+
+        // High-level aggregates
+        $yesterday = Carbon::yesterday();
+        $last7Days = Carbon::now()->subDays(7);
+        $last30Days = Carbon::now()->subDays(30);
+
+        $tasksClosedYesterday = Task::completed()
+            ->whereDate('completed_date', $yesterday)
+            ->where('assigned_to', $user->id)
+            ->count();
+
+        $tasksClosedLast7Days = Task::completed()
+            ->whereDate('completed_date', '>=', $last7Days)
+            ->where('assigned_to', $user->id)
+            ->count();
+
+        $tasksClosedLast30Days = Task::completed()
+            ->whereDate('completed_date', '>=', $last30Days)
+            ->where('assigned_to', $user->id)
+            ->count();
+
         foreach ($repeatingTasks as $repeatingTask) {
             if ($repeatingTask->shouldRepeat()) {
                 // Calculate the next due date based on the repeat interval (week/month)
@@ -237,7 +275,6 @@ class DashboardController extends Controller
                 'taskPercentages' => $taskPercentages,
             ]);
         }
-
         if ($role == 'AM') {
             $projects = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
@@ -386,6 +423,11 @@ class DashboardController extends Controller
                 'early_out_threshold',
                 'late_deduction_threshold',
                 'half_day_deduction_threshold',
+                'dates',
+                'taskStats',
+                'tasksClosedYesterday',
+                'tasksClosedLast7Days',
+                'tasksClosedLast30Days',
                 $extraData
             ),
         ));

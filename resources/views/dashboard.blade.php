@@ -3,6 +3,59 @@
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
     <x-dashboards.punch-in-out />
+
+    <div class="row gy-4 my-5">
+        <!-- Yesterday -->
+        <div class="col-md-4">
+            <div class="card bg-gradient bg-success text-light border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-calendar-day fs-3 me-3 text-light"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-light">Tasks Closed Yesterday</h6>
+                            <small class="text-light">({{ \Carbon\Carbon::yesterday()->format('d M Y') }})</small>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-light">{{ $tasksClosedYesterday }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Last 7 Days -->
+        <div class="col-md-4">
+            <div class="card bg-gradient bg-primary text-light border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-calendar-week fs-3 me-3 text-light"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-light">Tasks Closed in Last 7 Days</h6>
+                            <small class="text-light">(Since
+                                {{ \Carbon\Carbon::now()->subDays(7)->format('d M Y') }})</small>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-light">{{ $tasksClosedLast7Days }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Last 30 Days -->
+        <div class="col-md-4">
+            <div class="card bg-gradient bg-info text-light border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-calendar-range fs-3 me-3 text-light"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-light">Tasks Closed in Last 30 Days</h6>
+                            <small class="text-light">(Since
+                                {{ \Carbon\Carbon::now()->subDays(30)->format('d M Y') }})</small>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-light">{{ $tasksClosedLast30Days }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row gy-3 mb-10">
         <div class="col-lg-6">
             <div class="card">
@@ -50,6 +103,7 @@
             </div>
         </div>
     </div>
+
     @if ($role === 'AM')
         <x-dashboards.am-dashboard :newSellProjects="$newSellProjects" :newSell="$newSell" :typeCounts="$typeCounts" :statusCounts="$statusCounts"
             :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
