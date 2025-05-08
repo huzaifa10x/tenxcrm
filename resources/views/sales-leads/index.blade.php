@@ -64,6 +64,12 @@
                                                                 class="bi bi-calendar-event me-1"></i>{{ $lead->lead_date->format('d M Y') }}
                                                         </div>
                                                     @endif
+                                                    @if ($lead->created_by)
+                                                        <div class="text-muted small">
+                                                            <i
+                                                                class="bi bi-calendar-event me-1"></i>{{ $lead->creator->name ?? '' }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 <div class="ms-2">
                                                     <button class="btn btn-sm btn-outline-warning me-1"
