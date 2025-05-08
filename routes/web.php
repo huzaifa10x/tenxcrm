@@ -9,6 +9,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\ImageCompressorController;
 use App\Http\Controllers\IndustryController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadStatusController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OffsiteTaskController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectKeywordController;
 use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TaskCollaboratorController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
@@ -56,6 +59,25 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::prefix('services')->group(function () {
+        Route::get('/', [ServiceController::class, 'index'])->name('services.index');
+        Route::post('/', [ServiceController::class, 'store'])->name('services.store');
+        Route::get('/services/get', [ServiceController::class, 'getServices'])->name('services.getServices');
+        Route::get('/{service}', [ServiceController::class, 'show'])->name('services.show');
+        Route::put('/{service}', [ServiceController::class, 'update'])->name('services.update');
+        Route::delete('/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+    });
+
+    Route::get('/leads/index', [LeadController::class, 'index'])->name('leads.index');
+    Route::get('/leads/list', [LeadController::class, 'list'])->name('leads.list');
+    Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
+    Route::post('/leads', [LeadController::class, 'store'])->name('leads.store');
+    Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
+    Route::delete('/leads/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
+    Route::post('/leads/update-status', [LeadController::class, 'updateStatus'])->name('leads.updateStatus');
+    Route::resource('lead-statuses', LeadStatusController::class)->only(['index', 'store']);
+    Route::put('/lead-statuses/{id}', [LeadStatusController::class, 'update'])->name('lead-statuses.update');
 
     Route::get('/leads-view', [ClientLeadController::class, 'index'])->name('leads.view');
     Route::get('/leads/by-site/{website_name}', [ClientLeadController::class, 'getLeadsByWebsite'])

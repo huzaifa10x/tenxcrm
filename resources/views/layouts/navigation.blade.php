@@ -221,6 +221,21 @@
                     </a>
                 </li>
             @endif
+
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('AM') || auth()->user()->hasRole('SALES MANAGER'))
+                <li>
+                    <a href="{{ route('services.index') }}">
+                        <i class="ri-news-line text-xl me-14 d-flex w-auto"></i>
+                        <span>Services</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('leads.index') }}">
+                        <i class="ri-news-line text-xl me-14 d-flex w-auto"></i>
+                        <span>Leads</span>
+                    </a>
+                </li>
+            @endif
             <li>
                 <a href="{{ route('messages.index') }}">
                     <iconify-icon icon="mage:email" class="menu-icon"></iconify-icon>

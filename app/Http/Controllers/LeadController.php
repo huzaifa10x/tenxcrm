@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Lead;
+use App\Models\LeadStatus;
+use App\Models\Service;
+use Illuminate\Http\Request;
+
+class LeadController extends Controller
+{
+    public function index()
+    {
+        $services = Service::all();
+        $LeadStatus = LeadStatus::all();
+        $statuses = LeadStatus::with('leads')->get();
+        return view('sales-leads.index', compact('services', 'LeadStatus', 'statuses'));
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'lead_id' => 'required|exists:leads,id',
+            'lead_status_id' => 'required|exists:lead_statuses,id'
+        ]);
+
+        Lead::where('id', $request->lead_id)->update(['lead_status_id' => $request->lead_status_id]);
+
+        return response()->json(['message' => 'Lead status updated']);
+    }
+
+    public function list()
+    {
+        $leads = Lead::with('services', 'status')->latest()->get();
+
+        return response()->json(['data' => $leads]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string',
+            'company_name' => 'nullable|string',
+            'website' => 'nullable|string',
+            'lead_date' => 'nullable|date',
+            'comments' => 'nullable|string',
+            'lead_status_id' => 'required|exists:lead_statuses,id',
+            'services' => 'nullable|array',
+        ]);
+
+        $lead = Lead::create($validated);
+        $lead->services()->sync($request->services ?? []);
+
+        return response()->json(['success' => true, 'message' => 'Lead created successfully.']);
+    }
+
+    public function show(Lead $lead)
+    {
+        $lead->load('services', 'status');
+        return response()->json($lead);
+    }
+
+    public function update(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string',
+            'company_name' => 'nullable|string',
+            'website' => 'nullable|string',
+            'lead_date' => 'nullable|date',
+            'comments' => 'nullable|string',
+            'lead_status_id' => 'required|exists:lead_statuses,id',
+            'services' => 'nullable|array',
+        ]);
+
+        $lead->update($validated);
+        $lead->services()->sync($request->services ?? []);
+
+        return response()->json(['success' => true, 'message' => 'Lead updated successfully.']);
+    }
+
+    public function destroy(Lead $lead)
+    {
+        $lead->delete();
+        return response()->json(['success' => true, 'message' => 'Lead deleted successfully.']);
+    }
+}

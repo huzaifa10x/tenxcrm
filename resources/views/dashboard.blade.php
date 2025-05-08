@@ -3,7 +3,6 @@
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
     <x-dashboards.punch-in-out />
-
     <div class="row gy-4 my-5">
         <!-- Yesterday -->
         <div class="col-md-4">
@@ -55,7 +54,6 @@
             </div>
         </div>
     </div>
-
     <div class="row gy-3 mb-10">
         <div class="col-lg-6">
             <div class="card">
@@ -103,7 +101,6 @@
             </div>
         </div>
     </div>
-
     @if ($role === 'AM')
         <x-dashboards.am-dashboard :newSellProjects="$newSellProjects" :newSell="$newSell" :typeCounts="$typeCounts" :statusCounts="$statusCounts"
             :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
@@ -118,7 +115,6 @@
             :collaboratorTasksCountGlobal="$collaboratorTasksCountGlobal" />
         <x-dashboards.latest-notifications :latestNotifications="$latestNotifications" />
     </div>
-
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             var options = {
@@ -143,11 +139,9 @@
             chart.render();
         });
     </script>
-
     <script>
         $(document).on('click', '.office-timing-button', function() {
             $('.office-timing-body').slideToggle();
         });
     </script>
-
 </x-app-layout>
