@@ -9,7 +9,7 @@
                 <i class="bi bi-plus-lg"></i> Add Lead
             </button>
             <button class="btn btn-sm btn-outline-primary" onclick="createStatusPrompt()" title="Add Status">
-                New Status 
+                New Status
                 <i class="bi bi-plus-lg"></i>
             </button>
         </div>
@@ -41,7 +41,7 @@
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1 text-dark fw-semibold">
                                                         <i
-                                                            class="bi bi-person-circle me-2 text-primary"></i>{{ $lead->name }}
+                                                            class="bi bi-person-circle me-10 text-primary"></i>{{ $lead->name }}
                                                     </h6>
                                                     @if ($lead->company_name)
                                                         <div class="text-muted small mb-1">
@@ -108,6 +108,7 @@
                         <input name="email" class="form-control mb-2" placeholder="Email">
                         <input name="phone" class="form-control mb-2" placeholder="Phone">
                         <input name="company_name" class="form-control mb-2" placeholder="Company">
+                        <input name="location" class="form-control mb-2" placeholder="location">
                         <input name="website" class="form-control mb-2" placeholder="Website">
                         <input name="lead_date" id="lead_date" class="form-control mb-2" type="date"
                             placeholder="Date">
@@ -121,6 +122,28 @@
                                 <option value="{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
                         </select>
+                        <select id="source_id" name="source_id" class="form-control mb-2">
+                            @foreach ($sources as $source)
+                                <option value="{{ $source->id }}">{{ $source->name }}</option>
+                            @endforeach
+                        </select>
+                        <select id="industry_id" name="industry_id" class="form-control mb-2">
+                            @foreach ($industries as $industry)
+                                <option value="{{ $industry->id }}">{{ $industry->industry }}</option>
+                            @endforeach
+                        </select>
+                        <select id="priority" name="priority" class="form-control mb-2">
+                            <option value="low">low</option>
+                            <option value="medium">medium</option>
+                            <option value="high">high</option>
+                        </select>
+                        <input type="hidden" value="{{ auth()->user()->id }}" name="created_by">
+
+                        <select id="is_qualified" name="is_qualified" class="form-control mb-2">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+
                         <textarea name="comments" class="form-control mb-2" placeholder="Comments"></textarea>
                     </div>
                     <div class="modal-footer">
@@ -194,6 +217,7 @@
                 let form = $('#leadForm');
                 form.find('input[name="id"]').val(lead.id);
                 form.find('input[name="name"]').val(lead.name);
+                form.find('input[name="location"]').val(lead.location);
                 form.find('input[name="email"]').val(lead.email);
                 form.find('input[name="phone"]').val(lead.phone);
                 form.find('input[name="company_name"]').val(lead.company_name);
@@ -201,6 +225,10 @@
                 form.find('input[name="lead_date"]').val(lead.lead_date);
                 form.find('textarea[name="comments"]').val(lead.comments);
                 form.find('select[name="lead_status_id"]').val(lead.lead_status_id);
+                form.find('select[name="industry_id"]').val(lead.industry_id);
+                form.find('select[name="source_id"]').val(lead.source_id);
+                form.find('select[name="is_qualified"]').val(lead.is_qualified == true ? 1 : 0);
+                form.find('select[name="priority"]').val(lead.priority);
                 form.find('select[name="services[]"]').val(lead.services.map(s => s.id));
                 $('#leadModal').modal('show');
             });

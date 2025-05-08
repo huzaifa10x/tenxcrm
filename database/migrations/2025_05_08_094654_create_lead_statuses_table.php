@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lead_statuses', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('lead_statuses')) {
+            Schema::create('lead_statuses', function (Blueprint $table) {
+                $table->id();
+                $table->string('name')->unique();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

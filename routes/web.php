@@ -10,6 +10,7 @@ use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\ImageCompressorController;
 use App\Http\Controllers\IndustryController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LeadSourceController;
 use App\Http\Controllers\LeadStatusController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
@@ -78,6 +79,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/leads/update-status', [LeadController::class, 'updateStatus'])->name('leads.updateStatus');
     Route::resource('lead-statuses', LeadStatusController::class)->only(['index', 'store']);
     Route::put('/lead-statuses/{id}', [LeadStatusController::class, 'update'])->name('lead-statuses.update');
+
+    Route::prefix('lead-sources')->controller(LeadSourceController::class)->group(function () {
+        Route::get('/', 'index')->name('lead_sources.index');
+        Route::get('/list', 'getSources')->name('lead_sources.getSources');
+        Route::post('/', 'store')->name('lead_sources.store');
+        Route::get('/{leadSource}', 'show');
+        Route::put('/{leadSource}', 'update');
+        Route::delete('/{leadSource}', 'destroy');
+    });
 
     Route::get('/leads-view', [ClientLeadController::class, 'index'])->name('leads.view');
     Route::get('/leads/by-site/{website_name}', [ClientLeadController::class, 'getLeadsByWebsite'])

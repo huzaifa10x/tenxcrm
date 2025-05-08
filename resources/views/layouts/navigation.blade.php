@@ -235,6 +235,12 @@
                         <span>Leads</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('lead_sources.index') }}">
+                        <i class="ri-news-line text-xl me-14 d-flex w-auto"></i>
+                        <span>Lead Sources</span>
+                    </a>
+                </li>
             @endif
             <li>
                 <a href="{{ route('messages.index') }}">

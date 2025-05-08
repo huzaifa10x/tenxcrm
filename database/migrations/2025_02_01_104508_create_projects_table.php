@@ -14,7 +14,7 @@ return new class extends Migration
             $table->longText('description');
             $table->enum('category', ['PLATINUM', 'GOLD', 'SILVER']);
             $table->foreignId('industry_id')->nullable()->constrained('industries')->onDelete('set null');
-            $table->foreignId('company_id')->constrained('companies')->onDelete('set null');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('1');
             $table->enum('status', ['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed']);
             $table->date('contract_start_date');
             $table->integer('contract_term');

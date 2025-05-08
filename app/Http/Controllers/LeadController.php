@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Industry;
 use App\Models\Lead;
+use App\Models\LeadSource;
 use App\Models\LeadStatus;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -14,7 +16,9 @@ class LeadController extends Controller
         $services = Service::all();
         $LeadStatus = LeadStatus::all();
         $statuses = LeadStatus::with('leads')->get();
-        return view('sales-leads.index', compact('services', 'LeadStatus', 'statuses'));
+        $industries = Industry::all();
+        $sources = LeadSource::all();
+        return view('sales-leads.index', compact('services', 'LeadStatus', 'statuses', 'industries', 'sources'));
     }
 
     public function updateStatus(Request $request)
@@ -48,18 +52,19 @@ class LeadController extends Controller
             'comments' => 'nullable|string',
             'lead_status_id' => 'required|exists:lead_statuses,id',
             'services' => 'nullable|array',
+            'source_id' => 'nullable|exists:lead_sources,id',
+            'priority' => 'nullable|in:low,medium,high',
+            'location' => 'nullable|string',
+            'is_qualified' => 'boolean',
+            'industry_id' => 'nullable|exists:industries,id',
         ]);
+
+        $validated['created_by'] = auth()->id();
 
         $lead = Lead::create($validated);
         $lead->services()->sync($request->services ?? []);
 
         return response()->json(['success' => true, 'message' => 'Lead created successfully.']);
-    }
-
-    public function show(Lead $lead)
-    {
-        $lead->load('services', 'status');
-        return response()->json($lead);
     }
 
     public function update(Request $request, Lead $lead)
@@ -74,12 +79,23 @@ class LeadController extends Controller
             'comments' => 'nullable|string',
             'lead_status_id' => 'required|exists:lead_statuses,id',
             'services' => 'nullable|array',
+            'source_id' => 'nullable|exists:lead_sources,id',
+            'priority' => 'nullable|in:low,medium,high',
+            'location' => 'nullable|string',
+            'is_qualified' => 'boolean',
+            'industry_id' => 'nullable|exists:industries,id',
         ]);
 
         $lead->update($validated);
         $lead->services()->sync($request->services ?? []);
 
         return response()->json(['success' => true, 'message' => 'Lead updated successfully.']);
+    }
+
+    public function show(Lead $lead)
+    {
+        $lead->load('services', 'status');
+        return response()->json($lead);
     }
 
     public function destroy(Lead $lead)
