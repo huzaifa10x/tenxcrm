@@ -1099,12 +1099,14 @@
 </button>
 
 <input type="hidden" id="taskId" value="{{ $task->id }}">
+
 <script src="https://cdn.tiny.cloud/1/xv2ulo11uhx3jiaj39bykatfcit3wcn9oayhfnkmq96hiypb/tinymce/7/tinymce.min.js"
     referrerpolicy="origin"></script>
+
 <script>
     tinymce.init({
         selector: '#comment-text',
-        plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template paste textcolor colorpicker textpattern',
+        plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons paste textpattern',
         menubar: 'file edit view insert format tools table help',
         statusbar: true,
         toolbar: 'undo redo | formatselect | bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | blockquote | link image media | insertdatetime emoticons charmap | fullscreen code preview',
