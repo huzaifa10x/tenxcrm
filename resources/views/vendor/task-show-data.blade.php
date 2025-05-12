@@ -955,7 +955,7 @@
                 </div>
                 <form action="#" class="row gy-3 p-10 bottom-0 left-0 w-100 bg-base-50">
                     <div class="d-flex align-items-end flex-column justify-content-center gap-3">
-                        <textarea id="comment-text" rows="10" class="form-control border" placeholder="Write message"></textarea>
+                        <textarea id="comment-text" rows="10" class="form-control border"></textarea>
                         <div class="d-flex align-items-center gap-4">
                             <button type="button" id="add-commentt" data-taskID="{{ $task->id }}"
                                 onclick="doComment()"
@@ -1668,7 +1668,7 @@
             .then(data => {
                 document.getElementById('comment-text').value = "";
                 loadComments();
-                tinymce.get("comment-text").setContent("<p>Write Comment</p>");
+                tinymce.get("comment-text").setContent();
             })
             .catch(error => console.error("Error:", error));
     }
