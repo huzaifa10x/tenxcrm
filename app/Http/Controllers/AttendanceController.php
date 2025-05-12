@@ -95,20 +95,6 @@ class AttendanceController extends Controller
         return response()->json(['success' => 'Punched out successfully!']);
     }
 
-    private function haversineDistance($lat1, $lon1, $lat2, $lon2)
-    {
-        $earthRadius = 6371; // Radius of Earth in KM
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-
-        $a = sin($dLat / 2) * sin($dLat / 2) +
-            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLon / 2) * sin($dLon / 2);
-
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        return $earthRadius * $c; // Distance in KM
-    }
-
     public function monthlyAttendance(Request $request)
     {
         $month = $request->input('month', now()->format('Y-m'));
@@ -189,6 +175,10 @@ class AttendanceController extends Controller
                                 $totalAbsent++;
                                 $lateCount = $halfDayCount = 0;
                                 break;
+                            case 'leave':
+                            case 'holyday':
+                                // no deductions or attendance counted
+                                break;
                         }
                     } else {
                         if ($carbonDate->isPast() && !$carbonDate->isToday()) {
@@ -203,29 +193,6 @@ class AttendanceController extends Controller
 
         $todayAttendance = Attendance::where('user_id', auth()->id())->where('date', today())->first();
         $todayAttendanceId = $todayAttendance?->id ?? null;
-
-        // return response()->json(
-        //     [
-        //         'users' => $users,
-        //         'breakEndTime' => $breakEndTime,
-        //         'earlyOutThreshold' => $earlyOutThreshold,
-        //         'halfDayThreshold' => $halfDayThreshold,
-        //         'lateThreshold' => $lateThreshold,
-        //         'month' => $month,
-        //         'totalDays' => $totalDays,
-        //         'userId' => $userId,
-        //         'totalPresent' => $totalPresent,
-        //         'totalAbsent' => $totalAbsent,
-        //         'totalLate' => $totalLate,
-        //         'totalHalfDay' => $totalHalfDay,
-        //         'totalEarlyOut' => $totalEarlyOut,
-        //         'deductions' => $deductions,
-        //         'holidays' => $holidays,
-        //         'todayAttendanceId' => $todayAttendanceId,
-        //     ]
-        // );
-
-        // exit;
 
         return view('attendance.index', compact(
             'users',
