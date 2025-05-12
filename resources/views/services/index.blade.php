@@ -5,6 +5,22 @@
     <div class="card basic-data-table">
         @if ($userPermissions->contains('can manage roles'))
             <div class="card-header">
+            </div>
+        @endif
+        <div class="card-body row">
+            <div class="col-lg-6 table-responsive">
+                <table class="table bordered-table mb-0" id="servicesTable" data-page-length='10'>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="col-lg-6" id="edit-form-wrapper">
                 <form id="serviceForm" class="d-flex align-items-center justify-content-between gap-10">
                     @csrf
                     <input type="hidden" id="service_id">
@@ -13,18 +29,6 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                 </form>
             </div>
-        @endif
-        <div class="card-body table-responsive">
-            <table class="table bordered-table mb-0" id="servicesTable" data-page-length='10'>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
         </div>
     </div>
     <script>
@@ -80,6 +84,9 @@
                     $('#service_id').val(data.id);
                     $('#name').val(data.name);
                 });
+                $('html, body').animate({
+                    scrollTop: $('#edit-form-wrapper').offset().top
+                }, 500);
             });
 
             $(document).on('click', '.delete-btn', function() {
