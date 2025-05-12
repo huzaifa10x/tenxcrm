@@ -1104,12 +1104,20 @@
 <script>
     tinymce.init({
         selector: '#comment-text',
-        plugins: 'lists link image table code',
-        menubar: false,
-        statusbar: false,
-        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table'
+        plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template paste textcolor colorpicker textpattern',
+        menubar: 'file edit view insert format tools table help',
+        statusbar: true,
+        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | blockquote | link image media | insertdatetime emoticons charmap | fullscreen code preview',
+        height: 400, // You can adjust the height of the editor as needed
+        width: '100%',
+        automatic_uploads: true,
+        file_picker_types: 'image media',
+        image_advtab: true, // Image advanced tab for better image management
+        content_css: '//www.tiny.cloud/css/codepen.min.css', // Optional, provides a clean code view for editor content
+        toolbar_mode: 'floating',
     });
 </script>
+
 <script>
     $(document).ready(function() {
         $('#addUrlGroup').click(function() {
@@ -1672,11 +1680,10 @@
                     `
                 <div class="position-relative p-1 px-24">
                     <div class="d-flex align-items-start gap-3">
-                        <img src="{{ asset('/public/storage') }}/${comment.user.img}" alt="" class="w-40-px h-40-px rounded-pill">
                         <div class="w-100 p-3 rounded border">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="mb-0 fs-7">${comment.user.name} ${comment.user_id == {{ auth()->id() }} ? '(you)' : ''}</span>
+                                  <img src="{{ asset('/public/storage') }}/${comment.user.img}" alt="" class="w-40-px h-40-px rounded-pill">  <span class="mb-0 fs-7">${comment.user.name} ${comment.user_id == {{ auth()->id() }} ? '(you)' : ''}</span>
                                 </div>
                                 ${comment.user_id === {{ auth()->id() }} ? `
                                     <button type="button" data-id="${comment.id}" class="remove-item-btn delete-comment bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle"> 
@@ -1684,6 +1691,7 @@
                                     </button>
                                 ` : ''}
                             </div>
+                            <hr class="my-24" />
                             <!-- Render HTML content safely -->
                             <p class="mb-0 text-primary-light" style="white-space: pre-wrap;">${comment.comment}</p>
                             <span class="comment-time d-block fs-7" data-time="${comment.created_at}"></span>
