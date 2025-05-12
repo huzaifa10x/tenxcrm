@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\TaskComment;
 use App\Models\User;
 use App\Notifications\CustomNotification;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -18,17 +20,52 @@ class TaskCommentController extends Controller
         return response()->json($comments);
     }
 
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'task_id' => 'required|exists:tasks,id',
+    //         'comment' => 'required|string'
+    //     ]);
+
+    //     $comment = TaskComment::create([
+    //         'task_id' => $request->task_id,
+    //         'user_id' => auth()->id(),
+    //         'comment' => $request->comment
+    //     ]);
+
+    //     $user = User::find($comment->task->assigned_to);
+
+    //     DB::table('notifications')->insert([
+    //         'id' => Str::uuid(),
+    //         'type' => \App\Notifications\CustomNotification::class,
+    //         'notifiable_type' => \App\Models\User::class,
+    //         'notifiable_id' => $user->id,
+    //         'data' => json_encode([
+    //             'title' => auth()->user()->name . " commented on " . $comment->task->title,
+    //             'message' => auth()->user()->name . " has been commented on " . $comment->task->title,
+    //             'url' => url("tasks/{$request->task_id}")
+    //         ]),
+    //         'created_at' => now(),
+    //         'updated_at' => now(),
+    //     ]);
+
+    //     return response()->json(['success' => true, 'comment' => $comment]);
+    // }
+
     public function store(Request $request)
     {
         $request->validate([
-            'task_id' => 'required|exists:tasks,id',
-            'comment' => 'required|string'
+            'task_id' => 'required|exists:tasks,id'
         ]);
+
+        $config = HTMLPurifier_Config::createDefault();
+        $purifier = new HTMLPurifier($config);
+        $cleanComment = $purifier->purify($request->comment);
 
         $comment = TaskComment::create([
             'task_id' => $request->task_id,
             'user_id' => auth()->id(),
-            'comment' => $request->comment
+            'comment' => $cleanComment, // Store sanitized HTML content
         ]);
 
         $user = User::find($comment->task->assigned_to);

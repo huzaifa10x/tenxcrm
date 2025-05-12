@@ -944,8 +944,8 @@
             </div>
         </div>
     @endif
-    <div class="col-lg-8">
-        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+    <div class="col-12">
+        <div class="card border border-secondary p-0 h-100 position-relative radius-12">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
                 <span class="fw-bold">Task Comments</span>
             </div>
@@ -953,11 +953,10 @@
                 <div class="row gy-3 p-10">
                     <ul id="comment-list" class="list-group mb-3"></ul>
                 </div>
-                <form action="#" class="row gy-3 p-10 position-absolute bottom-0 left-0 w-100 bg-base-50">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <textarea id="comment-text" class="textarea-max-height form-control border resize-none scroll-sm"
-                            placeholder="Write message"></textarea>
-                        <div class="d-flex align-items-center gap-4 ms-16">
+                <form action="#" class="row gy-3 p-10 bottom-0 left-0 w-100 bg-base-50">
+                    <div class="d-flex align-items-end flex-column justify-content-center gap-3">
+                        <textarea id="comment-text" rows="10" class="form-control border" placeholder="Write message"></textarea>
+                        <div class="d-flex align-items-center gap-4">
                             <button type="button" id="add-commentt" data-taskID="{{ $task->id }}"
                                 onclick="doComment()"
                                 class="btn btn-primary text-sm btn-sm px-12 py-12 w-100 radius-8 d-flex align-items-center justify-content-center gap-1 h-44-px">
@@ -1100,32 +1099,42 @@
 </button>
 
 <input type="hidden" id="taskId" value="{{ $task->id }}">
+<script src="https://cdn.tiny.cloud/1/xv2ulo11uhx3jiaj39bykatfcit3wcn9oayhfnkmq96hiypb/tinymce/7/tinymce.min.js"
+    referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#comment-text',
+        plugins: 'lists link image table code',
+        menubar: false,
+        statusbar: false,
+        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table'
+    });
+</script>
 <script>
     $(document).ready(function() {
-
         $('#addUrlGroup').click(function() {
             $('#urlGroups').append(`
-    <div class="url-group card shadow-sm border-0 mb-3 border">
-        <div class="card-body bg-light-subtle">
-            <div class="mb-3">
-                <label class="form-label fw-bold">URL</label>
-                <input type="url" class="form-control url-input" placeholder="https://example.com" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-bold">Keywords <small class="text-muted">(One per line)</small></label>
-                <textarea class="form-control keyword-textarea" rows="4"
-                    placeholder="Enter keywords, one per line..." required></textarea>
-            </div>
-
-            <div class="text-end">
-                <button type="button" class="btn btn-outline-danger btn-sm remove-url-group">
-                    <i class="bi bi-trash me-1"></i> Remove URL Group
-                </button>
-            </div>
-        </div>
-    </div>
-    `);
+                <div class="url-group card shadow-sm border-0 mb-3 border">
+                    <div class="card-body bg-light-subtle">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">URL</label>
+                            <input type="url" class="form-control url-input" placeholder="https://example.com" required>
+                        </div>
+                    
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Keywords <small class="text-muted">(One per line)</small></label>
+                            <textarea class="form-control keyword-textarea" rows="4"
+                                placeholder="Enter keywords, one per line..." required></textarea>
+                        </div>
+                    
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-danger btn-sm remove-url-group">
+                                <i class="bi bi-trash me-1"></i> Remove URL Group
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `);
         });
 
         // Remove URL group
@@ -1190,7 +1199,6 @@
         });
     });
 
-
     $(document).on('click', '.toggle-password', function() {
         let passwordSpan = $(this).prev('.password-toggle');
         let actualPassword = passwordSpan.data('password');
@@ -1203,30 +1211,6 @@
             $(this).text('Show');
         }
     });
-
-    function doComment() {
-        let button = document.getElementById('add-commentt');
-        let taskId = button.getAttribute('data-taskID');
-        let commentText = document.getElementById('comment-text').value;
-
-        fetch("{{ route('comments.store') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    task_id: taskId,
-                    comment: commentText
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('comment-text').value = "";
-                loadComments();
-            })
-            .catch(error => console.error("Error:", error));
-    }
 
     function fetchCollaborators(taskId) {
         $.get("{{ route('task.collaborators', ['task' => ':id']) }}".replace(':id', taskId), function(response) {
@@ -1339,6 +1323,7 @@
             }
         });
     }
+
     setTimeout(() => {
         loadStartingKwUrls();
         loadClosingKwUrls();
@@ -1653,6 +1638,31 @@
         return seconds < 10 ? "Just now" : `${seconds} seconds ago`;
     }
 
+    function doComment() {
+        let button = document.getElementById('add-commentt');
+        let taskId = button.getAttribute('data-taskID');
+        let commentText = tinymce.get('comment-text').getContent();
+
+        fetch("{{ route('comments.store') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    task_id: taskId,
+                    comment: commentText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('comment-text').value = "";
+                loadComments();
+                tinymce.get("comment-text").setContent("<p>Write Comment</p>");
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
     function loadComments() {
         let taskId = $("input[name='task_id']").val();
         $.get("{{ route('comments.index', $task->id) }}", function(data) {
@@ -1660,21 +1670,22 @@
             data.forEach(comment => {
                 $('#comment-list').append(
                     `
-                <div class="position-relative p-1 px-24 border-bottom">
+                <div class="position-relative p-1 px-24">
                     <div class="d-flex align-items-start gap-3">
                         <img src="{{ asset('/public/storage') }}/${comment.user.img}" alt="" class="w-40-px h-40-px rounded-pill">
-                        <div class="w-100">
+                        <div class="w-100 p-3 rounded border">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="mb-0 fs-7">${comment.user.name} ${comment.user_id == {{ auth()->id() }} ? '(you)' : ''}</span>
                                 </div>
                                 ${comment.user_id === {{ auth()->id() }} ? `
-                                    <button type="button" data-id="${comment.id}" class="position-absolute top-0 end-0 m-10 remove-item-btn delete-comment bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle"> 
+                                    <button type="button" data-id="${comment.id}" class="remove-item-btn delete-comment bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center rounded-circle"> 
                                         <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
                                     </button>
-                                    ` : ''}
+                                ` : ''}
                             </div>
-                            <p class="mb-0 text-primary-light">${comment.comment}</p>
+                            <!-- Render HTML content safely -->
+                            <p class="mb-0 text-primary-light" style="white-space: pre-wrap;">${comment.comment}</p>
                             <span class="comment-time d-block fs-7" data-time="${comment.created_at}"></span>
                         </div>
                     </div>
@@ -1685,6 +1696,7 @@
             updateTimestamps();
         });
     }
+
 
     function updateTimestamps() {
         document.querySelectorAll(".comment-time").forEach(element => {

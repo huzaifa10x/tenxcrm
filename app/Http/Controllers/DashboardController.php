@@ -414,7 +414,6 @@ class DashboardController extends Controller
             ),
         ));
     }
-
     private function createTaskTypeEntry($task, $newTaskID)
     {
         $relatedData = null;
