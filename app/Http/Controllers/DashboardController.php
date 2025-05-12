@@ -41,13 +41,9 @@ class DashboardController extends Controller
 
         $repeatingTasks = RepeatingTask::all();
         $now = Carbon::now('Asia/Dubai');
-
-        // Dates
         $dates = collect(range(6, 0))->map(function ($i) {
             return Carbon::today()->subDays($i)->format('Y-m-d');
         });
-
-        // Grouped closed task counts per day
         $closedTasksPerDay = Task::completed()
             ->select(DB::raw('DATE(completed_date) as date'), DB::raw('count(*) as count'))
             ->where('assigned_to', $user->id)
@@ -55,12 +51,10 @@ class DashboardController extends Controller
             ->groupBy('date')
             ->pluck('count', 'date');
 
-        // Build stats for line chart
         $taskStats = $dates->map(function ($date) use ($closedTasksPerDay) {
             return $closedTasksPerDay[$date] ?? 0;
         });
 
-        // High-level aggregates
         $yesterday = Carbon::yesterday();
         $last7Days = Carbon::now()->subDays(7);
         $last30Days = Carbon::now()->subDays(30);
@@ -82,16 +76,12 @@ class DashboardController extends Controller
 
         foreach ($repeatingTasks as $repeatingTask) {
             if ($repeatingTask->shouldRepeat()) {
-                // Calculate the next due date based on the repeat interval (week/month)
                 $nextDueDate = Carbon::parse($repeatingTask->start_from);
-
                 if ($repeatingTask->repeat_every == 'week') {
                     $nextDueDate->addWeeks($repeatingTask->completed_repeats * $repeatingTask->count);
                 } elseif ($repeatingTask->repeat_every == 'month') {
                     $nextDueDate->addMonths($repeatingTask->completed_repeats * $repeatingTask->count);
                 }
-
-                // Create a new recurring task
                 $newRecurringTask = Task::create([
                     'is_automated' => 1,
                     'title' => $repeatingTask->task->title,
@@ -108,8 +98,6 @@ class DashboardController extends Controller
                     'repeat_task' => 0,
                     'parent_task_id' => $repeatingTask->task->id,
                 ]);
-
-                // Attachments
                 if ($repeatingTask->task->attachments()->exists()) {
                     foreach ($repeatingTask->task->attachments as $file) {
                         TaskAttachment::create([
@@ -120,8 +108,6 @@ class DashboardController extends Controller
                         ]);
                     }
                 }
-
-                // Comments
                 if ($repeatingTask->task->comments()->exists()) {
                     foreach ($repeatingTask->task->comments as $comment) {
                         $newRecurringTask->comments()->create([
@@ -131,8 +117,6 @@ class DashboardController extends Controller
                         ]);
                     }
                 }
-
-                // History
                 if ($repeatingTask->task->history()->exists()) {
                     foreach ($repeatingTask->task->history as $history) {
                         $newRecurringTask->history()->create([
@@ -142,8 +126,6 @@ class DashboardController extends Controller
                         ]);
                     }
                 }
-
-                // Collaborators
                 if ($repeatingTask->task->collaborators()->exists()) {
                     foreach ($repeatingTask->task->collaborators as $collaborator) {
                         $newRecurringTask->collaborators()->create([
@@ -152,11 +134,7 @@ class DashboardController extends Controller
                         ]);
                     }
                 }
-
-                // Handle specific task types
                 $this->createTaskTypeEntry($repeatingTask->task, $newRecurringTask->id);
-
-                // Update the completed repeats counter
                 $repeatingTask->completed_repeats += 1;
                 $repeatingTask->save();
             }
@@ -180,6 +158,7 @@ class DashboardController extends Controller
             foreach ($pendingAttendances as $attendance) {
                 $carbonDate = Carbon::parse($attendance->date);
                 $attendance->punch_out = $closingTime;
+
                 $attendance->total_hours = Carbon::parse($attendance->punch_in)
                     ->diff(Carbon::parse($closingTime))
                     ->format('%H:%I:%S');
@@ -195,10 +174,13 @@ class DashboardController extends Controller
                     })->get();
 
                     foreach ($absentUsers as $user) {
+                        $isWeekend = Carbon::parse($date)->isWeekend();
+                        $status = $isWeekend ? 'holyday' : 'absent';
+
                         Attendance::create([
                             'user_id' => $user->id,
                             'date' => $date,
-                            'status' => 'absent',
+                            'status' => $status,
                         ]);
                     }
                 }
