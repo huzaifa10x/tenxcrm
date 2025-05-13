@@ -168,8 +168,8 @@
     <!-- Offcanvas to View Lead -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="viewLeadOffcanvas"
         aria-labelledby="viewLeadOffcanvasLabel" data-lead-id="">
-        <div class="offcanvas-header bg-dark text-white">
-            <h5 id="viewLeadOffcanvasLabel">Lead Details</h5>
+        <div class="offcanvas-header bg-dark">
+            <h5 id="viewLeadOffcanvasLabel" class="text-light">Lead Details</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
                 aria-label="Close"></button>
         </div>
