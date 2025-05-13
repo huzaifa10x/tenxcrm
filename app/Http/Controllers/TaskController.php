@@ -80,7 +80,11 @@ class TaskController extends Controller
                     break;
             }
         } else {
-            $taskQuery->where('assigned_to', $user->id);
+            if ($user->hasRole('ADMIN')) {
+                // $taskQuery->where('assigned_to', $user->id);
+            } else {
+                $taskQuery->where('assigned_to', $user->id);
+            }
         }
         if ($request->has('start_date')) {
             $taskQuery->whereDate('created_at', '>=', $request->input('start_date'));
