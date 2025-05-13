@@ -80,6 +80,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('lead-statuses', LeadStatusController::class)->only(['index', 'store']);
     Route::put('/lead-statuses/{id}', [LeadStatusController::class, 'update'])->name('lead-statuses.update');
 
+    Route::get('leads/{lead}/comments', [LeadController::class, 'getComments'])->name('leads.comments.index');
+    Route::post('leads/{lead}/comments', [LeadController::class, 'storeComment'])->name('leads.comments.store');
+    Route::put('leads/{lead}/comments/{comment}', [LeadController::class, 'updateComment'])->name('leads.comments.update');
+    Route::delete('leads/{lead}/comments/{comment}', [LeadController::class, 'deleteComment'])->name('leads.comments.destroy');
+
     Route::prefix('lead-sources')->controller(LeadSourceController::class)->group(function () {
         Route::get('/', 'index')->name('lead_sources.index');
         Route::get('/list', 'getSources')->name('lead_sources.getSources');

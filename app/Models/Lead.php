@@ -48,7 +48,10 @@ class Lead extends Model
     {
         return $this->belongsTo(Project::class, 'converted_project_id');
     }
-
+    public function comments()
+    {
+        return $this->hasMany(LeadComment::class);
+    }
     public function source()
     {
         return $this->belongsTo(LeadSource::class, 'source_id');

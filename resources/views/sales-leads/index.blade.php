@@ -80,6 +80,10 @@
                                                         onclick="deleteLead({{ $lead->id }})" title="Delete">
                                                         <i class="bi bi-trash3-fill"></i>
                                                     </button>
+                                                    <button class="btn btn-sm btn-outline-info"
+                                                        onclick="viewLead({{ $lead->id }})" title="View">
+                                                        <i class="bi bi-eye-fill"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -160,6 +164,174 @@
             </form>
         </div>
     </div>
+
+    <!-- Offcanvas to View Lead -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="viewLeadOffcanvas"
+        aria-labelledby="viewLeadOffcanvasLabel" data-lead-id="">
+        <div class="offcanvas-header bg-dark text-white">
+            <h5 id="viewLeadOffcanvasLabel">Lead Details</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <!-- Lead Details Card -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="card-title mb-3 text-primary"><i class="bi bi-person-circle"></i> Lead Information</h6>
+                    <div id="leadDetails">
+                        <!-- Lead details will be dynamically populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="mb-4">
+                <h5 class="text-secondary mb-3">Comments</h5>
+                <div id="commentsList">
+                    <!-- Comments will be dynamically populated here -->
+                </div>
+                <!-- Add Comment Section -->
+                <div class="mt-3">
+                    <textarea id="newComment" class="form-control" placeholder="Add a comment" rows="3"></textarea>
+                    <button class="btn btn-primary mt-2" onclick="addComment()">
+                        <i class="bi bi-send"></i> Add Comment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function viewLead(leadId) {
+            $.get("{{ route('leads.show', ':lead') }}".replace(':lead', leadId), function(lead) {
+                // Populate the lead details in the offcanvas
+                let leadHtml = `
+            <div class="mb-3">
+                <strong>Name:</strong> ${lead.name || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Email:</strong> ${lead.email || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Phone:</strong> ${lead.phone || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Company:</strong> ${lead.company_name || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Source:</strong> ${lead.source.name || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Location:</strong> ${lead.location || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Website:</strong> ${lead.website || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Lead Date:</strong> ${lead.lead_date || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Created By:</strong> ${lead.creator ? lead.creator.name : 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Status:</strong> ${lead.status.name || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Priority:</strong> ${lead.priority || 'N/A'}
+            </div>
+            <div class="mb-3">
+                <strong>Qualified:</strong> ${lead.is_qualified ? 'Yes' : 'No'}
+            </div>
+            <div class="mb-3">
+                <strong>Industry:</strong> ${lead.industry ? lead.industry.industry : 'N/A'}
+            </div>
+        `;
+                $('#leadDetails').html(leadHtml);
+
+                // Fetch and display the comments for the lead
+                setTimeout(() => {
+                    fetchComments(leadId);
+                }, 1000);
+            });
+
+            // Show the offcanvas
+            $('#viewLeadOffcanvas').offcanvas('show');
+            $('#viewLeadOffcanvas').data('lead-id', leadId);
+        }
+
+        // Fetch comments for a specific lead
+        function fetchComments(leadId) {
+            $.get("{{ route('leads.comments.index', ':lead') }}".replace(':lead', leadId), function(comments) {
+                let commentsHtml = '';
+                comments.forEach(comment => {
+                    commentsHtml += `
+                <div class="comment mb-2">
+                    <p><strong>${comment.creator.name}</strong>: ${comment.comment}</p>
+                    <button class="btn btn-warning btn-sm" onclick="editComment(${comment.id}, '${comment.comment}', ${leadId})">
+                        <i class="bi bi-pencil-fill"></i> Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteComment(${comment.id}, ${leadId})">
+                        <i class="bi bi-trash3-fill"></i> Delete
+                    </button>
+                </div>
+            `;
+                });
+                $('#commentsList').html(commentsHtml);
+            });
+        }
+
+        // Add a comment to a specific lead
+        function addComment() {
+            let leadId = $('#viewLeadOffcanvas').data('lead-id'); // Use the lead ID from the offcanvas data attribute
+            let comment = $('#newComment').val();
+
+            $.post("{{ route('leads.comments.store', ':lead') }}".replace(':lead', leadId), {
+                _token: '{{ csrf_token() }}',
+                comment: comment
+            }, function(response) {
+                if (response.success) {
+                    fetchComments(leadId); // Refresh the comments list
+                    $('#newComment').val(''); // Clear the comment box
+                }
+            });
+        }
+
+        function editComment(commentId, currentComment, leadId) {
+            let newComment = prompt('Edit Comment:', currentComment);
+            if (newComment) {
+                $.ajax({
+                    url: "{{ route('leads.comments.update', ['lead' => ':lead', 'comment' => ':comment']) }}"
+                        .replace(':lead', leadId)
+                        .replace(':comment', commentId),
+                    method: 'PUT',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        comment: newComment
+                    },
+                    success: function(response) {
+                        fetchComments(leadId); // Refresh the comments list
+                    }
+                });
+            }
+        }
+
+        function deleteComment(commentId, leadId) {
+            if (confirm('Are you sure you want to delete this comment?')) {
+                $.ajax({
+                    url: "{{ route('leads.comments.destroy', ['lead' => ':lead', 'comment' => ':comment']) }}"
+                        .replace(':lead', leadId)
+                        .replace(':comment', commentId),
+                    method: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        fetchComments(leadId); // Refresh the comments list
+                    }
+                });
+            }
+        }
+    </script>
 
     {{-- Scripts --}}
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>

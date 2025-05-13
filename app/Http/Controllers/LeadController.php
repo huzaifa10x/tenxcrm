@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Industry;
 use App\Models\Lead;
+use App\Models\LeadComment;
 use App\Models\LeadSource;
 use App\Models\LeadStatus;
 use App\Models\Service;
@@ -94,7 +95,7 @@ class LeadController extends Controller
 
     public function show(Lead $lead)
     {
-        $lead->load('services', 'status');
+        $lead->load('services', 'status', 'industry', 'source', 'creator');
         return response()->json($lead);
     }
 
@@ -102,5 +103,49 @@ class LeadController extends Controller
     {
         $lead->delete();
         return response()->json(['success' => true, 'message' => 'Lead deleted successfully.']);
+    }
+
+    public function getComments(Lead $lead)
+    {
+        $comments = $lead->comments()->with('creator')->get();
+        return response()->json($comments);
+    }
+
+    public function storeComment(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'comment' => 'required|string|max:255',
+        ]);
+
+        $validated['lead_id'] = $lead->id;
+        $validated['user_id'] = auth()->id();
+
+        $comment = LeadComment::create($validated);
+
+        return response()->json(['success' => true, 'message' => 'Comment added successfully!', 'comment' => $comment]);
+    }
+
+    public function updateComment(Request $request, Lead $lead, LeadComment $comment)
+    {
+        if ($comment->lead_id !== $lead->id) {
+            return response()->json(['error' => 'Comment does not belong to this lead.'], 404);
+        }
+        $validated = $request->validate([
+            'comment' => 'required|string|max:255',
+        ]);
+        $comment->update($validated);
+        return response()->json(['success' => true, 'message' => 'Comment updated successfully!', 'comment' => $comment]);
+    }
+
+    public function deleteComment(Lead $lead, LeadComment $comment)
+    {
+
+        if ($comment->lead_id !== $lead->id) {
+            return response()->json(['error' => 'Comment not found for this lead.'], 404);
+        }
+
+        $comment->delete();
+
+        return response()->json(['success' => true, 'message' => 'Comment deleted successfully!']);
     }
 }
