@@ -620,6 +620,10 @@
         class="btn btn-outline-primary fs-7 d-inline-flex align-items-center gap-1">
         <i class="bi bi-share-fill"></i> Share
     </button>
+    <a href="{{ route('tasks.show', $task->id) }}"
+        class="btn btn-outline-primary fs-7 d-inline-flex align-items-center gap-1">
+        Open
+    </a>
 </div>
 <div class="card {{ $task->status == 'Completed' ? 'bg-success-200' : '' }} border border-secondary mb-10">
     <div class="card-body gap-10 d-flex flex-wrap align-items-end">
@@ -1649,27 +1653,46 @@
     }
 
     function doComment() {
+
+        tinymce.init({
+            selector: '#comment-text',
+            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons paste textpattern',
+            menubar: 'file edit view insert format tools table help',
+            statusbar: true,
+            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | blockquote | link image media | insertdatetime emoticons charmap | fullscreen code preview',
+            height: 400, // You can adjust the height of the editor as needed
+            width: '100%',
+            automatic_uploads: true,
+            file_picker_types: 'image media',
+            image_advtab: true, // Image advanced tab for better image management
+            content_css: '//www.tiny.cloud/css/codepen.min.css', // Optional, provides a clean code view for editor content
+            toolbar_mode: 'floating',
+        });
+
         let button = document.getElementById('add-commentt');
         let taskId = button.getAttribute('data-taskID');
         let commentText = tinymce.get('comment-text').getContent();
 
-        fetch("{{ route('comments.store') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    task_id: taskId,
-                    comment: commentText
+        setTimeout(() => {
+            fetch("{{ route('comments.store') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        task_id: taskId,
+                        comment: commentText
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                loadComments();
-                tinymce.get("comment-text").setContent('');
-            })
-            .catch(error => console.error("Error:", error));
+                .then(response => response.json())
+                .then(data => {
+                    loadComments();
+                    tinymce.get("comment-text").setContent('');
+                })
+                .catch(error => console.error("Error:", error));
+        }, 1000);
+
     }
 
     function loadComments() {
