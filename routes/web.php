@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\ImageCompressorController;
 use App\Http\Controllers\IndustryController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadSourceController;
 use App\Http\Controllers\LeadStatusController;
@@ -47,6 +48,8 @@ Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsR
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread.count');
 Route::get('/compress', [ImageCompressorController::class, 'showForm'])->name('compress.form');
 Route::post('/compress', [ImageCompressorController::class, 'compress'])->name('compress.run');
+Route::get('/invoices/{uuid}/download', [InvoiceController::class, 'downloadPdf'])->name('invoices.download');
+Route::get('email/check/index', [InvoiceController::class, 'emailCheckView'])->name('email.check.index');
 
 Route::middleware('auth')->group(function () {
     Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');
@@ -57,9 +60,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/punch-out', [AttendanceController::class, 'punchOut'])->name('attendance.punchOut');
     Route::get('/settings', [GeneralSettingController::class, 'index'])->name('settings.index');
     Route::post('/settings/update', [GeneralSettingController::class, 'update'])->name('settings.update');
+    Route::post('/invoices/update-paid-status', [InvoiceController::class, 'updatePaidStatus'])->name('invoices.updatePaidStatus');
 });
 
+Route::get('/invoices/view/{uuid}', [InvoiceController::class, 'showPublic'])->name('invoices.public');
+
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::post('/invoices/{id}/send-email', [InvoiceController::class, 'sendEmail'])->name('invoices.sendEmail');
+
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::get('/invoices/{id}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+    Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+    Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
     Route::prefix('services')->group(function () {
         Route::get('/', [ServiceController::class, 'index'])->name('services.index');

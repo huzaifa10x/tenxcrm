@@ -222,6 +222,15 @@
                 </li>
             @endif
 
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('Accountant'))
+                <li>
+                    <a href="{{ route('invoices.index') }}">
+                        <i class="ri-news-line text-xl me-14 d-flex w-auto"></i>
+                        <span>Invoices</span>
+                    </a>
+                </li>
+            @endif
+
             @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('AM') || auth()->user()->hasRole('SALES MANAGER'))
                 <li>
                     <a href="{{ route('services.index') }}">
