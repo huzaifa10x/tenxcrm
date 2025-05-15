@@ -659,7 +659,7 @@ class TaskController extends Controller
             $newContentApprovalTask = Task::create([
                 'is_automated' => 1,
                 'title' => "Client Content Approval Request",
-                'description' => 'Please review and obtain client approval for the content related to task ' . url("tasks/{$task->id}") . '.',
+               'description' => 'The content writer has drafted some content that requires client approval. Please review and get it approved. You can view the related task using the button below: <a class="mt-3 d-block fs-7 btn btn-primary" href="' . url("tasks/{$task->id}") . '" target="_blank">View Related Task</a>',
                 'project_id' => $project->id,
                 'department_id' => null,
                 'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
