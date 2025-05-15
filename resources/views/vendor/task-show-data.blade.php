@@ -1108,19 +1108,21 @@
     referrerpolicy="origin"></script>
 
 <script>
-    tinymce.init({
-        selector: '#comment-text',
-        plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons paste textpattern',
-        menubar: 'file edit view insert format tools table help',
-        statusbar: true,
-        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | blockquote | link image media | insertdatetime emoticons charmap | fullscreen code preview',
-        height: 400, // You can adjust the height of the editor as needed
-        width: '100%',
-        automatic_uploads: true,
-        file_picker_types: 'image media',
-        image_advtab: true, // Image advanced tab for better image management
-        content_css: '//www.tiny.cloud/css/codepen.min.css', // Optional, provides a clean code view for editor content
-        toolbar_mode: 'floating',
+    document.addEventListener('DOMContentLoaded', function() {
+        tinymce.init({
+            selector: '#comment-text',
+            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons paste textpattern',
+            menubar: 'file edit view insert format tools table help',
+            statusbar: true,
+            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | blockquote | link image media | insertdatetime emoticons charmap | fullscreen code preview',
+            height: 400, // You can adjust the height of the editor as needed
+            width: '100%',
+            automatic_uploads: true,
+            file_picker_types: 'image media',
+            image_advtab: true, // Image advanced tab for better image management
+            content_css: '//www.tiny.cloud/css/codepen.min.css', // Optional, provides a clean code view for editor content
+            toolbar_mode: 'floating',
+        });
     });
 </script>
 
@@ -1653,31 +1655,40 @@
     }
 
     function doComment() {
+        const button = document.getElementById('add-commentt');
+        const taskId = button.getAttribute('data-taskID');
 
-        let button = document.getElementById('add-commentt');
-        let taskId = button.getAttribute('data-taskID');
-        let commentText = tinymce.get('comment-text').getContent();
+        // Make sure TinyMCE is initialized
+        const editor = tinymce.get('comment-text');
+        if (!editor) {
+            alert("Editor not initialized yet. Try again in a second.");
+            return;
+        }
 
-        setTimeout(() => {
-            fetch("{{ route('comments.store') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        task_id: taskId,
-                        comment: commentText
-                    })
+        const commentText = editor.getContent();
+
+        if (commentText.trim() === '') {
+            alert("Comment is empty!");
+            return;
+        }
+
+        fetch("{{ route('comments.store') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    task_id: taskId,
+                    comment: commentText
                 })
-                .then(response => response.json())
-                .then(data => {
-                    loadComments();
-                    tinymce.get("comment-text").setContent('');
-                })
-                .catch(error => console.error("Error:", error));
-        }, 1000);
-
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadComments();
+                editor.setContent(''); // Clear editor
+            })
+            .catch(error => console.error("Error:", error));
     }
 
     function loadComments() {
