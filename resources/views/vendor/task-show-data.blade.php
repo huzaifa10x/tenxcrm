@@ -1666,9 +1666,8 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('comment-text').value = "";
                 loadComments();
-                tinymce.get("comment-text").setContent();
+                tinymce.get("comment-text").setContent('');
             })
             .catch(error => console.error("Error:", error));
     }

@@ -139,7 +139,7 @@
             <td class="invoice-header">
                 <img src="{{ asset('/images/dark-logo.png') }}" alt="Company Logo">
                 <h1>Invoice #{{ $invoice->id }}</h1>
-                <p>{{ \Carbon\Carbon::parse($invoice->issue_date)->format('F Y') }} - AED
+                <p style="color: #2C3E50">{{ \Carbon\Carbon::parse($invoice->issue_date)->format('F Y') }} - AED
                     {{ number_format($invoice->grand_total, 2) }}</p>
             </td>
         </tr>
@@ -156,7 +156,7 @@
                     <p><strong>Total Amount:</strong> AED {{ number_format($invoice->grand_total, 2) }}</p>
                 @endif
                 <a href="{{ route('invoices.public', $invoice->uuid) }}" class="btn-view-invoice">View Invoice</a>
-                <a href="{{ route('invoices.download', $invoice->uuid) }}" class="btn-download-pdf">Download as PDF</a>
+                {{-- <a href="{{ route('invoices.download', $invoice->uuid) }}" class="btn-download-pdf">Download as PDF</a> --}}
             </td>
         </tr>
 
@@ -201,7 +201,7 @@
                             <td>{{ number_format($invoice->tax_amount, 2) }}</td>
                         </tr>
                         <tr>
-                            <td><strong>Amount Paid</strong></td>
+                            <td><strong>Payable Amount</strong></td>
                             <td>{{ number_format($invoice->grand_total, 2) }}</td>
                         </tr>
                     </tbody>
