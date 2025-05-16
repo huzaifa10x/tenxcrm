@@ -168,7 +168,7 @@ class InvoiceController extends Controller
 
         Mail::to($invoice->client_email)->send(new InvoiceMail($invoice));
 
-        return response()->json(['message' => 'The Invoice ' . $invoice->uuid . ' has been sent to ' . $invoice->client_email . 'successfully']);
+        return response()->json(['message' => 'The Invoice ' . $invoice->uuid . ' has been sent to ' . $invoice->client_email . ' successfully']);
     }
     public function emailCheckView()
     {
