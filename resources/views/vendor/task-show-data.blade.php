@@ -900,7 +900,7 @@
         $task->project->tasks->where('title', 'Keywords Approval')->first()->status == 'Completed' &&
         $task->title == 'SEO Content Request')
     <div class="row gy-3 mb-16">
-        <div class="col-12">
+        <div class="col-lg-6">
             <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
                 <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
                     <span class="fw-bold">Project Keywords</span>
@@ -925,6 +925,57 @@
                 </div>
             </div>
         </div>
+        @if ($task->project->tasks->where('title', 'Add KW Mapping')->first()->completions)
+            <div class="col-lg-6">
+                <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                    <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                        <span class="fw-bold">KW Mapping Closing Inputs</span>
+                    </div>
+                    <div class="card-body p-0 table-responsive" style="height: 500px; overflow: auto;">
+                        <table class="table table-striped table-bordered">
+                            <tbody>
+                                @foreach ($task->project->tasks->where('title', 'Add KW Mapping')->first()->completions as $completion)
+                                    <tr>
+                                        @if ($completion->field_value === 'on')
+                                            <td class="fs-7">
+                                                {{ str_replace('_', ' ', ucfirst($completion->field_name)) }}
+                                            </td>
+                                            <td class="fs-7">
+                                                <span class="text-success ms-2">
+                                                    <iconify-icon icon="mdi:check-circle" width="20"
+                                                        height="20"></iconify-icon>
+                                                </span>
+                                            </td>
+                                        @endif
+                                        @if (Str::startsWith($completion->field_value, 'task_attachments/'))
+                                            <td class="fs-7">Attachment</td>
+                                            <td class="fs-7">
+                                                @php
+                                                    $filePath = '/public/storage/' . $completion->field_value;
+                                                @endphp
+                                                <a href="{{ asset($filePath) }}" target="_blank"
+                                                    class="fs-7 text-primary d-block mt-1">
+                                                    Download File
+                                                </a>
+                                                <a href="{{ asset($filePath) }}" target="_blank"
+                                                    class="fs-7 text-primary d-block mt-1">
+                                                    Show
+                                                </a>
+                                            </td>
+                                        @elseif ($completion->field_value != 'on' && !Str::startsWith($completion->field_value, 'task_attachments/'))
+                                            <td class="fs-7">
+                                                {{ str_replace('_', ' ', ucfirst($completion->field_name)) }}
+                                            </td>
+                                            <td class="fs-7">{{ $completion->field_value }}</td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 @endif
 <div class="row gy-3 mb-16">
