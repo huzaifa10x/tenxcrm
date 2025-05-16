@@ -147,7 +147,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload the Content Intake Form</label>
                             <input type="text" name="fields[0][name]" value="content_intake_form" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -157,7 +157,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload the Local Listing Form</label>
                             <input type="text" name="fields[0][name]" value="local_listing_form" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -167,7 +167,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">On-site Audit (from SE ranking)</label>
                             <input type="text" name="fields[0][name]" value="onsite_from_se_ranking" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -188,7 +188,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Document of Backlink Audit & DISAVOW</label>
                             <input type="text" name="fields[0][name]" value="backlink_audit_and_disavow" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -221,7 +221,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Attachment</label>
                             <input type="text" name="fields[0][name]" value="attachment" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -231,7 +231,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload SEO Content Request Document</label>
                             <input type="text" name="fields[0][name]" value="seo_content_request_document" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <label class="form-label" for="content_completion_word_count">content completion
                                 word
                                 count</label>
@@ -247,7 +247,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Content Audit</label>
                             <input type="text" name="fields[0][name]" value="content_audit" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -257,7 +257,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">First On-site Report</label>
                             <input type="text" name="fields[0][name]" value="first_onsite_report" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -267,7 +267,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Upload Request Local Listing Doc</label>
                             <input type="text" name="fields[0][name]" value="request_local_listing" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -277,7 +277,7 @@
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             <label class="form-label">Attach Benchmark Report</label>
                             <input type="text" name="fields[0][name]" value="benchmark_report" hidden>
-                            <input type="file" name="file" required class="form-control">
+                            <input type="file" name="fields[0][value]" required class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
