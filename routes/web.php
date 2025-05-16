@@ -10,6 +10,7 @@ use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\ImageCompressorController;
 use App\Http\Controllers\IndustryController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadSourceController;
 use App\Http\Controllers\LeadStatusController;
@@ -218,6 +219,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can remove offsite links')->group(function () {
         Route::delete('/project-keyword/{id}', [ProjectKeywordController::class, 'delete'])->name('project-keyword.delete');
     });
+
+    Route::post('/invoice-payments', [InvoicePaymentController::class, 'store'])->name('invoice-payments.store');
+    Route::get('/invoice-payments/{invoiceId}', [InvoicePaymentController::class, 'index']);
+
     Route::get('/offsite-tasks/{task_id}/starting-kw-urls', [OffsiteTaskController::class, 'getStartingKwUrls'])->name('offsite.tasks.starting_kw_urls');
     Route::get('/offsite-tasks/{task_id}/closing-kw-urls', [OffsiteTaskController::class, 'getClosingKwUrls'])->name('offsite.tasks.closing_kw_urls');
     Route::post('/starting-kw-url/store', [OffsiteTaskController::class, 'store'])->name('starting_kw_url.store');
