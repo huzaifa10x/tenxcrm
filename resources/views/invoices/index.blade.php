@@ -3,10 +3,9 @@
             auth()->user()->hasRole('ADMIN') ||
             auth()->user()->hasRole('Accountant'))
         <x-slot name="header">
-            {{ __('Companies') }}
+            {{ __('Invoices') }}
         </x-slot>
         <div class="container">
-            <h2>Invoices</h2>
             <button class="btn btn-primary mb-3" id="addInvoiceBtn">Add Invoice</button>
             <table class="table table-bordered" id="invoiceTable">
                 <thead>
