@@ -818,10 +818,17 @@
                 <span class="fw-bold">Description</span>
             </div>
             <div class="card-body">
-                {{-- <textarea class="border-0 p-0 m-0 w-100 h-100"
-                    @if (auth()->user()->hasRole('ADMIN')) onchange="updateTaskField(this)" @endif name="description" id="description"
-                    cols="30" rows="10">{{ $task->description }}</textarea> --}}
-                {!! $task->description !!}
+                <div class="html-desc">
+                    {!! $task->description !!}
+                </div>
+                @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN'))
+                    <div class="desc-box" style="display: none">
+                        <textarea class="rounded border m-0 w-100 h-100"
+                            @if (auth()->user()->hasRole('ADMIN')) onchange="updateTaskField(this)" @endif name="description" id="description"
+                            cols="30" rows="10">{{ $task->description }}</textarea>
+                    </div>
+                    <button class="btn show-edit-desc d-block mt-3 btn-info-800">Edit Description</button>
+                @endif
             </div>
         </div>
     </div>
@@ -1129,6 +1136,11 @@
 
 <script>
     $(document).ready(function() {
+        $('.show-edit-desc').click(function() {
+            $('.desc-box').slideToggle();
+            $('.html-desc').slideToggle();
+        });
+
         $('#addUrlGroup').click(function() {
             $('#urlGroups').append(`
                 <div class="url-group card shadow-sm border-0 mb-3 border">
