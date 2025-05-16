@@ -818,17 +818,9 @@
                 <span class="fw-bold">Description</span>
             </div>
             <div class="card-body">
-                <div class="html-desc">
-                    {!! $task->description !!}
-                </div>
-                @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN'))
-                    <div class="desc-box" style="display: none">
-                        <textarea class="rounded border m-0 w-100 h-100"
-                            @if (auth()->user()->hasRole('ADMIN')) onchange="updateTaskField(this)" @endif name="description" id="description"
-                            cols="30" rows="10">{{ $task->description }}</textarea>
-                    </div>
-                    <button class="btn show-edit-desc d-block mt-3 btn-info-800">Edit Description</button>
-                @endif
+                <textarea class="rounded border m-0 w-100 h-100"
+                    @if (auth()->user()->hasRole('ADMIN')) onchange="updateTaskField(this)" @endif name="description" id="description"
+                    cols="30" rows="10">{{ $task->description }}</textarea>
             </div>
         </div>
     </div>
@@ -865,12 +857,76 @@
                     <button type="submit" class="btn btn-primary">Upload Files</button>
                 </form>
                 <div id="taskUploadStatus"></div>
+                @if (
+                    $task->title == 'SEO Content Request' &&
+                        ($task->project->tasks->where('title', 'Upload the Content Intake Form')->first() &&
+                            $task->project->tasks->where('title', 'Upload the Content Intake Form')->first()->status == 'Completed'))
+                    @php
+                        $completions = $task->project->tasks->where('title', 'Upload the Content Intake Form')->first()
+                            ->completions;
+                    @endphp
+                    @foreach ($completions as $completion)
+                        @php
+                            $filePath = '/storage/app/public/' . $completion->field_value;
+                        @endphp
+                        <div class="card mb-10 border">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <a href="{{ asset($filePath) }}"
+                                    class="fs-7 d-block">{{ $completion->field_name }}</a>
+                                <div class="gap-10 d-flex align-items-center">
+                                    <a href="{{ asset($filePath) }}" download="content_intake_form"
+                                        class="btn border-0 m-0 p-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                            fill="green" class="bi bi-download" viewBox="0 0 16 16">
+                                            <path
+                                                d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                                            <path
+                                                d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
                 <div id="taskAttachmentsContainer">
                 </div>
             </div>
         </div>
     </div>
 </div>
+@if (
+    $task->project->tasks->where('title', 'Keywords Approval')->first() &&
+        $task->project->tasks->where('title', 'Keywords Approval')->first()->status == 'Completed' &&
+        $task->title == 'SEO Content Request')
+    <div class="row gy-3 mb-16">
+        <div class="col-12">
+            <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                    <span class="fw-bold">Project Keywords</span>
+                </div>
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Keyword</th>
+                                <th>Url</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($task->project->tasks->where('title', 'Add KW Mapping')->first()->projectKeywords as $keyword)
+                                <tr>
+                                    <td>{{ $keyword->keyword }}</td>
+                                    <td>{{ $keyword->url }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 <div class="row gy-3 mb-16">
     @if ($task->completions->count())
         <div class="col-lg-4">
@@ -1136,11 +1192,6 @@
 
 <script>
     $(document).ready(function() {
-        $('.show-edit-desc').click(function() {
-            $('.desc-box').slideToggle();
-            $('.html-desc').slideToggle();
-        });
-
         $('#addUrlGroup').click(function() {
             $('#urlGroups').append(`
                 <div class="url-group card shadow-sm border-0 mb-3 border">
