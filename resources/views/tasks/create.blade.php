@@ -125,7 +125,8 @@
         <p class="fw-medium text-danger-600 text-sm mt-8">You can't create a task because you're not assigned
             to any project or added as a collaborator. Please
             contact the project's account manager or admin to add you as a collaborator.</p>
-        <a href="{{ route('messages.index') }}" class="text-decoration-underline fw-medium text-danger-600 text-sm mt-8">
+        <a href="{{ route('messages.index') }}"
+            class="text-decoration-underline fw-medium text-danger-600 text-sm mt-8">
             Send a message to the account manager
         </a>
     </div>
@@ -155,7 +156,7 @@
         "ONSITE": ["RE-ONSITE", "CHANGES IN CONTENT", "CREATE NEW PAGE", "REPLACE/UPLOAD CONTENT", "ONSITE AUDIT",
             "ADHOC"
         ],
-        "OFFSITE": ["MANUAL LINKS", "IH LINKS", "OH LINKS", "ADHOC"],
+        "OFFSITE": ["MANUAL LINKS", "IH LINKS", "OH LINKS", "PARTNER LINKS", "ADHOC"],
         "DESIGN": ["LP DESIGN", "BANNERS", "VIDEO", "REVISIONS", "ADHOC"],
         "DEVELOPMENT": ["WEB DESIGN IMPLEMENTATION", "SITE SPEED AND RENDERING", "SEO IMPLEMENTATION",
             "WEBSITE MAINTENANCE", "DEPLOYMENT & HOSTING", "ADHOC"
@@ -189,7 +190,7 @@
                 "ONSITE AUDIT"
             ].includes(selectedSubType)) {
             $('.onsite-fields').slideDown();
-        } else if (["MANUAL LINKS", "IH LINKS", "OH LINKS"].includes(selectedSubType)) {
+        } else if (["MANUAL LINKS", "IH LINKS", "PARTNER LINKS", "OH LINKS"].includes(selectedSubType)) {
             $('.offsite-fields').slideDown();
         } else if (["LP DESIGN", "BANNERS", "VIDEO"].includes(selectedSubType)) {
             $('.design-fields').slideDown();

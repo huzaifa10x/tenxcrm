@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('offsite_tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('task_id')->constrained()->onDelete('cascade');
-            $table->enum('sub_type', ['MANUAL LINKS', 'IH LINKS', 'OH LINKS', 'ADHOC']);
+            $table->enum('sub_type', ['MANUAL LINKS', 'IH LINKS', 'OH LINKS', 'PARTNER LINKS', 'ADHOC']);
             $table->timestamps();
         });
     }

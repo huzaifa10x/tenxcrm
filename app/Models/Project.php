@@ -86,6 +86,10 @@ class Project extends Model
     {
         return $this->hasMany(ProjectKeyword::class, 'project_id');
     }
+    public function partnerLinks()
+    {
+        return $this->hasMany(PartnerLink::class);
+    }
     public function seoTechs()
     {
         return $this->belongsToMany(User::class, 'project_tech_manager');

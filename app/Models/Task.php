@@ -145,6 +145,11 @@ class Task extends Model
         return $this->hasMany(ProjectKeyword::class);
     }
 
+    public function partnerLinks()
+    {
+        return $this->hasMany(PartnerLink::class);
+    }
+
     public function history()
     {
         return $this->hasMany(TaskHistory::class, 'task_id');
@@ -169,7 +174,7 @@ class Task extends Model
         // Define static mappings for other types
         $mapping = [
             'ONSITE' => ['RE-ONSITE', 'CHANGES IN CONTENT', 'CREATE NEW PAGE', 'REPLACE/UPLOAD CONTENT', 'ONSITE AUDIT', 'ADHOC'],
-            'OFFSITE' => ['MANUAL LINKS', 'IH LINKS', 'OH LINKS', 'ADHOC'],
+            'OFFSITE' => ['MANUAL LINKS', 'IH LINKS', 'OH LINKS', 'PARTNER LINKS', 'ADHOC'],
             'DESIGN' => ['LP DESIGN', 'BANNERS', 'VIDEO', 'REVISIONS', 'ADHOC'],
             'DEVELOPMENT' => ['WEB DESIGN IMPLEMENTATION', 'SITE SPEED AND RENDERING', 'SEO IMPLEMENTATION', 'WEBSITE MAINTENANCE', 'DEPLOYMENT & HOSTING', 'ADHOC'],
             'AM' => ['CONTENT APPROVAL', 'REQUEST MEETING', 'PENDING PAYMENTS', 'ADHOC'],

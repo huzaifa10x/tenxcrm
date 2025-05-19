@@ -172,7 +172,9 @@
         </div>
     </div>
 </div>
+
 <x-dashboards.am-calendar />
+
 @if ($statusCounts->count() && $typeCounts->count())
     <div class="border border-secondary card mb-10 overflow-hidden position-relative radius-12">
         <div
@@ -224,7 +226,7 @@
     </div>
 @endif
 <div class="row gy-3 mb-10">
-    <div class="col-lg-12">
+    <div class="col-lg-6">
         <div class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
             <div
                 class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
@@ -232,6 +234,37 @@
             </div>
             <div class="card-body p-0">
                 <div id="tasksChart"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-bold">
+                <i class="bi bi-calendar4-week me-1"></i> Monthly Partner Links Summary
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped table-bordered mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Month</th>
+                            <th>Total Links</th>
+                            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN'))
+                                <th>Total Amount (Rs.)</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($monthlyData as $data)
+                            <tr>
+                                <td>{{ $data['month'] }}</td>
+                                <td>{{ $data['links'] }}</td>
+                                @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN'))
+                                    <td>{{ number_format($data['amount'], 2) }}</td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

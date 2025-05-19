@@ -13,6 +13,7 @@ use App\Models\GeneralSetting;
 use App\Models\Message;
 use App\Models\OffsiteTask;
 use App\Models\OnsiteTask;
+use App\Models\PartnerLink;
 use App\Models\Project;
 use App\Models\ProjectKeyword;
 use App\Models\RepeatingTask;
@@ -261,6 +262,26 @@ class DashboardController extends Controller
             $projects = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->get();
+
+            // Partner Links Start
+            $monthlyStats = DB::table('partner_links')
+                ->selectRaw('MONTH(created_at) as month_number, COUNT(*) as total_links, SUM(amount) as total_amount')
+                ->whereIn('project_id', $projects->pluck('id')) // limit to AM's projects
+                ->groupBy(DB::raw('MONTH(created_at)'))
+                ->orderBy('month_number')
+                ->get();
+
+            // Fill missing months with zero
+            $monthlyData = collect(range(1, 12))->map(function ($month) use ($monthlyStats) {
+                $stat = $monthlyStats->firstWhere('month_number', $month);
+                return [
+                    'month' => Carbon::create()->month($month)->format('M'),
+                    'links' => $stat->total_links ?? 0,
+                    'amount' => $stat->total_amount ?? 0,
+                ];
+            });
+            // Partner Links End
+
             $currentPortfolio = Project::whereHas('accountManagers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->where("status", "Current")
@@ -324,6 +345,8 @@ class DashboardController extends Controller
                 'typeCounts',
                 'newSell',
                 'newSellProjects',
+                'monthlyStats',
+                'monthlyData',
             ];
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {
@@ -377,6 +400,44 @@ class DashboardController extends Controller
                 'pendingWords',
             ];
         } elseif ($role == 'ADMIN') {
+            $projects = Project::whereIn('status', ['Current', 'WFF']);
+
+            // Partner Links Start
+            $accountManagers = User::whereHas('roles', function ($q) {
+                $q->where('name', 'AM'); // Adjust if you use Spatie or similar
+            })->get();
+
+            $partnerLinksByAM = [];
+
+            foreach ($accountManagers as $am) {
+                $projects = Project::whereIn('status', ['Current', 'WFF'])
+                    ->whereHas('accountManagers', function ($q) use ($am) {
+                        $q->where('user_id', $am->id);
+                    })
+                    ->pluck('id');
+
+                $monthlyStats = DB::table('partner_links')
+                    ->selectRaw('MONTH(created_at) as month_number, COUNT(*) as total_links, SUM(amount) as total_amount')
+                    ->whereIn('project_id', $projects)
+                    ->groupBy(DB::raw('MONTH(created_at)'))
+                    ->orderBy('month_number')
+                    ->get();
+
+                $monthlyData = collect(range(1, 12))->map(function ($month) use ($monthlyStats) {
+                    $stat = $monthlyStats->firstWhere('month_number', $month);
+                    return [
+                        'month' => Carbon::create()->month($month)->format('M'),
+                        'links' => $stat->total_links ?? 0,
+                        'amount' => $stat->total_amount ?? 0,
+                    ];
+                });
+
+                $partnerLinksByAM[] = [
+                    'am_name' => $am->name,
+                    'data' => $monthlyData,
+                ];
+            }
+            // Partner Links End
             $this->assignMonthlyTasks();
             $this->contractRenewalCheck();
             if (now()->isStartOfMonth()) {
@@ -386,6 +447,9 @@ class DashboardController extends Controller
                     Cache::put($cacheKey, true, now()->endOfDay());
                 }
             }
+            $extraData += [
+                'partnerLinksByAM'
+            ];
         }
         return view('dashboard', array_merge(
             compact(

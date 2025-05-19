@@ -102,13 +102,42 @@
         </div>
     </div>
     @if ($role === 'AM')
-        <x-dashboards.am-dashboard :newSellProjects="$newSellProjects" :newSell="$newSell" :typeCounts="$typeCounts" :statusCounts="$statusCounts"
-            :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
+        <x-dashboards.am-dashboard :monthlyStats="$monthlyStats" :monthlyData="$monthlyData" :newSellProjects="$newSellProjects" :newSell="$newSell"
+            :typeCounts="$typeCounts" :statusCounts="$statusCounts" :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks"
+            :assignedTasks="$assignedTasks" />
     @elseif ($role === 'CONTENT')
         <x-dashboards.content-dashboard :pendingTasksCount="$pendingTasksCount" :completedTasksCount="$completedTasksCount" :pendingWords="$pendingWords" :completedWords="$completedWords"
             :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
     @elseif ($role == 'ADMIN')
         <x-dashboards.admin-dashboard />
+        <button class="btn btn-warning show-partner-links-info">Show Partner Links Data</button>
+        @foreach ($partnerLinksByAM as $amData)
+            <div class="card mt-4 partner-links-info" style="display: none">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-person-badge me-1"></i> {{ $amData['am_name'] }}
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered table-striped mb-0 small">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>Month</th>
+                                <th>Total Links</th>
+                                <th>Total Amount (Rs.)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            @foreach ($amData['data'] as $row)
+                                <tr>
+                                    <td>{{ $row['month'] }}</td>
+                                    <td>{{ $row['links'] }}</td>
+                                    <td>{{ number_format($row['amount'], 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endforeach
     @endif
     <div class="row gy-3 mb-10 mt-10">
         <x-dashboards.task-counts :taskPercentages="$taskPercentages" :pendingTasksCountGlobal="$pendingTasksCountGlobal" :completedTasksCountGlobal="$completedTasksCountGlobal" :createdTasksCountGlobal="$createdTasksCountGlobal"
@@ -143,5 +172,9 @@
         $(document).on('click', '.office-timing-button', function() {
             $('.office-timing-body').slideToggle();
         });
+        $(document).on('click', '.show-partner-links-info', function() {
+            $('.partner-links-info').slideToggle();
+        });
     </script>
+
 </x-app-layout>

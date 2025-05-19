@@ -20,6 +20,8 @@ class AmDashboard extends Component
     public $typeCounts;
     public $newSell;
     public $newSellProjects;
+    public $monthlyStats;
+    public $monthlyData;
     public function __construct(
         $currentPortfolio,
         $projects,
@@ -30,6 +32,8 @@ class AmDashboard extends Component
         $typeCounts,
         $newSell,
         $newSellProjects,
+        $monthlyStats,
+        $monthlyData,
     ) {
         $this->currentPortfolio = $currentPortfolio;
         $this->projects = $projects;
@@ -40,6 +44,8 @@ class AmDashboard extends Component
         $this->typeCounts = $typeCounts;
         $this->newSell = $newSell;
         $this->newSellProjects = $newSellProjects;
+        $this->monthlyStats = $monthlyStats;
+        $this->monthlyData = $monthlyData;
     }
 
     /**

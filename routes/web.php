@@ -17,6 +17,7 @@ use App\Http\Controllers\LeadStatusController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OffsiteTaskController;
+use App\Http\Controllers\PartnerLinkController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
@@ -238,7 +239,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('credentials.delete');
     Route::post('/projects/{project}/keywords', [ProjectKeywordController::class, 'store'])->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
         ->name('projects.storeKeywords');
-
+    Route::post('/partner-links/multi', [PartnerLinkController::class, 'storeMultiple'])->withoutMiddleware([Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+        ->name('partner-links.store-multiple');
     Route::get('/task/{task}/collaborators', [TaskCollaboratorController::class, 'index'])->name('task.collaborators');
     Route::middleware('permission:can create tasks')->group(function () {
         Route::post('/task/collaborators/store', [TaskCollaboratorController::class, 'store'])->name('task.collaborators.store');

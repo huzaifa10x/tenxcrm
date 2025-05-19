@@ -556,6 +556,39 @@
                                 <button class="btn fs-7 btn-neutral-900" type="submit">Submit</button>
                             </div>
                         </form>
+                    @elseif($task->title == 'OFFSITE - PARTNER LINKS TASK')
+                        <form id="partnerLinkForm">
+                            @csrf
+                            <input type="hidden" name="project_id" value="{{ $task->project_id }}">
+                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+
+                            <div id="link-sections">
+                                <div class="link-group border p-3 mb-3">
+                                    <div class="mb-2">
+                                        <label>Keyword</label>
+                                        <input type="text" name="links[0][keyword]" class="form-control" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label>URL</label>
+                                        <input type="url" name="links[0][url]" class="form-control" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label>Backlink</label>
+                                        <input type="url" name="links[0][backlink]" class="form-control"
+                                            required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label>Amount</label>
+                                        <input type="number" step="0.01" name="links[0][amount]"
+                                            class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" id="addMore" class="btn btn-secondary mb-3">+ Add More</button>
+                            <br>
+                            <button type="submit" class="btn btn-primary">Submit All</button>
+                        </form>
                     @else
                         <div class="col-lg-12">
                             <form id="taskForm" enctype="multipart/form-data">
@@ -1145,6 +1178,39 @@
     <input type="hidden" name="created_by" value="{{ auth()->user()->id }}">
 
 </div>
+@if ($task->title == 'OFFSITE - PARTNER LINKS TASK')
+    <div class="row my-10">
+        <div class="col-lg-12">
+            <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                    <span class="fw-bold">Partner Links</span>
+                </div>
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Keyword</th>
+                                <th>Url</th>
+                                <th>Backlink</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($task->partnerLinks as $link)
+                                <tr>
+                                    <td>{{ $link->keyword }}</td>
+                                    <td>{{ $link->url }}</td>
+                                    <td>{{ $link->backlink }}</td>
+                                    <td>{{ $link->amount }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 <div class="row my-10">
     <div class="col-xxl-6 col-md-6">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
@@ -1341,6 +1407,58 @@
             passwordSpan.text('••••••');
             $(this).text('Show');
         }
+    });
+
+    let index = 1;
+
+    $('#addMore').on('click', function() {
+        const section = `
+        <div class="link-group border p-3 mb-3">
+            <div class="mb-2">
+                <label>Keyword</label>
+                <input type="text" name="links[${index}][keyword]" class="form-control" required>
+            </div>
+            <div class="mb-2">
+                <label>URL</label>
+                <input type="url" name="links[${index}][url]" class="form-control" required>
+            </div>
+            <div class="mb-2">
+                <label>Backlink</label>
+                <input type="url" name="links[${index}][backlink]" class="form-control" required>
+            </div>
+            <div class="mb-2">
+                <label>Amount</label>
+                <input type="number" step="0.01" name="links[${index}][amount]" class="form-control">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-section">Remove</button>
+        </div>`;
+
+        $('#link-sections').append(section);
+        index++;
+    });
+
+    $(document).on('click', '.remove-section', function() {
+        $(this).closest('.link-group').remove();
+    });
+
+    $('#partnerLinkForm').on('submit', function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: '{{ route('partner-links.store-multiple') }}',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(res) {
+                if (res.success) {
+                    toastr.success('Links added successfully!')
+                    index = 1;
+                    triggerCompletionSubmit();
+                }
+            },
+            error: function(xhr) {
+                alert('Error: ' + xhr.responseJSON.message);
+            }
+        });
     });
 
     function fetchCollaborators(taskId) {
@@ -1840,13 +1958,13 @@
         });
     }
 
-
     function updateTimestamps() {
         document.querySelectorAll(".comment-time").forEach(element => {
             const timestamp = element.getAttribute("data-time");
             element.textContent = timeAgo(timestamp);
         });
     }
+
     setInterval(updateTimestamps, 30000);
 
     $(document).on('click', '.delete-comment', function() {
