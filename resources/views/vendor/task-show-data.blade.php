@@ -1406,7 +1406,7 @@
         }
     });
 
-    let index = 1;
+    var index = 1;
 
     $('#addMore').on('click', function() {
         const section = `
