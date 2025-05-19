@@ -110,7 +110,7 @@
             :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
     @elseif ($role == 'ADMIN')
         <x-dashboards.admin-dashboard />
-        <button class="btn btn-warning show-partner-links-info">Show Partner Links Data</button>
+        <button class="btn btn-warning show-partner-links-info mt-24">Show Partner Links Data</button>
         @foreach ($partnerLinksByAM as $amData)
             <div class="card mt-4 partner-links-info" style="display: none">
                 <div class="card-header bg-primary text-white">
