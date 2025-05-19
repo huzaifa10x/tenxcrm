@@ -513,6 +513,7 @@
                     $('#taskDetails').html(response);
                     loadTaskAttachments();
                     loadComments();
+                    $('.editor').richText();
                 },
                 error: function() {
                     $('#taskDetails').html(

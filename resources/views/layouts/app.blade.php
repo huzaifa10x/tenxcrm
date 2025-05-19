@@ -30,12 +30,11 @@
     <link rel="stylesheet" href="{{ asset('css/lib/file-upload.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="{{ asset('t-editor/src/richtext.min.css') }}">
 
@@ -394,31 +393,30 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            flatpickr('input[type="date"]', {
-                enableTime: false,
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "F j, Y",
-                allowInput: true
-            });
-        });
-    </script>
-
     <script src="{{ asset('t-editor/src/jquery.richtext.min.js') }}"></script>
+
     <script>
         $('.editor').richText({
+
+            // text formatting
             bold: true,
             italic: true,
             underline: true,
+
+            // text alignment
             leftAlign: true,
             centerAlign: true,
             rightAlign: true,
             justify: true,
+
+            // lists
             ol: true,
             ul: true,
+
+            // title
             heading: true,
+
+            // fonts
             fonts: true,
             fontList: ["Arial",
                 "Arial Black",
@@ -436,15 +434,29 @@
             fontColor: true,
             backgroundColor: true,
             fontSize: true,
+
+            // uploads
             imageUpload: true,
             fileUpload: true,
+
+            // link
             urls: true,
+
+            // tables
             table: true,
+
+            // code
             removeStyles: true,
             code: true,
+
+            // colors
             colors: [],
+
+            // dropdowns
             fileHTML: '',
             imageHTML: '',
+
+            // translations
             translations: {
                 'title': 'Title',
                 'white': 'White',
@@ -511,9 +523,17 @@
                 'save': 'Save',
                 'close': 'Close'
             },
+
+            // privacy
             youtubeCookies: false,
+
+            // preview
             preview: false,
+
+            // placeholder
             placeholder: '',
+
+            // dev settings
             useSingleQuotes: false,
             height: 0,
             heightPercentage: 0,
@@ -529,6 +549,19 @@
             saveCallback: undefined,
             saveOnBlur: 0,
             undoRedo: true
+
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr('input[type="date"]', {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: true
+            });
         });
     </script>
 
@@ -549,7 +582,7 @@
             toastr.info("{{ session('info') }}");
         @endif
     </script>
-
+    <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
 </body>
 
 </html>
