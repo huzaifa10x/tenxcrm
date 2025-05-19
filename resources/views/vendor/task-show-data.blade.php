@@ -1677,7 +1677,7 @@
     }
 
     $(document).ready(function() {
-        $(document).on("submit", "#taskForm"function(e) {
+        $(document).on("submit", "#taskForm", function(e) {
             e.preventDefault();
             let formData = new FormData(this);
 
