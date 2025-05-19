@@ -739,8 +739,7 @@
             @endif
         </div>
         @if ($task->status === 'Completed')
-            <button type="button" class="btn-sm fs-7 btn btn-secondary text-light-800 complete-task-btn"
-                disabled>Completed</button>
+            <button type="button" class="btn-sm fs-7 btn btn-secondary text-light-800" disabled>Completed</button>
         @else
             <form id="task-complete-form-{{ $task->id }}"
                 action="{{ route('task.markAsCompleted', $task->id) }}" method="POST"
@@ -1451,7 +1450,6 @@
             success: function(res) {
                 if (res.success) {
                     toastr.success('Links added successfully!')
-                    index = 1;
                     triggerCompletionSubmit();
                 }
             },
@@ -1633,7 +1631,7 @@
         });
     });
 
-    $('.complete-task-btn').on('click', function() {
+    $(document).on('click', '.complete-task-btn', function() {
         $('.completion-form-wrapper').slideDown();
         $(this).fadeOut();
     });
@@ -1893,6 +1891,7 @@
 
         // Make sure TinyMCE is initialized
         const editor = tinymce.get('comment-text');
+        console.log(editor.getContent())
         if (!editor) {
             alert("Editor not initialized yet. Try again in a second.");
             return;
