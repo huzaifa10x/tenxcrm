@@ -467,16 +467,28 @@ class TaskController extends Controller
             'message' => 'Attachment deleted successfully!'
         ]);
     }
+
     public function tasksAttachmentsStore(Request $request, Task $task)
     {
-        $request->validate([
-            'attachments' => 'required|array',
-            'attachments.*' => 'file',
-        ]);
+        // $request->validate([
+        //     'attachments' => 'required',
+        //     'attachments.*' => 'file',
+        // ]);
+
+        $files = $request->file('attachments');
+
+        // Flatten nested arrays (if any)
+        if (is_array($files) && isset($files[0]) && is_array($files[0])) {
+            $files = array_merge(...$files);
+        }
+
+        if (!is_array($files)) {
+            $files = [$files];
+        }
 
         $uploadedCount = 0;
 
-        foreach ($request->file('attachments') as $file) {
+        foreach ($files as $file) {
             $path = $file->store('task_attachments', 'public');
 
             $task->attachments()->create([
@@ -489,12 +501,10 @@ class TaskController extends Controller
             $uploadedCount++;
         }
 
-        $attachments = $task->attachments()->with('user')->get();
-
         if ($uploadedCount > 0) {
             TaskHistory::create([
                 'task_id' => $task->id,
-                'user_id' => auth()->user()->id,
+                'user_id' => auth()->id(),
                 'action' => "$uploadedCount Attachment(s) Added by " . auth()->user()->name,
             ]);
         }
@@ -502,9 +512,48 @@ class TaskController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Attachments uploaded successfully.',
-            'attachments' => $attachments,
+            'attachments' => $task->attachments()->with('user')->get(),
         ]);
     }
+
+    // public function tasksAttachmentsStore(Request $request, Task $task)
+    // {
+    //     $request->validate([
+    //         'attachments' => 'required|array',
+    //         'attachments.*' => 'file',
+    //     ]);
+
+    //     $uploadedCount = 0;
+
+    //     foreach ($request->file('attachments') as $file) {
+    //         $path = $file->store('task_attachments', 'public');
+
+    //         $task->attachments()->create([
+    //             'file_path' => $path,
+    //             'file_type' => $file->getClientMimeType(),
+    //             'original_name' => $file->getClientOriginalName(),
+    //             'user_id' => auth()->id(),
+    //         ]);
+
+    //         $uploadedCount++;
+    //     }
+
+    //     $attachments = $task->attachments()->with('user')->get();
+
+    //     if ($uploadedCount > 0) {
+    //         TaskHistory::create([
+    //             'task_id' => $task->id,
+    //             'user_id' => auth()->user()->id,
+    //             'action' => "$uploadedCount Attachment(s) Added by " . auth()->user()->name,
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Attachments uploaded successfully.',
+    //         'attachments' => $attachments,
+    //     ]);
+    // }
     public function jsonTaskAttachments(Task $task)
     {
         return response()->json([

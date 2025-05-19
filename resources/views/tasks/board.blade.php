@@ -532,6 +532,52 @@
                             content_css: '//www.tiny.cloud/css/codepen.min.css', // Optional, provides a clean code view for editor content
                             toolbar_mode: 'floating',
                         });
+                        let taskDropzone = new Dropzone("#taskAttachmentDropzone", {
+                            paramName: "attachments[]",
+                            maxFilesize: 10,
+                            uploadMultiple: true,
+                            parallelUploads: 5,
+                            autoProcessQueue: false, // IMPORTANT
+                            acceptedFiles: ".jpg,.png,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar",
+                            addRemoveLinks: true,
+                            dictDefaultMessage: "Drag and drop files here or click to select",
+
+                            init: function() {
+                                const dz = this;
+                                // Append CSRF & task ID
+                                dz.on("sending", function(file, xhr, formData) {
+                                    formData.append("_token", $(
+                                        'input[name="_token"]').val());
+                                    formData.append("task_id", $(
+                                        'input[name="task_id"]').val());
+                                    $("#taskUploadStatus").html(
+                                        "<p class='text-info'>Uploading...</p>");
+                                });
+                                dz.on("successmultiple", function(files, response) {
+                                    if (response.success) {
+                                        $("#taskUploadStatus").html(
+                                            "<p class='text-success'>Files uploaded successfully!</p>"
+                                            );
+                                        loadTaskAttachments();
+                                        dz.removeAllFiles(); // Clear Dropzone
+                                        toastr.success("Task attachment(s) added!",
+                                            "Success");
+                                        $('#uploadTaskAttachmentsForm').slideUp();
+                                    } else {
+                                        $("#taskUploadStatus").html(
+                                            "<p class='text-danger'>Upload failed: " +
+                                            response
+                                            .message + "</p>");
+                                    }
+                                });
+                                dz.on("errormultiple", function(files, response) {
+                                    console.error("Upload Error:", response);
+                                    $("#taskUploadStatus").html(
+                                        "<p class='text-danger'>Something went wrong during upload.</p>"
+                                        );
+                                });
+                            }
+                        });
                     }, 3000);
                 },
                 error: function() {

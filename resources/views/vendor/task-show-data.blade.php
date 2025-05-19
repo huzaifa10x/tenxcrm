@@ -879,19 +879,19 @@
                 </div>
             </div>
             <div class="card-body">
-                <form id="uploadTaskAttachmentsForm" class="mb-3" enctype="multipart/form-data"
-                    style="display: none">
-                    @csrf
-                    <input type="hidden" name="task_id" value="">
-                    <div class="mb-3">
-                        <label for="taskAttachments" class="form-label">Select Files</label>
-                        <input type="file" name="attachments[]" id="taskAttachments" class="form-control"
-                            multiple required>
-                    </div>
+                <div id="uploadTaskAttachmentsForm" style="display: none">
+                    <form action="{{ route('tasks.attachments.store', $task->id) }}" class="dropzone"
+                        id="taskAttachmentDropzone" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="task_id" value="{{ $task->id }}">
+                    </form>
+                    <button type="button" class="btn btn-primary my-3" id="uploadTaskFilesBtn">
+                        Upload Files
+                    </button>
+                </div>
 
-                    <button type="submit" class="btn btn-primary">Upload Files</button>
-                </form>
-                <div id="taskUploadStatus"></div>
+                <div id="taskUploadStatus" class="mt-2"></div>
+
                 @if (
                     $task->title == 'SEO Content Request' &&
                         ($task->project->tasks->where('title', 'Upload the Content Intake Form')->first() &&
@@ -1335,12 +1335,10 @@
                 </div>
             `);
         });
-
         // Remove URL group
         $(document).on('click', '.remove-url-group', function() {
             $(this).closest('.url-group').remove();
         });
-
         // Handle form submission
         $('#keywordForm3').submit(function(e) {
             e.preventDefault();
@@ -1445,7 +1443,6 @@
 
     $('#partnerLinkForm').on('submit', function(e) {
         e.preventDefault();
-
         $.ajax({
             url: '{{ route('partner-links.store-multiple') }}',
             type: 'POST',
@@ -2040,38 +2037,53 @@
         $('#uploadTaskAttachmentsForm').slideDown();
     });
 
-    $("#uploadTaskAttachmentsForm").submit(function(event) {
-        event.preventDefault();
-        let formData = new FormData(this);
-        let taskId = "{{ $task->id }}";
-        let uploadUrl = "{{ route('tasks.attachments.store', ':id') }}".replace(':id', taskId);
-        $.ajax({
-            url: uploadUrl,
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            beforeSend: function() {
+    Dropzone.autoDiscover = false;
+
+    let taskDropzone = new Dropzone("#taskAttachmentDropzone", {
+        paramName: "attachments[]",
+        maxFilesize: 10,
+        uploadMultiple: true,
+        parallelUploads: 5,
+        autoProcessQueue: false, // IMPORTANT
+        acceptedFiles: ".jpg,.png,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar",
+        addRemoveLinks: true,
+        dictDefaultMessage: "Drag and drop files here or click to select",
+
+        init: function() {
+            const dz = this;
+            // Append CSRF & task ID
+            dz.on("sending", function(file, xhr, formData) {
+                formData.append("_token", $('input[name="_token"]').val());
+                formData.append("task_id", $('input[name="task_id"]').val());
                 $("#taskUploadStatus").html("<p class='text-info'>Uploading...</p>");
-            },
-            success: function(response) {
+            });
+            dz.on("successmultiple", function(files, response) {
                 if (response.success) {
                     $("#taskUploadStatus").html(
                         "<p class='text-success'>Files uploaded successfully!</p>");
                     loadTaskAttachments();
+                    dz.removeAllFiles(); // Clear Dropzone
+                    toastr.success("Task attachment(s) added!", "Success");
                     $('#uploadTaskAttachmentsForm').slideUp();
-                    toastr.success("Task attachment added!", "Success");
                 } else {
-                    $("#taskUploadStatus").html("<p class='text-danger'>Error: " +
-                        response.message + "</p>");
+                    $("#taskUploadStatus").html("<p class='text-danger'>Upload failed: " + response
+                        .message + "</p>");
                 }
-            },
-            error: function(xhr) {
-                console.error("Upload Error:", xhr);
+            });
+            dz.on("errormultiple", function(files, response) {
+                console.error("Upload Error:", response);
                 $("#taskUploadStatus").html(
-                    "<p class='text-danger'>Something went wrong!</p>");
-            }
-        });
+                    "<p class='text-danger'>Something went wrong during upload.</p>");
+            });
+        }
+    });
+
+    $(document).on("click", "#uploadTaskFilesBtn", function(e) {
+        if (taskDropzone.getQueuedFiles().length > 0) {
+            taskDropzone.processQueue(); // Submit files
+        } else {
+            toastr.warning("No files selected for upload.");
+        }
     });
 
     $(document).on("click", ".delete-attachment", function() {
