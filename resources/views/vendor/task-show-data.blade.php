@@ -1891,7 +1891,6 @@
 
         // Make sure TinyMCE is initialized
         const editor = tinymce.get('comment-text');
-        console.log(editor.getContent())
         if (!editor) {
             alert("Editor not initialized yet. Try again in a second.");
             return;
