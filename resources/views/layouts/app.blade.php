@@ -30,7 +30,14 @@
     <link rel="stylesheet" href="{{ asset('css/lib/file-upload.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <link rel="stylesheet" href="{{ asset('t-editor/src/richtext.min.css') }}">
 
     <!-- Dropzone CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
@@ -399,6 +406,132 @@
         });
     </script>
 
+    <script src="{{ asset('t-editor/src/jquery.richtext.min.js') }}"></script>
+    <script>
+        $('.editor').richText({
+            bold: true,
+            italic: true,
+            underline: true,
+            leftAlign: true,
+            centerAlign: true,
+            rightAlign: true,
+            justify: true,
+            ol: true,
+            ul: true,
+            heading: true,
+            fonts: true,
+            fontList: ["Arial",
+                "Arial Black",
+                "Comic Sans MS",
+                "Courier New",
+                "Geneva",
+                "Georgia",
+                "Helvetica",
+                "Impact",
+                "Lucida Console",
+                "Tahoma",
+                "Times New Roman",
+                "Verdana"
+            ],
+            fontColor: true,
+            backgroundColor: true,
+            fontSize: true,
+            imageUpload: true,
+            fileUpload: true,
+            urls: true,
+            table: true,
+            removeStyles: true,
+            code: true,
+            colors: [],
+            fileHTML: '',
+            imageHTML: '',
+            translations: {
+                'title': 'Title',
+                'white': 'White',
+                'black': 'Black',
+                'brown': 'Brown',
+                'beige': 'Beige',
+                'darkBlue': 'Dark Blue',
+                'blue': 'Blue',
+                'lightBlue': 'Light Blue',
+                'darkRed': 'Dark Red',
+                'red': 'Red',
+                'darkGreen': 'Dark Green',
+                'green': 'Green',
+                'purple': 'Purple',
+                'darkTurquois': 'Dark Turquois',
+                'turquois': 'Turquois',
+                'darkOrange': 'Dark Orange',
+                'orange': 'Orange',
+                'yellow': 'Yellow',
+                'imageURL': 'Image URL',
+                'fileURL': 'File URL',
+                'linkText': 'Link text',
+                'url': 'URL',
+                'size': 'Size',
+                'responsive': '<a href="https://www.jqueryscript.net/tags.php?/Responsive/">Responsive</a>',
+                'text': 'Text',
+                'openIn': 'Open in',
+                'sameTab': 'Same tab',
+                'newTab': 'New tab',
+                'align': 'Align',
+                'left': 'Left',
+                'justify': 'Justify',
+                'center': 'Center',
+                'right': 'Right',
+                'rows': 'Rows',
+                'columns': 'Columns',
+                'add': 'Add',
+                'pleaseEnterURL': 'Please enter an URL',
+                'videoURLnotSupported': 'Video URL not supported',
+                'pleaseSelectImage': 'Please select an image',
+                'pleaseSelectFile': 'Please select a file',
+                'bold': 'Bold',
+                'italic': 'Italic',
+                'underline': 'Underline',
+                'alignLeft': 'Align left',
+                'alignCenter': 'Align centered',
+                'alignRight': 'Align right',
+                'addOrderedList': 'Ordered list',
+                'addUnorderedList': 'Unordered list',
+                'addHeading': 'Heading/title',
+                'addFont': 'Font',
+                'addFontColor': 'Font color',
+                'addBackgroundColor': 'Background color',
+                'addFontSize': 'Font size',
+                'addImage': 'Add image',
+                'addVideo': 'Add video',
+                'addFile': 'Add file',
+                'addURL': 'Add URL',
+                'addTable': 'Add table',
+                'removeStyles': 'Remove styles',
+                'code': 'Show HTML code',
+                'undo': 'Undo',
+                'redo': 'Redo',
+                'save': 'Save',
+                'close': 'Close'
+            },
+            youtubeCookies: false,
+            preview: false,
+            placeholder: '',
+            useSingleQuotes: false,
+            height: 0,
+            heightPercentage: 0,
+            adaptiveHeight: false,
+            id: "",
+            class: "",
+            useParagraph: false,
+            maxlength: 0,
+            maxlengthIncludeHTML: false,
+            callback: undefined,
+            useTabForNext: false,
+            save: false,
+            saveCallback: undefined,
+            saveOnBlur: 0,
+            undoRedo: true
+        });
+    </script>
+
     <script>
         @if (Session::has('success'))
             toastr.success("{{ session('success') }}");
@@ -416,7 +549,7 @@
             toastr.info("{{ session('info') }}");
         @endif
     </script>
-    <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
+
 </body>
 
 </html>

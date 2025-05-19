@@ -9,6 +9,9 @@
                     class="btn-sm btn btn-outline-primary fs-7">
                     Create Task
                 </button>
+                <button data-project-id="{{ $project->id }}" class="cancel-project btn-sm btn btn-danger fs-7">
+                    Cancel Project
+                </button>
                 @if ($userPermissions->contains('can update project status'))
                     <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
                         <label class="form-label fs-7 m-0">Project Status</label>
@@ -31,7 +34,7 @@
                                 {{ $project->status == 'Debt Collection' ? 'selected' : '' }}>Debt
                                 Collection
                             </option>
-                            <option value="Cancelled" {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
+                            <option disabled value="Cancelled" {{ $project->status == 'Cancelled' ? 'selected' : '' }}>
                                 Cancelled
                             </option>
                             <option value="Completed" {{ $project->status == 'Completed' ? 'selected' : '' }}>
@@ -1245,7 +1248,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
@@ -1588,6 +1591,10 @@
                     alert(xhr.responseJSON.message || 'An error occurred');
                 }
             });
+        });
+        $(document).on('click', '.cancel-project', function() {
+            let project_id = $(this).data('id');
+            alert('Working on it, will be available soon')
         });
     </script>
     <script>

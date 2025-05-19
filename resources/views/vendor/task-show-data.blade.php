@@ -833,6 +833,20 @@
             </div>
         </div>
     </div>
+    @if ($task->status == 'Completed')
+        <div class="col-lg-4">
+            <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                <div
+                    class="card-header bg-info-50 py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
+                    <span class="fw-bold">Completed at</span>
+                </div>
+                <div class="card-body bg-info-50">
+                    <input type="datetime" readonly disabled class="m-0 p-0 border-0 w-100 h-100 date-picker"
+                        id="completed_date" value="{{ $task->completed_date }}" required>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="col-lg-4">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header bg-danger-50 py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
@@ -1113,7 +1127,8 @@
                 </div>
                 <form action="#" class="row gy-3 p-10 bottom-0 left-0 w-100 bg-base-50">
                     <div class="d-flex align-items-end flex-column justify-content-center gap-3">
-                        <textarea id="comment-text" rows="10" class="form-control border"></textarea>
+                        {{-- id="comment-text" --}}
+                        <textarea rows="10" class="editor form-control border"></textarea>
                         <div class="d-flex align-items-center gap-4">
                             <button type="button" id="add-commentt" data-taskID="{{ $task->id }}"
                                 onclick="doComment()"
@@ -1290,28 +1305,6 @@
 </button>
 
 <input type="hidden" id="taskId" value="{{ $task->id }}">
-
-<script src="https://cdn.tiny.cloud/1/xv2ulo11uhx3jiaj39bykatfcit3wcn9oayhfnkmq96hiypb/tinymce/7/tinymce.min.js"
-    referrerpolicy="origin"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        tinymce.init({
-            selector: '#comment-text',
-            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons paste textpattern',
-            menubar: 'file edit view insert format tools table help',
-            statusbar: true,
-            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | blockquote | link image media | insertdatetime emoticons charmap | fullscreen code preview',
-            height: 400, // You can adjust the height of the editor as needed
-            width: '100%',
-            automatic_uploads: true,
-            file_picker_types: 'image media',
-            image_advtab: true, // Image advanced tab for better image management
-            content_css: '//www.tiny.cloud/css/codepen.min.css', // Optional, provides a clean code view for editor content
-            toolbar_mode: 'floating',
-        });
-    });
-</script>
 
 <script>
     $(document).ready(function() {
@@ -1893,19 +1886,7 @@
         const button = document.getElementById('add-commentt');
         const taskId = button.getAttribute('data-taskID');
 
-        // Make sure TinyMCE is initialized
-        const editor = tinymce.get('comment-text');
-        if (!editor) {
-            alert("Editor not initialized yet. Try again in a second.");
-            return;
-        }
-
-        const commentText = editor.getContent();
-
-        if (commentText.trim() === '') {
-            alert("Comment is empty!");
-            return;
-        }
+        const commentText = $('.editor').val();
 
         fetch("{{ route('comments.store') }}", {
                 method: "POST",

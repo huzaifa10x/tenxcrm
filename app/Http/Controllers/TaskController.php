@@ -43,16 +43,21 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        $statuses = ['Current', 'WFF', 'Debt Collection'];
+
         if ($user->hasRole('ADMIN')) {
-            $projects = Project::all();
+            $projects = Project::whereIn('status', $statuses)->get();
         } else {
             $projects = Project::where('created_by', $user->id)
                 ->orWhereHas('salesManagers', fn($q) => $q->where('user_id', $user->id))
                 ->orWhereHas('accountManagers', fn($q) => $q->where('user_id', $user->id))
                 ->orWhereHas('collaborators', fn($q) => $q->where('user_id', $user->id))
                 ->orWhereHas('techManagers', fn($q) => $q->where('user_id', $user->id))
-                ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id))->get();
+                ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id))
+                ->whereIn('status', $statuses)
+                ->get();
         }
+
         $users = User::all();
         $departments = Role::all();
         $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks();
@@ -152,7 +157,7 @@ class TaskController extends Controller
     }
     public function create()
     {
-        $projects = Project::all();
+        $projects = Project::whereIn('status', 'Current', "WFF", "Debt Collection");
         $users = User::all();
         $departments = Role::all();
         return redirect()->route('tasks.index');
@@ -470,7 +475,7 @@ class TaskController extends Controller
 
     public function tasksAttachmentsStore(Request $request, Task $task)
     {
-   
+
         $uploadedCount = 0;
 
         if (!$request->hasFile('attachments')) {
@@ -482,7 +487,7 @@ class TaskController extends Controller
 
         foreach ($request->file('attachments') as $file) {
             $path = $file->store('task_attachments', 'public');
-            $uploadedCount ++;
+            $uploadedCount++;
             TaskAttachment::create([
                 'task_id' => $task->id,
                 'user_id' => auth()->id(),
