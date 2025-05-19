@@ -186,9 +186,12 @@
                         <form id="taskForm" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <label class="form-label">Document of Backlink Audit & DISAVOW</label>
-                            <input type="text" name="fields[0][name]" value="backlink_audit_and_disavow" hidden>
+                            <label class="form-label">Document of Backlink Audit</label>
+                            <input type="text" name="fields[0][name]" value="backlink_audit" hidden>
                             <input type="file" name="fields[0][value]" required class="form-control">
+                            <label class="form-label">Document of DISAVOW (optional)</label>
+                            <input type="text" name="fields[1][name]" value="disavow" hidden>
+                            <input type="file" name="fields[1][value]" class="form-control">
                             <button class="btn btn-sm d-block btn-neutral-900 mt-10" type="submit">Complete
                                 Task</button>
                         </form>
@@ -1040,7 +1043,7 @@
                                         </td>
                                     @endif
                                     @if (Str::startsWith($completion->field_value, 'task_attachments/'))
-                                        <td class="fs-7">Attachment</td>
+                                        <td class="fs-7">{{ $completion->field_name }}</td>
                                         <td class="fs-7">
                                             @php
                                                 $filePath = '/public/storage/' . $completion->field_value;
@@ -2032,7 +2035,7 @@
         $("#taskAttachmentsContainer").html(html);
     }
 
-    $('#taskAttachments').click(function(e) {
+    $(document).on('click', '#taskAttachments', function(e) {
         e.preventDefault();
         $('#uploadTaskAttachmentsForm').slideDown();
     });
