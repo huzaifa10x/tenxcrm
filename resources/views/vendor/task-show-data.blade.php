@@ -1136,7 +1136,6 @@
                         <tr>
                             <th>Keyword</th>
                             <th>URL</th>
-                            <th>Type</th>
                             @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                                 <th>Action</th>
                             @endif
@@ -1161,7 +1160,6 @@
                         <tr>
                             <th>Keyword</th>
                             <th>URL</th>
-                            <th>Type</th>
                             @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                                 <th>Action</th>
                             @endif
@@ -1520,7 +1518,6 @@
                     <tr id="row-${kwUrl.id}">
                         <td>${kwUrl.keyword}</td>
                         <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                        <td>${kwUrl.type}</td>
                         @if (
                             $userPermissions->contains('can remove offsite links') &&
                                 $task->status !== 'Completed' &&
@@ -1555,7 +1552,6 @@
                         <tr id="row-${kwUrl.id}">
                             <td>${kwUrl.keyword}</td>
                             <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
-                            <td>${kwUrl.type}</td>
                             @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                             <td>
                                 <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
