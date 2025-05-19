@@ -865,17 +865,21 @@
             <div class="card-header position-sticky top-0">
                 <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
                     <span class="fw-bold">Task Files</span>
-                    <button type="button" id="taskAttachments"
-                        class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-                        Add More
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-upload" viewBox="0 0 16 16">
-                            <path
-                                d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                            <path
-                                d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
-                        </svg>
-                    </button>
+                    @if ($is_ajax)
+                        <a href="{{ route('tasks.show', $task->id) }}">Add More</a>
+                    @else
+                        <button type="button" id="taskAttachments"
+                            class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                            Add More
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
+                                <path
+                                    d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                                <path
+                                    d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+                            </svg>
+                        </button>
+                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -2032,58 +2036,67 @@
         $("#taskAttachmentsContainer").html(html);
     }
 
+    var uploadedDocumentMap = {};
+    Dropzone.autoDiscover = false;
+
+    var taskDropzone = new Dropzone("#taskAttachmentDropzone", {
+        url: "{{ route('tasks.attachments.store', $task->id) }}",
+        autoProcessQueue: false,
+        uploadMultiple: true,
+        paramName: "attachments", // Ensure Laravel handles it as an array
+        maxFiles: 10,
+        maxFilesize: 5, // 5MB per file
+        acceptedFiles: ".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.txt",
+        addRemoveLinks: true,
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        },
+        init: function() {
+            var dropzoneInstance = this;
+            dropzoneInstance.on("sending", function(file, xhr, formData) {
+                var form = document.querySelector("#task-create-form");
+                var formDataEntries = new FormData(form);
+                formDataEntries.forEach((value, key) => {
+                    formData.append(key, value);
+                });
+                formData.append("attachments[]", file);
+            });
+            dropzoneInstance.on("success", function(file, response) {
+                uploadedDocumentMap[file.name] = response.name;
+            });
+            dropzoneInstance.on("removedfile", function(file) {
+                if (uploadedDocumentMap[file.name]) {
+                    delete uploadedDocumentMap[file.name];
+                }
+            });
+        }
+    });
+
     $(document).on('click', '#taskAttachments', function(e) {
-        e.preventDefault();
         $('#uploadTaskAttachmentsForm').slideDown();
     });
 
-    Dropzone.autoDiscover = false;
-
-    let taskDropzone = new Dropzone("#taskAttachmentDropzone", {
-        paramName: "attachments[]",
-        maxFilesize: 10,
-        uploadMultiple: true,
-        parallelUploads: 5,
-        autoProcessQueue: false, // IMPORTANT
-        acceptedFiles: ".jpg,.png,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar",
-        addRemoveLinks: true,
-        dictDefaultMessage: "Drag and drop files here or click to select",
-
-        init: function() {
-            const dz = this;
-            // Append CSRF & task ID
-            dz.on("sending", function(file, xhr, formData) {
-                formData.append("_token", $('input[name="_token"]').val());
-                formData.append("task_id", $('input[name="task_id"]').val());
-                $("#taskUploadStatus").html("<p class='text-info'>Uploading...</p>");
-            });
-            dz.on("successmultiple", function(files, response) {
-                if (response.success) {
-                    $("#taskUploadStatus").html(
-                        "<p class='text-success'>Files uploaded successfully!</p>");
-                    loadTaskAttachments();
-                    dz.removeAllFiles(); // Clear Dropzone
-                    toastr.success("Task attachment(s) added!", "Success");
-                    $('#uploadTaskAttachmentsForm').slideUp();
-                } else {
-                    $("#taskUploadStatus").html("<p class='text-danger'>Upload failed: " + response
-                        .message + "</p>");
-                }
-            });
-            dz.on("errormultiple", function(files, response) {
-                console.error("Upload Error:", response);
-                $("#taskUploadStatus").html(
-                    "<p class='text-danger'>Something went wrong during upload.</p>");
-            });
-        }
-    });
-
     $(document).on("click", "#uploadTaskFilesBtn", function(e) {
-        if (taskDropzone.getQueuedFiles().length > 0) {
-            taskDropzone.processQueue(); // Submit files
-        } else {
-            toastr.warning("No files selected for upload.");
-        }
+        var formData = new FormData($("#taskAttachmentDropzone")[0]);
+        taskDropzone.files.forEach(function(file) {
+            formData.append("attachments[]", file);
+        });
+        $.ajax({
+            url: "{{ route('tasks.attachments.store', $task->id) }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                toastr.success('Task attachments added');
+                renderAttachments(response.attachments);
+                $('#uploadTaskAttachmentsForm').slideUp();
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                alert("Error in submission!");
+            }
+        });
     });
 
     $(document).on("click", ".delete-attachment", function() {
@@ -2110,18 +2123,6 @@
                 }
             });
         }
-    });
-
-    var saveBtnTimeout;
-    $(document).on('change input', 'select, input, textarea', function() {
-        clearTimeout(saveBtnTimeout);
-        saveBtnTimeout = setTimeout(() => {
-            $('.btn-save-pulse').fadeIn();
-        }, 200);
-    });
-
-    $(document).on('click', '.btn-save-pulse', function() {
-        $(this).fadeOut()
     });
 
     function updateTaskField(element) {

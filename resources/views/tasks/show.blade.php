@@ -10,10 +10,10 @@
             <x-slot name="header">
                 {{ __('Task') }}
             </x-slot>
-            @include('vendor.task-show-data')
+            @include('vendor.task-show-data', ['is_ajax' => false])
         </x-app-layout>
     @else
-        @include('vendor.task-show-data')
+        @include('vendor.task-show-data', ['is_ajax' => true])
     @endif
 @else
     <x-app-layout>

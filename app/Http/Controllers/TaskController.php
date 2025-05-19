@@ -470,41 +470,33 @@ class TaskController extends Controller
 
     public function tasksAttachmentsStore(Request $request, Task $task)
     {
-        // $request->validate([
-        //     'attachments' => 'required',
-        //     'attachments.*' => 'file',
-        // ]);
-
-        $files = $request->file('attachments');
-
-        // Flatten nested arrays (if any)
-        if (is_array($files) && isset($files[0]) && is_array($files[0])) {
-            $files = array_merge(...$files);
-        }
-
-        if (!is_array($files)) {
-            $files = [$files];
-        }
-
+   
         $uploadedCount = 0;
 
-        foreach ($files as $file) {
-            $path = $file->store('task_attachments', 'public');
-
-            $task->attachments()->create([
-                'file_path' => $path,
-                'file_type' => $file->getClientMimeType(),
-                'original_name' => $file->getClientOriginalName(),
-                'user_id' => auth()->id(),
+        if (!$request->hasFile('attachments')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No file found!.',
             ]);
-
-            $uploadedCount++;
         }
+
+        foreach ($request->file('attachments') as $file) {
+            $path = $file->store('task_attachments', 'public');
+            $uploadedCount ++;
+            TaskAttachment::create([
+                'task_id' => $task->id,
+                'user_id' => auth()->id(),
+                'file_path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+            ]);
+        }
+
+        $attachments = $task->attachments()->with('user')->get();
 
         if ($uploadedCount > 0) {
             TaskHistory::create([
                 'task_id' => $task->id,
-                'user_id' => auth()->id(),
+                'user_id' => auth()->user()->id,
                 'action' => "$uploadedCount Attachment(s) Added by " . auth()->user()->name,
             ]);
         }
@@ -512,7 +504,7 @@ class TaskController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Attachments uploaded successfully.',
-            'attachments' => $task->attachments()->with('user')->get(),
+            'attachments' => $attachments,
         ]);
     }
 
@@ -593,65 +585,6 @@ class TaskController extends Controller
             "message" => ucfirst($request->field) . " updated successfully!"
         ]);
     }
-    // public function completeTask(Request $request)
-    // {
-    //     $request->validate([
-    //         'task_id' => 'required|exists:tasks,id',
-    //         'fields' => 'required|array',
-    //         'fields.*.name' => 'required|string',
-    //         'fields.*.value' => 'nullable|string',
-    //         'file' => 'nullable|file',
-    //     ]);
-
-    //     $filePath = null;
-
-    //     if ($request->hasFile('file')) {
-    //         $filePath = $request->file('file')->store('task_attachments', 'public');
-    //     }
-
-    //     foreach ($request->fields as $index => $field) {
-    //         TaskCompletion::create([
-    //             'task_id' => $request->task_id,
-    //             'field_name' => $field['name'],
-    //             'field_value' => ($index === 0 && $filePath)
-    //                 ? $filePath
-    //                 : $field['value'],
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'Task fields saved successfully',
-    //         'file_path' => $filePath,
-    //     ], 200);
-    // }
-    // public function completeTask(Request $request)
-    // {
-    //     $request->validate([
-    //         'task_id' => 'required|exists:tasks,id',
-    //         'fields' => 'required|array',
-    //         'fields.*.name' => 'required|string',
-    //         'files' => 'nullable|array',
-    //         'files.*' => 'file',
-    //     ]);
-
-    //     foreach ($request->fields as $index => $field) {
-    //         $filePath = null;
-
-    //         if ($request->hasFile("files.$index")) {
-    //             $filePath = $request->file("files.$index")->store('task_attachments', 'public');
-    //         }
-
-    //         TaskCompletion::create([
-    //             'task_id' => $request->task_id,
-    //             'field_name' => $field['name'],
-    //             'field_value' => $filePath ?? null,
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'Task fields saved successfully',
-    //     ]);
-    // }
 
     public function completeTask(Request $request)
     {
