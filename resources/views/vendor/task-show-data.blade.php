@@ -2024,7 +2024,7 @@
                     <img src="${imageExtensions.includes(extension)? filePath : '{{ asset('/images/doc.png') }}'}" alt=""
                         class="w-40-px h-40-px object-fit-cover ${imageExtensions.includes(extension)?'rounded':''} me-12">
                     <div class="flex-grow-1 fs-6">
-                        <a href="${filePath}" class="text-md mb-0 fw-medium fs-6">${original_name}</a>
+                        <a target="_blank" href="${filePath}" class="text-md mb-0 fw-medium fs-6">${original_name}</a>
                         <span class="fs-7 d-block">${createdAt}</span>
                     </div>
                 </div>
