@@ -176,7 +176,7 @@ class AttendanceController extends Controller
                                 $lateCount = $halfDayCount = 0;
                                 break;
                             case 'leave':
-                            case 'holyday':
+                            case 'holiday':
                                 // no deductions or attendance counted
                                 break;
                         }

@@ -175,7 +175,7 @@ class DashboardController extends Controller
 
                     foreach ($absentUsers as $user) {
                         $isWeekend = Carbon::parse($date)->isWeekend();
-                        $status = $isWeekend ? 'holyday' : 'absent';
+                        $status = $isWeekend ? 'holiday' : 'absent';
 
                         Attendance::create([
                             'user_id' => $user->id,

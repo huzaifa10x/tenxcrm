@@ -137,7 +137,7 @@
                             'weekend' => 'bi-calendar-week',
                             'pending' => 'bi-question-circle',
                             'leave' => 'bi-airplane',
-                            'holyday' => 'bi-stars',
+                            'holiday' => 'bi-stars',
                         ];
                     @endphp
 
@@ -169,7 +169,7 @@
                                         'absent' => 'danger',
                                         'weekend' => 'dark',
                                         'leave' => 'secondary',
-                                        'holyday' => 'light',
+                                        'holiday' => 'light',
                                         'pending' => 'secondary',
                                         default => 'secondary',
                                     };

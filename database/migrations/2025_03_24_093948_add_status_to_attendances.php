@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->enum('status', ['present', 'holyday', 'leave', 'late', 'half_day', 'early_out', 'absent'])->default('present');
+            $table->enum('status', ['present', 'holiday', 'leave', 'late', 'half_day', 'early_out', 'absent'])->default('present');
         });
     }
 
