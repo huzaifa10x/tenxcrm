@@ -749,7 +749,7 @@
                 style="display: inline-block;">
                 @csrf
                 @method('PATCH')
-                <button type="button" class="btn-sm fs-7 btn btn-success  complete-task-btn"
+                <button type="button" class="btn-sm fs-7 btn btn-success complete-task-btn"
                     data-task-id="{{ $task->id }}">Complete Task</button>
             </form>
         @endif
@@ -1675,27 +1675,6 @@
 
     $(document).ready(function() {
         $(document).on("submit", "#taskForm", function(e) {
-            e.preventDefault();
-            let formData = new FormData(this);
-
-            $.ajax({
-                url: "{{ route('tasks.complete') }}",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response, textStatus, xhr) {
-                    toastr.success(response.message, "Success");
-                    if (xhr.status === 200) {
-                        triggerCompletionSubmit();
-                    }
-                },
-                error: function(xhr) {
-                    toastr.error("Error: " + xhr.responseText, "Error");
-                }
-            });
-        });
-        $("#taskForm2").submit(function(e) {
             e.preventDefault();
             let formData = new FormData(this);
 

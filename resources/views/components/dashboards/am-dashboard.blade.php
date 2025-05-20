@@ -205,23 +205,63 @@
             class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
             <span class="fw-bold">Projects Types</span>
         </div>
-        <div class="card-body">
-            <div class="row row-cols-lg-5 mt-2 gy-4">
-                @foreach ($typeCounts as $type => $count)
-                    <div class="col mt-1">
-                        <div class="card shadow-none border bg-gradient-start-2 h-100">
-                            <div class="card-body p-20">
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                                    <div>
-                                        <p class="fw-medium text-primary-light mb-1">{{ $type }}</p>
-                                        <h6 class="mb-0">{{ $count }}</h6>
-                                    </div>
+        <div class="card-body row">
+            @foreach ($typeCounts as $type => $count)
+                @php
+                    $offcanvasId = 'typeProjectsOffcanvas_' . Str::slug($type);
+                @endphp
+
+                <div class="col-3 my-1">
+                    <div type="button" data-bs-toggle="offcanvas" data-bs-target="#{{ $offcanvasId }}"
+                        aria-controls="{{ $offcanvasId }}" class="card shadow-none border bg-gradient-start-2 h-100">
+                        <div class="card-body p-20">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                <div>
+                                    <p class="fw-medium text-primary-light mb-1">{{ $type }}</p>
+                                    <h6 class="mb-0">{{ $count }}</h6>
                                 </div>
                             </div>
-                        </div><!-- card end -->
+                        </div>
+                    </div><!-- card end -->
+                </div>
+
+                <div class="offcanvas offcanvas-start w-75 mt-0" data-bs-scroll="true" tabindex="-1"
+                    id="{{ $offcanvasId }}" aria-labelledby="{{ $offcanvasId }}Label">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="{{ $offcanvasId }}Label">
+                            {{ $type }} - {{ $projects->where('project_type', $type)->count() }} Projects
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                            aria-label="Close"></button>
                     </div>
-                @endforeach
-            </div>
+                    <div class="offcanvas-body">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <table class="table table-striped table-bordered mb-0 small">
+                                    <thead>
+                                        <tr>
+                                            <td>Project</td>
+                                            <td>Client</td>
+                                            <td>Revenue <span class="fs-7">/mo</span></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($projects->where('project_type', $type) as $project)
+                                            <tr>
+                                                <td>{{ $project->title }}</td>
+                                                <td><a href="{{ $project->companies->website ?? "#" }}">{{ $project->companies->name }}</a></td>
+                                                <td>
+                                                    {{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 }} AED
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
 @endif
