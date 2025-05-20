@@ -38,7 +38,7 @@
     <section class="auth bg-base d-flex flex-wrap">
         <div class="auth-left d-lg-block d-none">
             <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-                <img src="{{ asset('/public/dark-logo.png') }}" class="w-440-px img-fluid" alt="">
+                <img src="{{ asset('/public/black-logo.png') }}" class="img-fluid" alt="">
             </div>
         </div>
         <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
