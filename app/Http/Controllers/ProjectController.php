@@ -4,6 +4,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CancellationReason;
 use App\Models\ClientCredential;
 use App\Models\Company;
 use App\Models\Industry;
@@ -17,6 +18,7 @@ use App\Models\User;
 use App\Models\WebDevProject;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -104,9 +106,7 @@ class ProjectController extends Controller
             $projects = $query->where('project_type', $category)->paginate(10)->withQueryString();
         } else if ($user->hasPermission('can view all projects')) {
             $projects = $query->paginate(10)->withQueryString();
-        }
-        // Restricted to user's own or related projects
-        else {
+        } else {
             $projects = $query->where(function ($q) use ($user) {
                 $q->where('created_by', $user->id)
                     ->orWhereHas('salesManagers', fn($q) => $q->where('user_id', $user->id))
@@ -119,8 +119,34 @@ class ProjectController extends Controller
 
         return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users', $extraData));
     }
+    public function cancel(Request $request)
+    {
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'reason' => 'required|string',
+        ]);
 
-    // Show the form for creating a new resource.
+        CancellationReason::create([
+            'project_id' => $request->project_id,
+            'reason' => $request->reason,
+            'approved' => false,
+        ]);
+
+        return response()->json(['message' => 'Cancellation submitted']);
+    }
+    public function approveCancellation($id)
+    {
+        $cancellation = CancellationReason::findOrFail($id);
+        $project = $cancellation->project;
+
+        DB::transaction(function () use ($cancellation, $project) {
+            $cancellation->update(['approved' => true]);
+            $project->update(['status' => 'Cancelled']);
+            $project->tasks()->update(['status' => 'Blocked']);
+        });
+
+        return back()->with('success', 'Project cancelled and tasks blocked.');
+    }
     public function create()
     {
         $industries = Industry::all();
@@ -129,7 +155,6 @@ class ProjectController extends Controller
         $companies = Company::all();
         return view('projects.create', compact('industries', 'users', 'paymentMethods', 'companies'));
     }
-
     public function store(Request $request)
     {
 
@@ -252,8 +277,6 @@ class ProjectController extends Controller
         }
         return redirect()->route('projects.index')->with('success', 'Project created successfully');
     }
-
-    // Display the specified resource.
     public function show($id)
     {
         $project = Project::findOrFail($id);
@@ -292,7 +315,6 @@ class ProjectController extends Controller
                 }
             }
         }
-
         return view('projects.show', compact(
             'project',
             'industries',
@@ -311,8 +333,6 @@ class ProjectController extends Controller
             'sequenceTasksFiles',
         ));
     }
-
-    // Show the form for editing the specified resource.
     public function edit($id)
     {
         $project = Project::findOrFail($id);
@@ -322,12 +342,9 @@ class ProjectController extends Controller
         $companies = Company::all();
         return view('projects.edit', compact('project', 'industries', 'users', 'paymentMethods', 'companies'));
     }
-
-    // Update the specified resource in storage.
     public function update(Request $request, $id)
     {
         $project = Project::findOrFail($id);
-
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
             'description' => 'required|string',
@@ -441,19 +458,13 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully');
     }
-
-    // Remove the specified resource from storage.
     public function destroy($id)
     {
         $project = Project::findOrFail($id);
-
-        // Delete related contract files
         foreach ($project->contractFiles as $file) {
             Storage::disk('public')->delete($file->file_path);
             $file->delete();
         }
-
-        // Delete related project type specific data
         if ($project->project_type == 'SEO') {
             SeoProject::where('project_id', $project->id)->delete();
         } elseif ($project->project_type == 'Social Media') {
@@ -461,12 +472,9 @@ class ProjectController extends Controller
         } elseif ($project->project_type == 'Web Development') {
             WebDevProject::where('project_id', $project->id)->delete();
         }
-
         $project->delete();
-
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully');
     }
-
     public function uploadProjectFiles(Request $request, $projectId)
     {
         $project = Project::findOrFail($projectId);
@@ -497,7 +505,6 @@ class ProjectController extends Controller
             'message' => 'Files uploaded successfully!'
         ]);
     }
-
     public function deleteProjectFile($projectId, $fileId)
     {
         $project = Project::findOrFail($projectId);
@@ -533,7 +540,6 @@ class ProjectController extends Controller
             'message' => 'All attachments deleted successfully.'
         ]);
     }
-
     public function updateStatus(Request $request, $id)
     {
         $project = Project::findOrFail($id);
@@ -542,7 +548,6 @@ class ProjectController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Project status updated successfully!']);
     }
-
     public function getExtraFields(Request $request)
     {
         $projectType = $request->project_type;
@@ -645,7 +650,6 @@ class ProjectController extends Controller
 
         return response()->json($fields); // Return fields as JSON response
     }
-
     public function storeClientCredentials(Request $request, Project $project)
     {
         $request->validate([

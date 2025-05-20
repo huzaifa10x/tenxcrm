@@ -1202,7 +1202,46 @@
         </div>
     </div>
 
+    <!-- In your Blade somewhere -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="cancelProjectForm">
+                @csrf
+                <input type="hidden" name="project_id" id="cancel_project_id">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cancel Project</h5>
+                    </div>
+                    <div class="modal-body">
+                        <textarea name="reason" class="form-control" placeholder="Enter reason..." required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger">Submit Cancellation</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        $(document).on('click', '.cancel-project', function() {
+            let projectId = $(this).data('project-id');
+            $('#cancel_project_id').val(projectId);
+            $('#cancelModal').modal('show');
+        });
+
+        $('#cancelProjectForm').on('submit', function(e) {
+            e.preventDefault();
+            let formData = $(this).serialize();
+            $.post("{{ route('projects.cancel') }}", formData, function(res) {
+                $('#cancelModal').modal('hide');
+                alert('Cancellation request submitted for admin approval.');
+            }).fail(function() {
+                alert('Error occurred.');
+            });
+        });
+
+
         $(document).on('click', '.taskCreateModal', function() {
             if ($(this).data('recurring')) {
                 $('#repeat_options').html(
@@ -1248,7 +1287,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
@@ -1591,10 +1630,6 @@
                     alert(xhr.responseJSON.message || 'An error occurred');
                 }
             });
-        });
-        $(document).on('click', '.cancel-project', function() {
-            let project_id = $(this).data('id');
-            alert('Working on it, will be available soon')
         });
     </script>
     <script>

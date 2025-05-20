@@ -6,6 +6,7 @@ use App\Models\AdminTask;
 use App\Models\AmTask;
 use App\Models\Attendance;
 use App\Models\Automation;
+use App\Models\CancellationReason;
 use App\Models\ContentTask;
 use App\Models\DesignTask;
 use App\Models\DevelopmentTask;
@@ -401,7 +402,7 @@ class DashboardController extends Controller
             ];
         } elseif ($role == 'ADMIN') {
             $projects = Project::whereIn('status', ['Current', 'WFF']);
-
+            $pendingCancellations = CancellationReason::where('approved', false)->get();
             // Partner Links Start
             $accountManagers = User::whereHas('roles', function ($q) {
                 $q->where('name', 'AM'); // Adjust if you use Spatie or similar
@@ -448,7 +449,8 @@ class DashboardController extends Controller
                 }
             }
             $extraData += [
-                'partnerLinksByAM'
+                'partnerLinksByAM',
+                'pendingCancellations',
             ];
         }
         return view('dashboard', array_merge(

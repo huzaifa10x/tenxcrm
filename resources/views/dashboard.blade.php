@@ -109,6 +109,76 @@
         <x-dashboards.content-dashboard :pendingTasksCount="$pendingTasksCount" :completedTasksCount="$completedTasksCount" :pendingWords="$pendingWords" :completedWords="$completedWords"
             :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
     @elseif ($role == 'ADMIN')
+        <div class="card">
+            <div class="card-header">
+                <span class="fw-bold">Project Cancellation Request</span>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col"><i class="bi bi-hash"></i> #</th>
+                            <th scope="col"><i class="bi bi-folder2-open"></i> Project</th>
+                            <th scope="col"><i class="bi bi-chat-left-text"></i> Reason</th>
+                            <th scope="col"><i class="bi bi-tools"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($pendingCancellations as $index => $cancel)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $cancel->project->title }}</td>
+                                <td>
+                                    <button class="btn btn-outline-info btn-sm view-reason-btn" data-bs-toggle="modal"
+                                        data-bs-target="#reasonModal" data-project="{{ $cancel->project->title }}"
+                                        data-url="{{ route('projects.show', $cancel->project->id) }}"
+                                        data-reason="{{ $cancel->reason }}">
+                                        <i class="bi bi-eye"></i> View Reason
+                                    </button>
+                                </td>
+                                <td>
+                                    <form action="{{ route('admin.approveCancellation', $cancel->id) }}"
+                                        method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="bi bi-check2-circle"></i> Approve
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No pending cancellations.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Reason Modal -->
+        <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow">
+                    <div class="modal-header bg-info text-white">
+                        <span class="modal-title" id="reasonModalLabel">
+                            <i class="bi bi-exclamation-circle me-1"></i> Cancellation Reason
+                        </span>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <a class="fw-bold fs-7 text-dark project-title"></a>
+                        <p class="mt-2 text-secondary reason-text"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <x-dashboards.admin-dashboard />
         <button class="btn btn-warning show-partner-links-info mt-24">Show Partner Links Data</button>
         @foreach ($partnerLinksByAM as $amData)
@@ -169,6 +239,14 @@
         });
     </script>
     <script>
+        $(document).on('click', '.view-reason-btn', function() {
+            let reason = $(this).data('reason');
+            let project = $(this).data('project');
+            let projectUrl = $(this).data('url');
+            $('.project-title').attr('href', projectUrl);
+            $('.project-title').text(project);
+            $('.reason-text').text(reason);
+        });
         $(document).on('click', '.office-timing-button', function() {
             $('.office-timing-body').slideToggle();
         });

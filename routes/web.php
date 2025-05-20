@@ -54,6 +54,8 @@ Route::get('/invoices/{uuid}/download', [InvoiceController::class, 'downloadPdf'
 Route::get('email/check/index', [InvoiceController::class, 'emailCheckView'])->name('email.check.index');
 
 Route::middleware('auth')->group(function () {
+    Route::put('/admin/cancellations/{id}/approve', [ProjectController::class, 'approveCancellation'])->name('admin.approveCancellation');
+    Route::post('/projects/cancel', [ProjectController::class, 'cancel'])->name('projects.cancel');
     Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');
     Route::get('/todo/get-by-date', [TodoController::class, 'getTodosByDate'])->name('todo.getByDate');
     Route::post('/todo/mark-done', [TodoController::class, 'markAsDone'])->name('todo.markDone');

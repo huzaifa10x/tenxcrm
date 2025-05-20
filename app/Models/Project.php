@@ -49,7 +49,10 @@ class Project extends Model
     {
         return $this->hasOne(SocialMediaProject::class);
     }
-
+    public function cancellationReason()
+    {
+        return $this->hasOne(CancellationReason::class);
+    }
     public function webDevProject()
     {
         return $this->hasOne(WebDevProject::class);
