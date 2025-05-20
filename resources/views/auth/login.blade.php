@@ -1,9 +1,6 @@
 <x-guest-layout>
     <div class="max-w-464-px mx-auto w-100">
         <div>
-            <a href="index.html" class="mb-40 max-w-290-px">
-                <img src="assets/images/logo.png" alt="">
-            </a>
             <h4 class="mb-12">Sign In to your 10X One</h4>
             <p class="mb-32 text-secondary-light text-lg">Welcome back! please enter your credentials.</p>
         </div>

@@ -4,8 +4,7 @@
     </button>
     <div style="background: #273142 !important;">
         <a href="{{ route('dashboard') }}" class="sidebar-logo">
-            <img src="{{ asset('/images/logo-light.png') }}" alt="site logo" class="">
-            {{-- <img src="{{ asset('/images/logo-icon.png') }}" alt="site logo" class="logo-icon"> --}}
+            <img src="{{ asset('/public/light-logo.png') }}" class="p-1" alt="site logo" class="">
         </a>
     </div>
     <div class="sidebar-menu-area">
