@@ -51,7 +51,7 @@ class Project extends Model
     }
     public function cancellationReason()
     {
-        return $this->hasOne(CancellationReason::class);
+        return $this->hasMany(CancellationReason::class);
     }
     public function webDevProject()
     {

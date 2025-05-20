@@ -9,9 +9,11 @@
                     class="btn-sm btn btn-outline-primary fs-7">
                     Create Task
                 </button>
-                <button data-project-id="{{ $project->id }}" class="cancel-project btn-sm btn btn-danger fs-7">
-                    Cancel Project
-                </button>
+                @if ($project->status !== 'Cancelled')
+                    <button data-project-id="{{ $project->id }}" class="cancel-project btn-sm btn btn-danger fs-7">
+                        Cancel Project
+                    </button>
+                @endif
                 @if ($userPermissions->contains('can update project status'))
                     <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
                         <label class="form-label fs-7 m-0">Project Status</label>
@@ -99,6 +101,34 @@
             </div>
         </div>
         <div class="card-body">
+            @if ($project->status == 'Cancelled' && $project->cancellationReason->count())
+                <div class="row gy-3 mb-4">
+                    <div class="col-12">
+                        <div class="card border-danger shadow-sm">
+                            <div
+                                class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                                <span class="fw-bold"><i class="bi bi-x-octagon me-1"></i> Cancellation Reasons</span>
+                                <span class="badge bg-light text-danger">{{ $project->cancellationReason->count() }}
+                                    entries</span>
+                            </div>
+                            <div class="card-body">
+                                @foreach ($project->cancellationReason as $cancellation)
+                                    <div class="mb-3 p-3 border rounded bg-light">
+                                        <div class="text-muted small mb-1">
+                                            <i class="bi bi-calendar-event"></i>
+                                            {{ $cancellation->created_at->format('d M Y, h:i A') }}
+                                        </div>
+                                        <div class="text-dark">
+                                            {{ $cancellation->reason }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="row gy-3 mb-10">
                 <div class="col-lg-3">
                     <div
@@ -1287,7 +1317,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                                                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
