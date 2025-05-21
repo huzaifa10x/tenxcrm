@@ -646,7 +646,7 @@ class TaskController extends Controller
             $newContentApprovalTask = Task::create([
                 'is_automated' => 1,
                 'title' => "Client Content Approval Request",
-                'description' => 'Please review and obtain client approval for the content related to task ' . url("tasks/{$task->id}") . '.',
+                'description' => 'Please review and obtain client approval. Click the button labeled "Parent Task" at the top to view the related tasks.',
                 'project_id' => $project->id,
                 'department_id' => null,
                 'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
@@ -657,6 +657,7 @@ class TaskController extends Controller
                 'due_date' => Carbon::now()->addDays(7),
                 'start_date' => $dubaiTime,
                 'repeat_task' => false,
+                'parent_task_id' => $task->id,
             ]);
             ContentTask::create([
                 "task_id" => $newContentApprovalTask->id,

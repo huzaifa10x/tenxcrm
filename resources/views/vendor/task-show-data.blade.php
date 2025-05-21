@@ -741,6 +741,7 @@
                 <input readonly type="text" class="form-control fs-7 h-auto" value="{{ $task->type }}">
             @endif
         </div>
+
         @if ($task->status === 'Completed')
             <button type="button" class="btn-sm fs-7 btn btn-secondary text-light-800" disabled>Completed</button>
         @else
@@ -749,8 +750,13 @@
                 style="display: inline-block;">
                 @csrf
                 @method('PATCH')
-                <button type="button" class="btn-sm fs-7 btn btn-success complete-task-btn"
-                    data-task-id="{{ $task->id }}">Complete Task</button>
+                @if ($is_ajax)
+                    <a class="btn-sm fs-7 btn btn-success" href="{{ route('tasks.show', $task->id) }}">Complete
+                        Task</a>
+                @else
+                    <button type="button" class="btn-sm fs-7 btn btn-success complete-task-btn"
+                        data-task-id="{{ $task->id }}">Complete Task</button>
+                @endif
             </form>
         @endif
         @if ($userPermissions->contains('can create tasks') && auth()->user()->id == $task->created_by)
@@ -1633,7 +1639,11 @@
         $(this).fadeOut();
     });
 
+    var triggered = false;
+
     function triggerCompletionSubmit() {
+        if (triggered) return;
+        triggered = true;
         let button = $('.complete-task-btn');
         $('button[type="submit"]').prop('disabled', true);
         $('button[type="submit"]').text('Loading...');
@@ -1677,7 +1687,7 @@
         $(document).on("submit", "#taskForm", function(e) {
             e.preventDefault();
             let formData = new FormData(this);
-
+            triggerCompletionSubmit();
             $.ajax({
                 url: "{{ route('tasks.complete') }}",
                 type: "POST",
