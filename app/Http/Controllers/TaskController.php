@@ -801,7 +801,7 @@ class TaskController extends Controller
                     'is_automated' => 1,
                     'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                     'project_id' => $project->id,
-                    'title' => 'Schedule R3',
+                    'title' => 'Request for R3',
                     'assigned_to' => $seoAdmin,
                     'status' => 'Todo',
                     'start_date' => now()->addDays(60),
