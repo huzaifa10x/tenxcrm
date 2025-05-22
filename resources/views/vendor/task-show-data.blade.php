@@ -962,7 +962,7 @@
                         <div class="card mb-10 border">
                             <div class="card-header d-flex align-items-center justify-content-between">
                                 <a href="{{ asset($filePath) }}"
-                                    class="fs-7 d-block">{{ $completion->field_name }}</a>
+                                    class="fs-7 d-block">Content Intake Form</a>
                                 <div class="gap-10 d-flex align-items-center">
                                     <a href="{{ asset($filePath) }}" download="content_intake_form"
                                         class="btn border-0 m-0 p-0">
