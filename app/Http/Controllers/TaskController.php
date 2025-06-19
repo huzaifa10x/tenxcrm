@@ -659,11 +659,12 @@ class TaskController extends Controller
                 'repeat_task' => false,
                 'parent_task_id' => $task->id,
             ]);
-            ContentTask::create([
-                "task_id" => $newContentApprovalTask->id,
-                "sub_type" => $task->contentTask->sub_type,
-                "number_of_pages" => $task->contentTask->number_of_pages,
-            ]);
+            
+            // ContentTask::create([
+            //     "task_id" => $newContentApprovalTask->id,
+            //     "sub_type" => $task->contentTask->sub_type || 'ADHOC',
+            //     "number_of_pages" => $task->contentTask->number_of_pages,
+            // ]);
 
             foreach ($task->attachments as $attachment) {
                 // Assuming 'file_type' and 'original_name' are stored in the attachment model
