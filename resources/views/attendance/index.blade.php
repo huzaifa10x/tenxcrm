@@ -28,8 +28,7 @@
             @if (request('user_id'))
                 <input type="hidden" name="user_id" value="{{ request('user_id') }}">
             @endif
-            @if (auth()->user()->hasRole('ADMIN'))
-                <!-- User Filter -->
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('Accountant'))
                 <div class="col-md-4">
                     <label for="user_id">Select User</label>
                     <select name="user_id" id="user_id" class="form-control">
@@ -334,5 +333,4 @@
             });
         });
     </script>
-
 </x-app-layout>

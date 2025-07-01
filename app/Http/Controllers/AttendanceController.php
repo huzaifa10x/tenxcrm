@@ -99,18 +99,15 @@ class AttendanceController extends Controller
     {
         $month = $request->input('month', now()->format('Y-m'));
         $authUser = auth()->user();
-        $userId = $authUser->hasRole('ADMIN')
-            ? $request->input('user_id')
-            : $authUser->id; // force their own ID if not admin
-
+        $userId = $authUser->hasRole('ADMIN') || $authUser->hasRole('Accountant') ? $request->input('user_id') : $authUser->id;
+        print_r($userId);
         // Office Settings
         $generalSettings = GeneralSetting::first();
         $officeStartTime = $generalSettings->office_open_time ?? '09:00:00';
         $halfDayThreshold = $generalSettings->half_day_threshold ?? '12:00:00';
         $breakEndTime = $generalSettings->break_end_time ?? '14:00:00';
         $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
-        $lateThreshold = Carbon::createFromFormat('H:i:s', $officeStartTime)
-            ->addMinutes($generalSettings->late_threshold)->format('H:i:s');
+        $lateThreshold = Carbon::createFromFormat('H:i:s', $officeStartTime)->addMinutes($generalSettings->late_threshold)->format('H:i:s');
 
         $late_deduction_threshold = $generalSettings->late_deduction_threshold ?? 3;
         $half_day_deduction_threshold = $generalSettings->half_day_deduction_threshold ?? 2;
@@ -119,18 +116,20 @@ class AttendanceController extends Controller
         $totalDays = $monthCarbon->daysInMonth;
         $holidays = $generalSettings->holidays ?? [];
 
-        // Users Query
         $usersQuery = User::query();
-        if (!$authUser->hasRole('ADMIN')) {
+        if (!($authUser->hasRole('ADMIN') || $authUser->hasRole('Accountant'))) {
             $usersQuery->where('id', $authUser->id);
         } elseif ($userId) {
             $usersQuery->where('id', $userId);
         }
 
-        $users = $usersQuery->with(['attendances' => function ($query) use ($monthCarbon) {
-            $query->whereYear('date', $monthCarbon->year)
-                ->whereMonth('date', $monthCarbon->month);
-        }])->get();
+        $users = $usersQuery
+            ->with([
+                'attendances' => function ($query) use ($monthCarbon) {
+                    $query->whereYear('date', $monthCarbon->year)->whereMonth('date', $monthCarbon->month);
+                },
+            ])
+            ->get();
 
         $totalPresent = $totalAbsent = $totalLate = $totalHalfDay = $totalEarlyOut = $deductions = 0;
 
@@ -143,7 +142,9 @@ class AttendanceController extends Controller
                     $date = $monthCarbon->format('Y-m') . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
                     $carbonDate = Carbon::parse($date);
 
-                    if (in_array($date, $holidays) || $carbonDate->isWeekend()) continue;
+                    if (in_array($date, $holidays) || $carbonDate->isWeekend()) {
+                        continue;
+                    }
 
                     $attendance = $user->attendances->firstWhere('date', $date);
 
@@ -191,26 +192,11 @@ class AttendanceController extends Controller
             }
         }
 
-        $todayAttendance = Attendance::where('user_id', auth()->id())->where('date', today())->first();
+        $todayAttendance = Attendance::where('user_id', auth()->id())
+            ->where('date', today())
+            ->first();
         $todayAttendanceId = $todayAttendance?->id ?? null;
 
-        return view('attendance.index', compact(
-            'users',
-            'breakEndTime',
-            'earlyOutThreshold',
-            'halfDayThreshold',
-            'lateThreshold',
-            'month',
-            'totalDays',
-            'userId',
-            'totalPresent',
-            'totalAbsent',
-            'totalLate',
-            'totalHalfDay',
-            'totalEarlyOut',
-            'deductions',
-            'holidays',
-            'todayAttendanceId',
-        ));
+        return view('attendance.index', compact('users', 'breakEndTime', 'earlyOutThreshold', 'halfDayThreshold', 'lateThreshold', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'totalHalfDay', 'totalEarlyOut', 'deductions', 'holidays', 'todayAttendanceId'));
     }
 }

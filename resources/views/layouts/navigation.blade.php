@@ -197,7 +197,7 @@
                 </ul>
 
             </li>
-            @if (auth()->user()->hasRole('ADMIN'))
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('Accountant'))
                 <li>
                     <a href="{{ route('admin.attendance') }}">
                         <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
