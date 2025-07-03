@@ -931,6 +931,7 @@
             <div class="row gy-3 mb-10">
                 @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
+                        auth()->user()->hasRole('Accountant') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-6">
                         <div class="card border">
@@ -1646,9 +1647,7 @@
         $(document).on('click', '.delete-credential', function() {
             let credId = $(this).data('id');
             let deleteUrl = "{{ route('credentials.delete', ['project' => $project->id]) }}";
-
             if (!confirm('Are you sure you want to delete this credential?')) return;
-
             $.ajax({
                 url: deleteUrl,
                 type: 'DELETE',
@@ -1658,7 +1657,7 @@
                 },
                 success: function(response) {
                     alert(response.message);
-                    location.reload(); // Reload the page after deletion
+                    location.reload(); 
                 },
                 error: function(xhr) {
                     alert(xhr.responseJSON.message || 'An error occurred');
