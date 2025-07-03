@@ -166,6 +166,7 @@
                 @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
+                        auth()->user()->hasRole('Accountant') ||
                         auth()->user()->hasRole('SEO ADMIN') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-3">
@@ -307,6 +308,7 @@
                     </div>
                 @endif
                 @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
+                        auth()->user()->hasRole('Accountant') ||
                         auth()->user()->hasRole('ADMIN') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-md-6">
@@ -1020,6 +1022,7 @@
                 @if (!empty($sequenceTasksFiles))
                     @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                             auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
+                            auth()->user()->hasRole('Accountant') ||
                             auth()->user()->hasRole('ADMIN') ||
                             ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                         <div class="col-lg-6">
@@ -1065,6 +1068,7 @@
                         // auth()->user()->id == $project->techManagers->pluck('id')->first() ||
                         auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
+                        auth()->user()->hasRole('Accountant') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-6">
                         <div class="card border">
