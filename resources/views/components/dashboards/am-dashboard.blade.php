@@ -249,9 +249,12 @@
                                         @foreach ($projects->where('project_type', $type) as $project)
                                             <tr>
                                                 <td>{{ $project->title }}</td>
-                                                <td><a href="{{ $project->companies->website ?? "#" }}">{{ $project->companies->name }}</a></td>
+                                                <td><a
+                                                        href="{{ $project->companies->website ?? '#' }}">{{ $project->companies->name }}</a>
+                                                </td>
                                                 <td>
-                                                    {{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 }} AED
+                                                    {{ $project->contract_term > 0 ? round($project->contract_value / $project->contract_term, 2) : 0 }}
+                                                    AED
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -318,20 +321,6 @@
         <span
             class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $pendingTasks->count() }}</span>
     </button>
-    <button class="nav-link d-flex align-items-center justify-content-center fs-4 fw-semibold" id="completed-tab"
-        data-bs-toggle="pill" data-bs-target="#completed-task" type="button" role="tab" type="button"
-        role="tab" aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
-        All Completed Tasks
-        <span
-            class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
-    </button>
-    <button class="nav-link d-flex align-items-center justify-content-center fs-4 fw-semibold" id="assigned-tab"
-        data-bs-toggle="pill" data-bs-target="#assigned-tasks" type="button" role="tab" type="button"
-        role="tab" aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
-        All Assigned Tasks
-        <span
-            class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $assignedTasks->count() }}</span>
-    </button>
 </ul>
 <div class="tab-content card p-0 mb-10" id="task-tabContent">
     <!-- PENDING TASKS TAB -->
@@ -354,7 +343,11 @@
                         <tr>
                             <td>{{ $task->id }}</td>
                             <td><a target="_blank"
-                                    href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }}</a>
+                                    href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }}
+                                    <div class="badge bg-warning fs-7 rounded text-dark">
+                                        {{ $task->project->status }}
+                                    </div>
+                                </a>
                             </td>
                             <td><a href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
                             </td>
@@ -367,82 +360,6 @@
             </table>
         @else
             <p>No pending tasks found.</p>
-        @endif
-    </div>
-    <!-- COMPLETED TASKS TAB -->
-    <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade p-0"
-        id="completed-task" role="tabpanel">
-        @if ($completedTasks->count())
-            <table class="table mb-0 bordered-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Project</th>
-                        <th>Subject</th>
-                        <th>Status</th>
-                        <th>Start Date</th>
-                        <th>Completion Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($completedTasks as $task)
-                        <tr>
-                            <td>{{ $task->id }}</td>
-                            <td><a target="_blank"
-                                    href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }}</a>
-                            </td>
-                            <td><a href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
-                            </td>
-                            <td><x-badge :text="$task->status" type="status" /></td>
-                            <td>{{ $task->start_date }}</td>
-                            <td>{{ $task->completions->sortByDesc('id')->first()->created_at ?? 'N/A' }}
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @else
-            <p>No completed tasks found.</p>
-        @endif
-    </div>
-    <!-- ASSIGNED TASKS TAB -->
-    <div style="max-height: 500px; overflow-y: auto" class="tab-pane card-body table-responsive fade p-0"
-        id="assigned-tasks" role="tabpanel">
-        @if ($assignedTasks->count())
-            <table class="table mb-0 bordered-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Project</th>
-                        <th>Subject</th>
-                        <th>Status</th>
-                        <th>Start Date</th>
-                        <th>Due Date</th>
-                        <th>Completion Date</th>
-                        <th>Assign To</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($assignedTasks as $task)
-                        <tr>
-                            <td>{{ $task->id }}</td>
-                            <td><a target="_blank"
-                                    href="{{ route('projects.show', $task->project->id) }}">{{ $task->project->title }}</a>
-                            </td>
-                            <td><a href="{{ route('tasks.show', $task->id) }}">{{ $task->title }}</a>
-                            </td>
-                            <td><x-badge :text="$task->status" type="status" /></td>
-                            <td>{{ $task->start_date }}</td>
-                            <td>{{ $task->due_date }}</td>
-                            <td>{{ $task->completions->sortByDesc('id')->first()->created_at ?? 'N/A' }}
-                            </td>
-                            <td>{{ $task->assignedTo->name ?? '' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @else
-            <p>No assigned tasks found.</p>
         @endif
     </div>
 </div>

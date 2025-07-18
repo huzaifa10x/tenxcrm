@@ -48,14 +48,7 @@ class TaskController extends Controller
         if ($user->hasRole('ADMIN')) {
             $projects = Project::whereIn('status', $statuses)->get();
         } else {
-            $projects = Project::where('created_by', $user->id)
-                ->orWhereHas('salesManagers', fn($q) => $q->where('user_id', $user->id))
-                ->orWhereHas('accountManagers', fn($q) => $q->where('user_id', $user->id))
-                ->orWhereHas('collaborators', fn($q) => $q->where('user_id', $user->id))
-                ->orWhereHas('techManagers', fn($q) => $q->where('user_id', $user->id))
-                ->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id))
-                ->whereIn('status', $statuses)
-                ->get();
+            $projects = Project::where('created_by', $user->id)->orWhereHas('salesManagers', fn($q) => $q->where('user_id', $user->id))->orWhereHas('accountManagers', fn($q) => $q->where('user_id', $user->id))->orWhereHas('collaborators', fn($q) => $q->where('user_id', $user->id))->orWhereHas('techManagers', fn($q) => $q->where('user_id', $user->id))->orWhereHas('seoAdmins', fn($q) => $q->where('user_id', $user->id))->whereIn('status', $statuses)->get();
         }
 
         $users = User::all();
@@ -129,13 +122,11 @@ class TaskController extends Controller
         $tasks = Task::with('project:id,title') // Project title fetch karne ke liye
             ->where('title', 'LIKE', '%' . $request->query('query') . '%')
             ->where(function ($query) use ($user) {
-                $query->where('created_by', $user->id)
+                $query
+                    ->where('created_by', $user->id)
                     ->orWhere('assigned_to', $user->id)
                     ->orWhereExists(function ($subQuery) use ($user) {
-                        $subQuery->select(DB::raw(1))
-                            ->from('task_collaborators')
-                            ->whereRaw('task_collaborators.task_id = tasks.id')
-                            ->where('task_collaborators.user_id', $user->id);
+                        $subQuery->select(DB::raw(1))->from('task_collaborators')->whereRaw('task_collaborators.task_id = tasks.id')->where('task_collaborators.user_id', $user->id);
                     });
 
                 if ($user->hasRole('ADMIN')) {
@@ -146,18 +137,20 @@ class TaskController extends Controller
             ->limit(10)
             ->get();
 
-        return response()->json($tasks->map(function ($task) {
-            return [
-                'id' => $task->id,
-                'title' => $task->title,
-                'project_title' => optional($task->project)->title ?? 'N/A',
-                'status' => $task->status,
-            ];
-        }));
+        return response()->json(
+            $tasks->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'project_title' => optional($task->project)->title ?? 'N/A',
+                    'status' => $task->status,
+                ];
+            }),
+        );
     }
     public function create()
     {
-        $projects = Project::whereIn('status', 'Current', "WFF", "Debt Collection");
+        $projects = Project::whereIn('status', 'Current', 'WFF', 'Debt Collection');
         $users = User::all();
         $departments = Role::all();
         return redirect()->route('tasks.index');
@@ -297,7 +290,7 @@ class TaskController extends Controller
             TaskHistory::create([
                 'task_id' => $task->id,
                 'user_id' => auth()->user()->id,
-                'action' => "Task Created By " . auth()->user()->name,
+                'action' => 'Task Created By ' . auth()->user()->name,
             ]);
 
             $user = User::find($request->assigned_to);
@@ -308,9 +301,9 @@ class TaskController extends Controller
                     'notifiable_type' => \App\Models\User::class,
                     'notifiable_id' => $user->id,
                     'data' => json_encode([
-                        'title' => "New task added by " . auth()->user()->name,
+                        'title' => 'New task added by ' . auth()->user()->name,
                         'message' => "A new task '" . $request->title . "' has been assigned.",
-                        'url' => url("tasks/{$task->id}")
+                        'url' => url("tasks/{$task->id}"),
                     ]),
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -382,7 +375,7 @@ class TaskController extends Controller
     {
         $user = User::find($task->assigned_to);
         $url = route('tasks.index');
-        $user->notify(new CustomNotification("Task deleted by " . auth()->user()->name, $task->title . " deleted", $url));
+        $user->notify(new CustomNotification('Task deleted by ' . auth()->user()->name, $task->title . ' deleted', $url));
         $task->delete();
         return redirect()->back()->with('success', 'Task deleted successfully!');
     }
@@ -404,10 +397,12 @@ class TaskController extends Controller
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Task Attachment Added By " . auth()->user()->name,
+            'action' => 'Task Attachment Added By ' . auth()->user()->name,
         ]);
 
-        return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Task Attachment Added!');
+        return redirect()
+            ->route('tasks.show', ['task' => $task->id])
+            ->with('success', 'Task Attachment Added!');
     }
     public function removeAttachment(Task $task, TaskAttachment $attachment)
     {
@@ -418,10 +413,12 @@ class TaskController extends Controller
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Task Attachment Deleted By " . auth()->user()->name,
+            'action' => 'Task Attachment Deleted By ' . auth()->user()->name,
         ]);
 
-        return redirect()->route('tasks.show', ['task' => $task->id])->with('success', 'Attachment deleted successfully!');
+        return redirect()
+            ->route('tasks.show', ['task' => $task->id])
+            ->with('success', 'Attachment deleted successfully!');
     }
     public function updateStatus(Request $request)
     {
@@ -430,7 +427,7 @@ class TaskController extends Controller
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Status changed from " . $task->status . " to " . $request->status . " by " . auth()->user()->name,
+            'action' => 'Status changed from ' . $task->status . ' to ' . $request->status . ' by ' . auth()->user()->name,
         ]);
 
         $task->status = $request->status;
@@ -445,9 +442,9 @@ class TaskController extends Controller
                 'notifiable_type' => \App\Models\User::class,
                 'notifiable_id' => $user->id,
                 'data' => json_encode([
-                    'title' => "Task status updated by " . auth()->user()->name,
+                    'title' => 'Task status updated by ' . auth()->user()->name,
                     'message' => "The status of '" . $task->title . "' has been updated.",
-                    'url' => url("tasks/{$task->id}")
+                    'url' => url("tasks/{$task->id}"),
                 ]),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -464,18 +461,17 @@ class TaskController extends Controller
         TaskHistory::create([
             'task_id' => $attachment->task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Task Attachment Deleted By " . auth()->user()->name,
+            'action' => 'Task Attachment Deleted By ' . auth()->user()->name,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Attachment deleted successfully!'
+            'message' => 'Attachment deleted successfully!',
         ]);
     }
 
     public function tasksAttachmentsStore(Request $request, Task $task)
     {
-
         $uploadedCount = 0;
 
         if (!$request->hasFile('attachments')) {
@@ -554,7 +550,7 @@ class TaskController extends Controller
     public function jsonTaskAttachments(Task $task)
     {
         return response()->json([
-            'attachments' => $task->attachments()->with('user')->get()
+            'attachments' => $task->attachments()->with('user')->get(),
         ]);
     }
     public function updateTaskAjax(Request $request, $id)
@@ -566,7 +562,7 @@ class TaskController extends Controller
         TaskHistory::create([
             'task_id' => $task->id,
             'user_id' => auth()->user()->id,
-            'action' => "Task " . $request->field . " updated By " . auth()->user()->name,
+            'action' => 'Task ' . $request->field . ' updated By ' . auth()->user()->name,
         ]);
 
         $user = User::find($task->assigned_to);
@@ -577,9 +573,9 @@ class TaskController extends Controller
                 'notifiable_type' => \App\Models\User::class,
                 'notifiable_id' => $user->id,
                 'data' => json_encode([
-                    'title' => "Task updated by " . auth()->user()->name,
-                    'message' => $task->title . " has been updated.",
-                    'url' => url("tasks/{$task->id}")
+                    'title' => 'Task updated by ' . auth()->user()->name,
+                    'message' => $task->title . ' has been updated.',
+                    'url' => url("tasks/{$task->id}"),
                 ]),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -587,7 +583,7 @@ class TaskController extends Controller
         }
 
         return response()->json([
-            "message" => ucfirst($request->field) . " updated successfully!"
+            'message' => ucfirst($request->field) . ' updated successfully!',
         ]);
     }
 
@@ -632,34 +628,26 @@ class TaskController extends Controller
         $contentWriter = $project->contentWriters[0]->id ?? 1;
 
         $dubaiTime = Carbon::now()->timezone('Asia/Dubai');
-        $keywordsApprovalTasks = [
-            ["type" => "SEO ADMIN", "title" => 'Create the Project on SE Ranking', "assignee" => $techManger],
-            ["type" => "AM", "title" => 'Send SEO Benchmark Report to client', "assignee" => $accountManager],
-            ["type" => "ONSITE", "title" => 'First On-site', "assignee" => $techManger],
-            ["type" => "SEO ADMIN", "title" => 'Add KW Mapping', "assignee" => $seoAdmin],
-            ["type" => "SEO ADMIN", "title" => 'On-site Audit (from SE ranking)', "assignee" => $seoAdmin],
-            ["type" => "SEO ADMIN", "title" => 'Content Audit', "assignee" => $seoAdmin],
-            ["type" => "SEO ADMIN", "title" => 'Backlink Audit & DISAVOW', "assignee" => $seoAdmin],
-        ];
+        $keywordsApprovalTasks = [['type' => 'SEO ADMIN', 'title' => 'Create the Project on SE Ranking', 'assignee' => $techManger], ['type' => 'AM', 'title' => 'Send SEO Benchmark Report to client', 'assignee' => $accountManager], ['type' => 'ONSITE', 'title' => 'First On-site', 'assignee' => $techManger], ['type' => 'SEO ADMIN', 'title' => 'Add KW Mapping', 'assignee' => $seoAdmin], ['type' => 'SEO ADMIN', 'title' => 'On-site Audit (from SE ranking)', 'assignee' => $seoAdmin], ['type' => 'SEO ADMIN', 'title' => 'Content Audit', 'assignee' => $seoAdmin], ['type' => 'SEO ADMIN', 'title' => 'Backlink Audit & DISAVOW', 'assignee' => $seoAdmin]];
 
-        if ($task->type == "CONTENT") {
+        if ($task->type == 'CONTENT' && !in_array($project->status, ['Paused', 'Expired', 'Cancelled'])) {
             $newContentApprovalTask = Task::create([
                 'is_automated' => 1,
-                'title' => "Client Content Approval Request",
+                'title' => 'Client Content Approval Request',
                 'description' => 'Please review and obtain client approval. Click the button labeled "Parent Task" at the top to view the related tasks.',
                 'project_id' => $project->id,
                 'department_id' => null,
                 'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                 'assigned_to' => $accountManager,
                 'priority' => 'High',
-                'type' => "AM",
+                'type' => 'AM',
                 'status' => 'Todo',
                 'due_date' => Carbon::now()->addDays(7),
                 'start_date' => $dubaiTime,
                 'repeat_task' => false,
                 'parent_task_id' => $task->id,
             ]);
-            
+
             // ContentTask::create([
             //     "task_id" => $newContentApprovalTask->id,
             //     "sub_type" => $task->contentTask->sub_type || 'ADHOC',
@@ -670,8 +658,8 @@ class TaskController extends Controller
                 // Assuming 'file_type' and 'original_name' are stored in the attachment model
                 $newContentApprovalTask->attachments()->create([
                     'file_path' => $attachment->file_path,
-                    'file_type' => $attachment->file_type,  // Assuming it's stored in the model
-                    'original_name' => $attachment->original_name,  // Assuming it's stored in the model
+                    'file_type' => $attachment->file_type, // Assuming it's stored in the model
+                    'original_name' => $attachment->original_name, // Assuming it's stored in the model
                     'user_id' => auth()->id(),
                 ]);
             }
@@ -702,152 +690,152 @@ class TaskController extends Controller
             ]);
         }
 
-        switch ($task->title) {
-            case 'First Client Meeting':
-                Task::insert([
-                    [
+        if (!in_array($project->status, ['Paused', 'Expired', 'Cancelled'])) {
+            switch ($task->title) {
+                case 'First Client Meeting':
+                    Task::insert([
+                        [
+                            'is_automated' => 1,
+                            'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                            'project_id' => $project->id,
+                            'title' => 'Keywords Approval',
+                            'assigned_to' => $accountManager,
+                            'status' => 'Todo',
+                            'start_date' => $dubaiTime,
+                            'type' => 'AM',
+                            'description' => 'system generated task',
+                        ],
+                    ]);
+                    break;
+    
+                case 'Keywords Approval':
+                    foreach ($keywordsApprovalTasks as $loopTask) {
+                        $alreadyExists = Task::where('project_id', $project->id)->where('title', $loopTask['title'])->exists();
+    
+                        if (!$alreadyExists) {
+                            Task::create([
+                                'is_automated' => 1,
+                                'title' => $loopTask['title'],
+                                'description' => 'system generated task',
+                                'project_id' => $project->id,
+                                'department_id' => null,
+                                'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                                'assigned_to' => $loopTask['assignee'],
+                                'priority' => 'High',
+                                'type' => $loopTask['type'],
+                                'status' => 'Todo',
+                                'due_date' => Carbon::now()->addDays(7),
+                                'start_date' => $dubaiTime,
+                                'repeat_task' => false,
+                            ]);
+                        }
+                    }
+                    break;
+    
+                case 'Content Audit':
+                    Task::create([
                         'is_automated' => 1,
                         'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
                         'project_id' => $project->id,
-                        'title' => 'Keywords Approval',
+                        'title' => 'SEO Content Request',
+                        'description' => 'SEO Content Request ( CONTENT AUDIT+ KW MAPPING +CONTENT INTAKE FORM)',
+                        'assigned_to' => $contentWriter,
+                        'status' => 'Todo',
+                        'start_date' => $dubaiTime,
+                        'type' => 'CONTENT',
+                    ]);
+                    break;
+    
+                case 'SEO Content Request':
+                    Task::create([
+                        'is_automated' => 1,
+                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'project_id' => $project->id,
+                        'title' => 'PUBLISH CONTENT',
                         'assigned_to' => $accountManager,
                         'status' => 'Todo',
                         'start_date' => $dubaiTime,
                         'type' => 'AM',
-                        'description' => 'system generated task'
-                    ],
-                ]);
-                break;
-
-            case 'Keywords Approval':
-                foreach ($keywordsApprovalTasks as $loopTask) {
-                    $alreadyExists = Task::where('project_id', $project->id)
-                        ->where('title', $loopTask['title'])
-                        ->exists();
-
-                    if (!$alreadyExists) {
-                        Task::create([
-                            'is_automated' => 1,
-                            'title' => $loopTask['title'],
-                            'description' => "system generated task",
-                            'project_id' => $project->id,
-                            'department_id' => null,
-                            'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                            'assigned_to' => $loopTask['assignee'],
-                            'priority' => 'High',
-                            'type' => $loopTask['type'],
-                            'status' => 'Todo',
-                            'due_date' => Carbon::now()->addDays(7),
-                            'start_date' => $dubaiTime,
-                            'repeat_task' => false,
-                        ]);
-                    }
-                }
-                break;
-
-            case 'Content Audit':
-                Task::create([
-                    'is_automated' => 1,
-                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    'project_id' => $project->id,
-                    'title' => 'SEO Content Request',
-                    'description' => 'SEO Content Request ( CONTENT AUDIT+ KW MAPPING +CONTENT INTAKE FORM)',
-                    'assigned_to' => $contentWriter,
-                    'status' => 'Todo',
-                    'start_date' => $dubaiTime,
-                    'type' => 'CONTENT',
-                ]);
-                break;
-
-            case 'SEO Content Request':
-                Task::create([
-                    'is_automated' => 1,
-                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    'project_id' => $project->id,
-                    'title' => 'PUBLISH CONTENT',
-                    'assigned_to' => $accountManager,
-                    'status' => 'Todo',
-                    'start_date' => $dubaiTime,
-                    'type' => 'AM',
-                    'description' => 'system generated task'
-                ]);
-                break;
-
-            case 'First On-site':
-                Task::create([
-                    'is_automated' => 1,
-                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    'project_id' => $project->id,
-                    'title' => 'Request for R1',
-                    'assigned_to' => $seoAdmin,
-                    'status' => 'Todo',
-                    'start_date' => $dubaiTime,
-                    'type' => 'SEO ADMIN',
-                    'description' => 'system generated task'
-                ]);
-
-                Task::create([
-                    'is_automated' => 1,
-                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    'project_id' => $project->id,
-                    'title' => 'Request for R2',
-                    'assigned_to' => $seoAdmin,
-                    'status' => 'Todo',
-                    'start_date' => now()->addDays(30),
-                    'type' => 'ADHOC',
-                    'description' => 'system generated task'
-                ]);
-
-                Task::create([
-                    'is_automated' => 1,
-                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    'project_id' => $project->id,
-                    'title' => 'Request for R3',
-                    'assigned_to' => $seoAdmin,
-                    'status' => 'Todo',
-                    'start_date' => now()->addDays(60),
-                    'type' => 'ADHOC',
-                    'description' => 'system generated task'
-                ]);
-
-                break;
-
-            case 'Create the Project on SE Ranking':
-                Task::create([
-                    'is_automated' => 1,
-                    'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    'project_id' => $project->id,
-                    'title' => 'Request Local Listing',
-                    'assigned_to' => $seoAdmin,
-                    'status' => 'Todo',
-                    'start_date' => $dubaiTime,
-                    'type' => 'SEO ADMIN',
-                    'description' => 'system generated task'
-                ]);
-                break;
-
-            case 'Intro Call':
-                // Task::create([
-                //     'is_automated' => 1,
-                //     'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                //     'project_id' => $project->id,
-                //     'title' => 'Request Backlinks',
-                //     'assigned_to' => $seoAdmin,
-                //     'status' => 'Todo',
-                //     'start_date' => now()->addDays(30),
-                //     'type' => 'SEO ADMIN',
-                //     'description' => 'system generated task'
-                // ]);
-                break;
-
-            default:
-                break;
+                        'description' => 'system generated task',
+                    ]);
+                    break;
+    
+                case 'First On-site':
+                    Task::create([
+                        'is_automated' => 1,
+                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'project_id' => $project->id,
+                        'title' => 'Request for R1',
+                        'assigned_to' => $seoAdmin,
+                        'status' => 'Todo',
+                        'start_date' => $dubaiTime,
+                        'type' => 'SEO ADMIN',
+                        'description' => 'system generated task',
+                    ]);
+    
+                    Task::create([
+                        'is_automated' => 1,
+                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'project_id' => $project->id,
+                        'title' => 'Request for R2',
+                        'assigned_to' => $seoAdmin,
+                        'status' => 'Todo',
+                        'start_date' => now()->addDays(30),
+                        'type' => 'ADHOC',
+                        'description' => 'system generated task',
+                    ]);
+    
+                    Task::create([
+                        'is_automated' => 1,
+                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'project_id' => $project->id,
+                        'title' => 'Request for R3',
+                        'assigned_to' => $seoAdmin,
+                        'status' => 'Todo',
+                        'start_date' => now()->addDays(60),
+                        'type' => 'ADHOC',
+                        'description' => 'system generated task',
+                    ]);
+    
+                    break;
+    
+                case 'Create the Project on SE Ranking':
+                    Task::create([
+                        'is_automated' => 1,
+                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'project_id' => $project->id,
+                        'title' => 'Request Local Listing',
+                        'assigned_to' => $seoAdmin,
+                        'status' => 'Todo',
+                        'start_date' => $dubaiTime,
+                        'type' => 'SEO ADMIN',
+                        'description' => 'system generated task',
+                    ]);
+                    break;
+    
+                case 'Intro Call':
+                    // Task::create([
+                    //     'is_automated' => 1,
+                    //     'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                    //     'project_id' => $project->id,
+                    //     'title' => 'Request Backlinks',
+                    //     'assigned_to' => $seoAdmin,
+                    //     'status' => 'Todo',
+                    //     'start_date' => now()->addDays(30),
+                    //     'type' => 'SEO ADMIN',
+                    //     'description' => 'system generated task'
+                    // ]);
+                    break;
+    
+                default:
+                    break;
+            }
         }
 
         TaskHistory::create([
             'task_id' => $id,
             'user_id' => auth()->user()->id,
-            'action' => auth()->user()->name . " marked this task completed",
+            'action' => auth()->user()->name . ' marked this task completed',
         ]);
 
         DB::table('notifications')->insert([
@@ -856,9 +844,9 @@ class TaskController extends Controller
             'notifiable_type' => \App\Models\User::class,
             'notifiable_id' => $task->createdBy->id ?? 1,
             'data' => json_encode([
-                'title' => "Task completed by " . auth()->user()->name,
-                'message' => $task->title . " has been completed.",
-                'url' => url("tasks/{$task->id}")
+                'title' => 'Task completed by ' . auth()->user()->name,
+                'message' => $task->title . ' has been completed.',
+                'url' => url("tasks/{$task->id}"),
             ]),
             'created_at' => now(),
             'updated_at' => now(),

@@ -201,6 +201,7 @@ class ProjectController extends Controller
                 ]);
             }
         }
+        
         if ($request->project_type == 'SEO') {
             $validator = Validator::make($request->all(), [
                 'number_of_keywords' => 'required|integer',

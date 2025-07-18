@@ -327,7 +327,11 @@ class DashboardController extends Controller
                 ->groupBy('project_type')
                 ->pluck('count', 'project_type');
 
-            $pendingTasks = Task::where('assigned_to', $user->id)->whereIn('status', ['Todo', 'In Progress', 'Review'])->get();
+            $pendingTasks = Task::where('assigned_to', $user->id)->whereIn('status', ['Todo', 'In Progress', 'Review'])
+                ->whereHas('project', function ($q) {
+                    $q->whereIn('status', ['Current', 'WFF', 'Debt Collection']);
+                })
+                ->get();
             $completedTasks = Task::where('assigned_to', $user->id)->where('status', 'Completed')->get();
             $assignedTasks = Task::where('created_by', $user->id)->get();
 
