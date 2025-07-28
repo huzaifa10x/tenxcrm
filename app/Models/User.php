@@ -90,4 +90,24 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Project::class, 'project_tech_manager');
     }
+
+    public function managers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'account_manager_leads',
+            'am_id',         
+            'manager_id'     
+        );
+    }
+    
+    public function teams()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'account_manager_leads',
+            'manager_id',    
+            'am_id'         
+        );
+    }
 }

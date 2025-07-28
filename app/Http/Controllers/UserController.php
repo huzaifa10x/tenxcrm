@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountManagerLead;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Exists;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -156,5 +159,57 @@ class UserController extends Controller
         })->get();
 
         return response()->json($users);
+    }
+
+    public function removeMember(Request $request)
+    {
+        $manager = User::findOrFail($request->manager_id);
+        $manager->teams()->detach($request->am_id);
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function showTeam()
+    {
+        $managers = User::whereHas('roles', function ($q) {
+            $q->where('role_id', 12);
+        })->get();
+
+        return view('account-manager.index', compact('managers'));
+    }
+
+    public function fetchAMUsers(Request $request)
+    {
+        $managerId = $request->manager_id;
+
+        // All users with 'AM' role
+        $amRoleId = 11; // or dynamically fetch
+        $allUsers = User::whereHas('roles', function ($q) use ($amRoleId) {
+            $q->where('roles.id', $amRoleId);
+        })->get();
+
+        // Existing team users for the selected manager
+        $manager = User::find($managerId);
+        $teamUsers = $manager->teams ?? [];
+
+        return response()->json([
+            'all_users' => $allUsers,
+            'team_users' => $teamUsers
+        ]);
+    }
+
+    public function addTeamMember(Request $request)
+    {
+        $request->validate([
+            'am_id'      => 'required|exists:users,id',
+            'manager_id' => 'required|exists:users,id',
+        ]);
+
+        AccountManagerLead::firstOrCreate([
+            'am_id'      => $request->am_id,
+            'manager_id' => $request->manager_id,
+        ]);
+
+        return response()->json(['status' => 'success']);
     }
 }

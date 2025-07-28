@@ -142,6 +142,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/account-managers', [UserController::class, 'showTeam'])->name('account-maanger.index');
+    Route::get('/account-managers/users', [UserController::class, 'fetchAMUsers'])->name('account-maanger.users');
+    Route::post('/account-managers/add-member', [UserController::class, 'addTeamMember'])->name('account-maanger.member');
+    Route::delete('/account-manager/remove-member', [UserController::class, 'removeMember'])->name('account-maanger.remove-member');
+
+
     Route::get('/admin/attendance/filter', [DashboardController::class, 'filterAttendance'])->name('admin.attendance.filter');
     Route::get('/admin/attendance', [AttendanceController::class, 'monthlyAttendance'])->name('admin.attendance');
     Route::get('/admin/attendance/monthly', [AttendanceController::class, 'monthlyAttendance'])->name('attendance.monthly');

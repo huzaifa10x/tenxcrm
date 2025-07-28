@@ -197,6 +197,24 @@
                 </ul>
 
             </li>
+            
+            @if (auth()->user()->hasRole('ADMIN'))
+                <li>
+                    <a href="{{ route('account-maanger.index') }}">
+                        <iconify-icon icon="flowbite:users-group-solid" class="menu-icon"></iconify-icon>
+                        
+                        <span>Account Managers</span>
+                    </a>
+                </li>
+            @else
+                <li>
+                    <a href="{{ route('admin.attendance', ['user_id' => auth()->user()->id]) }}">
+                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
+                        <span>Monthly Attendance</span>
+                    </a>
+                </li>
+            @endif
+            
             @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('Accountant'))
                 <li>
                     <a href="{{ route('admin.attendance') }}">
