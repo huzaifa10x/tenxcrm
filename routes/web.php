@@ -254,6 +254,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:can create tasks')->group(function () {
         Route::post('/task/collaborators/store', [TaskCollaboratorController::class, 'store'])->name('task.collaborators.store');
         Route::delete('/task/collaborators/{collaborator}', [TaskCollaboratorController::class, 'destroy'])->name('task.collaborators.destroy');
+   Route::post('/projects/{project}/renew', [ProjectController::class, 'renew'])->name('projects.renew');
+   
     });
 });
 -require __DIR__ . '/auth.php';
