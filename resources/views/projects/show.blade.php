@@ -14,6 +14,99 @@
                         Cancel Project
                     </button>
                 @endif
+                @php
+                    $today = \Carbon\Carbon::today();
+                    $isRenewDisabled = $today->lt($contractEndDate);
+                @endphp
+
+                <button class="btn-sm btn btn-info fs-7" data-bs-toggle="modal" data-bs-target="#renewProjectModal"
+                    {{ $isRenewDisabled ? 'disabled' : '' }}>
+                    Renew Contract
+                </button>
+
+                <!-- Renew Project Modal -->
+                <div class="modal fade" id="renewProjectModal" tabindex="-1" aria-labelledby="renewProjectLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <form id="renewProjectForm" enctype="multipart/form-data">
+                            @csrf
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <span class="modal-title" id="renewProjectLabel">Renew {{ $project->title }}</span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contract Value (AED)</label>
+                                        <input type="number" name="contract_value" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contract Term (months)</label>
+                                        <input type="number" name="contract_term" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Free Months</label>
+                                        <input type="number" name="free_months" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contract Start Date</label>
+                                        <input type="date" name="contract_start_date" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Payment Method</label>
+                                        <select name="payment_method_id" class="form-select" required>
+                                            @foreach ($paymentMethods as $method)
+                                                <option value="{{ $method->id }}">{{ $method->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contract Copy (multiple)</label>
+                                        <input type="file" name="contract_copy[]" class="form-control" multiple>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label class="form-label">Handover Notes</label>
+                                        <textarea name="handover_notes" class="form-control"></textarea>
+                                    </div>
+
+                                    @php
+                                        $roles = [
+                                            'sales_manager_ids' => 'Sales Manager',
+                                            'account_manager_ids' => 'Account Manager',
+                                            'tech_manager_ids' => 'Tech Manager',
+                                            'seo_admin_ids' => 'SEO Admin',
+                                            'content_writers_ids' => 'Content Writer',
+                                        ];
+                                    @endphp
+
+                                    @foreach ($roles as $field => $label)
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="{{ $field }}[]" class="form-select">
+                                                @foreach ($users as $user)
+                                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Renew</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 @if ($userPermissions->contains('can update project status'))
                     <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
                         <label class="form-label fs-7 m-0">Project Status</label>
@@ -156,7 +249,8 @@
                             @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                                     auth()->user()->hasRole('ADMIN') ||
                                     ($project->createdBy && auth()->user()->id == $project->createdBy->id))
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#contactPersonDetailModal"
+                                <button type="button" data-bs-toggle="modal"
+                                    data-bs-target="#contactPersonDetailModal"
                                     class="btn py-8 rounded-pill w-100 bg-gradient-danger text-sm">Contact
                                     Person</button>
                             @endif
@@ -185,44 +279,81 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @php
+                                        $salesManager = null;
+                                        $accountManager = null;
+                                        $seoAdmin = null;
+                                        $techManager = null;
+
+                                        if ($currentRenewal->assignments) {
+                                            $salesManager = optional(
+                                                $currentRenewal->assignments
+                                                    ->where('role_type', 'SALES MANAGER')
+                                                    ->first(),
+                                            )->user->name;
+                                            $accountManager = optional(
+                                                $currentRenewal->assignments->where('role_type', 'AM')->first(),
+                                            )->user->name;
+                                            $seoAdmin = optional(
+                                                $currentRenewal->assignments->where('role_type', 'SEO ADMIN')->first(),
+                                            )->user->name;
+                                            $techManager = optional(
+                                                $currentRenewal->assignments
+                                                    ->where('role_type', 'TECH MANAGER')
+                                                    ->first(),
+                                            )->user->name;
+                                        }
+
+                                        $salesManager =
+                                            $salesManager ?? ($project->salesManagers->pluck('name')->first() ?? 'N/A');
+                                        $accountManager =
+                                            $accountManager ??
+                                            ($project->accountManagers->pluck('name')->first() ?? 'N/A');
+                                        $seoAdmin = $seoAdmin ?? ($project->seoAdmins->pluck('name')->first() ?? 'N/A');
+                                        $techManager =
+                                            $techManager ?? ($project->techManagers->pluck('name')->first() ?? 'N/A');
+                                    @endphp
+
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Sales Manger</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->salesManagers->pluck('name')->first() }}</span>
-                                            </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-md mb-0 fw-medium">Sales Manager</h6>
+                                            <span
+                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                {{ $salesManager }}
+                                            </span>
                                         </div>
                                     </div>
+
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Account Manager</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4 text-white">{{ $project->accountManagers->pluck('name')->first() }}</span>
-                                            </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-md mb-0 fw-medium">Account Manager</h6>
+                                            <span
+                                                class="mt-10 badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4 text-white">
+                                                {{ $accountManager }}
+                                            </span>
                                         </div>
                                     </div>
-                                    @if ($project->seoAdmins)
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Seo Admin</h6>
-                                                    <span
-                                                        class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">{{ $project->seoAdmins->pluck('name')->first() }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
+
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Tech Manger</h6>
-                                                <span
-                                                    class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">{{ $project->techManagers->pluck('name')->first() }}</span>
-                                            </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-md mb-0 fw-medium">SEO Admin</h6>
+                                            <span
+                                                class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">
+                                                {{ $seoAdmin }}
+                                            </span>
                                         </div>
                                     </div>
+
+                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-md mb-0 fw-medium">Tech Manager</h6>
+                                            <span
+                                                class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">
+                                                {{ $techManager }}
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-grow-1">
@@ -307,6 +438,19 @@
                         </div>
                     </div>
                 @endif
+                @php
+                    $allAccountManagerIds = collect();
+                    $allAccountManagerIds = $allAccountManagerIds->merge($project->accountManagers->pluck('id'));
+                    foreach ($project->renewals as $renewal) {
+                        $amIds = $renewal->assignments->where('role_type', 'AM')->pluck('user_id');
+                        $allAccountManagerIds = $allAccountManagerIds->merge($amIds);
+                    }
+                    $canView =
+                        $allAccountManagerIds->contains(auth()->id()) ||
+                        auth()->user()->hasRole('Accountant') ||
+                        auth()->user()->hasRole('ADMIN') ||
+                        ($project->createdBy && auth()->id() == $project->createdBy->id);
+                @endphp
                 @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('Accountant') ||
                         auth()->user()->hasRole('ADMIN') ||
@@ -326,7 +470,7 @@
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="text-primary-light fw-semibold">
-                                            {{ $project->contract_start_date }}</span>
+                                            {{ $currentRenewal->contract_start_date }}</span>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between p-12 bg-base">
@@ -347,7 +491,7 @@
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span
-                                            class="text-primary-light fw-semibold">{{ number_format($project->contract_value, 2) }}</span>
+                                            class="text-primary-light fw-semibold">{{ number_format($currentRenewal->contract_value, 2) }}</span>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between p-12 bg-base">
@@ -356,7 +500,8 @@
                                         <span class="text-secondary-light">Contract Term</span>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="text-primary-light fw-semibold">{{ $project->contract_term }}
+                                        <span
+                                            class="text-primary-light fw-semibold">{{ $currentRenewal->contract_term }}
                                             MO</span>
                                     </div>
                                 </div>
@@ -367,7 +512,7 @@
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span
-                                            class="text-primary-light fw-semibold">{{ $project->paymentMethod->name ?? 'N/A' }}</span>
+                                            class="text-primary-light fw-semibold">{{ $currentRenewal->paymentMethod->name ?? 'N/A' }}</span>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between p-12 bg-base">
@@ -376,7 +521,8 @@
                                         <span class="text-secondary-light">Free Months</span>
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="text-primary-light fw-semibold">{{ $project->free_months }}
+                                        <span
+                                            class="text-primary-light fw-semibold">{{ $currentRenewal->free_months }}
                                             MO</span>
                                     </div>
                                 </div>
@@ -401,8 +547,8 @@
                                     </div>
                                 </div>
                                 @php
-                                    $startDate = \Carbon\Carbon::parse($project->contract_start_date);
-                                    $endDate = $startDate->copy()->addMonths($project->contract_term);
+                                    $startDate = \Carbon\Carbon::parse($currentRenewal->contract_start_date);
+                                    $endDate = $startDate->copy()->addMonths($currentRenewal->contract_term);
                                     $now = \Carbon\Carbon::now();
                                     $remainingMonths = max(floor($now->diffInMonths($endDate, false)), 0);
                                 @endphp
@@ -977,34 +1123,66 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                @if (!empty($project->contractFiles) && count($project->contractFiles) > 0)
+                                @php
+                                    // Combine all files: project-level + all renewal files
+                                    $allFiles = collect([]);
+
+                                    // Project-level files
+                                    if (!empty($project->contractFiles)) {
+                                        $allFiles = $allFiles->merge(
+                                            $project->contractFiles->map(function ($file) {
+                                                $file->source = 'Project';
+                                                return $file;
+                                            }),
+                                        );
+                                    }
+
+                                    // Renewal files
+                                    if (!empty($project->renewals)) {
+                                        foreach ($project->renewals as $renewal) {
+                                            foreach ($renewal->files ?? [] as $file) {
+                                                $file->source =
+                                                    'Renewal #' .
+                                                    $renewal->id .
+                                                    ($renewal->is_current ? ' (Current)' : '');
+                                                $allFiles->push($file);
+                                            }
+                                        }
+                                    }
+                                @endphp
+
+                                @if ($allFiles->count() > 0)
                                     <div class="d-flex flex-column gap-24">
-                                        @foreach ($project->contractFiles as $file)
+                                        @foreach ($allFiles as $file)
                                             @php
-                                                $filePath = asset('/public/storage/' . $file->file_path);
+                                                $filePath = asset('storage/app/public/' . $file->file_path);
                                                 $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
                                             @endphp
-                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                            <div
+                                                class="d-flex align-items-center justify-content-between gap-3 border-bottom pb-2">
                                                 <div class="d-flex align-items-center gap-12">
                                                     <div class="flex-shrink-0">
-                                                        <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
-                                                            alt="" class="">
+                                                        @if (in_array($extension, ['pdf']))
+                                                            <i
+                                                                class="bi bi-file-earmark-pdf-fill fs-3 text-danger"></i>
+                                                        @elseif(in_array($extension, ['jpg', 'jpeg', 'png']))
+                                                            <i class="bi bi-file-earmark-image fs-3 text-primary"></i>
+                                                        @else
+                                                            <i class="bi bi-file-earmark-text fs-3 text-secondary"></i>
+                                                        @endif
                                                     </div>
                                                     <div class="flex-grow-1">
                                                         <h6 class="text-md mb-0 fw-normal">
-                                                            <a target="_blank"
-                                                                href="{{ $filePath }}">{{ Illuminate\Support\Str::limit($file->file_name, 10, '...') }}</a>
+                                                            <a target="_blank" href="{{ $filePath }}">
+                                                                {{ Illuminate\Support\Str::limit($file->file_name, 20, '...') }}
+                                                            </a>
                                                         </h6>
-                                                        <span
-                                                            class="text-xs text-secondary-light fw-normal">{{ $extension }}</span>
+                                                        <span class="text-xs text-secondary-light fw-normal">
+                                                            {{ strtoupper($extension) }} • {{ $file->source }}
+                                                        </span>
                                                     </div>
                                                 </div>
                                                 <div class="flex-align gap-12">
-                                                    {{-- <button type="button"
-                                                        onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
-                                                        class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-danger-100 text-danger-600 bg-hover-danger-600 text-hover-white text-md rounded-circle">
-                                                        <i class="ri-delete-bin-5-line"></i>
-                                                    </button> --}}
                                                     <a href="{{ $filePath }}" download
                                                         class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
                                                         <i class="ri-download-2-fill"></i>
@@ -1017,6 +1195,7 @@
                                     <p class="text-danger">No contract files attached.</p>
                                 @endif
                             </div>
+
                         </div>
                     </div>
                 @endif
@@ -1080,7 +1259,7 @@
                             </div>
                             <div class="card-body">
                                 <textarea readonly required class="w-100 h-100 border-0 bg-transparent p-0 m-0" name="handover_notes"
-                                    id="handover_notes">{{ $project->handover_notes }}</textarea>
+                                    id="handover_notes">{{ $currentRenewal->handover_notes }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -1125,6 +1304,77 @@
                                 </div>
                             </form>
                             <ul class="list-group" id="notes-list"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
+                        <div class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between">
+                            <span class="fw-bold">All Contract Renewals</span>
+                        </div>
+                        <div class="card-body p-24">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">
+                                            <i class="bi bi-calendar-event"></i> Start
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-calendar-check"></i> End
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-clock-history"></i> Term
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-cash-coin"></i> Value (AED)
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-gift"></i> Free Months
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-person-circle"></i> Created By
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-people"></i> Assigned Roles
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($project->renewals as $index => $renewal)
+                                        <tr class="{{ $renewal->is_current ? 'table-warning' : '' }}">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($renewal->contract_start_date)->format('d M Y') }}
+                                            </td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($renewal->contract_start_date)->addMonths($renewal->contract_term)->format('d M Y') }}
+                                                @if ($renewal->is_current)
+                                                    <span class="badge bg-success ms-1">Current</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $renewal->contract_term }} <small
+                                                    class="text-muted">months</small></td>
+                                            <td><strong>{{ number_format($renewal->contract_value, 2) }}</strong></td>
+                                            <td>{{ $renewal->free_months ?? 0 }}</td>
+                                            <td>
+                                                <i class="bi bi-person-badge"></i>
+                                                {{ $renewal->creator->name ?? 'N/A' }}
+                                            </td>
+                                            <td>
+                                                @forelse ($renewal->assignments as $assign)
+                                                    <span class="badge bg-secondary mb-1">
+                                                        <i class="bi bi-person-gear"></i> {{ $assign->role_type }}:
+                                                        {{ $assign->user->name }}
+                                                    </span><br>
+                                                @empty
+                                                    <span class="text-muted">No roles assigned</span>
+                                                @endforelse
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+
                         </div>
                     </div>
                 </div>
@@ -1259,6 +1509,31 @@
     </div>
 
     <script>
+        $('#renewProjectForm').submit(function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+
+            $.ajax({
+                url: '{{ route('projects.renew', $project->id) }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#renewProjectModal').modal('hide');
+                    location.reload(); // or use toast notification
+                },
+                error: function(xhr) {
+                    let errors = xhr.responseJSON.errors;
+                    let messages = Object.values(errors).flat().join('<br>');
+                    alert(messages); // replace with a Bootstrap alert or toast if needed
+                }
+            });
+        });
+    </script>
+
+
+    <script>
         $(document).on('click', '.cancel-project', function() {
             let projectId = $(this).data('project-id');
             $('#cancel_project_id').val(projectId);
@@ -1322,7 +1597,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                                                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                                                                                                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
@@ -1657,7 +1932,7 @@
                 },
                 success: function(response) {
                     alert(response.message);
-                    location.reload(); 
+                    location.reload();
                 },
                 error: function(xhr) {
                     alert(xhr.responseJSON.message || 'An error occurred');

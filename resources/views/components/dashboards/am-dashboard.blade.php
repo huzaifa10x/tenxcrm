@@ -102,8 +102,8 @@
                             <img src="{{ asset('/images/home-eleven/icons/home-eleven-icon3.svg') }}" alt="">
                         </span>
                         <div>
-                            <span class="fw-medium text-secondary-light text-md">4 Months Avg</span>
-                            <h6 class="fw-semibold mt-2">00</h6>
+                            <span class="fw-medium text-secondary-light text-md">Total Project Renewals</span>
+                            <h6 class="fw-semibold mt-2">{{ $totalRenewals }}</h6>
                         </div>
                     </div>
                 </div>

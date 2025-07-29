@@ -10,6 +10,7 @@ use App\Models\Company;
 use App\Models\Industry;
 use App\Models\PaymentMethod;
 use App\Models\Project;
+use App\Models\ProjectRenewal;
 use App\Models\Role;
 use App\Models\SeoProject;
 use App\Models\SocialMediaProject;
@@ -155,6 +156,162 @@ class ProjectController extends Controller
         $companies = Company::all();
         return view('projects.create', compact('industries', 'users', 'paymentMethods', 'companies'));
     }
+
+    // public function renew(Request $request, $projectId)
+    // {
+    //     $project = Project::findOrFail($projectId);
+
+    //     // Mark previous renewals as old
+    //     $project->renewals()->update(['is_current' => false]);
+
+    //     $data = $request->validate([
+    //         'contract_value' => 'required|numeric',
+    //         'contract_term' => 'required|integer',
+    //         'free_months' => 'nullable|integer',
+    //         'contract_start_date' => 'required|date',
+    //         'payment_method_id' => 'required|exists:payment_methods,id',
+    //         'handover_notes' => 'nullable|string',
+    //         'contract_copy.*' => 'file',
+    //         'sales_manager_ids' => 'array',
+    //         'account_manager_ids' => 'array',
+    //         'tech_manager_ids' => 'array',
+    //         'seo_admin_ids' => 'array',
+    //         'writer_ids' => 'array',
+    //     ]);
+
+    //     $renewal = ProjectRenewal::create([
+    //         ...$data,
+    //         'project_id' => $project->id,
+    //         'created_by' => auth()->id(),
+    //     ]);
+
+    //     if ($request->hasFile('contract_copy')) {
+    //         foreach ($request->file('contract_copy') as $file) {
+    //             $renewal->files()->create([
+    //                 'file_path' => $file->store('project_contracts', 'public'),
+    //                 'file_name' => $file->getClientOriginalName(),
+    //                 'file_type' => $file->getClientMimeType(),
+    //             ]);
+    //         }
+    //     }
+
+    //     foreach (['SALES MANAGER' => 'sales_manager_ids', 'AM' => 'account_manager_ids', 'TECH MANAGER' => 'tech_manager_ids', 'SEO ADMIN' => 'seo_admin_ids', 'CONTENT WRITE' => 'content_writers_ids'] as $role => $field) {
+    //         foreach ($request->input($field, []) as $userId) {
+    //             $renewal->assignments()->create([
+    //                 'user_id' => $userId,
+    //                 'role_type' => $role
+    //             ]);
+    //         }
+    //     }
+
+    //     return redirect()->back()->with('success', 'Project renewed successfully');
+    // }
+
+    public function renew(Request $request, $projectId)
+    {
+        $project = Project::findOrFail($projectId);
+
+        // Validate the incoming request
+        $data = $request->validate([
+            'contract_value' => 'required|numeric',
+            'contract_term' => 'required|integer',
+            'free_months' => 'nullable|integer',
+            'contract_start_date' => 'required|date',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'handover_notes' => 'nullable|string',
+            'contract_copy.*' => 'file',
+            'sales_manager_ids' => 'array',
+            'account_manager_ids' => 'array',
+            'tech_manager_ids' => 'array',
+            'seo_admin_ids' => 'array',
+            'writer_ids' => 'array',
+        ]);
+
+        // ✅ Step 1: If this is the FIRST renewal, create an "Old Renewal" snapshot
+        if ($project->renewals()->count() == 0) {
+            $oldRenewal = ProjectRenewal::create([
+                'project_id'          => $project->id,
+                'contract_value'      => $project->contract_value,
+                'contract_term'       => $project->contract_term,
+                'free_months'         => $project->free_months ?? 0,
+                'contract_start_date' => $project->contract_start_date,
+                'payment_method_id'   => $project->payment_method_id,
+                'handover_notes'      => $project->handover_notes ?? null,
+                'created_by'          => $project->created_by ?? auth()->id(),
+                'is_current'          => false, // Snapshot is old
+            ]);
+
+            // Copy Project Assignments to Old Renewal
+            foreach (
+                [
+                    'SALES MANAGER' => $project->salesManagers->pluck('id'),
+                    'AM'            => $project->accountManagers->pluck('id'),
+                    'TECH MANAGER'  => $project->techManagers->pluck('id'),
+                    'SEO ADMIN'     => $project->seoAdmins->pluck('id'),
+                    'CONTENT WRITE' => $project->contentWriters->pluck('id'),
+                ] as $role => $userIds
+            ) {
+                foreach ($userIds as $userId) {
+                    $oldRenewal->assignments()->create([
+                        'user_id'   => $userId,
+                        'role_type' => $role,
+                    ]);
+                }
+            }
+
+            // Copy Project Contract Files to Old Renewal
+            foreach ($project->contractFiles as $file) {
+                $oldRenewal->files()->create([
+                    'file_path' => $file->file_path,
+                    'file_name' => $file->file_name,
+                    'file_type' => $file->file_type,
+                ]);
+            }
+        }
+
+        // ✅ Step 2: Mark all old renewals as non-current
+        $project->renewals()->update(['is_current' => false]);
+
+        // ✅ Step 3: Create the new renewal
+        $renewal = ProjectRenewal::create([
+            ...$data,
+            'project_id' => $project->id,
+            'created_by' => auth()->id(),
+            'is_current' => true,
+        ]);
+
+        // ✅ Step 4: Upload new files if any
+        if ($request->hasFile('contract_copy')) {
+            foreach ($request->file('contract_copy') as $file) {
+                $renewal->files()->create([
+                    'file_path' => $file->store('project_contracts', 'public'),
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_type' => $file->getClientMimeType(),
+                ]);
+            }
+        }
+
+        // ✅ Step 5: Assign new users for this renewal
+        foreach (
+            [
+                'SALES MANAGER' => 'sales_manager_ids',
+                'AM'            => 'account_manager_ids',
+                'TECH MANAGER'  => 'tech_manager_ids',
+                'SEO ADMIN'     => 'seo_admin_ids',
+                'CONTENT WRITE' => 'writer_ids', // fixed your typo
+            ] as $role => $field
+        ) {
+            foreach ($request->input($field, []) as $userId) {
+                $renewal->assignments()->create([
+                    'user_id'   => $userId,
+                    'role_type' => $role
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Project renewed successfully, with old snapshot saved!');
+    }
+
     public function store(Request $request)
     {
 
@@ -201,7 +358,7 @@ class ProjectController extends Controller
                 ]);
             }
         }
-        
+
         if ($request->project_type == 'SEO') {
             $validator = Validator::make($request->all(), [
                 'number_of_keywords' => 'required|integer',
@@ -281,6 +438,10 @@ class ProjectController extends Controller
     public function show($id)
     {
         $project = Project::findOrFail($id);
+        $currentRenewal = $project->renewals()->where('is_current', true)->latest()->first();
+        if (!$currentRenewal) {
+            $currentRenewal = $project;
+        }
         $industries = Industry::all();
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
@@ -300,9 +461,9 @@ class ProjectController extends Controller
                 })->orWhere('repeat_task', 1);
             })
             ->get();
-        $contractStartDate = Carbon::parse($project->contract_start_date);
-        $contractEndDate = $contractStartDate->copy()->addMonths($project->contract_term);
-        $monthlyInvoice = ($project->contract_term > 0) ? round($project->contract_value / $project->contract_term, 2) : 0;
+        $contractStartDate = Carbon::parse($currentRenewal->contract_start_date);
+        $contractEndDate = $contractStartDate->copy()->addMonths($currentRenewal->contract_term);
+        $monthlyInvoice = ($currentRenewal->contract_term > 0) ? round($currentRenewal->contract_value / $currentRenewal->contract_term, 2) : 0;
         $nextInvoiceDate = $contractStartDate->copy()->addMonth();
 
         $sequenceTasksFiles = [];
@@ -327,6 +488,7 @@ class ProjectController extends Controller
             'sequenceTasks',
             'completedTasks',
             'repeatingTasks',
+            'currentRenewal',
             'contractStartDate',
             'contractEndDate',
             'monthlyInvoice',

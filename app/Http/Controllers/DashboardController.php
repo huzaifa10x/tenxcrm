@@ -17,6 +17,7 @@ use App\Models\OnsiteTask;
 use App\Models\PartnerLink;
 use App\Models\Project;
 use App\Models\ProjectKeyword;
+use App\Models\ProjectRenewal;
 use App\Models\RepeatingTask;
 use App\Models\SalesTask;
 use App\Models\SeoAdminTask;
@@ -264,6 +265,8 @@ class DashboardController extends Controller
                 $query->where('user_id', $user->id);
             })->get();
 
+            $totalRenewals = ProjectRenewal::whereIn('project_id', $projects->pluck('id'))->count();
+
             // Partner Links Start
             $monthlyStats = DB::table('partner_links')
                 ->selectRaw('MONTH(created_at) as month_number, COUNT(*) as total_links, SUM(amount) as total_amount')
@@ -352,6 +355,7 @@ class DashboardController extends Controller
                 'newSellProjects',
                 'monthlyStats',
                 'monthlyData',
+                'totalRenewals',
             ];
         } elseif ($role == 'CONTENT') {
             $projects = Project::whereHas('contentWriters', function ($query) use ($user) {

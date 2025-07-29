@@ -102,7 +102,7 @@
         </div>
     </div>
     @if ($role === 'AM')
-        <x-dashboards.am-dashboard :monthlyStats="$monthlyStats" :monthlyData="$monthlyData" :newSellProjects="$newSellProjects" :newSell="$newSell"
+        <x-dashboards.am-dashboard :totalRenewals="$totalRenewals" :monthlyStats="$monthlyStats" :monthlyData="$monthlyData" :newSellProjects="$newSellProjects" :newSell="$newSell"
             :typeCounts="$typeCounts" :statusCounts="$statusCounts" :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks"
             :assignedTasks="$assignedTasks" />
     @elseif ($role === 'CONTENT')

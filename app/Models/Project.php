@@ -115,4 +115,13 @@ class Project extends Model
     {
         return $this->hasMany(ProjectNote::class);
     }
+    public function renewals()
+    {
+        return $this->hasMany(ProjectRenewal::class);
+    }
+
+    public function latestRenewal()
+    {
+        return $this->hasOne(ProjectRenewal::class)->where('is_current', true);
+    }
 }
