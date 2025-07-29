@@ -3,10 +3,6 @@
         {{ __('Services') }}
     </x-slot>
     <div class="card basic-data-table">
-        @if ($userPermissions->contains('can manage roles'))
-            <div class="card-header">
-            </div>
-        @endif
         <div class="card-body row">
             <div class="col-lg-6 table-responsive">
                 <table class="table bordered-table mb-0" id="servicesTable" data-page-length='10'>

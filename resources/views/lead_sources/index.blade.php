@@ -3,16 +3,14 @@
         {{ __('Lead Sources') }}
     </x-slot>
     <div class="card basic-data-table">
-        @if ($userPermissions->contains('can manage roles'))
-            <div class="card-header">
-                <form id="sourceForm" class="d-flex align-items-center justify-content-between gap-10">
-                    @csrf
-                    <input type="hidden" id="source_id">
-                    <input type="text" name="name" id="name" placeholder="Source Name" class="form-control mb-2">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
-            </div>
-        @endif
+        <div class="card-header">
+            <form id="sourceForm" class="d-flex align-items-center justify-content-between gap-10">
+                @csrf
+                <input type="hidden" id="source_id">
+                <input type="text" name="name" id="name" placeholder="Source Name" class="form-control mb-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
         <div class="card-body table-responsive">
             <table class="table bordered-table mb-0" id="sourcesTable" data-page-length='10'>
                 <thead>
