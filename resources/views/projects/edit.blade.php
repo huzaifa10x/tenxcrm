@@ -382,7 +382,7 @@
                                     <input class="form-control" type="text" id="reels" name="reels"
                                         value="{{ $project->socialMediaProject->reels ?? '' }}">
                                 </div>
-                            @elseif ($project->project_type == 'Web Development')
+                            @elseif ($project->project_type == 'Web Development' && $project->webDevProject)
                                 <div class="col-lg-6">
                                     <label class="form-label" for="payment_type">Payment Type</label>
                                     <select class="form-control" id="payment_type" name="payment_type" required>
