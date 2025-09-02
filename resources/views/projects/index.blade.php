@@ -18,9 +18,14 @@
                 @if (auth()->user()->hasRole('ADMIN'))
                     <form method="GET" action="{{ route('projects.index') }}">
                         {{-- Preserve other query params --}}
-                        @if (request('sales_manager_id'))
+                        {{-- @if (request('sales_manager_id'))
                             <input type="hidden" name="sales_manager_id" value="{{ request('sales_manager_id') }}">
-                        @endif
+                        @endif --}}
+
+                        @foreach(request()->except('sales_manager_id') as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endforeach
+
                         <select class="form-control w-auto" name="account_manager_id" onchange="this.form.submit()">
                             <option value="">-- Filter by AM --</option>
                             @foreach ($accountManagers as $am)
@@ -43,9 +48,14 @@
                 @endif
                 <form method="GET" action="{{ route('projects.index') }}">
                     {{-- Preserve other query params --}}
-                    @if (request('account_manager_id'))
+                    {{-- @if (request('account_manager_id'))
                         <input type="hidden" name="account_manager_id" value="{{ request('account_manager_id') }}">
-                    @endif
+                    @endif --}}
+
+                    @foreach(request()->except('account_manager_id') as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+
                     <select class="form-control w-auto" name="sales_manager_id" onchange="this.form.submit()">
                         <option value="">-- Filter by Sales Manager --</option>
                         @foreach ($salesManagers as $user)
@@ -59,9 +69,14 @@
                 
                 <form method="GET" action="{{ route('projects.index') }}">
                     {{-- Preserve other query params --}}
-                    @if (request('account_manager_id'))
+                    {{-- @if (request('account_manager_id'))
                         <input type="hidden" name="account_manager_id" value="{{ request('account_manager_id') }}">
-                    @endif
+                    @endif --}}
+
+                    @foreach(request()->except('account_manager_id') as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+
                     <select class="form-control w-auto" name="tech_manager_id" onchange="this.form.submit()">
                         <option value="">-- Filter by Tech Manager --</option>
                         @foreach ($users as $user)
@@ -73,7 +88,7 @@
                     </select>
                 </form>
                 
-                <form method="GET" action="{{ route('projects.index') }}">
+                {{-- <form method="GET" action="{{ route('projects.index') }}">
                     <select class="form-control w-auto" name="project_status" onchange="this.form.submit()">
                         <option value="">-- Filter by status --</option>
                         @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
@@ -83,12 +98,25 @@
                             </option>
                         @endforeach
                     </select>
+                </form> --}}
+
+                <form method="GET" action="{{ route('projects.index') }}">
+                    {{-- Preserve other query params --}}
+                    @foreach(request()->except('project_status') as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+
+                    <select class="form-control w-auto" name="project_status" onchange="this.form.submit()">
+                        <option value="">-- Filter by status --</option>
+                        @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
+                            <option value="{{ $status }}" {{ request('project_status') == $status ? 'selected' : '' }}>
+                                {{ $status }}
+                            </option>
+                        @endforeach
+                    </select>
                 </form>
 
                 <form method="GET" action="{{ route('projects.index') }}">
-                    {{-- <input type="hidden" name="sales_manager_id" value="">
-                    <input type="hidden" name="account_manager_id" value="">
-                    <input type="hidden" name="project_status" value=""> --}}
                     <button class="btn btn-danger-500 btn-sm" type="submit">Reset</button>
                 </form>
             </div>
