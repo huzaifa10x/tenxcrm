@@ -32,9 +32,11 @@ class ProjectController extends Controller
         $accountManagerId = $request->query('account_manager_id');
         $salesManagerId = $request->query('sales_manager_id');
         $techManagerId = $request->query('tech_manager_id');
+        $pStatus = $request->query('project_status');
         $user = auth()->user();
 
         $accountManagers = User::whereHas('roles', fn($q) => $q->where('name', 'AM'))->get();
+        $salesManagers = User::whereHas('roles', fn($q) => $q->where('name', 'SALES MANAGER'))->get();
         $users = User::all();
 
         $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins']);
@@ -100,6 +102,9 @@ class ProjectController extends Controller
             });
             $projects = $query->paginate(10)->withQueryString();
         }
+       if ($pStatus) {
+            $query->where('status', $pStatus);
+        }
         if (
             $category && in_array($category, ['SEO', 'Hosting']) &&
             ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN'))
@@ -118,7 +123,7 @@ class ProjectController extends Controller
             })->paginate(10)->withQueryString();
         }
 
-        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users', $extraData));
+        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users','salesManagers', $extraData));
     }
     public function cancel(Request $request)
     {
@@ -308,6 +313,9 @@ class ProjectController extends Controller
                 ]);
             }
         }
+
+        $project->status = 'Current';
+        $project->save();
 
         return redirect()->back()->with('success', 'Project renewed successfully, with old snapshot saved!');
     }

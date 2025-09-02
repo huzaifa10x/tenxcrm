@@ -4,7 +4,7 @@
     </x-slot>
     <div class="card basic-data-table container-fluid">
         <div class="card-header">
-            <div class="d-flex align-items-center justify-content-start gap-10">
+            <div class="d-flex flex-wrap align-items-center justify-content-start gap-10">
                 @if ($userPermissions->contains('can add projects'))
                     <a href="{{ route('projects.create') }}" class="btn btn-neutral-900">
                         Add New Project
@@ -48,7 +48,7 @@
                     @endif
                     <select class="form-control w-auto" name="sales_manager_id" onchange="this.form.submit()">
                         <option value="">-- Filter by Sales Manager --</option>
-                        @foreach ($users as $user)
+                        @foreach ($salesManagers as $user)
                             <option value="{{ $user->id }}"
                                 {{ request('sales_manager_id') == $user->id ? 'selected' : '' }}>
                                 {{ $user->name }}
@@ -56,6 +56,7 @@
                         @endforeach
                     </select>
                 </form>
+                
                 <form method="GET" action="{{ route('projects.index') }}">
                     {{-- Preserve other query params --}}
                     @if (request('account_manager_id'))
@@ -71,9 +72,23 @@
                         @endforeach
                     </select>
                 </form>
+                
                 <form method="GET" action="{{ route('projects.index') }}">
-                    <input type="hidden" name="sales_manager_id" value="">
+                    <select class="form-control w-auto" name="project_status" onchange="this.form.submit()">
+                        <option value="">-- Filter by status --</option>
+                        @foreach (['Current', 'Paused', 'WFF', 'Expired', 'Debt Collection', 'Cancelled', 'Completed'] as $status)
+                            <option value="{{ $status }}"
+                                {{ request('project_status') == $status ? 'selected' : '' }}>
+                                {{ $status }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+
+                <form method="GET" action="{{ route('projects.index') }}">
+                    {{-- <input type="hidden" name="sales_manager_id" value="">
                     <input type="hidden" name="account_manager_id" value="">
+                    <input type="hidden" name="project_status" value=""> --}}
                     <button class="btn btn-danger-500 btn-sm" type="submit">Reset</button>
                 </form>
             </div>
