@@ -448,6 +448,7 @@
                     $canView =
                         $allAccountManagerIds->contains(auth()->id()) ||
                         auth()->user()->hasRole('Accountant') ||
+                        auth()->user()->hasRole('SEO ADMIN') ||
                         auth()->user()->hasRole('ADMIN') ||
                         ($project->createdBy && auth()->id() == $project->createdBy->id);
                 @endphp
