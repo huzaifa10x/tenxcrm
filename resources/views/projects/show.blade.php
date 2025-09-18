@@ -2,9 +2,9 @@
     <x-slot name="header">
         {{ __('Project - ' . $project->title) }}
     </x-slot>
-    <div class="card border">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-10">
-            <div class="d-flex align-items-center gap-3">
+    <div class="border card">
+        <div class="flex-wrap gap-10 card-header d-flex justify-content-between align-items-center">
+            <div class="gap-3 d-flex align-items-center">
                 <button data-bs-toggle="modal" data-bs-target="#taskCreateModal"
                     class="btn-sm btn btn-outline-primary fs-7">
                     Create Task
@@ -108,9 +108,9 @@
                 </div>
 
                 @if ($userPermissions->contains('can update project status'))
-                    <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
-                        <label class="form-label fs-7 m-0">Project Status</label>
-                        <select class="form-control fs-7 h-auto project-status" data-project-id="{{ $project->id }}"
+                    <div class="gap-10 d-flex align-items-center" style="white-space: nowrap;">
+                        <label class="m-0 form-label fs-7">Project Status</label>
+                        <select class="h-auto form-control fs-7 project-status" data-project-id="{{ $project->id }}"
                             required>
                             <option selected disabled value="">Select status</option>
                             <option value="Current" {{ $project->status == 'Current' ? 'selected' : '' }}>
@@ -138,9 +138,9 @@
                         </select>
                     </div>
                 @else
-                    <div class="d-flex align-items-center gap-10" style="white-space: nowrap;">
-                        <label class="form-label fs-7 m-0">Project Status</label>
-                        <input type="text" readonly class="form-control fs-7 h-auto" value="{{ $project->status }}">
+                    <div class="gap-10 d-flex align-items-center" style="white-space: nowrap;">
+                        <label class="m-0 form-label fs-7">Project Status</label>
+                        <input type="text" readonly class="h-auto form-control fs-7" value="{{ $project->status }}">
                     </div>
                 @endif
                 @if (auth()->user()->hasRole('ADMIN'))
@@ -164,7 +164,7 @@
             @php
                 $taskTypes = ['CONTENT', 'ONSITE', 'OFFSITE', 'DESIGN', 'DEVELOPMENT', 'AM', 'ADHOC'];
             @endphp
-            <div class="d-flex flex-wrap align-items-center gap-3">
+            <div class="flex-wrap gap-3 d-flex align-items-center">
                 @foreach ($taskTypes as $type)
                     @php
                         $count = $taskCounts[$type] ?? 0;
@@ -180,7 +180,7 @@
                         };
                     @endphp
 
-                    <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="flex-wrap gap-3 d-flex align-items-center">
                         <button type="button"
                             class="btn text-{{ $typeClass }}-600 bg-{{ $typeClass }}-100 position-relative px-20 py-8 text-sm line-height-1 d-flex align-items-center">
                             {{ $type }}
@@ -195,19 +195,19 @@
         </div>
         <div class="card-body">
             @if ($project->status == 'Cancelled' && $project->cancellationReason->count())
-                <div class="row gy-3 mb-4">
+                <div class="mb-4 row gy-3">
                     <div class="col-12">
-                        <div class="card border-danger shadow-sm">
+                        <div class="shadow-sm card border-danger">
                             <div
-                                class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                                class="text-white card-header bg-danger d-flex justify-content-between align-items-center">
                                 <span class="fw-bold"><i class="bi bi-x-octagon me-1"></i> Cancellation Reasons</span>
                                 <span class="badge bg-light text-danger">{{ $project->cancellationReason->count() }}
                                     entries</span>
                             </div>
                             <div class="card-body">
                                 @foreach ($project->cancellationReason as $cancellation)
-                                    <div class="mb-3 p-3 border rounded bg-light">
-                                        <div class="text-muted small mb-1">
+                                    <div class="p-3 mb-3 border rounded bg-light">
+                                        <div class="mb-1 text-muted small">
                                             <i class="bi bi-calendar-event"></i>
                                             {{ $cancellation->created_at->format('d M Y, h:i A') }}
                                         </div>
@@ -222,15 +222,15 @@
                 </div>
             @endif
 
-            <div class="row gy-3 mb-10">
+            <div class="mb-10 row gy-3">
                 <div class="col-lg-3">
                     <div
-                        class="trail-bg h-100 text-center d-flex flex-column justify-content-center align-items-center p-16 radius-8">
+                        class="p-16 text-center trail-bg h-100 d-flex flex-column justify-content-center align-items-center radius-8">
                         <a target="_blank" href="{{ $project->companies->website ?? '' }}"> <img
                                 src="{{ asset('/public/storage/') }}/{{ $project->companies->logo ?? '' }}"
-                                alt="" class="img-fluid mb-16 rounded object-fit-cover rounded-end-4"
+                                alt="" class="mb-16 rounded img-fluid object-fit-cover rounded-end-4"
                                 style="max-width: 150px;"></a>
-                        <h6 class="text-white text-xl"><a target="_blank"
+                        <h6 class="text-xl text-white"><a target="_blank"
                                 href="{{ $project->companies->website ?? '' }}">{{ $project->companies->name ?? '' }}</a>
                         </h6>
                         <div class="">
@@ -242,7 +242,7 @@
                             </a>
                             @if ($userPermissions->contains('can view companies'))
                                 <a href="{{ route('companies.show', $project->companies->id) }}"
-                                    class="btn py-8 mb-16 rounded-pill w-100 bg-gradient-blue-warning text-sm">View
+                                    class="py-8 mb-16 text-sm btn rounded-pill w-100 bg-gradient-blue-warning">View
                                     Company</a>
                             @endif
                             {{-- Contact person info --}}
@@ -251,7 +251,7 @@
                                     ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                                 <button type="button" data-bs-toggle="modal"
                                     data-bs-target="#contactPersonDetailModal"
-                                    class="btn py-8 rounded-pill w-100 bg-gradient-danger text-sm">Contact
+                                    class="py-8 text-sm btn rounded-pill w-100 bg-gradient-danger">Contact
                                     Person</button>
                             @endif
                         </div>
@@ -266,16 +266,16 @@
                     <div class="col-lg-3">
                         <div class="card h-100">
                             <div class="card-header">
-                                <h6 class="mb-2 fw-bold text-lg mb-0">Sales Brief</h6>
+                                <h6 class="mb-0 mb-2 text-lg fw-bold">Sales Brief</h6>
                             </div>
                             <div class="card-body" style="height: 500px; overflow-y: auto;">
                                 <div class="">
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                    <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Project Type</h6>
+                                                <h6 class="mb-0 text-md fw-medium">Project Type</h6>
                                                 <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->project_type }}</span>
+                                                    class="px-20 mt-10 text-sm text-white badge fw-semibold text-success-600 bg-success-100 py-9 radius-4">{{ $project->project_type }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -314,121 +314,121 @@
                                             $techManager ?? ($project->techManagers->pluck('name')->first() ?? 'N/A');
                                     @endphp
 
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                    <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                         <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Sales Manager</h6>
+                                            <h6 class="mb-0 text-md fw-medium">Sales Manager</h6>
                                             <span
-                                                class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">
+                                                class="px-20 mt-10 text-sm text-white badge fw-semibold text-success-600 bg-success-100 py-9 radius-4">
                                                 {{ $salesManager }}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                    <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                         <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Account Manager</h6>
+                                            <h6 class="mb-0 text-md fw-medium">Account Manager</h6>
                                             <span
-                                                class="mt-10 badge text-sm fw-semibold text-lilac-600 bg-lilac-100 px-20 py-9 radius-4 text-white">
+                                                class="px-20 mt-10 text-sm text-white badge fw-semibold text-lilac-600 bg-lilac-100 py-9 radius-4">
                                                 {{ $accountManager }}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                    <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                         <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">SEO Admin</h6>
+                                            <h6 class="mb-0 text-md fw-medium">SEO Admin</h6>
                                             <span
-                                                class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">
+                                                class="px-20 mt-10 text-sm text-white badge fw-semibold text-neutral-600 bg-neutral-100 py-9 radius-4">
                                                 {{ $seoAdmin }}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                    <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                         <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-medium">Tech Manager</h6>
+                                            <h6 class="mb-0 text-md fw-medium">Tech Manager</h6>
                                             <span
-                                                class="mt-10 badge text-sm fw-semibold text-neutral-600 bg-neutral-100 px-20 py-9 radius-4 text-white">
+                                                class="px-20 mt-10 text-sm text-white badge fw-semibold text-neutral-600 bg-neutral-100 py-9 radius-4">
                                                 {{ $techManager }}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                    <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-medium">Industry</h6>
+                                                <h6 class="mb-0 text-md fw-medium">Industry</h6>
                                                 <span
-                                                    class="mt-10 badge text-sm fw-semibold text-success-600 bg-success-100 px-20 py-9 radius-4 text-white">{{ $project->industry->industry ?? 'N/A' }}</span>
+                                                    class="px-20 mt-10 text-sm text-white badge fw-semibold text-success-600 bg-success-100 py-9 radius-4">{{ $project->industry->industry ?? 'N/A' }}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     @if ($project->project_type == 'Web Development')
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Payment Type</h6>
+                                                    <h6 class="mb-0 text-md fw-medium">Payment Type</h6>
                                                     <span
-                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->payment_type ?? '' }}</span>
+                                                        class="px-20 mt-10 text-sm text-white badge fw-semibold text-primary-600 bg-primary-100 py-9 radius-4">{{ $project->webDevProject->payment_type ?? '' }}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Remaining Payment</h6>
+                                                    <h6 class="mb-0 text-md fw-medium">Remaining Payment</h6>
                                                     <span
-                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->remaining_payment ?? '' }}</span>
+                                                        class="px-20 mt-10 text-sm text-white badge fw-semibold text-primary-600 bg-primary-100 py-9 radius-4">{{ $project->webDevProject->remaining_payment ?? '' }}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Site Condition</h6>
+                                                    <h6 class="mb-0 text-md fw-medium">Site Condition</h6>
                                                     <span
-                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->webDevProject->site_condition ?? '' }}</span>
+                                                        class="px-20 mt-10 text-sm text-white badge fw-semibold text-primary-600 bg-primary-100 py-9 radius-4">{{ $project->webDevProject->site_condition ?? '' }}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     @endif
                                     @if ($project->project_type == 'Social Media')
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Channels</h6>
+                                                    <h6 class="mb-0 text-md fw-medium">Channels</h6>
                                                     @foreach ($project->socialMediaProject->channels as $channel)
                                                         <span
-                                                            class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $channel }}</span>
+                                                            class="px-20 mt-10 text-sm text-white badge fw-semibold text-primary-600 bg-primary-100 py-9 radius-4">{{ $channel }}</span>
                                                     @endforeach
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Video shoots</h6>
+                                                    <h6 class="mb-0 text-md fw-medium">Video shoots</h6>
                                                     <span
-                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->video_shoots_per_month ?? '' }}</span>
+                                                        class="px-20 mt-10 text-sm text-white badge fw-semibold text-primary-600 bg-primary-100 py-9 radius-4">{{ $project->socialMediaProject->video_shoots_per_month ?? '' }}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Static Posts Per Month</h6>
+                                                    <h6 class="mb-0 text-md fw-medium">Static Posts Per Month</h6>
                                                     <span
-                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->static_posts ?? '' }}</span>
+                                                        class="px-20 mt-10 text-sm text-white badge fw-semibold text-primary-600 bg-primary-100 py-9 radius-4">{{ $project->socialMediaProject->static_posts ?? '' }}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
+                                        <div class="gap-3 mb-24 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1">
-                                                    <h6 class="text-md mb-0 fw-medium">Reels Per Month</h6>
+                                                    <h6 class="mb-0 text-md fw-medium">Reels Per Month</h6>
                                                     <span
-                                                        class="mt-10 badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4 text-white">{{ $project->socialMediaProject->reels ?? '' }}</span>
+                                                        class="px-20 mt-10 text-sm text-white badge fw-semibold text-primary-600 bg-primary-100 py-9 radius-4">{{ $project->socialMediaProject->reels ?? '' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -458,90 +458,90 @@
                     <div class="col-md-6">
                         <div class="card radius-16">
                             <div class="card-header">
-                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                    <h6 class="mb-2 fw-bold text-lg mb-0">Financial Details</h6>
+                                <div class="flex-wrap gap-2 d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0 mb-2 text-lg fw-bold">Financial Details</h6>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-neutral-100">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-orange rounded-pill"></span>
                                         <span class="text-secondary-light">Contract Start</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="text-primary-light fw-semibold">
                                             {{ $currentRenewal->contract_start_date }}</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-base">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Contract End</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span
                                             class="text-primary-light fw-semibold">{{ $contractEndDate->toDateString() }}</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-neutral-100">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Total Contract Value <span
                                                 class="fs-7">(w/o VAT - in AED)</span></span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span
                                             class="text-primary-light fw-semibold">{{ number_format($currentRenewal->contract_value, 2) }}</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-base">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Contract Term</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span
                                             class="text-primary-light fw-semibold">{{ $currentRenewal->contract_term }}
                                             MO</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-neutral-100">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Payment Method</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span
                                             class="text-primary-light fw-semibold">{{ $currentRenewal->paymentMethod->name ?? 'N/A' }}</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-base">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-cyan-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Free Months</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span
                                             class="text-primary-light fw-semibold">{{ $currentRenewal->free_months }}
                                             MO</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-neutral-100">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-neutral-100">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-warning-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Monthly Invoice</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span
                                             class="text-primary-light fw-semibold">{{ number_format($monthlyInvoice, 2) }}</span>
                                     </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-base">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Next Invoice Date</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span
                                             class="text-primary-light fw-semibold">{{ $nextInvoiceDate->toDateString() }}</span>
                                     </div>
@@ -552,12 +552,12 @@
                                     $now = \Carbon\Carbon::now();
                                     $remainingMonths = max(floor($now->diffInMonths($endDate, false)), 0);
                                 @endphp
-                                <div class="d-flex align-items-center justify-content-between p-12 bg-base">
-                                    <div class="d-flex align-items-center gap-2">
+                                <div class="p-12 d-flex align-items-center justify-content-between bg-base">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="w-12-px h-8-px bg-success-600 rounded-pill"></span>
                                         <span class="text-secondary-light">Remaining Months</span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="gap-2 d-flex align-items-center">
                                         <span class="text-primary-light fw-semibold">{{ $remainingMonths }}
                                             MO</span>
                                     </div>
@@ -577,14 +577,14 @@
                         <div class="col-lg-12">
                             <div class="card h-100">
                                 <div class="card-header d-flex align-items-center justify-content-between">
-                                    <h6 class="mb-2 fw-bold text-lg mb-0">Campaign Access</h6>
-                                    <button class="btn border-0 p-0 m-0 addmorecred">Add More
+                                    <h6 class="mb-0 mb-2 text-lg fw-bold">Campaign Access</h6>
+                                    <button class="p-0 m-0 border-0 btn addmorecred">Add More
                                         Credentials</button>
                                 </div>
                                 <div class="card-body row" style="max-height: 500px; overflow-y: auto;">
                                     @foreach ($project->credentials as $credential)
-                                        <div class="col-lg-4 my-10">
-                                            <div class="card border position-relative p-3 rounded">
+                                        <div class="my-10 col-lg-4">
+                                            <div class="p-3 border rounded card position-relative">
                                                 <div class="text-capitalize fs-7"><strong>Access Id:</strong>
                                                     {{ $credential->id }}</div>
                                                 @if ($credential->platform_name)
@@ -612,7 +612,7 @@
                                                         auth()->user()->hasRole('ADMIN') ||
                                                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                                                     <button type="button"
-                                                        class="delete-credential position-absolute top-0 end-0 m-10 w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                                        class="top-0 m-10 delete-credential position-absolute end-0 w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center"
                                                         data-id="{{ $credential->id }}">
                                                         <iconify-icon icon="fluent:delete-24-regular"
                                                             class="menu-icon"></iconify-icon>
@@ -627,7 +627,7 @@
                                         @csrf
                                         <input type="hidden" name="project_id" value="{{ $project->id }}">
                                         <div id="credentialsContainer">
-                                            <div class="credentialRow row mb-10">
+                                            <div class="mb-10 credentialRow row">
                                                 <div class="col-lg-3">
                                                     <input class="form-control" type="text"
                                                         name="credentials[0][platform_name]"
@@ -641,13 +641,13 @@
                                                     <input required class="form-control" type="text"
                                                         name="credentials[0][username]" placeholder="Username/Email">
                                                 </div>
-                                                <div class="col-lg-3 d-flex align-items-center gap-3">
+                                                <div class="gap-3 col-lg-3 d-flex align-items-center">
                                                     <input class="form-control" type="password"
                                                         name="credentials[0][password]" placeholder="Password">
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-start gap-10 mt-10">
+                                        <div class="gap-10 mt-10 d-flex align-items-center justify-content-start">
                                             <button class="btn btn-sm fs-7 btn-neutral-500" type="button"
                                                 id="addCredential">Add
                                                 More</button>
@@ -662,55 +662,55 @@
                 @endif
             </div>
             @if ($project->seoProject)
-                <div class="row gy-3 mb-10">
+                <div class="mb-10 row gy-3">
                     <div class="col-lg-12">
-                        <div class="card border">
+                        <div class="border card">
                             <div class="card-header">
-                                <h6 class="mb-2 fw-bold text-lg mb-0">Seo Detail</h6>
+                                <h6 class="mb-0 mb-2 text-lg fw-bold">Seo Detail</h6>
                             </div>
-                            <div class="card-body p-24">
-                                <div class="d-flex flex-wrap flex-row gap-24">
-                                    <div class="d-flex align-items-center gap-3">
+                            <div class="p-24 card-body">
+                                <div class="flex-row flex-wrap gap-24 d-flex">
+                                    <div class="gap-3 d-flex align-items-center">
                                         <div class="flex-grow-1">
-                                            <h6 class="text-md mb-0 fw-bold">Number of Keywords</h6>
+                                            <h6 class="mb-0 text-md fw-bold">Number of Keywords</h6>
                                             <span
                                                 class="text-sm text-secondary-light fw-normal">{{ $project->seoProject->number_of_keywords ?? '-' }}</span>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-3">
+                                    <div class="gap-3 d-flex align-items-center">
                                         <div
-                                            class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-warning-100 flex-shrink-0">
+                                            class="flex-shrink-0 w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-warning-100">
                                             1
                                         </div>
                                         <div class="flex-grow-1">
                                             <span class="text-sm text-secondary-light fw-normal fs-7">Guarantee</span>
-                                            <h6 class="text-md mb-0 fw-bold">
+                                            <h6 class="mb-0 text-md fw-bold">
                                                 {{ $project->seoProject->milestone_1_percentage ?? '-' }}%</h6>
                                             <span class="text-sm text-secondary-light fw-normal">
                                                 {{ $project->seoProject->milestone_1_date ?? '-' }}</span>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-3">
+                                    <div class="gap-3 d-flex align-items-center">
                                         <div
-                                            class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-100 flex-shrink-0">
+                                            class="flex-shrink-0 w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-100">
                                             2
                                         </div>
                                         <div class="flex-grow-1">
                                             <span class="text-sm text-secondary-light fw-normal fs-7">Guarantee</span>
-                                            <h6 class="text-md mb-0 fw-bold">
+                                            <h6 class="mb-0 text-md fw-bold">
                                                 {{ $project->seoProject->milestone_2_percentage ?? '-' }}%</h6>
                                             <span class="text-sm text-secondary-light fw-normal">
                                                 {{ $project->seoProject->milestone_2_date ?? '-' }}</span>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-3">
+                                    <div class="gap-3 d-flex align-items-center">
                                         <div
-                                            class="w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-100 flex-shrink-0">
+                                            class="flex-shrink-0 w-40-px h-40-px rounded-circle d-flex justify-content-center align-items-center bg-lilac-100">
                                             3
                                         </div>
                                         <div class="flex-grow-1">
                                             <span class="text-sm text-secondary-light fw-normal fs-7">Guarantee</span>
-                                            <h6 class="text-md mb-0 fw-bold">
+                                            <h6 class="mb-0 text-md fw-bold">
                                                 {{ $project->seoProject->milestone_3_percentage ?? '-' }}%</h6>
                                             <span class="text-sm text-secondary-light fw-normal">
                                                 {{ $project->seoProject->milestone_3_date ?? '-' }}</span>
@@ -722,16 +722,16 @@
                     </div>
                 </div>
             @endif
-            <div class="row gy-3 mb-10">
+            <div class="mb-10 row gy-3">
                 <div class="col-lg-12">
-                    <div class="card border">
+                    <div class="border card">
                         <div class="card-header">
-                            <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                <h6 class="mb-2 fw-bold text-lg mb-0">Project Description</h6>
+                            <div class="flex-wrap gap-2 d-flex align-items-center justify-content-between">
+                                <h6 class="mb-0 mb-2 text-lg fw-bold">Project Description</h6>
                             </div>
                         </div>
                         <div class="card-body">
-                            <textarea readonly class="border-0 bg-transparent p-0 m-0 w-100 h-100" name="description" id="description"x>{{ $project->description }}</textarea>
+                            <textarea readonly class="p-0 m-0 bg-transparent border-0 w-100 h-100" name="description" id="description"x>{{ $project->description }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -742,13 +742,13 @@
                     auth()->user()->id == $project->seoAdmins->pluck('id')->first() ||
                     auth()->user()->hasRole('ADMIN') ||
                     ($project->createdBy && auth()->user()->id == $project->createdBy->id))
-                <div class="row gy-3 mb-10">
+                <div class="mb-10 row gy-3">
                     <div class="col-lg-12">
                         <div
-                            class="border border-secondary card p-0 overflow-hidden position-relative radius-12 h-100">
+                            class="p-0 overflow-hidden border border-secondary card position-relative radius-12 h-100">
                             <div
-                                class="card-header flex-wrap gap-1 pt-16 px-24 bg-base border border-end-0 border-start-0 border-top-0 d-flex align-items-center flex-wrap justify-content-between">
-                                <ul class="nav border-gradient-tab nav-pills mb-0" id="pills-tab" role="tablist">
+                                class="flex-wrap gap-1 px-24 pt-16 border card-header bg-base border-end-0 border-start-0 border-top-0 d-flex align-items-center justify-content-between">
+                                <ul class="mb-0 nav border-gradient-tab nav-pills" id="pills-tab" role="tablist">
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link d-flex align-items-center active" id="regular-tab"
                                             data-bs-toggle="pill" data-bs-target="#regular-task" type="button"
@@ -756,7 +756,7 @@
                                             aria-controls="pills-to-do-list" aria-selected="true">
                                             Regular Tasks
                                             <span
-                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $regularTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count() }}</span>
+                                                class="px-12 py-6 text-sm text-white fw-semibold bg-neutral-500 rounded-pill line-height-1 ms-12 notification-alert">{{ $regularTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count() }}</span>
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
@@ -766,7 +766,7 @@
                                             aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
                                             Sequence Tasks
                                             <span
-                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $sequenceTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count() }}</span>
+                                                class="px-12 py-6 text-sm text-white fw-semibold bg-neutral-500 rounded-pill line-height-1 ms-12 notification-alert">{{ $sequenceTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count() }}</span>
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
@@ -776,7 +776,7 @@
                                             aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
                                             Repeating Tasks
                                             <span
-                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $repeatingTasks->count() }}</span>
+                                                class="px-12 py-6 text-sm text-white fw-semibold bg-neutral-500 rounded-pill line-height-1 ms-12 notification-alert">{{ $repeatingTasks->count() }}</span>
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
@@ -786,23 +786,23 @@
                                             aria-controls="pills-recent-leads" aria-selected="false" tabindex="-1">
                                             Completed Tasks
                                             <span
-                                                class="text-sm fw-semibold py-6 px-12 bg-neutral-500 rounded-pill text-white line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
+                                                class="px-12 py-6 text-sm text-white fw-semibold bg-neutral-500 rounded-pill line-height-1 ms-12 notification-alert">{{ $completedTasks->count() }}</span>
                                         </button>
                                     </li>
                                 </ul>
                                 <a href="{{ route('tasks.index') }}"
-                                    class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                                    class="gap-1 text-primary-600 hover-text-primary d-flex align-items-center">
                                     Tasks
                                     <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                                 </a>
                             </div>
-                            <div class="card-body p-0">
+                            <div class="p-0 card-body">
                                 <div class="tab-content" id="task-tabContent">
                                     <!-- Regular Tasks -->
                                     <div style="max-height: 500px; overflow-y: auto;"
                                         class="tab-pane fade show active" id="regular-task" role="tabpanel">
                                         @if ($regularTasks->whereIn('status', ['Todo', 'In Progress', 'Review'])->count())
-                                            <table class="table bordered-table mb-0">
+                                            <table class="table mb-0 bordered-table">
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -831,7 +831,7 @@
                                                             <tr>
                                                                 <td colspan="7" class="bg-info-50 text-muted">
                                                                     <div style="max-width: 50%;">
-                                                                        <div class="d-flex align-items-start gap-3">
+                                                                        <div class="gap-3 d-flex align-items-start">
                                                                             <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
                                                                                 alt=""
                                                                                 class="w-40-px h-40-px rounded-pill">
@@ -839,7 +839,7 @@
                                                                                 <div
                                                                                     class="d-flex align-items-center justify-content-between">
                                                                                     <div
-                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        class="gap-2 d-flex align-items-center">
                                                                                         <span
                                                                                             class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
                                                                                             {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
@@ -869,7 +869,7 @@
                                     <div style="max-height: 500px; overflow-y: auto;" class="tab-pane fade"
                                         id="sequence-task" role="tabpanel">
                                         @if ($sequenceTasks->count())
-                                            <table class="table bordered-table mb-0">
+                                            <table class="table mb-0 bordered-table">
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -898,7 +898,7 @@
                                                             <tr>
                                                                 <td colspan="7" class="bg-info-50 text-muted">
                                                                     <div style="max-width: 50%;">
-                                                                        <div class="d-flex align-items-start gap-3">
+                                                                        <div class="gap-3 d-flex align-items-start">
                                                                             <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
                                                                                 alt=""
                                                                                 class="w-40-px h-40-px rounded-pill">
@@ -906,7 +906,7 @@
                                                                                 <div
                                                                                     class="d-flex align-items-center justify-content-between">
                                                                                     <div
-                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        class="gap-2 d-flex align-items-center">
                                                                                         <span
                                                                                             class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
                                                                                             {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
@@ -936,7 +936,7 @@
                                     <div style="max-height: 500px; overflow-y: auto;" class="tab-pane fade"
                                         id="repeating-task" role="tabpanel">
                                         @if ($repeatingTasks->count())
-                                            <table class="table bordered-table mb-0">
+                                            <table class="table mb-0 bordered-table">
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -965,7 +965,7 @@
                                                             <tr>
                                                                 <td colspan="7" class="bg-info-50 text-muted">
                                                                     <div style="max-width: 50%;">
-                                                                        <div class="d-flex align-items-start gap-3">
+                                                                        <div class="gap-3 d-flex align-items-start">
                                                                             <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
                                                                                 alt=""
                                                                                 class="w-40-px h-40-px rounded-pill">
@@ -973,7 +973,7 @@
                                                                                 <div
                                                                                     class="d-flex align-items-center justify-content-between">
                                                                                     <div
-                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        class="gap-2 d-flex align-items-center">
                                                                                         <span
                                                                                             class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
                                                                                             {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
@@ -1003,7 +1003,7 @@
                                     <div style="max-height: 500px; overflow-y: auto;" class="tab-pane fade"
                                         id="completed-task" role="tabpanel">
                                         @if ($completedTasks->count())
-                                            <table class="table bordered-table mb-0">
+                                            <table class="table mb-0 bordered-table">
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
@@ -1034,7 +1034,7 @@
                                                             <tr>
                                                                 <td colspan="7" class="bg-info-50 text-muted">
                                                                     <div style="max-width: 50%;">
-                                                                        <div class="d-flex align-items-start gap-3">
+                                                                        <div class="gap-3 d-flex align-items-start">
                                                                             <img src="{{ asset('/public/storage/' . $task->comments()->latest()->first()->user->img) }}"
                                                                                 alt=""
                                                                                 class="w-40-px h-40-px rounded-pill">
@@ -1042,7 +1042,7 @@
                                                                                 <div
                                                                                     class="d-flex align-items-center justify-content-between">
                                                                                     <div
-                                                                                        class="d-flex align-items-center gap-2">
+                                                                                        class="gap-2 d-flex align-items-center">
                                                                                         <span
                                                                                             class="mb-0 text-secondary fs-7">{{ $task->comments()->latest()->first()->user->name }}
                                                                                             {{ $task->comments()->latest()->first()->user->id == auth()->id() ? '(you)' : '' }}</span>
@@ -1074,19 +1074,20 @@
                     </div>
                 </div>
             @endif
-            <div class="row gy-3 mb-10">
+            <div class="mb-10 row gy-3">
                 @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('ADMIN') ||
+                        auth()->user()->hasRole('SEO ADMIN') ||
                         auth()->user()->hasRole('Accountant') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-6">
-                        <div class="card border">
+                        <div class="border card">
                             <div class="card-header">
-                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                    <h6 class="mb-2 fw-bold text-lg mb-0">Contract Files</h6>
+                                <div class="flex-wrap gap-2 d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0 mb-2 text-lg fw-bold">Contract Files</h6>
                                     @if ($userPermissions->contains('can add project files'))
                                         <button data-bs-toggle="modal" data-bs-target="#projectAttachmentsModal"
-                                            class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                                            class="gap-1 text-primary-600 hover-text-primary d-flex align-items-center">
                                             Add Attachments
                                             <iconify-icon icon="solar:alt-arrow-right-linear"
                                                 class="icon"></iconify-icon>
@@ -1152,15 +1153,15 @@
                                 @endphp
 
                                 @if ($allFiles->count() > 0)
-                                    <div class="d-flex flex-column gap-24">
+                                    <div class="gap-24 d-flex flex-column">
                                         @foreach ($allFiles as $file)
                                             @php
                                                 $filePath = asset('storage/app/public/' . $file->file_path);
                                                 $extension = pathinfo($file->file_path, PATHINFO_EXTENSION);
                                             @endphp
                                             <div
-                                                class="d-flex align-items-center justify-content-between gap-3 border-bottom pb-2">
-                                                <div class="d-flex align-items-center gap-12">
+                                                class="gap-3 pb-2 d-flex align-items-center justify-content-between border-bottom">
+                                                <div class="gap-12 d-flex align-items-center">
                                                     <div class="flex-shrink-0">
                                                         @if (in_array($extension, ['pdf']))
                                                             <i
@@ -1172,7 +1173,7 @@
                                                         @endif
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <h6 class="text-md mb-0 fw-normal">
+                                                        <h6 class="mb-0 text-md fw-normal">
                                                             <a target="_blank" href="{{ $filePath }}">
                                                                 {{ Illuminate\Support\Str::limit($file->file_name, 20, '...') }}
                                                             </a>
@@ -1182,7 +1183,7 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div class="flex-align gap-12">
+                                                <div class="gap-12 flex-align">
                                                     <a href="{{ $filePath }}" download
                                                         class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
                                                         <i class="ri-download-2-fill"></i>
@@ -1206,29 +1207,29 @@
                             auth()->user()->hasRole('ADMIN') ||
                             ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                         <div class="col-lg-6">
-                            <div class="card border">
+                            <div class="border card">
                                 <div class="card-header">
-                                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                        <h6 class="mb-2 fw-bold text-lg mb-0">Task Files</h6>
+                                    <div class="flex-wrap gap-2 d-flex align-items-center justify-content-between">
+                                        <h6 class="mb-0 mb-2 text-lg fw-bold">Task Files</h6>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="d-flex flex-column gap-24">
+                                    <div class="gap-24 d-flex flex-column">
                                         @foreach ($sequenceTasksFiles as $file)
-                                            <div class="d-flex align-items-center justify-content-between gap-3">
-                                                <div class="d-flex align-items-center gap-12">
+                                            <div class="gap-3 d-flex align-items-center justify-content-between">
+                                                <div class="gap-12 d-flex align-items-center">
                                                     <div class="flex-shrink-0">
                                                         <img src="{{ asset('/images/home-eight/icon-pdf.png') }}"
                                                             alt="" class="">
                                                     </div>
                                                     <div class="flex-grow-1">
-                                                        <h6 class="text-md mb-0 fw-normal">
+                                                        <h6 class="mb-0 text-md fw-normal">
                                                             <a target="_blank"
                                                                 href="{{ asset('/public/storage') }}/{{ $file['file'] }}">{{ $file['name'] }}</a>
                                                         </h6>
                                                     </div>
                                                 </div>
-                                                <div class="flex-align gap-12">
+                                                <div class="gap-12 flex-align">
                                                     <a href="{{ asset('/public/storage') }}/{{ $file['file'] }}"
                                                         download
                                                         class="w-32-px h-32-px d-inline-flex justify-content-center align-items-center bg-success-100 text-success-600 bg-hover-success-600 text-hover-white text-md rounded-circle">
@@ -1251,22 +1252,22 @@
                         auth()->user()->hasRole('Accountant') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-lg-6">
-                        <div class="card border">
+                        <div class="border card">
                             <div class="card-header">
-                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                    <h6 class="mb-2 fw-bold text-lg mb-0">Handover Notes</h6>
+                                <div class="flex-wrap gap-2 d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0 mb-2 text-lg fw-bold">Handover Notes</h6>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <textarea readonly required class="w-100 h-100 border-0 bg-transparent p-0 m-0" name="handover_notes"
+                                <textarea readonly required class="p-0 m-0 bg-transparent border-0 w-100 h-100" name="handover_notes"
                                     id="handover_notes">{{ $currentRenewal->handover_notes }}</textarea>
                             </div>
                         </div>
                     </div>
                 @endif
                 <div class="col-xxl-6 col-md-6">
-                    <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
-                        <div class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between">
+                    <div class="p-0 overflow-hidden border card border-secondary position-relative radius-12 h-100">
+                        <div class="px-24 py-16 card-header bg-base d-flex align-items-center justify-content-between">
                             <span class="fw-bold">Collaborators</span>
                             @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
                                     auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
@@ -1275,7 +1276,7 @@
                                     auth()->user()->hasRole('ADMIN') ||
                                     ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                                 <select onchange="addProjectCollaborator('{{ $project->id }}')" id="user_id"
-                                    class="form-select w-auto">
+                                    class="w-auto form-select">
                                     <option value="">Select User</option>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -1283,21 +1284,21 @@
                                 </select>
                             @endif
                         </div>
-                        <div class="card-body p-24">
-                            <div class="row gy-3 mb-10" id="collaborators-list"></div>
+                        <div class="p-24 card-body">
+                            <div class="mb-10 row gy-3" id="collaborators-list"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-xxl-6 col-md-6">
-                    <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
-                        <div class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between">
+                    <div class="p-0 overflow-hidden border card border-secondary position-relative radius-12 h-100">
+                        <div class="px-24 py-16 card-header bg-base d-flex align-items-center justify-content-between">
                             <span class="fw-bold">Your Project Notes</span>
                         </div>
-                        <div class="card-body p-24">
+                        <div class="p-24 card-body">
                             <form id="note-form">
                                 @csrf
                                 <input type="hidden" name="project_id" value="{{ $project->id }}">
-                                <div class="input-group mb-3">
+                                <div class="mb-3 input-group">
                                     <input type="text" name="note" class="form-control"
                                         placeholder="Write a note...">
                                     <button class="btn btn-primary" type="submit">Add Note</button>
@@ -1308,12 +1309,12 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
-                        <div class="card-header py-16 px-24 bg-base d-flex align-items-center justify-content-between">
+                    <div class="p-0 overflow-hidden border card border-secondary position-relative radius-12 h-100">
+                        <div class="px-24 py-16 card-header bg-base d-flex align-items-center justify-content-between">
                             <span class="fw-bold">All Contract Renewals</span>
                         </div>
-                        <div class="card-body p-24">
-                            <table class="table table-striped table-hover align-middle">
+                        <div class="p-24 card-body">
+                            <table class="table align-middle table-striped table-hover">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col">#</th>
@@ -1362,7 +1363,7 @@
                                             </td>
                                             <td>
                                                 @forelse ($renewal->assignments as $assign)
-                                                    <span class="badge bg-secondary mb-1">
+                                                    <span class="mb-1 badge bg-secondary">
                                                         <i class="bi bi-person-gear"></i> {{ $assign->role_type }}:
                                                         {{ $assign->user->name }}
                                                     </span><br>
@@ -1403,10 +1404,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body bg-base" style="max-height: 400px; overflow-y: auto;">
-                    <div class="d-flex flex-column gap-3">
+                    <div class="gap-3 d-flex flex-column">
                         @if ($project->companies)
                             @foreach ($project->companies->details as $index => $details)
-                                <div class="border text-start p-3 rounded bg-base mb-10">
+                                <div class="p-3 mb-10 border rounded text-start bg-base">
                                     <div class="border-bottom"><strong>name:</strong>
                                         {{ $details->name }}
                                     </div>
@@ -1561,19 +1562,19 @@
                         <input type="checkbox" checked id="repeat_task" name="repeat_task" value="1">
                     </div>
                     <div class="card-body">
-                        <div class="d-flex align-items-center gap-10 w-100">
-                            <input type="number" name="count" id="count" class="form-control rounded w-100-px border"
+                        <div class="gap-10 d-flex align-items-center w-100">
+                            <input type="number" name="count" id="count" class="border rounded form-control w-100-px"
                                 min="1" value="1">
-                            <select name="repeat_every" id="repeat_every" class="w-auto rounded form-control border">
+                            <select name="repeat_every" id="repeat_every" class="w-auto border rounded form-control">
                                 <option value="week">Week</option>
                                 <option value="month">Month</option>
                             </select>
                             <label for="start_from" class="form-label">start from</label>
                             <input type="date" placeholder="start from" name="start_from" id="start_from"
-                            class="form-control w-auto rounded border">
+                            class="w-auto border rounded form-control">
                             <label for="end_date" class="form-label">end date (optional)</label>
                             <input placeholder="end date (optional):" type="date" name="end_date" id="end_date"
-                                class="form-control w-auto rounded border">
+                                class="w-auto border rounded form-control">
                         </div>
                     </div>
                     `
@@ -1730,7 +1731,7 @@
         let credentialIndex = 1;
         $("#addCredential").click(function() {
             $("#credentialsContainer").append(`
-            <div class="credentialRow row mb-10">
+            <div class="mb-10 credentialRow row">
                 <div class="col-lg-3">
                     <input required class="form-control" type="text"
                         name="credentials[${credentialIndex}][platform_name]" placeholder="Platform Name">
@@ -1743,7 +1744,7 @@
                     <input required class="form-control" type="text" name="credentials[${credentialIndex}][username]"
                         placeholder="Username/Email">
                 </div>
-                <div class="col-lg-3 d-flex align-items-center gap-3">
+                <div class="gap-3 col-lg-3 d-flex align-items-center">
                     <input class="form-control" type="password" name="credentials[${credentialIndex}][password]"
                         placeholder="Password">
                     <button type="button"
@@ -1765,10 +1766,10 @@
                 response.forEach(collaborator => {
                     $('#collaborators-list').append(`
                             <div class="col-sm-6">
-                                <div class="d-flex align-items-start gap-2">
+                                <div class="gap-2 d-flex align-items-start">
                                     <img src="{{ asset('/public/storage') }}/${collaborator.user.img}" class="w-40-px h-40-px rounded-pill" />
                                     <div class="flex-grow-1 d-inline-flex flex-column">
-                                        <h6 class="text-sm mb-0">${collaborator.user.name}</h6>
+                                        <h6 class="mb-0 text-sm">${collaborator.user.name}</h6>
                                         <span class="text-xs text-secondary-light">${collaborator.user.email}</span>
                                     </div>
                                      @if (auth()->user()->id == $project->salesManagers->pluck('id')->first() ||
