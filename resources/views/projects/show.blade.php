@@ -448,12 +448,12 @@
                     $canView =
                         $allAccountManagerIds->contains(auth()->id()) ||
                         auth()->user()->hasRole('Accountant') ||
-                        auth()->user()->hasRole('SEO ADMIN') ||
                         auth()->user()->hasRole('ADMIN') ||
                         ($project->createdBy && auth()->id() == $project->createdBy->id);
                 @endphp
                 @if (auth()->user()->id == $project->accountManagers->pluck('id')->first() ||
                         auth()->user()->hasRole('Accountant') ||
+                        auth()->user()->hasRole('SEO ADMIN') ||
                         auth()->user()->hasRole('ADMIN') ||
                         ($project->createdBy && auth()->user()->id == $project->createdBy->id))
                     <div class="col-md-6">
