@@ -39,7 +39,7 @@ class ProjectController extends Controller
         $salesManagers = User::whereHas('roles', fn($q) => $q->where('name', 'SALES MANAGER'))->get();
         $users = User::all();
 
-        $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins']);
+        $query = Project::with(['salesManagers', 'accountManagers', 'techManagers', 'seoTechs', 'contentWriters', 'seoAdmins', 'latestRenewal']);
 
         $statusCounts = [];
         $typeCounts   = [];
@@ -102,7 +102,7 @@ class ProjectController extends Controller
             });
             $projects = $query->paginate(10)->withQueryString();
         }
-       if ($pStatus) {
+        if ($pStatus) {
             $query->where('status', $pStatus);
         }
         if (
@@ -123,7 +123,7 @@ class ProjectController extends Controller
             })->paginate(10)->withQueryString();
         }
 
-        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users','salesManagers', $extraData));
+        return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users', 'salesManagers', $extraData));
     }
     public function cancel(Request $request)
     {
