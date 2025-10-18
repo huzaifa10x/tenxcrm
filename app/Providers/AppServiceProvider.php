@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\SendWeeklyTaskSummary;
 use App\Http\Middleware\CheckPermission;
 use App\Services\ChatGPTService;
 use Carbon\Carbon;
@@ -17,10 +18,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-     
-    }
+    public function register(): void {}
 
     /**
      * Bootstrap any application services.
@@ -34,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
                 $permissions = $user->roles->flatMap->permissions->pluck('name')->unique();
                 $view->with('userPermissions', $permissions);
             }
+        });
+        $this->app->resolving(Schedule::class, function (Schedule $schedule) {
+            $schedule->job(new SendWeeklyTaskSummary())
+                ->everyMinute()->withoutOverlapping();
         });
         // if (App::runningInConsole()) {
         //     $this->app->resolving(Schedule::class, function (Schedule $schedule) {

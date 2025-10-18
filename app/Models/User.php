@@ -81,6 +81,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Project::class, 'project_sales_manager');
     }
 
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
     public function accountProjects()
     {
         return $this->belongsToMany(Project::class, 'project_account_manager');
@@ -96,18 +101,18 @@ class User extends Authenticatable
         return $this->belongsToMany(
             User::class,
             'account_manager_leads',
-            'am_id',         
-            'manager_id'     
+            'am_id',
+            'manager_id'
         );
     }
-    
+
     public function teams()
     {
         return $this->belongsToMany(
             User::class,
             'account_manager_leads',
-            'manager_id',    
-            'am_id'         
+            'manager_id',
+            'am_id'
         );
     }
 }
