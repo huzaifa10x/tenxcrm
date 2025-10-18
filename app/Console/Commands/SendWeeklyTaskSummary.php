@@ -19,9 +19,7 @@ class SendWeeklyTaskSummary extends Command
     {
         Log::info('Weekly task summary command started.');
 
-        $users = User::where('email', 'huzaifa.10xdigital@gmail.com')
-            ->whereHas('tasks')
-            ->get();
+        $users = User::whereHas('tasks')->get();
 
         foreach ($users as $user) {
             $todoCount = Task::where('assigned_to', $user->id)->where('status', 'Todo')->count();
@@ -30,7 +28,7 @@ class SendWeeklyTaskSummary extends Command
 
             if ($todoCount + $inProgressCount + $reviewCount > 0) {
                 Mail::to($user->email)
-                    // ->cc('muhammad.ali@10xdigital.ae')
+                    ->cc('muhammad.ali@10xdigital.ae')
                     ->send(new WeeklyTaskSummaryMail(
                         $user,
                         $todoCount,

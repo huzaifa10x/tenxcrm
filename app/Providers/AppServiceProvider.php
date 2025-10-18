@@ -35,7 +35,9 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->resolving(Schedule::class, function (Schedule $schedule) {
             $schedule->job(new SendWeeklyTaskSummary())
-                ->everyMinute()->withoutOverlapping();
+                ->mondays()
+                ->at('09:00')
+                ->withoutOverlapping();
         });
         // if (App::runningInConsole()) {
         //     $this->app->resolving(Schedule::class, function (Schedule $schedule) {
@@ -47,5 +49,8 @@ class AppServiceProvider extends ServiceProvider
         // Carbon::setTestNow(Carbon::now()->addHour(12));
         // Carbon::setTestNow(Carbon::now()->addDays(20));
         // Carbon::setTestNow(Carbon::now()->addMonth(0));
+        // Carbon::setTestNow(
+        //     Carbon::now()->startOfWeek()->setTime(9, 00)
+        // );
     }
 }

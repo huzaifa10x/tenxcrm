@@ -54,5 +54,5 @@ View My Tasks
 </div>
 
 Thanks,<br>
-**10X ONE CRM**
+**10X ONE**
 @endcomponent
