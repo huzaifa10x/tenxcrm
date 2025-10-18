@@ -17,7 +17,7 @@ class SendWeeklyTaskSummary extends Command
 
     public function handle()
     {
-        Log::info('Weekly task summary command started.');
+        // Log::info('Weekly task summary command started.');
 
         $users = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['SEO ADMIN', 'AM']);
@@ -40,10 +40,10 @@ class SendWeeklyTaskSummary extends Command
                         $reviewCount
                     ));
 
-                Log::info("Weekly summary sent to {$user->email}");
+                // Log::info("Weekly summary sent to {$user->email}");
             }
         }
 
-        Log::info('Weekly task summary emails sent successfully.');
+        // Log::info('Weekly task summary emails sent successfully.');
     }
 }
