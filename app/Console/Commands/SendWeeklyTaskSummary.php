@@ -19,7 +19,11 @@ class SendWeeklyTaskSummary extends Command
     {
         Log::info('Weekly task summary command started.');
 
-        $users = User::whereHas('tasks')->get();
+        $users = User::whereHas('roles', function ($query) {
+            $query->whereIn('name', ['SEO ADMIN', 'AM']);
+        })
+            ->whereHas('tasks')
+            ->get();
 
         foreach ($users as $user) {
             $todoCount = Task::where('assigned_to', $user->id)->where('status', 'Todo')->count();
