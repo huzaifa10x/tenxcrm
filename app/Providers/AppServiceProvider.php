@@ -39,11 +39,7 @@ class AppServiceProvider extends ServiceProvider
                 ->at('09:00')
                 ->withoutOverlapping();
         });
-        // if (App::runningInConsole()) {
-        //     $this->app->resolving(Schedule::class, function (Schedule $schedule) {
-        //         $schedule->command('tasks:process-repeating')->everyMinute()->withoutOverlapping();
-        //     });
-        // }
+
         Carbon::setTestNow(Carbon::now());
         // Carbon::setTestNow(Carbon::now()->startOfMonth());
         // Carbon::setTestNow(Carbon::now()->addHour(12));

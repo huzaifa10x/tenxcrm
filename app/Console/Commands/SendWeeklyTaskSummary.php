@@ -22,15 +22,17 @@ class SendWeeklyTaskSummary extends Command
         $users = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['SEO ADMIN', 'AM']);
         })
-            ->whereHas('tasks')
+            ->whereHas('tasks', function ($query) {
+                $query->where('start_date', '<=', Carbon::now());
+            })
             ->get();
 
         foreach ($users as $user) {
-            $todoCount = Task::where('assigned_to', $user->id)->where('status', 'Todo')->count();
-            $inProgressCount = Task::where('assigned_to', $user->id)->where('status', 'In Progress')->count();
-            $reviewCount = Task::where('assigned_to', $user->id)->where('status', 'Review')->count();
-
+            $todoCount = Task::where('assigned_to', $user->id)->where('status', 'Todo')->visibleTasks()->count();
+            $inProgressCount = Task::where('assigned_to', $user->id)->where('status', 'In Progress')->visibleTasks()->count();
+            $reviewCount = Task::where('assigned_to', $user->id)->where('status', 'Review')->visibleTasks()->count();
             if ($todoCount + $inProgressCount + $reviewCount > 0) {
+                // Log::info("Weekly summary sent to {$user->email} with Todo: {$todoCount}, In Progress: {$inProgressCount}, Review: {$reviewCount}");
                 Mail::to($user->email)
                     ->cc('muhammad.ali@10xdigital.ae')
                     ->send(new WeeklyTaskSummaryMail(
@@ -39,11 +41,9 @@ class SendWeeklyTaskSummary extends Command
                         $inProgressCount,
                         $reviewCount
                     ));
-
                 // Log::info("Weekly summary sent to {$user->email}");
             }
         }
-
         // Log::info('Weekly task summary emails sent successfully.');
     }
 }
