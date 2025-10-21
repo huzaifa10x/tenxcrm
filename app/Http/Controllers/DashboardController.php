@@ -724,6 +724,10 @@ class DashboardController extends Controller
         foreach ($activeProjects as $project) {
             $accountManager = $project->accountManagers->pluck('id')->first();
 
+            if ($project->project_type === 'Google Ads') {
+                continue;
+            }
+
             foreach ($tasks as $title => $description) {
 
                 $existing = Task::where('title', $title)
