@@ -788,8 +788,8 @@ class DashboardController extends Controller
                 $statusDate = $contractEnd->copy();
 
                 $this->assignRenewalTask($project, $accountManager, "Renewal Reminder", $reminderDate);
-                $this->assignRenewalTask($project, $accountManager, "Renewal Contract", $contractDate);
-                $this->assignRenewalTask($project, $accountManager, "Renewal Status", $statusDate);
+                // $this->assignRenewalTask($project, $accountManager, "Renewal Contract", $contractDate);
+                // $this->assignRenewalTask($project, $accountManager, "Renewal Status", $statusDate);
             }
 
             $automation->update(['last_run_date' => $now]);

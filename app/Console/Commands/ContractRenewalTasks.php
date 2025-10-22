@@ -27,8 +27,8 @@ class ContractRenewalTasks extends Command
             $contractDate = $contractEnd->copy();
             $statusDate = $contractEnd->copy();
             $this->assignTask($project, $accountManager, "Renewal Reminder", $reminderDate);
-            $this->assignTask($project, $accountManager, "Renewal Contract", $contractDate);
-            $this->assignTask($project, $accountManager, "Renewal Status", $statusDate);
+            // $this->assignTask($project, $accountManager, "Renewal Contract", $contractDate);
+            // $this->assignTask($project, $accountManager, "Renewal Status", $statusDate);
         }
         $this->info('Contract renewal tasks assigned successfully.');
     }
