@@ -25,6 +25,7 @@ use App\Models\Task;
 use App\Models\TaskAttachment;
 use App\Models\TaskCompletion;
 use App\Models\User;
+use App\Models\WebsiteProject;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -410,6 +411,7 @@ class DashboardController extends Controller
             ];
         } elseif ($role == 'ADMIN') {
             $projects = Project::whereIn('status', ['Current', 'WFF']);
+            $WebsiteProjects = WebsiteProject::with(['project', 'developer', 'leadDeveloper'])->get();
             $pendingCancellations = CancellationReason::where('approved', false)->get();
             // Partner Links Start
             $accountManagers = User::whereHas('roles', function ($q) {
@@ -459,6 +461,7 @@ class DashboardController extends Controller
             $extraData += [
                 'partnerLinksByAM',
                 'pendingCancellations',
+                'WebsiteProjects',
             ];
         }
         return view('dashboard', array_merge(

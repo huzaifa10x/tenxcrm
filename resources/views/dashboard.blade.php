@@ -3,12 +3,12 @@
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
     <x-dashboards.punch-in-out />
-    <div class="row gy-4 my-5">
+    <div class="my-5 row gy-4">
         <!-- Yesterday -->
         <div class="col-md-4">
-            <div class="card bg-gradient bg-success text-light border-0 shadow-sm rounded-4 h-100">
+            <div class="border-0 shadow-sm card bg-gradient bg-success text-light rounded-4 h-100">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
+                    <div class="mb-3 d-flex align-items-center">
                         <i class="bi bi-calendar-day fs-3 me-3 text-light"></i>
                         <div>
                             <h6 class="mb-0 fw-bold text-light">Tasks Closed Yesterday</h6>
@@ -22,9 +22,9 @@
 
         <!-- Last 7 Days -->
         <div class="col-md-4">
-            <div class="card bg-gradient bg-primary text-light border-0 shadow-sm rounded-4 h-100">
+            <div class="border-0 shadow-sm card bg-gradient bg-primary text-light rounded-4 h-100">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
+                    <div class="mb-3 d-flex align-items-center">
                         <i class="bi bi-calendar-week fs-3 me-3 text-light"></i>
                         <div>
                             <h6 class="mb-0 fw-bold text-light">Tasks Closed in Last 7 Days</h6>
@@ -39,9 +39,9 @@
 
         <!-- Last 30 Days -->
         <div class="col-md-4">
-            <div class="card bg-gradient bg-info text-light border-0 shadow-sm rounded-4 h-100">
+            <div class="border-0 shadow-sm card bg-gradient bg-info text-light rounded-4 h-100">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
+                    <div class="mb-3 d-flex align-items-center">
                         <i class="bi bi-calendar-range fs-3 me-3 text-light"></i>
                         <div>
                             <h6 class="mb-0 fw-bold text-light">Tasks Closed in Last 30 Days</h6>
@@ -54,14 +54,14 @@
             </div>
         </div>
     </div>
-    <div class="row gy-3 mb-10">
+    <div class="mb-10 row gy-3">
         <div class="col-lg-6">
             <div class="card">
-                <div class="card-header office-timing-button px-20 py-20">
-                    <h6 class="mb-2 fw-bold text-lg mb-0">Office Timings & Attendance Rules</h6>
+                <div class="px-20 py-20 card-header office-timing-button">
+                    <h6 class="mb-0 mb-2 text-lg fw-bold">Office Timings & Attendance Rules</h6>
                 </div>
-                <div class="card-body office-timing-body table-responsive p-0" style="display: none">
-                    <table class="table bordered-table mb-0">
+                <div class="p-0 card-body office-timing-body table-responsive" style="display: none">
+                    <table class="table mb-0 bordered-table">
                         <tbody>
                             <tr>
                                 <td>Office Open Time</td>
@@ -102,19 +102,90 @@
         </div>
     </div>
     @if ($role === 'AM')
-        <x-dashboards.am-dashboard :totalRenewals="$totalRenewals" :monthlyStats="$monthlyStats" :monthlyData="$monthlyData" :newSellProjects="$newSellProjects" :newSell="$newSell"
-            :typeCounts="$typeCounts" :statusCounts="$statusCounts" :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks" :completedTasks="$completedTasks"
-            :assignedTasks="$assignedTasks" />
+        <x-dashboards.am-dashboard :totalRenewals="$totalRenewals" :monthlyStats="$monthlyStats" :monthlyData="$monthlyData" :newSellProjects="$newSellProjects"
+            :newSell="$newSell" :typeCounts="$typeCounts" :statusCounts="$statusCounts" :currentPortfolio="$currentPortfolio" :projects="$projects" :pendingTasks="$pendingTasks"
+            :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
     @elseif ($role === 'CONTENT')
         <x-dashboards.content-dashboard :pendingTasksCount="$pendingTasksCount" :completedTasksCount="$completedTasksCount" :pendingWords="$pendingWords" :completedWords="$completedWords"
             :pendingTasks="$pendingTasks" :completedTasks="$completedTasks" :assignedTasks="$assignedTasks" />
     @elseif ($role == 'ADMIN')
+        @foreach ($WebsiteProjects as $project)
+            <div class="mb-10 col-lg-4 col-md-6 col-sm-12">
+                <div class="shadow-sm card h-100">
+                    <div
+                        class="p-3 text-white card-header bg-success d-flex align-items-center justify-content-between">
+                        <span class="mb-0 fw-bold">
+                            <i class="bi bi-globe2 me-1"></i> Website Project
+                        </span>
+                        @if (
+                            !$project->websiteProject &&
+                                (auth()->user()->hasRole('ADMIN') || auth()->user()->id == $project->accountManagers->pluck('id')->first()))
+                            <a href="{{ route('website-projects.create') }}?project_id={{ $project->id }}"
+                                class="btn btn-sm btn-light text-success">
+                                <i class="bi bi-plus-circle"></i> Add
+                            </a>
+                        @endif
+                    </div>
+                    <div class="p-3 card-body">
+                        @php $wp = $project; @endphp
+
+                        <div class="flex-wrap gap-2 mb-3 d-flex justify-content-between">
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-{{ $wp->platform === 'WordPress' ? 'wordpress' : 'code-square' }}"></i>
+                                {{ $wp->platform }}
+                            </span>
+                            <span class="badge bg-warning">
+                                <i class="bi bi-palette"></i> Design: {{ $wp->design_status }}
+                            </span>
+                            <span class="badge bg-info">
+                                <i class="bi bi-code-slash"></i> Dev: {{ $wp->development_status }}
+                            </span>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-between align-items-center small text-muted">
+                            @if ($wp->target_go_live_date)
+                                <div class="{{ $wp->isOverdue() ? 'text-danger' : 'text-info' }}">
+                                    <i class="bi bi-calendar-event me-1"></i> Target:
+                                    {{ $wp->target_go_live_date->format('M d, Y') }}
+                                </div>
+                            @endif
+                            @if ($wp->developer)
+                                <div>
+                                    <i class="bi bi-person-circle me-1"></i> Dev: {{ $wp->developer->name }}
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            @if ($wp->go_live_date)
+                                <span class="px-3 py-2 badge bg-success fw-bold">
+                                    <i class="bi bi-rocket-takeoff me-1"></i> LIVE
+                                </span>
+                            @elseif($wp->approved_for_go_live)
+                                <span class="px-3 py-2 badge bg-warning fw-bold">
+                                    <i class="bi bi-hourglass-split me-1"></i> Ready to Launch
+                                </span>
+                            @else
+                                <span class="px-3 py-2 badge bg-secondary fw-bold">
+                                    <i class="bi bi-clock-history me-1"></i> In Progress
+                                </span>
+                            @endif
+
+                            <a href="{{ route('website-projects.show', $wp->id) }}"
+                                class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-eye"></i> Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
         <div class="card">
             <div class="card-header">
                 <span class="fw-bold">Project Cancellation Request</span>
             </div>
             <div class="card-body">
-                <table class="table table-bordered table-hover align-middle">
+                <table class="table align-middle table-bordered table-hover">
                     <thead class="table-dark">
                         <tr>
                             <th scope="col"><i class="bi bi-hash"></i> #</th>
@@ -159,12 +230,13 @@
         <!-- Reason Modal -->
         <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow">
-                    <div class="modal-header bg-info text-white">
+                <div class="shadow modal-content">
+                    <div class="text-white modal-header bg-info">
                         <span class="modal-title" id="reasonModalLabel">
                             <i class="bi bi-exclamation-circle me-1"></i> Cancellation Reason
                         </span>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <a class="fw-bold fs-7 text-dark project-title"></a>
@@ -180,15 +252,15 @@
         </div>
 
         <x-dashboards.admin-dashboard />
-        <button class="btn btn-warning show-partner-links-info mt-24">Show Partner Links Data</button>
+        <button class="mt-24 btn btn-warning show-partner-links-info">Show Partner Links Data</button>
         @foreach ($partnerLinksByAM as $amData)
-            <div class="card mt-4 partner-links-info" style="display: none">
-                <div class="card-header bg-primary text-white">
+            <div class="mt-4 card partner-links-info" style="display: none">
+                <div class="text-white card-header bg-primary">
                     <i class="bi bi-person-badge me-1"></i> {{ $amData['am_name'] }}
                 </div>
-                <div class="card-body p-0">
-                    <table class="table table-bordered table-striped mb-0 small">
-                        <thead class="table-light text-center">
+                <div class="p-0 card-body">
+                    <table class="table mb-0 table-bordered table-striped small">
+                        <thead class="text-center table-light">
                             <tr>
                                 <th>Month</th>
                                 <th>Total Links</th>
@@ -209,7 +281,7 @@
             </div>
         @endforeach
     @endif
-    <div class="row gy-3 mb-10 mt-10">
+    <div class="mt-10 mb-10 row gy-3">
         <x-dashboards.task-counts :taskPercentages="$taskPercentages" :pendingTasksCountGlobal="$pendingTasksCountGlobal" :completedTasksCountGlobal="$completedTasksCountGlobal" :createdTasksCountGlobal="$createdTasksCountGlobal"
             :collaboratorTasksCountGlobal="$collaboratorTasksCountGlobal" />
         <x-dashboards.latest-notifications :latestNotifications="$latestNotifications" />

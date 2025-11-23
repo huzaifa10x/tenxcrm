@@ -32,6 +32,7 @@ use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WebsiteProjectController;
 use App\Jobs\CreateRecurringTaskJob;
 use App\Models\Task;
 use Carbon\Carbon;
@@ -70,6 +71,28 @@ Route::middleware('auth')->group(function () {
 Route::get('/invoices/view/{uuid}', [InvoiceController::class, 'showPublic'])->name('invoices.public');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::prefix('website-projects')->name('website-projects.')->group(function () {
+        Route::get('/', [WebsiteProjectController::class, 'index'])->name('index');
+        Route::get('/create', [WebsiteProjectController::class, 'create'])->name('create');
+        Route::post('/', [WebsiteProjectController::class, 'store'])->name('store');
+        Route::get('/{websiteProject}', [WebsiteProjectController::class, 'show'])->name('show');
+        Route::put('/{websiteProject}', [WebsiteProjectController::class, 'update'])->name('update');
+        Route::delete('/{websiteProject}', [WebsiteProjectController::class, 'destroy'])->name('destroy');
+
+        // Status Updates
+        Route::put('/{websiteProject}/design-status', [WebsiteProjectController::class, 'updateDesignStatus'])->name('update-design-status');
+        Route::put('/{websiteProject}/development-status', [WebsiteProjectController::class, 'updateDevelopmentStatus'])->name('update-development-status');
+
+        // Checklist
+        Route::post('/{websiteProject}/checklist', [WebsiteProjectController::class, 'submitChecklist'])->name('submit-checklist');
+
+        // Go Live
+        Route::put('/{websiteProject}/mark-as-live', [WebsiteProjectController::class, 'markAsLive'])->name('mark-as-live');
+
+        // Performance Report
+        Route::get('/reports/performance', [WebsiteProjectController::class, 'performanceReport'])->name('performance-report');
+    });
 
     Route::post('/invoices/{id}/send-email', [InvoiceController::class, 'sendEmail'])->name('invoices.sendEmail');
 

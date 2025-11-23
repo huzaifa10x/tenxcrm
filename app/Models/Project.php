@@ -107,6 +107,11 @@ class Project extends Model
         return $this->hasMany(ProjectCollaborator::class, 'project_id');
     }
 
+    public function websiteProject()
+    {
+        return $this->hasOne(WebsiteProject::class);
+    }
+
     public function contentWriters()
     {
         return $this->belongsToMany(User::class, 'project_content_writer');

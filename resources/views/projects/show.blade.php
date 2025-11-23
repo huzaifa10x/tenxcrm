@@ -1384,6 +1384,450 @@
         </div>
     </div>
 
+    <!-- Website Projects Section -->
+    @if (
+        $project->websiteProject ||
+            auth()->user()->hasRole('ADMIN') ||
+            auth()->user()->id == $project->accountManagers->pluck('id')->first())
+        <div class="col-12">
+            <div class="p-0 overflow-hidden border card border-secondary position-relative radius-12 h-100">
+                <div
+                    class="px-24 py-16 border card-header bg-base d-flex align-items-center justify-content-between border-end-0 border-start-0 border-top-0">
+                    <div class="gap-2 d-flex align-items-center">
+                        <i class="bi bi-globe2" style="font-size: 1.5rem;"></i>
+                        <span class="fw-bold">Website Project</span>
+                    </div>
+                    @if (
+                        !$project->websiteProject &&
+                            (auth()->user()->hasRole('ADMIN') || auth()->user()->id == $project->accountManagers->pluck('id')->first()))
+                        <a href="{{ route('website-projects.create') }}?project_id={{ $project->id }}"
+                            class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Create Website Project
+                        </a>
+                    @endif
+                </div>
+                <div class="p-24 card-body">
+                    @if ($project->websiteProject)
+                        @php
+                            $wp = $project->websiteProject;
+                        @endphp
+
+                        <!-- Status Overview -->
+                        <div class="mb-4 row g-3">
+                            <div class="col-lg-3 col-md-6">
+                                <div class="border-4 shadow-sm card border-start border-primary">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="mb-1 text-muted small">Platform</p>
+                                                <h5 class="mb-0 fw-bold">{{ $wp->platform }}</h5>
+                                            </div>
+                                            <div class="text-primary" style="font-size: 2rem;">
+                                                <i
+                                                    class="bi bi-{{ $wp->platform === 'WordPress' ? 'wordpress' : 'code-square' }}"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <div class="border-4 shadow-sm card border-start border-warning">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="mb-1 text-muted small">Design Status</p>
+                                                <h6 class="mb-0 fw-bold">{{ $wp->design_status }}</h6>
+                                            </div>
+                                            <div class="text-warning" style="font-size: 2rem;">
+                                                <i class="bi bi-palette"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <div class="border-4 shadow-sm card border-start border-info">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="mb-1 text-muted small">Development</p>
+                                                <h6 class="mb-0 fw-bold">{{ $wp->development_status }}</h6>
+                                            </div>
+                                            <div class="text-info" style="font-size: 2rem;">
+                                                <i class="bi bi-code-slash"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <div
+                                    class="card shadow-sm border-start {{ $wp->go_live_date ? 'border-success' : 'border-secondary' }} border-4">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="mb-1 text-muted small">Go-Live Status</p>
+                                                @if ($wp->go_live_date)
+                                                    <span class="badge bg-success">Live</span>
+                                                @elseif($wp->approved_for_go_live)
+                                                    <span class="badge bg-warning">Ready</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Pending</span>
+                                                @endif
+                                            </div>
+                                            <div class="{{ $wp->go_live_date ? 'text-success' : 'text-secondary' }}"
+                                                style="font-size: 2rem;">
+                                                <i class="bi bi-rocket-takeoff"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mb-4 border card">
+                            <div class="card-body">
+                                <h6 class="mb-3 fw-bold">Project Progress</h6>
+                                @php
+                                    $progressSteps = [
+                                        [
+                                            'status' => 'Design',
+                                            'current' => $wp->design_status,
+                                            'completed' => $wp->design_status === 'Approved',
+                                        ],
+                                        [
+                                            'status' => 'Development',
+                                            'current' => $wp->development_status,
+                                            'completed' => in_array($wp->development_status, [
+                                                'Completed',
+                                                'Delivered',
+                                            ]),
+                                        ],
+                                        [
+                                            'status' => 'QA',
+                                            'current' => 'QA Checks',
+                                            'completed' => $wp->lead_dev_qa_approved && $wp->am_validation_approved,
+                                        ],
+                                        [
+                                            'status' => 'Go-Live',
+                                            'current' => 'Launch',
+                                            'completed' => $wp->go_live_date !== null,
+                                        ],
+                                    ];
+                                    $completedSteps = collect($progressSteps)
+                                        ->filter(fn($s) => $s['completed'])
+                                        ->count();
+                                    $progressPercent = ($completedSteps / count($progressSteps)) * 100;
+                                @endphp
+
+                                <div class="mb-3 progress" style="height: 25px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                                        role="progressbar" style="width: {{ $progressPercent }}%;"
+                                        aria-valuenow="{{ $progressPercent }}" aria-valuemin="0"
+                                        aria-valuemax="100">
+                                        {{ round($progressPercent) }}% Complete
+                                    </div>
+                                </div>
+
+                                <div class="text-center row">
+                                    @foreach ($progressSteps as $index => $step)
+                                        <div class="col-3">
+                                            <div class="position-relative">
+                                                <div class="rounded-circle mx-auto mb-2 {{ $step['completed'] ? 'bg-success text-white' : 'bg-light border' }}"
+                                                    style="width: 50px; height: 50px; line-height: 50px;">
+                                                    @if ($step['completed'])
+                                                        <i class="bi bi-check-lg"></i>
+                                                    @else
+                                                        {{ $index + 1 }}
+                                                    @endif
+                                                </div>
+                                                <p class="mb-0 small fw-bold">{{ $step['status'] }}</p>
+                                                <small class="text-muted">{{ $step['current'] }}</small>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Information -->
+                        <div class="mb-4 row g-3">
+                            @if ($wp->target_go_live_date)
+                                <div class="col-md-6">
+                                    <div
+                                        class="p-3 border rounded {{ $wp->isOverdue() ? 'bg-danger-subtle border-danger' : 'bg-info-subtle border-info' }}">
+                                        <div class="gap-2 d-flex align-items-center">
+                                            <i class="bi bi-calendar-event {{ $wp->isOverdue() ? 'text-danger' : 'text-info' }}"
+                                                style="font-size: 1.5rem;"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Target Go-Live Date</small>
+                                                <strong>{{ $wp->target_go_live_date->format('M d, Y') }}</strong>
+                                                @php $daysUntil = $wp->getDaysUntilGoLive(); @endphp
+                                                @if ($daysUntil !== null && !$wp->go_live_date)
+                                                    @if ($daysUntil > 0)
+                                                        <span class="badge bg-primary ms-2">{{ $daysUntil }} days
+                                                            left</span>
+                                                    @elseif($daysUntil == 0)
+                                                        <span class="badge bg-warning ms-2">Due Today!</span>
+                                                    @else
+                                                        <span class="badge bg-danger ms-2">Overdue by
+                                                            {{ abs($daysUntil) }} days</span>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if ($wp->developer)
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light">
+                                        <div class="gap-2 d-flex align-items-center">
+                                            <i class="bi bi-person-circle text-primary"
+                                                style="font-size: 1.5rem;"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Developer Assigned</small>
+                                                <strong>{{ $wp->developer->name }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Links & Resources -->
+                        @if ($wp->figma_link || $wp->staging_link || $wp->design_approval_screenshot || $wp->completion_agreement)
+                            <div class="mb-4 border card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0 fw-bold">
+                                        <i class="bi bi-link-45deg me-1"></i> Links & Resources
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        @if ($wp->figma_link)
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded bg-light">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <small class="text-muted d-block">Figma Design</small>
+                                                            <a href="{{ $wp->figma_link }}" target="_blank"
+                                                                class="text-decoration-none fw-bold">
+                                                                <i class="bi bi-figma me-1"></i>View Design
+                                                            </a>
+                                                        </div>
+                                                        <i class="bi bi-box-arrow-up-right text-primary"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if ($wp->staging_link)
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded bg-light">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <small class="text-muted d-block">Staging Site</small>
+                                                            <a href="{{ $wp->staging_link }}" target="_blank"
+                                                                class="text-decoration-none fw-bold">
+                                                                <i class="bi bi-globe me-1"></i>Visit Staging
+                                                            </a>
+                                                        </div>
+                                                        <i class="bi bi-box-arrow-up-right text-info"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if ($wp->design_approval_screenshot)
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded bg-light">
+                                                    <small class="mb-2 text-muted d-block">Design Approval</small>
+                                                    <a href="{{ asset('storage/' . $wp->design_approval_screenshot) }}"
+                                                        target="_blank" class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-file-check me-1"></i> View Document
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if ($wp->completion_agreement)
+                                            <div class="col-md-6">
+                                                <div class="p-3 border rounded bg-light">
+                                                    <small class="mb-2 text-muted d-block">Completion Agreement</small>
+                                                    <a href="{{ asset('storage/' . $wp->completion_agreement) }}"
+                                                        target="_blank" class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-file-earmark-check me-1"></i> View Document
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Pre-Go-Live Checklist Status -->
+                        @if ($wp->development_status === 'Completed')
+                            <div class="mb-4 border card border-success">
+                                <div class="card-header bg-success-subtle">
+                                    <h6 class="mb-0 fw-bold">
+                                        <i class="bi bi-check2-square me-1"></i> Pre-Go-Live Checklist
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div
+                                                class="d-flex align-items-center gap-2 p-2 border rounded {{ $wp->lead_dev_qa_approved ? 'bg-success-subtle border-success' : 'bg-light' }}">
+                                                @if ($wp->lead_dev_qa_approved)
+                                                    <i class="bi bi-check-circle-fill text-success"
+                                                        style="font-size: 1.5rem;"></i>
+                                                @else
+                                                    <i class="bi bi-clock-history text-muted"
+                                                        style="font-size: 1.5rem;"></i>
+                                                @endif
+                                                <div>
+                                                    <strong class="d-block">Lead Dev QA</strong>
+                                                    @if ($wp->lead_dev_qa_approved)
+                                                        <small class="text-success">Approved by
+                                                            {{ $wp->leadDevQAApprovedBy->name }}</small>
+                                                    @else
+                                                        <small class="text-muted">Pending approval</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div
+                                                class="d-flex align-items-center gap-2 p-2 border rounded {{ $wp->am_validation_approved ? 'bg-success-subtle border-success' : 'bg-light' }}">
+                                                @if ($wp->am_validation_approved)
+                                                    <i class="bi bi-check-circle-fill text-success"
+                                                        style="font-size: 1.5rem;"></i>
+                                                @else
+                                                    <i class="bi bi-clock-history text-muted"
+                                                        style="font-size: 1.5rem;"></i>
+                                                @endif
+                                                <div>
+                                                    <strong class="d-block">AM Validation</strong>
+                                                    @if ($wp->am_validation_approved)
+                                                        <small class="text-success">Approved by
+                                                            {{ $wp->amValidationApprovedBy->name }}</small>
+                                                    @else
+                                                        <small class="text-muted">Pending approval</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @if ($wp->has_current_seo)
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="d-flex align-items-center gap-2 p-2 border rounded {{ $wp->seo_tech_approved ? 'bg-success-subtle border-success' : 'bg-light' }}">
+                                                    @if ($wp->seo_tech_approved)
+                                                        <i class="bi bi-check-circle-fill text-success"
+                                                            style="font-size: 1.5rem;"></i>
+                                                    @else
+                                                        <i class="bi bi-clock-history text-muted"
+                                                            style="font-size: 1.5rem;"></i>
+                                                    @endif
+                                                    <div>
+                                                        <strong class="d-block">SEO Tech</strong>
+                                                        @if ($wp->seo_tech_approved)
+                                                            <small class="text-success">Approved by
+                                                                {{ $wp->seoTechApprovedBy->name }}</small>
+                                                        @else
+                                                            <small class="text-muted">Pending approval</small>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if ($wp->has_current_google_ads)
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="d-flex align-items-center gap-2 p-2 border rounded {{ $wp->ads_am_approved ? 'bg-success-subtle border-success' : 'bg-light' }}">
+                                                    @if ($wp->ads_am_approved)
+                                                        <i class="bi bi-check-circle-fill text-success"
+                                                            style="font-size: 1.5rem;"></i>
+                                                    @else
+                                                        <i class="bi bi-clock-history text-muted"
+                                                            style="font-size: 1.5rem;"></i>
+                                                    @endif
+                                                    <div>
+                                                        <strong class="d-block">Ads AM</strong>
+                                                        @if ($wp->ads_am_approved)
+                                                            <small class="text-success">Approved by
+                                                                {{ $wp->adsAmApprovedBy->name }}</small>
+                                                        @else
+                                                            <small class="text-muted">Pending approval</small>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Go-Live Alert -->
+                        @if ($wp->approved_for_go_live && !$wp->go_live_date)
+                            <div class="alert alert-success d-flex align-items-center" role="alert">
+                                <i class="bi bi-check-circle-fill me-3" style="font-size: 2rem;"></i>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1 alert-heading">🎉 Ready for Go-Live!</h5>
+                                    <p class="mb-0">All pre-go-live checks have been completed and approved.</p>
+                                </div>
+                                <a href="{{ route('website-projects.show', $wp->id) }}" class="btn btn-success">
+                                    <i class="bi bi-rocket-takeoff me-1"></i> Launch Now
+                                </a>
+                            </div>
+                        @endif
+
+                        @if ($wp->go_live_date)
+                            <div class="alert alert-success d-flex align-items-center" role="alert">
+                                <i class="bi bi-check-circle-fill me-3" style="font-size: 2rem;"></i>
+                                <div>
+                                    <h5 class="mb-1 alert-heading">🎉 Website is LIVE!</h5>
+                                    <p class="mb-0">Went live on:
+                                        <strong>{{ $wp->go_live_date->format('M d, Y H:i') }}</strong></p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Action Button -->
+                        <div class="mt-3 text-center">
+                            <a href="{{ route('website-projects.show', $wp->id) }}" class="btn btn-primary">
+                                <i class="bi bi-eye me-1"></i> View Full Website Project Details
+                            </a>
+                        </div>
+                    @else
+                        <div class="py-5 text-center">
+                            <i class="bi bi-globe2 text-muted" style="font-size: 4rem;"></i>
+                            <h5 class="mt-3 text-muted">No Website Project</h5>
+                            <p class="text-muted">This project doesn't have a website project associated with it yet.
+                            </p>
+                            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->id == $project->accountManagers->pluck('id')->first())
+                                <a href="{{ route('website-projects.create') }}?project_id={{ $project->id }}"
+                                    class="mt-2 btn btn-primary">
+                                    <i class="bi bi-plus-circle me-1"></i> Create Website Project
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header">
             <span class="offcanvas-title" id="offcanvasRightLabel">Task Detail</span>
@@ -1599,7 +2043,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                                                                                                                                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                                                                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
