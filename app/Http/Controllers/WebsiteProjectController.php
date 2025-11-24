@@ -63,7 +63,7 @@ class WebsiteProjectController extends Controller
 
     public function create()
     {
-        $projects = Project::whereDoesntHave('websiteProject')->get();
+        $projects = Project::get();
 
         $developers = User::whereHas('roles', function($q) {
             $q->where('name', 'DEVELOPMENT');
