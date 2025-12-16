@@ -6,7 +6,7 @@
 
         <form enctype="multipart/form-data" action="{{ route('projects.store') }}" method="POST" id="create-project-form">
             @csrf
-            <div class="card mb-10 rounded border">
+            <div class="mb-10 border rounded card">
                 <div class="row gy-3 card-body">
                     <div class="col-lg-3">
                         <label class="form-label" for="company_id">Company</label>
@@ -27,6 +27,7 @@
                             <option value="Web Development">Web Development</option>
                             <option value="Web Maintenance">Web Maintenance</option>
                             <option value="Hosting">Hosting</option>
+                            <option value="AI">AI</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
@@ -50,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card mb-10 rounded border">
+            <div class="mb-10 border rounded card">
                 <div class="row gy-3 card-body">
 
                     <input type="hidden" value="Current" name="status">
@@ -90,7 +91,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card mb-10 rounded border">
+            <div class="mb-10 border rounded card">
                 <div class="row gy-3 card-body">
                     {{-- <div class="col-lg-12">
                         <label class="form-label" for="contract_copy">Contract Copy</label>
@@ -102,7 +103,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card mb-10 rounded border">
+            <div class="mb-10 border rounded card">
                 <div class="row gy-3 card-body">
                     <div class="col-lg-4">
                         <label class="form-label" for="sales_manager_ids">Sales Managers</label>
@@ -153,27 +154,27 @@
                     </div>
                 </div>
             </div>
-            <div class="card mb-10 rounded border">
+            <div class="mb-10 border rounded card">
                 <div class="row gy-3 card-body" id="extra-fields-container">
                 </div>
             </div>
-            <div class="card mb-10 rounded border">
+            <div class="mb-10 border rounded card">
                 <div class="row gy-3 card-body">
                     <input type="hidden" value="{{ auth()->user()->id }}" name="created_by">
                     <div class="col-lg-6">
                         <label class="form-label fs-6" for="project_desc">(DESCRIPTION FOR BACK OFFICE – NO SENSITIVE
                             INFORMATION – DO NOT DUPLICATE)</label>
-                        <span class="d-block fs-7 text-bg-warning text-secondary-dark p-1 rounded mb-3">
+                        <span class="p-1 mb-3 rounded d-block fs-7 text-bg-warning text-secondary-dark">
                             (Use this section to give the Back Office team a clear project overview. Include project
                             scope, general timeline, deliverables, or any special instructions. Avoid sensitive data or
                             repeating information from the AM Notes.)
                         </span>
-                        <textarea class="form-control" name="description" id="project_desc" cols="30" rows="10">Give the Back Office team a clear project overview. Include project scope, general timeline, deliverables, or any special instructions. 
+                        <textarea class="form-control" name="description" id="project_desc" cols="30" rows="10">Give the Back Office team a clear project overview. Include project scope, general timeline, deliverables, or any special instructions.
 Avoid sensitive data or repeating information from the AM Notes.</textarea>
                     </div>
                     <div class="col-lg-6">
                         <label class="form-label fs-6" for="handover_notes">(HANDOVER NOTES FOR AM)</label>
-                        <span class="d-block fs-7 text-bg-warning text-secondary-dark p-1 rounded mb-3">
+                        <span class="p-1 mb-3 rounded d-block fs-7 text-bg-warning text-secondary-dark">
                             (Use this section to provide the Account Manager with key client-related info such as
                             payment
                             terms, cheque details, contract start/end dates, and primary contact info. Please ensure
@@ -184,9 +185,9 @@ Please ensure accuracy and relevance.</textarea>
                     </div>
                 </div>
             </div>
-            <div class="card mb-10 rounded border">
+            <div class="mb-10 border rounded card">
                 <div class="row gy-3 card-body">
-                    <div class="col-lg-6 mt-3">
+                    <div class="mt-3 col-lg-6">
                         <button class="btn btn-primary submit" type="button">Save Project</button>
                     </div>
                 </div>

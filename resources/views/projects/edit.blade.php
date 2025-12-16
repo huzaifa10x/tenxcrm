@@ -36,7 +36,7 @@
                             </select>
                         </div>
 
-                        <div class="row mt-3">
+                        <div class="mt-3 row">
                             <div class="col-lg-4">
                                 <label class="form-label" for="sales_manager_ids">Sales Managers</label>
                                 <select class="form-control w-100" name="sales_manager_ids[]" id="sales_manager_ids">
@@ -198,40 +198,38 @@
                                         @if (in_array($extension, $imageExtensions))
                                             <div class="col-lg-6">
                                                 <div
-                                                    class="flex-column h-100 position-relative card overflow-hidden
-                                                 d-flex justify-content-center align-items-center bg-light border 
-                                                 shadow-sm text-center p-3">
+                                                    class="p-3 overflow-hidden text-center border shadow-sm flex-column h-100 position-relative card d-flex justify-content-center align-items-center bg-light">
                                                     <button type="button"
                                                         onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
-                                                        class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute top-0 end-0">
+                                                        class="top-0 remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute end-0">
                                                         <iconify-icon icon="fluent:delete-24-regular"
                                                             class="menu-icon"></iconify-icon>
                                                     </button>
                                                     <div
-                                                        class="badge position-absolute top-0 start-0 bg-primary text-white">
+                                                        class="top-0 text-white badge position-absolute start-0 bg-primary">
                                                         {{ $extension }}
                                                     </div>
                                                     <img style="width: 100px;" src="{{ $filePath }}"
                                                         class="card-img-top img-fluid" alt="Contract Image">
-                                                    <p class="mb-1 mt-3 text-dark">{{ $file->file_name }}</p>
-                                                    <div class="card-body text-center">
+                                                    <p class="mt-3 mb-1 text-dark">{{ $file->file_name }}</p>
+                                                    <div class="text-center card-body">
                                                         <a href="{{ $filePath }}" target="_blank"
-                                                            class="btn fs-6 px-3 py-2 btn-sm btn-primary">View Full</a>
+                                                            class="px-3 py-2 btn fs-6 btn-sm btn-primary">View Full</a>
                                                     </div>
                                                 </div>
                                             </div>
                                         @else
                                             <div class="col-lg-6">
                                                 <div
-                                                    class="flex-column h-100 position-relative card overflow-hidden d-flex justify-content-center align-items-center bg-light border  shadow-sm text-center p-3">
+                                                    class="p-3 overflow-hidden text-center border shadow-sm flex-column h-100 position-relative card d-flex justify-content-center align-items-center bg-light">
                                                     <button type="button"
                                                         onclick="deleteProjectFile({{ $project->id }}, {{ $file->id }})"
-                                                        class="remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute top-0 end-0">
+                                                        class="top-0 remove-item-btn bg-danger-focus bg-hover-danger-200 text-danger-600 fw-medium w-40-px h-40-px d-flex justify-content-center align-items-center position-absolute end-0">
                                                         <iconify-icon icon="fluent:delete-24-regular"
                                                             class="menu-icon"></iconify-icon>
                                                     </button>
                                                     <div
-                                                        class="badge position-absolute top-0 start-0 bg-primary text-white">
+                                                        class="top-0 text-white badge position-absolute start-0 bg-primary">
                                                         {{ $extension }}
                                                     </div>
                                                     <div class="mb-2">
@@ -239,11 +237,11 @@
                                                             height="50" alt="{{ $extension }} File">
                                                     </div>
                                                     <p class="mb-1 text-dark">{{ $file->file_name }}</p>
-                                                    <div class="d-flex gap-2 align-items-center">
+                                                    <div class="gap-2 d-flex align-items-center">
                                                         <a href="{{ $filePath }}" target="_blank"
-                                                            class="btn fs-6 px-3 py-2 btn-sm btn-primary">View</a>
+                                                            class="px-3 py-2 btn fs-6 btn-sm btn-primary">View</a>
                                                         <a href="{{ $filePath }}" download
-                                                            class="btn fs-6 px-3 py-2 btn-sm btn-success">Download</a>
+                                                            class="px-3 py-2 btn fs-6 btn-sm btn-success">Download</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -255,12 +253,12 @@
                             @endif
                             <div class="col-lg-12 d-flex justify-content-between align-items-center">
                                 @if (!empty($project->contractFiles) && count($project->contractFiles) > 0)
-                                    <button class="btn btn-sm btn-danger mt-3" type="button"
+                                    <button class="mt-3 btn btn-sm btn-danger" type="button"
                                         id="deleteAllAttachmentsBtn">
                                         Delete All Attachments
                                     </button>
                                 @endif
-                                <button type="button" class="btn btn-sm btn-primary mt-3" data-bs-toggle="modal"
+                                <button type="button" class="mt-3 btn btn-sm btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#projectAttachmentsModal">
                                     Add
                                     {{ !empty($project->contractFiles) && count($project->contractFiles) ? 'More' : '' }}
@@ -294,6 +292,8 @@
                                 </option>
                                 <option value="Hosting" {{ $project->project_type == 'Hosting' ? 'selected' : '' }}>
                                     Hosting</option>
+                                <option value="AI" {{ $project->project_type == 'AI' ? 'selected' : '' }}>
+                                    AI</option>
                                 <option value="Other" {{ $project->project_type == 'Other' ? 'selected' : '' }}>Other
                                 </option>
                             </select>
@@ -416,7 +416,7 @@
                             @endif
                         </div>
 
-                        <div class="col-lg-6 mt-3">
+                        <div class="mt-3 col-lg-6">
                             <button class="btn btn-primary" type="submit">Save Project</button>
                         </div>
 

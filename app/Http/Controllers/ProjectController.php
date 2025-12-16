@@ -339,7 +339,7 @@ class ProjectController extends Controller
             'contract_copy.*' => 'file',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'handover_notes' => 'nullable|string',
-            'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other,Web Maintenance',
+            'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other,Web Maintenance,AI',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -531,7 +531,7 @@ class ProjectController extends Controller
             'contract_copy.*' => 'file',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'handover_notes' => 'nullable|string',
-            'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other,Web Maintenance',
+            'project_type' => 'required|in:SEO,Google Ads,Social Media,Web Development,Hosting,Other,Web Maintenance,AI',
         ]);
 
         if ($validator->fails()) {
