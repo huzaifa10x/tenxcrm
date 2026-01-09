@@ -5,8 +5,8 @@
 
     <div class="mb-4">
         <div class="card">
-            <div class="text-white card-header bg-primary">
-                <h5 class="mb-0">
+            <div class="text-white card-header bg-success">
+                <h5 class="mb-0 text-light">
                     <i class="bi bi-people-fill me-2"></i>Content Writers Overview
                 </h5>
             </div>
@@ -17,7 +17,7 @@
                             <div class="border-0 shadow-sm card h-100 hover-shadow">
                                 <div class="card-body">
                                     <div class="mb-3 d-flex align-items-center">
-                                        <div class="text-white avatar-circle bg-primary me-3">
+                                        <div class="text-white avatar-circle bg-success me-3">
                                             {{ strtoupper(substr($writer->name, 0, 2)) }}
                                         </div>
                                         <div>
