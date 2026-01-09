@@ -283,6 +283,85 @@
                 </div>
             </div>
         @endforeach
+
+        <div class="mt-4 card">
+            <div class="text-white card-header bg-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Content Writers Performance
+                    </h5>
+                    <a href="{{ route('admin.content-writers.index') }}" class="btn btn-light btn-sm">
+                        <i class="bi bi-bar-chart-line me-1"></i>View All Writers
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                @php
+                    $topWriters = \App\Models\User::whereHas('roles', function ($query) {
+                        $query->where('name', 'CONTENT');
+                    })
+                        ->withCount([
+                            'assignedTasks as completed_this_month' => function ($query) {
+                                $query
+                                    ->where('status', 'Completed')
+                                    ->whereMonth('completed_date', now()->month)
+                                    ->whereYear('completed_date', now()->year);
+                            },
+                        ])
+                        ->orderBy('completed_this_month', 'desc')
+                        ->take(5)
+                        ->get();
+                @endphp
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Writer</th>
+                                <th>Tasks This Month</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($topWriters as $writer)
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div
+                                                class="text-white avatar-sm bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center">
+                                                {{ strtoupper(substr($writer->name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ $writer->name }}</div>
+                                                <small class="text-muted">{{ $writer->email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">{{ $writer->completed_this_month }}
+                                            completed</span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.content-writers.show', $writer->id) }}"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i>View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .avatar-sm {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        </style>
     @endif
     <div class="mt-10 mb-10 row gy-3">
         <x-dashboards.task-counts :taskPercentages="$taskPercentages" :pendingTasksCountGlobal="$pendingTasksCountGlobal" :completedTasksCountGlobal="$completedTasksCountGlobal" :createdTasksCountGlobal="$createdTasksCountGlobal"

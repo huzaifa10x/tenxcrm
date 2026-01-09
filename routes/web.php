@@ -5,6 +5,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceNoteController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailsController;
+use App\Http\Controllers\ContentWriterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\ImageCompressorController;
@@ -66,6 +67,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [GeneralSettingController::class, 'index'])->name('settings.index');
     Route::post('/settings/update', [GeneralSettingController::class, 'update'])->name('settings.update');
     Route::post('/invoices/update-paid-status', [InvoiceController::class, 'updatePaidStatus'])->name('invoices.updatePaidStatus');
+    Route::get('/admin/content-writers', [ContentWriterController::class, 'index'])->name('admin.content-writers.index');
+    Route::get('/admin/content-writers/{user}', [ContentWriterController::class, 'show'])->name('admin.content-writers.show');
 });
 
 Route::get('/invoices/view/{uuid}', [InvoiceController::class, 'showPublic'])->name('invoices.public');
