@@ -4,12 +4,11 @@
             <div>
                 {{ __('Content Writer Performance: ') }} <strong>{{ $writer->name }}</strong>
             </div>
-            <a href="{{ route('admin.content-writers.index') }}" class="btn btn-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>Back to Writers
-            </a>
         </div>
     </x-slot>
-
+    <a href="{{ route('admin.content-writers.index') }}" class="mb-4 btn btn-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to Writers
+    </a>
     <!-- Quick Stats Cards -->
     <div class="mb-4 row g-3">
         <div class="col-md-3">
@@ -189,7 +188,7 @@
     <!-- Tasks Table -->
     <div class="card">
         <div class="text-white card-header bg-dark">
-            <h6 class="mb-0"><i class="bi bi-table me-2"></i>Tasks List ({{ $tasks->count() }} tasks)</h6>
+            <h6 class="mb-0 text-light"><i class="bi bi-table me-2"></i>Tasks List ({{ $tasks->count() }} tasks)</h6>
         </div>
         <div class="p-0 card-body">
             <div class="table-responsive">

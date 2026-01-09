@@ -22,7 +22,7 @@
 
         <!-- Last 7 Days -->
         <div class="col-md-4">
-            <div class="border-0 shadow-sm card bg-gradient bg-primary text-light rounded-4 h-100">
+            <div class="border-0 shadow-sm card bg-gradient bg-success text-light rounded-4 h-100">
                 <div class="card-body">
                     <div class="mb-3 d-flex align-items-center">
                         <i class="bi bi-calendar-week fs-3 me-3 text-light"></i>
@@ -258,7 +258,7 @@
         <button class="mt-24 btn btn-warning show-partner-links-info">Show Partner Links Data</button>
         @foreach ($partnerLinksByAM as $amData)
             <div class="mt-4 card partner-links-info" style="display: none">
-                <div class="text-white card-header bg-primary">
+                <div class="text-white card-header bg-success">
                     <i class="bi bi-person-badge me-1"></i> {{ $amData['am_name'] }}
                 </div>
                 <div class="p-0 card-body">
@@ -284,10 +284,10 @@
             </div>
         @endforeach
 
-        <div class="mt-4 card">
-            <div class="text-white card-header bg-primary">
+        <div class="mt-6 card">
+            <div class="text-white card-header bg-success">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
+                    <h5 class="mb-0 text-light">
                         <i class="bi bi-pencil-square me-2"></i>Content Writers Performance
                     </h5>
                     <a href="{{ route('admin.content-writers.index') }}" class="btn btn-light btn-sm">
@@ -328,7 +328,7 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div
-                                                class="text-white avatar-sm bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center">
+                                                class="text-white avatar-sm bg-success rounded-circle me-2 d-flex align-items-center justify-content-center">
                                                 {{ strtoupper(substr($writer->name, 0, 1)) }}
                                             </div>
                                             <div>
