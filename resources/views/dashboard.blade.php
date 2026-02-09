@@ -16,13 +16,13 @@
                             </div>
                             <div>
                                 <span class="mb-0 fs-6 text-dark fw-bold">Total SEO Revenue</h6>
-                                <small class="opacity-75">All Active SEO Campaigns</small>
+                                <small class="opacity-75 text-dark">All Active SEO Campaigns</small>
                             </div>
                         </div>
                         <h2 class="fw-bold fs-2 text-success mb-0">
                             AED {{ number_format($totalSeoRevenue, 2) }}
                         </h2>
-                        <small class="opacity-75">Monthly Recurring</small>
+                        <small class="opacity-75 text-dark">Monthly Recurring</small>
                     </div>
                 </div>
             </div>
@@ -38,13 +38,13 @@
                             </div>
                             <div>
                                 <span class="mb-0 fs-6 text-dark fw-bold">Current SEO Revenue</h6>
-                                <small class="opacity-75">Active Campaigns Only</small>
+                                <small class="opacity-75 text-dark">Active Campaigns Only</small>
                             </div>
                         </div>
                         <h2 class="fw-bold fs-2 text-success mb-0">
                             AED {{ number_format($currentSeoRevenue, 2) }}
                         </h2>
-                        <small class="opacity-75">{{ $currentSeoProjectsCount }} Active Projects</small>
+                        <small class="opacity-75 text-dark">{{ $currentSeoProjectsCount }} Active Projects</small>
                     </div>
                 </div>
             </div>
@@ -59,13 +59,13 @@
                             </div>
                             <div>
                                 <span class="mb-0 fs-6 text-dark fw-bold">Monthly SEO Revenue</h6>
-                                <small class="opacity-75">Average Revenue Per Day</small>
+                                <small class="opacity-75 text-dark">Average Revenue Per Day</small>
                             </div>
                         </div>
                         <h2 class="fw-bold fs-2 text-success mb-0">
                             AED {{ number_format($monthlySeoRevenue, 2) }}
                         </h2>
-                        <small class="opacity-75">{{ $currentSeoProjectsCount }} Active Projects</small>
+                        <small class="opacity-75 text-dark">{{ $currentSeoProjectsCount }} Active Projects</small>
                     </div>
                 </div>
             </div>
@@ -81,13 +81,13 @@
                             </div>
                             <div>
                                 <span class="mb-0 fs-6 text-dark fw-bold">WFF Revenue</h6>
-                                <small class="opacity-75">Waiting For Funds</small>
+                                <small class="opacity-75 text-dark">Waiting For Funds</small>
                             </div>
                         </div>
                         <h2 class="fw-bold fs-2 text-success mb-0">
                             AED {{ number_format($wffRevenue, 2) }}
                         </h2>
-                        <small class="opacity-75">{{ $wffProjectsCount }} WFF Projects</small>
+                        <small class="opacity-75 text-dark">{{ $wffProjectsCount }} WFF Projects</small>
                     </div>
                 </div>
             </div>
