@@ -498,6 +498,7 @@ class DashboardController extends Controller
         $extraData = [];
         $role = $user->roles->first()->name;
         $latestNotifications = $user->notifications()->latest()->take(5)->get();
+        $accountManagersForFilter=[];
 
         $repeatingTasks = RepeatingTask::all();
         $now = Carbon::now('Asia/Dubai');
