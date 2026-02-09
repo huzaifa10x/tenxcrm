@@ -75,6 +75,15 @@ Route::get('/invoices/view/{uuid}', [InvoiceController::class, 'showPublic'])->n
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
+
+    // SEO Projects Filtering (AJAX)
+    Route::get('/dashboard/seo-projects/filter', [DashboardController::class, 'filterSeoProjects'])
+        ->name('dashboard.seo-projects.filter');
+
+    // SEO Projects Export
+    Route::get('/dashboard/seo-projects/export', [DashboardController::class, 'exportSeoProjects'])
+        ->name('dashboard.seo-projects.export');
+
     Route::prefix('website-projects')->name('website-projects.')->group(function () {
         Route::get('/', [WebsiteProjectController::class, 'index'])->name('index');
         Route::get('/create', [WebsiteProjectController::class, 'create'])->name('create');

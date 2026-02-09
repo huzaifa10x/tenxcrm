@@ -3,6 +3,520 @@
         {{ __($role . ' DASHBOARD') }}
     </x-slot>
     <x-dashboards.punch-in-out />
+    @if ($role === 'ADMIN' || $role === 'SEO ADMIN')
+        <div class="row mb-4 gy-3">
+            <!-- Total SEO Revenue -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-gradient"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
+                                <i class="bi bi-cash-stack fs-3 text-dark"></i>
+                            </div>
+                            <div>
+                                <span class="mb-0 fs-6 text-dark fw-bold">Total SEO Revenue</h6>
+                                <small class="opacity-75">All Active SEO Campaigns</small>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold fs-2 text-success mb-0">
+                            AED {{ number_format($totalSeoRevenue, 2) }}
+                        </h2>
+                        <small class="opacity-75">Monthly Recurring</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current SEO Clients Revenue -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-gradient"
+                    style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
+                                <i class="bi bi-check-circle fs text-dark-3"></i>
+                            </div>
+                            <div>
+                                <span class="mb-0 fs-6 text-dark fw-bold">Current SEO Revenue</h6>
+                                <small class="opacity-75">Active Campaigns Only</small>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold fs-2 text-success mb-0">
+                            AED {{ number_format($currentSeoRevenue, 2) }}
+                        </h2>
+                        <small class="opacity-75">{{ $currentSeoProjectsCount }} Active Projects</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-gradient"
+                    style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
+                                <i class="bi bi-check-circle fs text-dark-3"></i>
+                            </div>
+                            <div>
+                                <span class="mb-0 fs-6 text-dark fw-bold">Monthly SEO Revenue</h6>
+                                <small class="opacity-75">Average Revenue Per Day</small>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold fs-2 text-success mb-0">
+                            AED {{ number_format($monthlySeoRevenue, 2) }}
+                        </h2>
+                        <small class="opacity-75">{{ $currentSeoProjectsCount }} Active Projects</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WFF Projects Revenue -->
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-gradient"
+                    style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
+                                <i class="bi bi-hourglass-split text-dark fs-3"></i>
+                            </div>
+                            <div>
+                                <span class="mb-0 fs-6 text-dark fw-bold">WFF Revenue</h6>
+                                <small class="opacity-75">Waiting For Funds</small>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold fs-2 text-success mb-0">
+                            AED {{ number_format($wffRevenue, 2) }}
+                        </h2>
+                        <small class="opacity-75">{{ $wffProjectsCount }} WFF Projects</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-header bg-primary text-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-light">
+                        <i class="bi bi-search me-2"></i>SEO Projects Management
+                    </h5>
+                    <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#seoProjectsSearch">
+                        <i class="bi bi-funnel"></i> Toggle Filters
+                    </button>
+                </div>
+            </div>
+            <div class="collapse show" id="seoProjectsSearch">
+                <div class="card-body">
+                    <form id="seoProjectFilterForm">
+                        <div class="row g-3 mb-3">
+                            <!-- Global Search -->
+                            <div class="col-lg-4 col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-search me-1"></i>Global Search
+                                </label>
+                                <input type="text" class="form-control" id="globalSearch" name="search"
+                                    placeholder="Search by project name, client, keywords...">
+                            </div>
+
+                            <!-- Account Manager Filter -->
+                            <div class="col-lg-4 col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-person-badge me-1"></i>Account Manager
+                                </label>
+                                <select class="form-select" id="amFilter" name="account_manager_id">
+                                    <option value="">All Account Managers</option>
+                                    @foreach ($accountManagers as $am)
+                                        <option value="{{ $am->id }}">{{ $am->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Status Filter -->
+                            <div class="col-lg-4 col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-flag me-1"></i>Project Status
+                                </label>
+                                <select class="form-select" id="statusFilter" name="status">
+                                    <option value="">All Statuses</option>
+                                    <option value="Current">Current</option>
+                                    <option value="WFF">WFF</option>
+                                    <option value="Debt Collection">Debt Collection</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <option value="Expired">Expired</option>
+                                </select>
+                            </div>
+
+                            <!-- Project Type Filter -->
+                            <div class="col-lg-4 col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-tag me-1"></i>Project Type
+                                </label>
+                                <select class="form-select" id="projectTypeFilter" name="project_type">
+                                    <option value="">All Types</option>
+                                    <option value="SEO">SEO</option>
+                                    <option value="Google Ads">Google Ads</option>
+                                    <option value="Social Media Marketing">Social Media Marketing</option>
+                                    <option value="Content Marketing">Content Marketing</option>
+                                </select>
+                            </div>
+
+                            <!-- Start Date Filter -->
+                            <div class="col-lg-4 col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-event me-1"></i>Contract Start From
+                                </label>
+                                <input type="date" class="form-control" id="startDateFrom" name="start_date_from">
+                            </div>
+
+                            <!-- End Date Filter -->
+                            <div class="col-lg-4 col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-check me-1"></i>Contract Start To
+                                </label>
+                                <input type="date" class="form-control" id="startDateTo" name="start_date_to">
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-funnel-fill me-1"></i>Apply Filters
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="resetFilters">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                            </button>
+                            <button type="button" class="btn btn-success" id="exportProjects">
+                                <i class="bi bi-file-earmark-excel me-1"></i>Export to Excel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- SEO Projects Results Table -->
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-dark text-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-light">
+                        <i class="bi bi-graph-up me-2 text-info"></i>SEO Projects
+                    </h5>
+                    <span class="badge bg-secondary rounded-pill" id="projectCount">
+                        Total: <span id="totalProjects">{{ $seoProjects->count() }}</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="bg-light border-bottom p-3">
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-3">
+                                <small class="text-muted d-block text-uppercase fw-bold mb-1"
+                                    style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    Total Contract Value
+                                </small>
+                                <h5 class="mb-0 fw-bold">
+                                    <span class="text-muted fs-6 fw-normal">AED</span>
+                                    <span
+                                        id="totalRevenue">{{ number_format($seoProjects->sum('contract_value'), 2) }}</span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
+                            <div class="card-body p-3">
+                                <small class="text-muted d-block text-uppercase fw-bold mb-1"
+                                    style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    Monthly Recurring (MRR)
+                                </small>
+                                <h5 class="mb-0 text-success fw-bold">
+                                    <span class="fs-6 fw-normal">AED</span>
+                                    <span
+                                        id="monthlyRevenue">{{ number_format($seoProjects->sum(fn($p) => $p->contract_value / ($p->contract_term ?: 1)), 2) }}</span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 600px;">
+                    <table class="table table-hover align-middle mb-0" id="seoProjectsTable">
+                        <thead class="table-dark small">
+                            <tr>
+                                <th class="ps-3">#</th>
+                                <th>Project Details</th>
+                                <th>Client Info</th>
+                                <th>Status</th>
+                                <th>Type</th>
+                                <th>Assignees</th>
+                                <th>Revenue</th>
+                                <th>Timeline</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody">
+                            @forelse($seoProjects as $index => $project)
+                                <tr data-project-id="{{ $project->id }}">
+                                    <td class="ps-3">{{ $index + 1 }}</td>
+                                    <td>
+                                        <div class="fw-semibold">{{ $project->title }}</div>
+                                        @if ($project->website_url)
+                                            <small class="text-muted">
+                                                <i class="bi bi-link-45deg"></i>
+                                                <a href="{{ $project->website_url }}" target="_blank"
+                                                    class="text-decoration-none">
+                                                    {{ Str::limit($project->website_url, 30) }}
+                                                </a>
+                                            </small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div>{{ $project->companies->name ?? 'N/A' }}</div>
+                                        @if ($project->companies->name ?? false)
+                                            <small
+                                                class="text-muted">{{ $project->companies->details->first()->email ?? 'N/A' }}</small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @php
+                                            $statusColors = [
+                                                'Current' => 'success',
+                                                'WFF' => 'warning',
+                                                'Debt Collection' => 'danger',
+                                                'Completed' => 'info',
+                                                'Cancelled' => 'secondary',
+                                                'Expired' => 'dark',
+                                            ];
+                                            $color = $statusColors[$project->status] ?? 'secondary';
+                                        @endphp
+                                        <span class="badge bg-{{ $color }}">{{ $project->status }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ $project->project_type }}</span>
+                                    </td>
+                                    <td>
+                                        @if ($project->accountManagers->isNotEmpty())
+                                            @foreach ($project->accountManagers as $am)
+                                                <div class="mb-1">
+                                                    <i class="bi bi-person-circle me-1"></i>{{ $am->name }}
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">Not Assigned</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <strong class="text-success">
+                                            AED
+                                            {{ number_format($project->contract_value / ($project->contract_term ?: 1), 2) }}
+                                        </strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            Total: AED {{ number_format($project->contract_value, 2) }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        @if ($project->contract_start_date)
+                                            {{ \Carbon\Carbon::parse($project->contract_start_date)->format('M d, Y') }}
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ $project->contract_term }} months
+                                            </small>
+                                        @else
+                                            <span class="text-muted">N/A</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ route('projects.show', $project->id) }}"
+                                                class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{{ route('projects.edit', $project->id) }}"
+                                                class="btn btn-sm btn-outline-warning" title="Edit Project">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                        No SEO projects found
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('seoProjectFilterForm');
+                const resetBtn = document.getElementById('resetFilters');
+                const exportBtn = document.getElementById('exportProjects');
+
+                // Apply Filters with AJAX
+                form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const formData = new FormData(form);
+                        const params = new URLSearchParams(formData);
+
+                        fetch(`{{ route('dashboard.seo-projects.filter') }}?${params.toString()}`, {
+                                method: 'GET',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                updateProjectsTable(data.projects);
+                                updateProjectCount(data.total);
+                                document.getElementById('totalRevenue').textContent = Number(data.totalRevenue)
+                                    .toLocaleString(undefined, {
+                                        minimumFractionDigits: 2
+                                    });
+                                document.getElementById('monthlyRevenue').textContent = Number(data
+                                    .monthlyRevenue).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2
+                                });
+                            })
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while filtering projects');
+                    });
+            });
+
+            // Reset Filters
+            resetBtn.addEventListener('click', function() {
+                form.reset();
+                form.dispatchEvent(new Event('submit'));
+            });
+
+            // Export Projects
+            exportBtn.addEventListener('click', function() {
+                const formData = new FormData(form);
+                const params = new URLSearchParams(formData);
+                window.location.href = `{{ route('dashboard.seo-projects.export') }}?${params.toString()}`;
+            });
+
+            function updateProjectsTable(projects) {
+                const tbody = document.getElementById('projectsTableBody');
+
+                if (projects.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                No SEO projects found
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = projects.map((project, index) => {
+                    const statusColors = {
+                        'Current': 'success',
+                        'WFF': 'warning',
+                        'Debt Collection': 'danger',
+                        'Completed': 'info',
+                        'Cancelled': 'secondary',
+                        'Expired': 'dark'
+                    };
+                    const color = statusColors[project.status] || 'secondary';
+
+                    return `
+                <tr data-project-id="${project.id}">
+                    <td class="ps-3">${index + 1}</td>
+                    <td>
+                        <div class="fw-semibold">${project.title}</div>
+                        ${project.website_url ? `
+                                                                                                    <small class="text-muted">
+                                                                                                        <i class="bi bi-link-45deg"></i>
+                                                                                                        <a href="${project.website_url}" target="_blank" class="text-decoration-none">
+                                                                                                            ${project.website_url.substring(0, 30)}${project.website_url.length > 30 ? '...' : ''}
+                                                                                                        </a>
+                                                                                                    </small>
+                                                                                                ` : ''}
+                    </td>
+                    <td>
+                        <div>${project.client_name || 'N/A'}</div>
+                        ${project.client_email ? `<small class="text-muted">${project.client_email}</small>` : ''}
+                    </td>
+                    <td><span class="badge bg-${color}">${project.status}</span></td>
+                    <td><span class="badge bg-primary">${project.project_type}</span></td>
+                    <td>
+                        ${project.account_managers.length > 0 
+                            ? project.account_managers.map(am => `<div class="mb-1"><i class="bi bi-person-circle me-1"></i>${am.name}</div>`).join('')
+                            : '<span class="text-muted">Not Assigned</span>'
+                        }
+                    </td>
+                    <td>
+                        <strong class="text-success">AED ${Number(project.monthly_value).toFixed(2)}</strong>
+                        <br>
+                        <small class="text-muted">Total: AED ${Number(project.contract_value).toFixed(2)}</small>
+                    </td>
+                    <td>
+                        ${project.contract_start_date 
+                            ? `${new Date(project.contract_start_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}<br><small class="text-muted">${project.contract_term} months</small>`
+                            : '<span class="text-muted">N/A</span>'
+                        }
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/projects/${project.id}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="/projects/${project.id}/edit" class="btn btn-sm btn-outline-warning" title="Edit Project">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+                }).join('');
+            }
+
+            function updateProjectCount(total) {
+                document.getElementById('totalProjects').textContent = total;
+            }
+            });
+        </script>
+        <style>
+            .table thead.sticky-top {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .btn-group .btn {
+                padding: 0.25rem 0.5rem;
+            }
+
+            .card-header h5 {
+                font-weight: 600;
+            }
+
+            .form-label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .table-responsive {
+                max-height: 600px;
+                overflow-y: auto;
+            }
+        </style>
+    @endif
     <div class="my-5 row gy-4">
         <!-- Yesterday -->
         <div class="col-md-4">
@@ -231,7 +745,8 @@
             </div>
         </div>
         <!-- Reason Modal -->
-        <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+        <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="shadow modal-content">
                     <div class="text-white modal-header bg-info">
