@@ -9,7 +9,15 @@ class ProjectKeyword extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['project_id', 'keyword', 'url', 'task_id', 'type'];
+    protected $fillable = [
+        'project_id',
+        'keyword',
+        'url',
+        'task_id',
+        'type',
+        'destination_url',
+        'link_cost',
+    ];
 
     public function project()
     {

@@ -788,6 +788,7 @@
                 'Schedule R2',
                 'Schedule R3',
                 'Request Backlinks',
+                'OFFSITE - PARTNER LINKS Task',
             ]) ||
                 ($relatedData && in_array($relatedData->sub_type, ['MANUAL LINKS', 'IH LINKS', 'OH LINKS'])))
             <div class="d-flex justify-content-end align-items-center">
@@ -801,6 +802,10 @@
                 @csrf
                 <input type="text" class="form-control mb-3" id="mainKeyword" placeholder="Enter Keyword"
                     required>
+                <input type="number" class="form-control mb-3" id="mainLinkCost" placeholder="Enter Link Cost USD"
+                    required>
+                <input type="url" required class="form-control mb-3" id="destinationUrl"
+                    placeholder="Enter Destination URL" required>
                 <input type="hidden" name="type" value="closing">
                 <textarea class="form-control mb-3" id="urlList" placeholder="Enter URLs (one per line)" rows="6" required></textarea>
 
@@ -953,7 +958,8 @@
                         ($task->project->tasks->where('title', 'Upload the Content Intake Form')->first() &&
                             $task->project->tasks->where('title', 'Upload the Content Intake Form')->first()->status == 'Completed'))
                     @php
-                        $completions = $task->project->tasks->where('title', 'Upload the Content Intake Form')->first()->attachments;
+                        $completions = $task->project->tasks->where('title', 'Upload the Content Intake Form')->first()
+                            ->attachments;
                     @endphp
                     @foreach ($completions as $completion)
                         @php
@@ -961,8 +967,7 @@
                         @endphp
                         <div class="card mb-10 border">
                             <div class="card-header d-flex align-items-center justify-content-between">
-                                <a href="{{ asset($filePath) }}"
-                                    class="fs-7 d-block">Content Intake Form</a>
+                                <a href="{{ asset($filePath) }}" class="fs-7 d-block">Content Intake Form</a>
                                 <div class="gap-10 d-flex align-items-center">
                                     <a href="{{ asset($filePath) }}" download="content_intake_form"
                                         class="btn border-0 m-0 p-0">
@@ -1184,7 +1189,7 @@
 
 <div class="row gy-3 mb-10">
 
-    <div class="col-lg-6 starting-kw-url-wrapper" style="display: none">
+    <div class="col-lg-12 starting-kw-url-wrapper" style="display: none">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
                 <span class="fw-bold">Assigned Keywords & Urls</span>
@@ -1208,7 +1213,7 @@
         </div>
     </div>
 
-    <div class="col-lg-6 closing-kw-url-wrapper" style="display: none">
+    <div class="col-lg-12 closing-kw-url-wrapper" style="display: none">
         <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
             <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
                 <span class="fw-bold">Task Keywords & Urls</span>
@@ -1219,6 +1224,8 @@
                         <tr>
                             <th>Keyword</th>
                             <th>URL</th>
+                            <th>Destination URL</th>
+                            <th>Link Cost</th>
                             @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                                 <th>Action</th>
                             @endif
@@ -1586,6 +1593,8 @@
                         <tr id="row-${kwUrl.id}">
                             <td>${kwUrl.keyword}</td>
                             <td><a href="${kwUrl.url}" target="_blank">${kwUrl.url}</a></td>
+                            <td><a href="${kwUrl.destination_url}" target="_blank">${kwUrl.destination_url}</a></td>
+                            <td><a href="${kwUrl.link_cost}" target="_blank">${kwUrl.link_cost}</a></td>
                             @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
                             <td>
                                 <button class="btn btn-danger btn-sm delete-btn" data-id="${kwUrl.id}">Delete</button>
@@ -1824,7 +1833,10 @@
         $("#keywordForm2").submit(function(e) {
             e.preventDefault();
 
+
             let keyword = $("#mainKeyword").val().trim();
+            let linkCost = $("#mainLinkCost").val().trim();
+            let destinationUrl = $("#destinationUrl").val().trim();
             let urls = $("#urlList").val().trim().split("\n").filter(url => url.trim() !== "");
 
             if (!keyword || urls.length === 0) {
@@ -1839,6 +1851,8 @@
 
             urls.forEach((url, index) => {
                 formData.append(`keywords[${index}][keyword]`, keyword);
+                formData.append(`keywords[${index}][link_cost]`, linkCost);
+                formData.append(`keywords[${index}][destination_url]`, destinationUrl);
                 formData.append(`keywords[${index}][url]`, url.trim());
             });
 
@@ -1855,6 +1869,8 @@
                         $('.add-more-links-wrapper').fadeOut()
                     });
                     $("#mainKeyword").val('');
+                    $("#mainLinkCost").val('');
+                    $("#destinationUrl").val('');
                     $("#urlList").val('');
                 },
                 error: function(xhr) {

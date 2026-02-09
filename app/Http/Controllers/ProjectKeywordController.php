@@ -10,26 +10,36 @@ class ProjectKeywordController extends Controller
 {
     public function store(Request $request, Project $project)
     {
-        $request->validate([
+        $validated = $request->validate([
             'keywords' => 'required|array',
-            'keywords.*.keyword' => 'required',
-            'keywords.*.url' => 'required',
+            'keywords.*.keyword' => 'required|string',
+            'keywords.*.url' => 'required|url',
+            'keywords.*.destination_url' => 'nullable|url',
+            'keywords.*.link_cost' => 'nullable|numeric',
             'task_id' => 'required|exists:tasks,id',
-            'type' => 'required',
+            'type' => 'required|string',
         ]);
 
-        foreach ($request->keywords as $data) {
+        foreach ($validated['keywords'] as $item) {
             ProjectKeyword::create([
-                'project_id' => $project->id,
-                'task_id' => $request->task_id,
-                'keyword' => $data['keyword'],
-                'url' => $data['url'],
-                'type' => $request->type,
+                'project_id'       => $project->id,
+                'task_id'          => $validated['task_id'],
+                'type'             => $validated['type'],
+                'keyword'          => $item['keyword'],
+                'url'              => $item['url'],
+                'destination_url'  => $item['destination_url'] ?? null,
+                'link_cost'        => $item['link_cost'] ?? 0,
+                'created_by'       => auth()->id(),
             ]);
         }
 
-        return response()->json(['message' => 'Keywords saved successfully', 'data' => ProjectKeyword::where('task_id', $request->task_id)->where('type', 'starting')->get()]);
+        return response()->json([
+            'status'  => true,
+            'message' => 'Keywords successfully saved',
+            'data'    => $validated['keywords']
+        ]);
     }
+
     public function delete($id)
     {
         $keyword = ProjectKeyword::find($id);

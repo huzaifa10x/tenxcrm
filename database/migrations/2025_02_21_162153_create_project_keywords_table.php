@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
             $table->foreignId('task_id')->constrained('tasks')->onDelete('cascade');
             $table->string('keyword');
+            $table->text('destination_url');
+            $table->decimal('link_cost', 10, 2)->default(0);
             $table->string('url');
             $table->enum('type', ['closing', 'starting']);
             $table->timestamps();
