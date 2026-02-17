@@ -14,6 +14,56 @@
             .st2 {
                 fill: #51BBA0;
             }
+
+            /* Professional UI Enhancements */
+            .radius-12 {
+                border-radius: 12px !important;
+            }
+
+            .bg-slate-50 {
+                background-color: #f8fafc !important;
+            }
+
+            .text-slate-900 {
+                color: #0f172a !important;
+            }
+
+            .text-slate-500 {
+                color: #64748b !important;
+            }
+
+            .text-xs {
+                font-size: 0.75rem !important;
+            }
+
+            .table thead th {
+                border-bottom: none !important;
+                white-space: nowrap;
+            }
+
+            .table tbody td {
+                padding: 16px 20px !important;
+                border-color: #f1f5f9 !important;
+                color: #334155;
+            }
+
+            /* Modern Scrollbar for the 500px container */
+            .table-responsive::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .table-responsive::-webkit-scrollbar-track {
+                background: #f1f5f9;
+            }
+
+            .table-responsive::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+
+            .table-responsive::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
         </style>
         <title>
             C1DBEBC0-CF7A-42D3-B615-1AB5DE73C3E9
@@ -1188,61 +1238,89 @@
 </div>
 
 <div class="row gy-3 mb-10">
-
-    <div class="col-lg-12 starting-kw-url-wrapper" style="display: none">
-        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
-            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
-                <span class="fw-bold">Assigned Keywords & Urls</span>
+    <div class="row g-4">
+        <div class="col-lg-6 starting-kw-url-wrapper" style="display: none">
+            <div class="card border-0 shadow-sm overflow-hidden radius-12 h-100">
+                <div
+                    class="card-header bg-white py-20 px-24 border-bottom border-slate-100 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold text-slate-900 mb-0">Assigned Keywords & URLs</h6>
+                        <p class="text-xs text-slate-500 mb-0 mt-1">Initial links assigned to this task</p>
+                    </div>
+                    <span class="badge bg-slate-100 text-slate-600 rounded-pill px-12 py-6">Starting</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle m-0">
+                            <thead class="bg-slate-50 border-bottom border-slate-100">
+                                <tr>
+                                    <th
+                                        class="py-12 px-24 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Keyword</th>
+                                    <th
+                                        class="py-12 px-24 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Source URL</th>
+                                    @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
+                                        <th
+                                            class="py-12 px-24 text-xs font-semibold uppercase tracking-wider text-slate-500 text-end">
+                                            Action</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody id="startingKwUrlsTable" class="text-sm">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="card-body table-responsive p-0">
-                <table class="table table-bordered m-0">
-                    <thead>
-                        <tr>
-                            <th>Keyword</th>
-                            <th>URL</th>
-                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
-                                <th>Action</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody id="startingKwUrlsTable">
-                        <!-- Data will be loaded here via AJAX -->
-                    </tbody>
-                </table>
+        </div>
+
+        <div class="col-lg-6 closing-kw-url-wrapper" style="display: none">
+            <div class="card border-0 shadow-sm overflow-hidden radius-12 h-100">
+                <div
+                    class="card-header bg-white py-20 px-24 border-bottom border-slate-100 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold text-slate-900 mb-0">Task Keywords & URLs</h6>
+                        <p class="text-xs text-slate-500 mb-0 mt-1">Finalized output and link tracking</p>
+                    </div>
+                    <span class="badge bg-emerald-100 text-emerald-700 rounded-pill px-12 py-6">Closing</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="height: 500px; overflow-y: auto;">
+                        <table class="table table-hover align-middle m-0">
+                            <thead class="bg-slate-50 border-bottom border-slate-100 sticky-top">
+                                <tr>
+                                    <th
+                                        class="py-12 px-20 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Keyword</th>
+                                    <th
+                                        class="py-12 px-20 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Source URL</th>
+                                    <th
+                                        class="py-12 px-20 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Destination</th>
+                                    <th
+                                        class="py-12 px-20 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Cost</th>
+                                    @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
+                                        <th
+                                            class="py-12 px-20 text-xs font-semibold uppercase tracking-wider text-slate-500 text-end">
+                                            Action</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody id="closingKwUrlsTable" class="text-sm border-top-0">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-lg-12 closing-kw-url-wrapper" style="display: none">
-        <div class="card border border-secondary p-0 overflow-hidden position-relative radius-12 h-100">
-            <div class="card-header py-16 px-24 bg-base border border-end-0 border-start-0 border-top-0">
-                <span class="fw-bold">Task Keywords & Urls</span>
-            </div>
-            <div class="card-body table-responsive p-0" style="height: 500px; overflow: auto;">
-                <table class="table table-bordered m-0">
-                    <thead>
-                        <tr>
-                            <th>Keyword</th>
-                            <th>URL</th>
-                            <th>Destination URL</th>
-                            <th>Link Cost</th>
-                            @if ($userPermissions->contains('can remove offsite links') && $task->status !== 'Completed')
-                                <th>Action</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody id="closingKwUrlsTable">
-                        <!-- Data will be loaded here via AJAX -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <input type="hidden" id="task_id" value="{{ $task->id }}">
     <input type="hidden" name="created_by" value="{{ auth()->user()->id }}">
-
 </div>
+
 @if ($task->title == 'OFFSITE - PARTNER LINKS TASK')
     <div class="row my-10">
         <div class="col-lg-12">

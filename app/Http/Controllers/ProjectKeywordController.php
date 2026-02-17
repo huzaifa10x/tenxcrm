@@ -14,7 +14,7 @@ class ProjectKeywordController extends Controller
             'keywords' => 'required|array',
             'keywords.*.keyword' => 'required|string',
             'keywords.*.url' => 'required|url',
-            'keywords.*.destination_url' => 'nullable|url',
+            'keywords.*.destination_url' => 'nullable',
             'keywords.*.link_cost' => 'nullable|numeric',
             'task_id' => 'required|exists:tasks,id',
             'type' => 'required|string',
