@@ -802,9 +802,9 @@
                 @csrf
                 <input type="text" class="form-control mb-3" id="mainKeyword" placeholder="Enter Keyword"
                     required>
-                <input type="number" class="form-control mb-3" id="mainLinkCost" placeholder="Enter Link Cost USD"
-                    required>
-                <input type="url" required class="form-control mb-3" id="destinationUrl"
+                <input type="number" class="form-control mb-3" value="0" id="mainLinkCost"
+                    placeholder="Enter Link Cost USD" required>
+                <input type="text" value="-" required class="form-control mb-3" id="destinationUrl"
                     placeholder="Enter Destination URL" required>
                 <input type="hidden" name="type" value="closing">
                 <textarea class="form-control mb-3" id="urlList" placeholder="Enter URLs (one per line)" rows="6" required></textarea>
