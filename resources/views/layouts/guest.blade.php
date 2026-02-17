@@ -6,49 +6,147 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>10X One | login 10X One</title>
+    <title>10X One | Login</title>
     <link rel="icon" href="{{ asset('/public/fav-icon.webp') }}" type="image/png" sizes="16x16">
-    <!-- Fonts -->
+    
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600,700&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="{{ asset('css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/apexcharts.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/dataTables.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/editor-katex.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/editor.atom-one-dark.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/editor.quill.snow.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/flatpickr.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/full-calendar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/jquery-jvectormap-2.0.5.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/magnific-popup.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/slick.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/prism.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/file-upload.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
-    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('js/lib/jquery-ui.min.js') }}"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --accent-soft: rgba(25, 135, 84, 0.1);
+        }
 
+        body {
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .auth-section {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Modern Left Side - Mesh Gradient & Glassmorphism */
+        .auth-left {
+            flex: 1.2;
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Subtle animated background blob */
+        .auth-left::before {
+            content: "";
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(25, 135, 84, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+            top: -10%;
+            left: -10%;
+            border-radius: 50%;
+            filter: blur(50px);
+        }
+
+        .auth-left-content {
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .brand-logo-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 50px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-left-content h1 {
+            color: #ffffff;
+            font-weight: 700;
+            margin-top: 24px;
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        /* Right Side - Clean & Focused */
+        .auth-right {
+            flex: 1;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .auth-right-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+        }
+
+        /* Responsive Tweaks */
+        @media (max-width: 992px) {
+            .auth-left { display: none; }
+            .auth-right { flex: 1; width: 100%; }
+        }
+
+        /* Transitions */
+        .img-fluid {
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .img-fluid:hover {
+            transform: scale(1.05);
+        }
+    </style>
+
+    <script src="{{ asset('js/lib/jquery-3.7.1.min.js') }}"></script>
 </head>
 
-<body class="font-sans text-gray-900 antialiased">
-    <section class="auth bg-base d-flex flex-wrap">
-        <div class="auth-left d-lg-block d-none">
-            <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-                <img src="{{ asset('/public/black-logo.png') }}" class="img-fluid" alt="">
+<body class="antialiased">
+    <section class="auth-section">
+        <div class="auth-left d-lg-flex d-none">
+            <div class="auth-left-content">
+                <div class="brand-logo-container">
+                    <img src="{{ asset('/public/light-logo.png') }}" 
+                         class="img-fluid" 
+                         style="max-height: 80px;" 
+                         alt="10X One Logo">
+                </div>
+                <h1>Empowering Your <br><span style="color: #a8e323;">Workflow.</span></h1>
+                <p class="text-white opacity-50 mt-3 fs-5 fw-light">The all-in-one ecosystem for productivity.</p>
             </div>
         </div>
-        <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
-            {{ $slot }}
+
+        <div class="auth-right py-32">
+            <div class="auth-right-container">
+                <div class="d-lg-none text-center mb-4">
+                    <img src="{{ asset('/public/light-logo.png') }}" height="40" alt="Logo">
+                </div>
+                
+                {{ $slot }}
+            </div>
         </div>
     </section>
+
+    <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/lib/iconify-icon.min.js') }}"></script>
+    
     <script>
+        // Password Toggle Logic
         function initializePasswordToggle(toggleSelector) {
-            $(toggleSelector).on('click', function() {
-                $(this).toggleClass("ri-eye-off-line");
+            $(document).on('click', toggleSelector, function() {
+                $(this).toggleClass("ri-eye-off-line ri-eye-line");
                 var input = $($(this).attr("data-toggle"));
                 if (input.attr("type") === "password") {
                     input.attr("type", "text");
@@ -59,20 +157,8 @@
         }
         initializePasswordToggle('.toggle-password');
     </script>
-
-    <script src="{{ asset('js/lib/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/lib/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('js/lib/dataTables.min.js') }}"></script>
-    <script src="{{ asset('js/lib/iconify-icon.min.js') }}"></script>
-    <script src="{{ asset('js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
-    <script src="{{ asset('js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
-    <script src="{{ asset('js/lib/magnifc-popup.min.js') }}"></script>
-    <script src="{{ asset('js/lib/slick.min.js') }}"></script>
-    <script src="{{ asset('js/lib/prism.js') }}"></script>
-    <script src="{{ asset('js/lib/file-upload.js') }}"></script>
-    <script src="{{ asset('js/lib/audioplayer.js') }}"></script>
+    
     <script src="{{ asset('js/app.js') }}"></script>
-    <script src="{{ asset('js/homeOneChart.js') }}"></script>
 </body>
 
 </html>
