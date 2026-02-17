@@ -320,7 +320,7 @@
                     <button class="tk-seg-btn {{ request()->query('view_type') !== 'board' ? 'active' : '' }}" id="seg-list">
                         <i class="bi bi-list-ul me-1"></i>List
                     </button>
-                    <button class="tk-seg-btn {{ request()->query('view_type') === 'board' ? 'active' : '' }}" id="seg-board">
+                    <button disabled class="tk-seg-btn {{ request()->query('view_type') === 'board' ? 'active' : '' }}" id="seg-board">
                         <i class="bi bi-kanban me-1"></i>Board
                     </button>
                 </div>
@@ -532,7 +532,7 @@
 
     {{-- ── Offcanvas task detail ── --}}
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel"
-         style="width:min(520px,100vw);">
+         style="width:min(1020px,100vw);">
         <div class="offcanvas-header" style="border-bottom:1px solid var(--tk-border);">
             <h6 class="mb-0 fw-bold" style="font-size:.9rem;">Task Detail</h6>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
