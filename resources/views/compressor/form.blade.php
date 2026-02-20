@@ -33,6 +33,20 @@
     </div>
 
     <script>
+        // Helper function to trigger multiple downloads
+        function downloadAll(files) {
+            files.forEach((file, index) => {
+                // Small timeout prevents some browsers from blocking multiple concurrent downloads
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = file.url;
+                    link.download = file.original;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, index * 200);
+            });
+        }
         $('#compress-form').on('submit', function(e) {
             e.preventDefault();
             let formData = new FormData(this);
@@ -56,9 +70,13 @@
                 success: function(res) {
                     if (res.files.length > 0) {
                         let html = `
-                        <div class="alert alert-success d-flex align-items-center" role="alert">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Images compressed successfully!
+                       <div class="alert alert-success d-flex justify-content-between align-items-center" role="alert">
+                            <span><i class="bi bi-check-circle me-2"></i> Images compressed!</span>
+                           ${res.files.length > 1 ? `
+        <button type="button" class="btn btn-success btn-sm" id="btn-download-all">
+            <i class="bi bi-archive"></i> Download All
+        </button>
+        ` : ''}
                         </div>
                         <ul class="list-group mt-3">
                     `;
@@ -74,6 +92,10 @@
                         });
                         html += '</ul>';
                         $('#result').html(html);
+                        $('#btn-download-all').on('click', function() {
+                            downloadAll(res.files);
+                        });
+
                     } else {
                         $('#result').html(`
                         <div class="alert alert-warning" role="alert">
