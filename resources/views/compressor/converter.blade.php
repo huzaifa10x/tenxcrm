@@ -59,11 +59,11 @@
                                     <div class="card h-100 border-0 shadow-sm overflow-hidden">
                                         <div class="bg-light d-flex align-items-center justify-content-center p-3"
                                             style="height: 140px;">
-                                            <img src="{{ $url }}" class="img-fluid rounded shadow-sm"
+                                            <img src="{{ asset('/public/' . $url) }}" class="img-fluid rounded shadow-sm"
                                                 style="max-height: 100%;">
                                         </div>
                                         <div class="card-footer bg-white border-0 text-center pb-3">
-                                            <a href="{{ $url }}" download
+                                            <a href="{{ asset('/public/' . $url) }}" download
                                                 class="btn btn-link btn-sm text-decoration-none text-muted">
                                                 <i class="bi bi-download me-1"></i> Download
                                             </a>
