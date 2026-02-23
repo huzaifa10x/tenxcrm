@@ -142,27 +142,36 @@ class ImageCompressorController extends Controller
         ]);
 
         try {
-            // Try using Imagick first for better compatibility
             $manager = new ImageManager(new Driver());
             $convertedUrls = [];
             $format = $request->target_format;
 
             foreach ($request->file('images') as $file) {
+                // Original filename without extension
                 $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $newName = time() . '_' . $filename . '.' . $format;
+                // Original extension
+                $originalExt = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+
+                // Fallback for WebP if GD driver doesn't support it
+                if ($format === 'webp' && !function_exists('imagewebp')) {
+                    $formatToSave = 'jpg'; // fallback to jpg
+                } else {
+                    $formatToSave = $format;
+                }
+
+                // Keep original name, just change extension
+                $newName = $filename . '.' . $formatToSave;
                 $path = 'converted/' . $newName;
 
                 $image = $manager->read($file);
 
-                $encoded = match ($format) {
+                $encoded = match ($formatToSave) {
                     'webp' => $image->toWebp(quality: 80),
                     'png'  => $image->toPng(),
                     'jpg'  => $image->toJpeg(quality: 85),
                 };
 
                 Storage::disk('public')->put($path, (string) $encoded);
-
-                // Return just the URL string to match your existing Blade @foreach
                 $convertedUrls[] = Storage::url($path);
             }
 
