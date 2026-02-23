@@ -52,6 +52,8 @@ Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsR
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread.count');
 Route::get('/compress', [ImageCompressorController::class, 'showForm'])->name('compress.form');
 Route::get('/resizer', [ImageCompressorController::class, 'showResizerForm'])->name('resizer.form');
+Route::get('/converter', [ImageCompressorController::class, 'showConverterForm'])->name('converter.form');
+Route::post('/convert', [ImageCompressorController::class, 'convert'])->name('image.convert');
 Route::post('/resize', [ImageCompressorController::class, 'resize'])->name('image.resize');
 Route::post('/compress', [ImageCompressorController::class, 'compress'])->name('compress.run');
 Route::get('/invoices/{uuid}/download', [InvoiceController::class, 'downloadPdf'])->name('invoices.download');

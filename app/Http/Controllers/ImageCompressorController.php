@@ -7,7 +7,6 @@ use App\Models\CompressedImage;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\Laravel\Facades\Image;
 
 class ImageCompressorController extends Controller
 {
@@ -20,6 +19,11 @@ class ImageCompressorController extends Controller
     {
         $files = [];
         return view('compressor.resizer', compact('files'));
+    }
+    public function showConverterForm()
+    {
+        $files = [];
+        return view('compressor.converter', compact('files'));
     }
 
     public function resize(Request $request)
@@ -128,5 +132,43 @@ class ImageCompressorController extends Controller
         return response()->json([
             'files' => $savedImages
         ]);
+    }
+
+    public function convert(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'required|image|max:5120',
+            'target_format' => 'required|in:webp,png,jpg',
+        ]);
+
+        try {
+            // Try using Imagick first for better compatibility
+            $manager = new ImageManager(new Driver());
+            $convertedUrls = [];
+            $format = $request->target_format;
+
+            foreach ($request->file('images') as $file) {
+                $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $newName = time() . '_' . $filename . '.' . $format;
+                $path = 'converted/' . $newName;
+
+                $image = $manager->read($file);
+
+                $encoded = match ($format) {
+                    'webp' => $image->toWebp(quality: 80),
+                    'png'  => $image->toPng(),
+                    'jpg'  => $image->toJpeg(quality: 85),
+                };
+
+                Storage::disk('public')->put($path, (string) $encoded);
+
+                // Return just the URL string to match your existing Blade @foreach
+                $convertedUrls[] = Storage::url($path);
+            }
+
+            return back()->with('success', 'Converted successfully!')->with('urls', $convertedUrls);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Server Error: ' . $e->getMessage()]);
+        }
     }
 }

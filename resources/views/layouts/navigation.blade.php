@@ -293,6 +293,12 @@
                     <span>Image Resizer</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('converter.form') }}">
+                    <iconify-icon icon="mdi:folder-zip-outline" class="menu-icon"></iconify-icon>
+                    <span>Image Converter</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>
