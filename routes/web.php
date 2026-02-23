@@ -51,6 +51,8 @@ Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->na
 Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread.count');
 Route::get('/compress', [ImageCompressorController::class, 'showForm'])->name('compress.form');
+Route::get('/resizer', [ImageCompressorController::class, 'showResizerForm'])->name('resizer.form');
+Route::post('/resize', [ImageCompressorController::class, 'resize'])->name('image.resize');
 Route::post('/compress', [ImageCompressorController::class, 'compress'])->name('compress.run');
 Route::get('/invoices/{uuid}/download', [InvoiceController::class, 'downloadPdf'])->name('invoices.download');
 Route::get('email/check/index', [InvoiceController::class, 'emailCheckView'])->name('email.check.index');

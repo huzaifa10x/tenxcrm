@@ -199,13 +199,13 @@
             </li>
 
             @if (auth()->user()->hasRole('ADMIN'))
-            <li>
-                <a href="{{ route('website-projects.create') }}">
-                    <iconify-icon icon="flowbite:users-group-solid" class="menu-icon"></iconify-icon>
-                    <span>Website Projects</span>
-                </a>
-            </li>
-            <li>
+                <li>
+                    <a href="{{ route('website-projects.create') }}">
+                        <iconify-icon icon="flowbite:users-group-solid" class="menu-icon"></iconify-icon>
+                        <span>Website Projects</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('account-maanger.index') }}">
                         <iconify-icon icon="flowbite:users-group-solid" class="menu-icon"></iconify-icon>
 
@@ -285,6 +285,12 @@
                 <a href="{{ route('compress.form') }}">
                     <iconify-icon icon="mdi:folder-zip-outline" class="menu-icon"></iconify-icon>
                     <span>Image Compressor</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('resizer.form') }}">
+                    <iconify-icon icon="mdi:folder-zip-outline" class="menu-icon"></iconify-icon>
+                    <span>Image Resizer</span>
                 </a>
             </li>
         </ul>

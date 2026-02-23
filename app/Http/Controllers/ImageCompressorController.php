@@ -7,6 +7,7 @@ use App\Models\CompressedImage;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Laravel\Facades\Image;
 
 class ImageCompressorController extends Controller
 {
@@ -14,6 +15,64 @@ class ImageCompressorController extends Controller
     {
         $files = [];
         return view('compressor.form', compact('files'));
+    }
+    public function showResizerForm()
+    {
+        $files = [];
+        return view('compressor.resizer', compact('files'));
+    }
+
+    public function resize(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'width' => 'required|integer|min:1',
+            'height' => 'required|integer|min:1',
+        ]);
+
+        $manager = new ImageManager(new Driver());
+        $resizedUrls = [];
+
+        $dir = storage_path('app/public/resized');
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        foreach ($request->file('images') as $file) {
+
+            $originalName = $file->getClientOriginalName();   // full original name
+            $extension = strtolower($file->getClientOriginalExtension());
+            $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+
+            $finalName = $nameWithoutExt . '.' . $extension;
+            $fullPath = $dir . '/' . $finalName;
+
+            // read + resize
+            $image = $manager->read($file->getPathname());
+            $image->resize($request->width, $request->height);
+
+            // encode based on original extension
+            switch ($extension) {
+                case 'png':
+                    $image->toPng()->save($fullPath);
+                    break;
+
+                case 'jpg':
+                case 'jpeg':
+                default:
+                    $image->toJpeg(90)->save($fullPath);
+                    break;
+            }
+
+            $resizedUrls[] = [
+                'url' => asset('/public/storage/resized/' . $finalName),
+                'original' => $originalName
+            ];
+        }
+
+        return back()
+            ->with('success', 'Images resized successfully!')
+            ->with('urls', $resizedUrls);
     }
 
     public function compress(Request $request)
