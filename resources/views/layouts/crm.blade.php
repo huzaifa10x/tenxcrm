@@ -203,6 +203,7 @@
             </button>
             <nav aria-label="breadcrumb" class="mb-0 flex-grow-1">
                 <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('crm.leads.index') }}">CRM</a></li>
                     @yield('breadcrumb')
                 </ol>

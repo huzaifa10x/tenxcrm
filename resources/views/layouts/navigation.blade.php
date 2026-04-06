@@ -267,14 +267,6 @@
                     <span>Messages</span>
                 </a>
             </li>
-            <!-- @if (auth()->user()->hasRole('AM') || auth()->user()->hasRole('SEO ADMIN') || auth()->user()->hasRole('ADMIN'))
-                <li>
-                    <a href="{{ route('leads.view') }}">
-                        <iconify-icon icon="heroicons:document" class="menu-icon"></iconify-icon>
-                        <span>Client Leads</span>
-                    </a>
-                </li>
-            @endif -->
             <li>
                 <a href="{{ route('compress.form') }}">
                     <iconify-icon icon="mdi:folder-zip-outline" class="menu-icon"></iconify-icon>
