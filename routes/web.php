@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Api\ClientLeadController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceNoteController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\ContentWriterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DealController;
 use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\ImageCompressorController;
 use App\Http\Controllers\IndustryController;
@@ -79,6 +81,56 @@ Route::get('/invoices/view/{uuid}', [InvoiceController::class, 'showPublic'])->n
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
+    Route::prefix('crm')->name('crm.')->group(function () {
+        /* ── LEADS ── */
+        Route::prefix('leads')->name('leads.')->group(function () {
+            Route::get('/',            [LeadController::class, 'index'])->name('index');
+            Route::get('/create',      [LeadController::class, 'create'])->name('create');
+            Route::post('/',           [LeadController::class, 'store'])->name('store');
+            Route::get('/import',      [LeadController::class, 'importForm'])->name('import.form');
+            Route::post('/import',     [LeadController::class, 'import'])->name('import');
+            Route::get('/export',      [LeadController::class, 'export'])->name('export');
+            Route::get('/{lead}',      [LeadController::class, 'show'])->name('show');
+            Route::get('/{lead}/edit', [LeadController::class, 'edit'])->name('edit');
+            Route::put('/{lead}',      [LeadController::class, 'update'])->name('update');
+            Route::delete('/{lead}',   [LeadController::class, 'destroy'])->name('destroy');
+            Route::patch('/{lead}/label', [LeadController::class, 'updateLabel'])->name('label');
+            Route::post('/{lead}/notes',             [LeadController::class, 'storeNote'])->name('notes.store');
+            Route::delete('/{lead}/notes/{note}',    [LeadController::class, 'destroyNote'])->name('notes.destroy');
+        });
+
+        /* ── ACTIVITIES ── */
+        Route::prefix('activities')->name('activities.')->group(function () {
+            Route::get('/',                   [ActivityController::class, 'index'])->name('index');
+            Route::post('/',                  [ActivityController::class, 'store'])->name('store');
+            Route::get('/import',             [ActivityController::class, 'importForm'])->name('import.form');
+            Route::post('/import',            [ActivityController::class, 'import'])->name('import');
+            Route::get('/export',             [ActivityController::class, 'export'])->name('export');
+            Route::get('/{activity}',         [ActivityController::class, 'show'])->name('show');
+            Route::get('/{activity}/edit',    [ActivityController::class, 'edit'])->name('edit');
+            Route::put('/{activity}',         [ActivityController::class, 'update'])->name('update');
+            Route::delete('/{activity}',      [ActivityController::class, 'destroy'])->name('destroy');
+            Route::patch('/{activity}/done',  [ActivityController::class, 'markDone'])->name('done');
+        });
+
+        /* ── DEALS ── */
+        Route::prefix('deals')->name('deals.')->group(function () {
+            Route::get('/',            [DealController::class, 'index'])->name('index');
+            Route::get('/create',      [DealController::class, 'create'])->name('create');
+            Route::post('/',           [DealController::class, 'store'])->name('store');
+            Route::get('/import',      [DealController::class, 'importForm'])->name('import.form');
+            Route::post('/import',     [DealController::class, 'import'])->name('import');
+            Route::get('/export',      [DealController::class, 'export'])->name('export');
+            Route::get('/{deal}',      [DealController::class, 'show'])->name('show');
+            Route::get('/{deal}/edit', [DealController::class, 'edit'])->name('edit');
+            Route::put('/{deal}',      [DealController::class, 'update'])->name('update');
+            Route::delete('/{deal}',   [DealController::class, 'destroy'])->name('destroy');
+            Route::patch('/{deal}/status', [DealController::class, 'updateStatus'])->name('status');
+            Route::patch('/{deal}/stage',  [DealController::class, 'updateStage'])->name('stage');
+            Route::post('/{deal}/notes',            [DealController::class, 'storeNote'])->name('notes.store');
+            Route::delete('/{deal}/notes/{note}',   [DealController::class, 'destroyNote'])->name('notes.destroy');
+        });
+    });
 
     // SEO Projects Filtering (AJAX)
     Route::get('/dashboard/seo-projects/filter', [DashboardController::class, 'filterSeoProjects'])

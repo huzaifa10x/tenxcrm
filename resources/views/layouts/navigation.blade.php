@@ -255,15 +255,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('leads.index') }}">
+                    <a href="{{ route('crm.leads.index') }}">
                         <i class="w-auto text-xl ri-news-line me-14 d-flex"></i>
                         <span>Leads</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('lead_sources.index') }}">
-                        <i class="w-auto text-xl ri-news-line me-14 d-flex"></i>
-                        <span>Lead Sources</span>
                     </a>
                 </li>
             @endif
@@ -273,14 +267,14 @@
                     <span>Messages</span>
                 </a>
             </li>
-            @if (auth()->user()->hasRole('AM') || auth()->user()->hasRole('SEO ADMIN') || auth()->user()->hasRole('ADMIN'))
+            <!-- @if (auth()->user()->hasRole('AM') || auth()->user()->hasRole('SEO ADMIN') || auth()->user()->hasRole('ADMIN'))
                 <li>
                     <a href="{{ route('leads.view') }}">
                         <iconify-icon icon="heroicons:document" class="menu-icon"></iconify-icon>
                         <span>Client Leads</span>
                     </a>
                 </li>
-            @endif
+            @endif -->
             <li>
                 <a href="{{ route('compress.form') }}">
                     <iconify-icon icon="mdi:folder-zip-outline" class="menu-icon"></iconify-icon>

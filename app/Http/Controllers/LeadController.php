@@ -2,150 +2,157 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Industry;
+use App\Exports\LeadsExport;
+use App\Imports\LeadsImport;
+use App\Models\CrmNote;
 use App\Models\Lead;
-use App\Models\LeadComment;
-use App\Models\LeadSource;
-use App\Models\LeadStatus;
-use App\Models\Service;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LeadController extends Controller
 {
-    public function index()
+    /* ──────────────────────────── INDEX ──────────────────────────── */
+
+    public function index(Request $request)
     {
-        $services = Service::all();
-        $LeadStatus = LeadStatus::all();
-        $statuses = LeadStatus::with('leads')->get();
-        $industries = Industry::all();
-        $sources = LeadSource::all();
-        return view('sales-leads.index', compact('services', 'LeadStatus', 'statuses', 'industries', 'sources'));
+        $filters = $request->only(['search', 'label', 'owner', 'source_origin', 'date_from', 'date_to']);
+
+        $leads = Lead::filter($filters)
+            ->orderByDesc('lead_created_at')
+            ->paginate(25)
+            ->withQueryString();
+
+        $owners  = Lead::whereNotNull('owner')->distinct()->orderBy('owner')->pluck('owner');
+        $sources = Lead::whereNotNull('source_origin')->distinct()->orderBy('source_origin')->pluck('source_origin');
+
+        return view('leads.index', compact('leads', 'filters', 'owners', 'sources'));
     }
 
-    public function updateStatus(Request $request)
+    /* ──────────────────────────── CREATE ─────────────────────────── */
+
+    public function create()
     {
-        $request->validate([
-            'lead_id' => 'required|exists:leads,id',
-            'lead_status_id' => 'required|exists:lead_statuses,id'
-        ]);
-
-        Lead::where('id', $request->lead_id)->update(['lead_status_id' => $request->lead_status_id]);
-
-        return response()->json(['message' => 'Lead status updated']);
-    }
-
-    public function list()
-    {
-        $leads = Lead::with('services', 'status')->latest()->get();
-
-        return response()->json(['data' => $leads]);
+        return view('leads.create');
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'company_name' => 'nullable|string',
-            'website' => 'nullable|string',
-            'lead_date' => 'nullable|date',
-            'comments' => 'nullable|string',
-            'lead_status_id' => 'required|exists:lead_statuses,id',
-            'services' => 'nullable|array',
-            'source_id' => 'nullable|exists:lead_sources,id',
-            'priority' => 'nullable|in:low,medium,high',
-            'location' => 'nullable|string',
-            'is_qualified' => 'boolean',
-            'industry_id' => 'nullable|exists:industries,id',
+        $data = $request->validate([
+            'title'          => 'required|string|max:255',
+            'label'          => 'nullable|in:Cold,Warm,Hot',
+            'source_origin'  => 'nullable|string|max:255',
+            'owner'          => 'nullable|string|max:255',
+            'lead_created_at'=> 'nullable|date',
+            'next_activity_at'=> 'nullable|date',
+            'notes'          => 'nullable|string',
         ]);
 
-        $validated['created_by'] = auth()->id();
+        $lead = Lead::create($data);
 
-        $lead = Lead::create($validated);
-        $lead->services()->sync($request->services ?? []);
+        return redirect()->route('leads.show', $lead)
+            ->with('success', 'Lead created successfully.');
+    }
 
-        return response()->json(['success' => true, 'message' => 'Lead created successfully.']);
+    /* ──────────────────────────── SHOW ───────────────────────────── */
+
+    public function show(Lead $lead)
+    {
+        $lead->load('crmNotes');
+        return view('leads.show', compact('lead'));
+    }
+
+    /* ──────────────────────────── EDIT ───────────────────────────── */
+
+    public function edit(Lead $lead)
+    {
+        return view('leads.edit', compact('lead'));
     }
 
     public function update(Request $request, Lead $lead)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'company_name' => 'nullable|string',
-            'website' => 'nullable|string',
-            'lead_date' => 'nullable|date',
-            'comments' => 'nullable|string',
-            'lead_status_id' => 'required|exists:lead_statuses,id',
-            'services' => 'nullable|array',
-            'source_id' => 'nullable|exists:lead_sources,id',
-            'priority' => 'nullable|in:low,medium,high',
-            'location' => 'nullable|string',
-            'is_qualified' => 'boolean',
-            'industry_id' => 'nullable|exists:industries,id',
+        $data = $request->validate([
+            'title'           => 'required|string|max:255',
+            'label'           => 'nullable|in:Cold,Warm,Hot',
+            'source_origin'   => 'nullable|string|max:255',
+            'owner'           => 'nullable|string|max:255',
+            'lead_created_at' => 'nullable|date',
+            'next_activity_at'=> 'nullable|date',
+            'notes'           => 'nullable|string',
         ]);
 
-        $lead->update($validated);
-        $lead->services()->sync($request->services ?? []);
+        $lead->update($data);
 
-        return response()->json(['success' => true, 'message' => 'Lead updated successfully.']);
+        return redirect()->route('leads.show', $lead)
+            ->with('success', 'Lead updated successfully.');
     }
 
-    public function show(Lead $lead)
-    {
-        $lead->load('services', 'status', 'industry', 'source', 'creator');
-        return response()->json($lead);
-    }
+    /* ──────────────────────────── DELETE ─────────────────────────── */
 
     public function destroy(Lead $lead)
     {
         $lead->delete();
-        return response()->json(['success' => true, 'message' => 'Lead deleted successfully.']);
+        return redirect()->route('leads.index')
+            ->with('success', 'Lead deleted.');
     }
 
-    public function getComments(Lead $lead)
+    /* ──────────────────────────── STATUS / LABEL ─────────────────── */
+
+    public function updateLabel(Request $request, Lead $lead)
     {
-        $comments = $lead->comments()->with('creator')->get();
-        return response()->json($comments);
+        $request->validate(['label' => 'required|in:Cold,Warm,Hot']);
+        $lead->update(['label' => $request->label]);
+
+        return back()->with('success', 'Label updated.');
     }
 
-    public function storeComment(Request $request, Lead $lead)
+    /* ──────────────────────────── NOTES ──────────────────────────── */
+
+    public function storeNote(Request $request, Lead $lead)
     {
-        $validated = $request->validate([
-            'comment' => 'required|string|max:255',
+        $request->validate(['content' => 'required|string|max:5000']);
+
+        $lead->crmNotes()->create([
+            'content' => $request->content,
+            'author'  => auth()->user()?->name ?? 'System',
         ]);
 
-        $validated['lead_id'] = $lead->id;
-        $validated['user_id'] = auth()->id();
-
-        $comment = LeadComment::create($validated);
-
-        return response()->json(['success' => true, 'message' => 'Comment added successfully!', 'comment' => $comment]);
+        return back()->with('success', 'Note added.');
     }
 
-    public function updateComment(Request $request, Lead $lead, LeadComment $comment)
+    public function destroyNote(Lead $lead, CrmNote $note)
     {
-        if ($comment->lead_id !== $lead->id) {
-            return response()->json(['error' => 'Comment does not belong to this lead.'], 404);
-        }
-        $validated = $request->validate([
-            'comment' => 'required|string|max:255',
+        abort_unless($note->notable_id === $lead->id && $note->notable_type === Lead::class, 403);
+        $note->delete();
+        return back()->with('success', 'Note deleted.');
+    }
+
+    /* ──────────────────────────── IMPORT ─────────────────────────── */
+
+    public function importForm()
+    {
+        return view('leads.import');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,xlsx,xls|max:20480',
         ]);
-        $comment->update($validated);
-        return response()->json(['success' => true, 'message' => 'Comment updated successfully!', 'comment' => $comment]);
+
+        $import = new LeadsImport();
+        Excel::import($import, $request->file('file'));
+
+        return redirect()->route('leads.index')
+            ->with('success', "Import complete: {$import->importedCount} imported, {$import->skippedCount} skipped.");
     }
 
-    public function deleteComment(Lead $lead, LeadComment $comment)
+    /* ──────────────────────────── EXPORT ─────────────────────────── */
+
+    public function export(Request $request)
     {
+        $filters  = $request->only(['search', 'label', 'owner', 'source_origin', 'date_from', 'date_to']);
+        $filename = 'leads_' . now()->format('Ymd_His') . '.xlsx';
 
-        if ($comment->lead_id !== $lead->id) {
-            return response()->json(['error' => 'Comment not found for this lead.'], 404);
-        }
-
-        $comment->delete();
-
-        return response()->json(['success' => true, 'message' => 'Comment deleted successfully!']);
+        return Excel::download(new LeadsExport($filters), $filename);
     }
 }
