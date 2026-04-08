@@ -497,9 +497,16 @@ class DashboardController extends Controller
         $user = auth()->user();
         $extraData = [];
         $role = $user->roles->first()->name;
+        $roles = $user->roles;
         $latestNotifications = $user->notifications()->latest()->take(5)->get();
-        $accountManagersForFilter=[];
-        $seoProjectsList=[];
+        $accountManagersForFilter = [];
+        $smmProjectsList = collect();
+
+        $smmTotalRevenue  = 0;
+        $smmCurrentRevenue = 0;
+        $smmWffRevenue    = 0;
+        $smmCurrentCount  = 0;
+        $smmWffCount      = 0;
 
         $repeatingTasks = RepeatingTask::all();
         $now = Carbon::now('Asia/Dubai');
@@ -891,7 +898,7 @@ class DashboardController extends Controller
                     ? ($project->contract_value / $project->contract_term)
                     : 0;
             });
-            
+
             $wffProjectsCount = $wffProjects->count();
 
             // Total SEO Revenue (Current + WFF)
@@ -1007,11 +1014,112 @@ class DashboardController extends Controller
                 // 'accountManagers' => $accountManagersForFilter,
             ];
         }
+
+        if ($roles->pluck('name')->contains('SENIOR SMM')) {
+
+            $smmQuery = Project::with(['accountManagers', 'socialMediaProject'])
+                ->whereIn('project_type', ['Social Media', 'Google Ads'])
+                ->orderBy('created_at', 'desc')->where('status', 'Current');
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $smmQuery->where(function ($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                        ->orWhereHas('companies', fn($q2) => $q2->where('name', 'like', "%{$search}%"));
+                });
+            }
+            if ($request->filled('status')) {
+                $smmQuery->where('status', $request->status);
+            }
+            if ($request->filled('project_type')) {
+                $smmQuery->where('project_type', $request->project_type);
+            }
+            if ($request->filled('account_manager_id')) {
+                $smmQuery->whereHas('accountManagers', fn($q) =>
+                $q->where('user_id', $request->account_manager_id));
+            }
+
+            $smmProjectsList = $smmQuery->get()->map(function ($project) {
+                $startDate      = $project->contract_start_date
+                    ? Carbon::parse($project->contract_start_date) : null;
+                $endDate        = ($startDate && $project->contract_term)
+                    ? $startDate->copy()->addMonths($project->contract_term) : null;
+                $monthlyInvoice = ($project->contract_value && $project->contract_term)
+                    ? ($project->contract_value / $project->contract_term) : 0;
+                $nextInvoiceDate = ($endDate && Carbon::now()->lt($endDate))
+                    ? Carbon::now()->startOfMonth()->addMonth()->format('Y-m-d') : null;
+                return [
+                    'id'                  => $project->id,
+                    'title'               => $project->title,
+                    'company_name'        => $project->companies->name ?? 'N/A',
+                    'status'              => $project->status,
+                    'project_type'        => $project->project_type,
+                    'contract_start_date' => $startDate?->format('Y-m-d'),
+                    'contract_end_date'   => $endDate?->format('Y-m-d'),
+                    'next_invoice_date'   => $nextInvoiceDate,
+                    'contract_value'      => $project->contract_value,
+                    'contract_term'       => $project->contract_term,
+                    'monthly_invoice'     => $monthlyInvoice,
+                    'account_managers'    => $project->accountManagers->map(fn($am) => [
+                        'id' => $am->id,
+                        'name' => $am->name,
+                    ]),
+                ];
+            });
+
+            $accountManagersForFilter = User::whereHas('roles', fn($q) => $q->where('name', 'AM'))
+                ->orderBy('name')->get();
+
+            // Social Media Marketing — Current only
+            $smmCurrentRevenue = Project::where('project_type', 'Social Media')
+                ->where('status', 'Current')
+                ->get()
+                ->sum(fn($p) => ($p->contract_value && $p->contract_term)
+                    ? $p->contract_value / $p->contract_term : 0);
+
+            $smmCurrentCount = Project::where('project_type', 'Social Media')
+                ->where('status', 'Current')
+                ->count();
+
+            // Google Ads — Current only
+            $googleAdsCurrentRevenue = Project::where('project_type', 'Google Ads')
+                ->where('status', 'Current')
+                ->get()
+                ->sum(fn($p) => ($p->contract_value && $p->contract_term)
+                    ? $p->contract_value / $p->contract_term : 0);
+
+            $googleAdsCurrentCount = Project::where('project_type', 'Google Ads')
+                ->where('status', 'Current')
+                ->count();
+
+            $smmTotalRevenue = $smmCurrentRevenue + $googleAdsCurrentRevenue;
+            $smmWffRevenue   = 0; 
+            $smmWffCount     = 0;
+
+            $extraData += [
+                'smmProjectsList',
+                'smmTotalRevenue',
+                'smmCurrentRevenue',
+                'smmCurrentCount',
+                'smmWffRevenue',
+                'smmWffCount',
+                'googleAdsCurrentRevenue',
+                'googleAdsCurrentCount',
+            ];
+        }
+
         $accountManagers = $accountManagersForFilter;
-        $seoProjects = $seoProjectsList;
+        $seoProjects     = isset($seoProjectsList) ? $seoProjectsList : collect();
+
+        // SMM defaults for non-SMM roles
+        $smmProjectsList          = $smmProjectsList          ?? collect();
+        $googleAdsCurrentRevenue  = $googleAdsCurrentRevenue  ?? 0;
+        $googleAdsCurrentCount    = $googleAdsCurrentCount    ?? 0;
+
         return view('dashboard', array_merge(
             compact(
                 'role',
+                'roles',
                 'latestNotifications',
                 'taskData',
                 'taskPercentages',
@@ -1034,6 +1142,14 @@ class DashboardController extends Controller
                 'tasksClosedLast30Days',
                 'accountManagers',
                 'seoProjects',
+                'smmProjectsList',
+                'smmTotalRevenue',
+                'smmCurrentRevenue',
+                'smmCurrentCount',
+                'smmWffRevenue',
+                'smmWffCount',
+                'googleAdsCurrentRevenue',
+                'googleAdsCurrentCount',
                 $extraData
             ),
         ));

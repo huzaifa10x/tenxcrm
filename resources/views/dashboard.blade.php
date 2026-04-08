@@ -610,8 +610,273 @@
              ACCORDION SECTIONS
         ═══════════════════════════════════════════════════════ --}}
         <div class="ds-accordion">
+            @if ($roles->pluck('name')->contains('SENIOR SMM'))
 
-            {{-- ── SECTION 1: Revenue Overview (Admin / SEO Admin) ── --}}
+                {{-- ── SMM Revenue Overview ── --}}
+                <div class="ds-section open" id="sec-smm-revenue">
+                    <div class="ds-section-header" onclick="toggleSection('sec-smm-revenue')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#fff0f6;color:#c2255c;">
+                                <i class="bi bi-megaphone"></i>
+                            </span>
+                            SMM &amp; Google Ads Revenue Overview
+                        </h6>
+                        <div class="ds-section-meta">
+                            <span class="ds-section-badge" style="background:#fff0f6;color:#c2255c;">Current Only</span>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body">
+                        <div class="ds-stat-grid">
+                            <div class="ds-stat ds-stat-accent-pink">
+                                <div class="ds-stat-label">Total Current Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span class="ds-stat-currency">AED</span>{{ number_format($smmTotalRevenue, 2) }}
+                                </div>
+                                <div class="ds-stat-sub">SMM + Google Ads · Active only</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-purple">
+                                <div class="ds-stat-label">Social Media Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span class="ds-stat-currency">AED</span>{{ number_format($smmCurrentRevenue, 2) }}
+                                </div>
+                                <div class="ds-stat-sub">{{ $smmCurrentCount }} current projects</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-teal">
+                                <div class="ds-stat-label">Google Ads Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span
+                                        class="ds-stat-currency">AED</span>{{ number_format($googleAdsCurrentRevenue, 2) }}
+                                </div>
+                                <div class="ds-stat-sub">{{ $googleAdsCurrentCount }} current projects</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-green">
+                                <div class="ds-stat-label">Total Active Projects</div>
+                                <div class="ds-stat-value">{{ $smmCurrentCount + $googleAdsCurrentCount }}</div>
+                                <div class="ds-stat-sub">Current status only</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── SMM Projects Table ── --}}
+                <div class="ds-section open" id="sec-smm-projects">
+                    <div class="ds-section-header" onclick="toggleSection('sec-smm-projects')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#fff0f6;color:#c2255c;">
+                                <i class="bi bi-kanban"></i>
+                            </span>
+                            Social Media &amp; Google Ads Projects
+                        </h6>
+                        <div class="ds-section-meta">
+                            <span class="ds-section-badge" style="background:#fff0f6;color:#c2255c;">
+                                {{ $smmProjectsList->count() }} projects
+                            </span>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body" style="padding:0;">
+
+                        {{-- Filter bar --}}
+                        <div style="padding:1rem 1.25rem 0;">
+                            <div class="ds-filter-bar">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label"><i class="bi bi-search me-1"></i>Search</label>
+                                        <input type="text" class="form-control" id="smmSearch"
+                                            placeholder="Project or client name…">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label"><i class="bi bi-flag me-1"></i>Status</label>
+                                        <select class="form-select" id="smmStatus">
+                                            <option value="">All Statuses</option>
+                                            <option value="Current">Current</option>
+                                            <option value="WFF">WFF</option>
+                                            <option value="Debt Collection">Debt Collection</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <option value="Expired">Expired</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label"><i class="bi bi-tag me-1"></i>Type</label>
+                                        <select class="form-select" id="smmType">
+                                            <option value="">All Types</option>
+                                            <option value="Social Media Marketing">Social Media Marketing</option>
+                                            <option value="Google Ads">Google Ads</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="bi bi-person-badge me-1"></i>Account Manager
+                                        </label>
+                                        <select class="form-select" id="smmAm">
+                                            <option value="">All AMs</option>
+                                            @foreach ($accountManagers as $am)
+                                                <option value="{{ $am->id }}">{{ $am->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm" id="smmFilterBtn">
+                                        <i class="bi bi-funnel-fill me-1"></i>Apply
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="smmResetBtn">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                                    </button>
+                                    <button class="btn btn-success btn-sm" id="smmExportBtn">
+                                        <i class="bi bi-file-earmark-excel me-1"></i>Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Summary strip --}}
+                        <div class="ds-strip">
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Total Contract Value</span>
+                                <span class="ds-strip-value">
+                                    AED <span id="smmTotalContractValue">
+                                        {{ number_format($smmProjectsList->sum('contract_value'), 2) }}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Monthly Invoices (MRR)</span>
+                                <span class="ds-strip-value" style="color:var(--ds-success);">
+                                    AED <span id="smmTotalMrr">
+                                        {{ number_format($smmProjectsList->sum('monthly_invoice'), 2) }}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Projects Shown</span>
+                                <span class="ds-strip-value" id="smmProjectCount">
+                                    {{ $smmProjectsList->count() }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Table --}}
+                        <div style="padding:0 1.25rem 1.25rem;">
+                            <div class="ds-table-wrap">
+                                <div class="ds-table-scroll">
+                                    <table class="table ds-table mb-0" id="smmProjectsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Project</th>
+                                                <th>Client</th>
+                                                <th>Type</th>
+                                                <th>Status</th>
+                                                <th>Account Manager</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Next Invoice</th>
+                                                <th>Monthly Invoice</th>
+                                                <th>Contract Value</th>
+                                                <th>Term (mo.)</th>
+                                                <th class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="smmTableBody">
+                                            @php
+                                                $statusColors = [
+                                                    'Current' => 'success',
+                                                    'WFF' => 'warning',
+                                                    'Debt Collection' => 'danger',
+                                                    'Completed' => 'info',
+                                                    'Cancelled' => 'secondary',
+                                                    'Expired' => 'dark',
+                                                ];
+                                            @endphp
+                                            @forelse ($smmProjectsList as $index => $project)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>
+                                                        <div class="fw-semibold" style="font-size:.85rem;">
+                                                            {{ $project['title'] }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:.85rem;">{{ $project['company_name'] }}</td>
+                                                    <td>
+                                                        <span class="badge"
+                                                            style="background:{{ $project['project_type'] === 'Google Ads' ? '#e7f5ff' : '#fff0f6' }};
+                                                       color:{{ $project['project_type'] === 'Google Ads' ? '#1971c2' : '#c2255c' }};">
+                                                            {{ $project['project_type'] }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span
+                                                            class="badge bg-{{ $statusColors[$project['status']] ?? 'secondary' }}">
+                                                            {{ $project['status'] }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        @if (!empty($project['account_managers']))
+                                                            @foreach ($project['account_managers'] as $am)
+                                                                <div style="font-size:.8rem;">
+                                                                    <i
+                                                                        class="bi bi-person-circle me-1"></i>{{ $am['name'] }}
+                                                                </div>
+                                                            @endforeach
+                                                        @else
+                                                            <span class="text-muted">—</span>
+                                                        @endif
+                                                    </td>
+                                                    <td style="font-size:.82rem;">
+                                                        {{ $project['contract_start_date']
+                                                            ? \Carbon\Carbon::parse($project['contract_start_date'])->format('M d, Y')
+                                                            : '—' }}
+                                                    </td>
+                                                    <td style="font-size:.82rem;">
+                                                        {{ $project['contract_end_date'] ? \Carbon\Carbon::parse($project['contract_end_date'])->format('M d, Y') : '—' }}
+                                                    </td>
+                                                    <td style="font-size:.82rem;">
+                                                        @if ($project['next_invoice_date'])
+                                                            <span class="badge bg-primary bg-opacity-10 text-primary">
+                                                                {{ \Carbon\Carbon::parse($project['next_invoice_date'])->format('M d, Y') }}
+                                                            </span>
+                                                        @else
+                                                            <span class="text-muted">—</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <strong class="text-success" style="font-size:.85rem;">
+                                                            AED {{ number_format($project['monthly_invoice'], 2) }}
+                                                        </strong>
+                                                    </td>
+                                                    <td style="font-size:.85rem;">
+                                                        AED {{ number_format($project['contract_value'], 2) }}
+                                                    </td>
+                                                    <td style="font-size:.85rem;">
+                                                        {{ $project['contract_term'] ?? '—' }} mo.
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('projects.show', $project['id']) }}"
+                                                            class="btn btn-sm btn-outline-primary" title="View">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="13" class="text-center py-5 text-muted">
+                                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                                        No projects found.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            @endif
             @if ($role === 'ADMIN' || $role === 'SEO ADMIN')
                 <div class="ds-section open" id="sec-revenue">
                     <div class="ds-section-header" onclick="toggleSection('sec-revenue')">
@@ -637,14 +902,16 @@
                             <div class="ds-stat ds-stat-accent-green">
                                 <div class="ds-stat-label">Current SEO Revenue</div>
                                 <div class="ds-stat-value">
-                                    <span class="ds-stat-currency">AED</span>{{ number_format($currentSeoRevenue, 2) }}
+                                    <span
+                                        class="ds-stat-currency">AED</span>{{ number_format($currentSeoRevenue, 2) }}
                                 </div>
                                 <div class="ds-stat-sub">{{ $currentSeoProjectsCount }} active projects</div>
                             </div>
                             <div class="ds-stat ds-stat-accent-teal">
                                 <div class="ds-stat-label">Monthly SEO Revenue</div>
                                 <div class="ds-stat-value">
-                                    <span class="ds-stat-currency">AED</span>{{ number_format($monthlySeoRevenue, 2) }}
+                                    <span
+                                        class="ds-stat-currency">AED</span>{{ number_format($monthlySeoRevenue, 2) }}
                                 </div>
                                 <div class="ds-stat-sub">{{ $currentSeoProjectsCount }} active projects</div>
                             </div>
@@ -658,8 +925,6 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- ── SECTION 2: SEO Projects Management ── --}}
                 <div class="ds-section open" id="sec-seo-projects">
                     <div class="ds-section-header" onclick="toggleSection('sec-seo-projects')">
                         <h6 class="ds-section-title">
@@ -683,8 +948,8 @@
                                     <div class="row g-2 mb-2">
                                         <div class="col-lg-4 col-md-6">
                                             <label class="form-label"><i class="bi bi-search me-1"></i>Search</label>
-                                            <input type="text" class="form-control" id="globalSearch" name="search"
-                                                placeholder="Project, client, keywords…">
+                                            <input type="text" class="form-control" id="globalSearch"
+                                                name="search" placeholder="Project, client, keywords…">
                                         </div>
                                         <div class="col-lg-4 col-md-6">
                                             <label class="form-label"><i class="bi bi-person-badge me-1"></i>Account
@@ -873,8 +1138,6 @@
                     </div>
                 </div>
             @endif
-
-            {{-- ── SECTION 3: Task Activity ── --}}
             <div class="ds-section open" id="sec-tasks">
                 <div class="ds-section-header" onclick="toggleSection('sec-tasks')">
                     <h6 class="ds-section-title">
@@ -979,8 +1242,6 @@
                     </div>
                 </div>
             </div>
-
-            {{-- ── SECTION 4: Latest Notifications ── --}}
             <div class="ds-section open" id="sec-notifications">
                 <div class="ds-section-header" onclick="toggleSection('sec-notifications')">
                     <h6 class="ds-section-title">
@@ -1013,8 +1274,6 @@
                     @endforelse
                 </div>
             </div>
-
-            {{-- ── SECTION 5: Office Timings ── --}}
             <div class="ds-section" id="sec-office">
                 <div class="ds-section-header" onclick="toggleSection('sec-office')">
                     <h6 class="ds-section-title">
@@ -1068,8 +1327,6 @@
                     </div>
                 </div>
             </div>
-
-            {{-- ── SECTION 6: Role-specific dashboards ── --}}
             @if ($role === 'AM')
                 <div class="ds-section open" id="sec-am">
                     <div class="ds-section-header" onclick="toggleSection('sec-am')">
@@ -1106,7 +1363,6 @@
                     </div>
                 </div>
             @elseif ($role === 'ADMIN')
-                {{-- ── Admin: Website Projects ── --}}
                 <div class="ds-section open" id="sec-website">
                     <div class="ds-section-header" onclick="toggleSection('sec-website')">
                         <h6 class="ds-section-title">
@@ -1422,7 +1678,8 @@
                 </div>
             @endif
 
-        </div>{{-- end .ds-accordion --}}
+        </div>
+        {{-- end .ds-accordion --}}
     </div>{{-- end .ds-page --}}
 
     {{-- ── Reason Modal ── --}}
@@ -1614,13 +1871,13 @@
                             let rows = r.attendance.length ?
                                 r.attendance.map(a =>
                                     `<tr><td>${a.user.name}</td><td>${a.date}</td><td>${a.punch_in||'—'}</td><td>${a.punch_out??'Working'}</td><td>${a.total_hours??'Pending'}</td><td>${a.status||'Pending'}</td></tr>`
-                                    ).join('') :
+                                ).join('') :
                                 '<tr><td colspan="6" class="text-center text-muted py-3" style="font-size:.82rem;">No records found.</td></tr>';
                             $('#attendanceTable tbody').html(rows);
                         },
                         error: () => $('#attendanceTable tbody').html(
                             '<tr><td colspan="6" class="text-center text-muted py-3" style="font-size:.82rem;">Holiday or weekend.</td></tr>'
-                            )
+                        )
                     });
                 }
                 fetchAttendance(today);
@@ -1633,6 +1890,124 @@
                 $('.project-title').attr('href', url).text($(this).data('project'));
                 $('.reason-text').text($(this).data('reason'));
             });
+
+            const smmFilterBtn = document.getElementById('smmFilterBtn');
+            const smmResetBtn = document.getElementById('smmResetBtn');
+            const smmExportBtn = document.getElementById('smmExportBtn');
+
+            function buildSmmParams() {
+                return new URLSearchParams({
+                    search: document.getElementById('smmSearch')?.value || '',
+                    status: document.getElementById('smmStatus')?.value || '',
+                    project_type: document.getElementById('smmType')?.value || '',
+                    account_manager_id: document.getElementById('smmAm')?.value || '',
+                });
+            }
+
+            function applySmmFilter() {
+                const params = buildSmmParams();
+                fetch(`{{ route('dashboard.smm-projects.filter') }}?${params}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => renderSmmTable(data.projects, data))
+                    .catch(() => alert('Error filtering projects.'));
+            }
+
+            if (smmFilterBtn) {
+                smmFilterBtn.addEventListener('click', applySmmFilter);
+            }
+
+            if (smmResetBtn) {
+                smmResetBtn.addEventListener('click', function() {
+                    ['smmSearch', 'smmStatus', 'smmType', 'smmAm'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    applySmmFilter();
+                });
+            }
+
+            if (smmExportBtn) {
+                smmExportBtn.addEventListener('click', function() {
+                    window.location.href =
+                        `{{ route('dashboard.smm-projects.export') }}?${buildSmmParams()}`;
+                });
+            }
+
+            function renderSmmTable(projects, summary) {
+                const tbody = document.getElementById('smmTableBody');
+                if (!tbody) return;
+
+                document.getElementById('smmProjectCount').textContent = projects.length;
+                document.getElementById('smmTotalContractValue').textContent =
+                    Number(summary.totalContractValue).toLocaleString(undefined, {
+                        minimumFractionDigits: 2
+                    });
+                document.getElementById('smmTotalMrr').textContent =
+                    Number(summary.totalMrr).toLocaleString(undefined, {
+                        minimumFractionDigits: 2
+                    });
+
+                const statusColors = {
+                    'Current': 'success',
+                    'WFF': 'warning',
+                    'Debt Collection': 'danger',
+                    'Completed': 'info',
+                    'Cancelled': 'secondary',
+                    'Expired': 'dark'
+                };
+
+                if (!projects.length) {
+                    tbody.innerHTML = `<tr><td colspan="13" class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>No projects found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = projects.map((p, i) => {
+                    const ams = (p.account_managers || [])
+                        .map(a =>
+                            `<div style="font-size:.8rem;"><i class="bi bi-person-circle me-1"></i>${a.name}</div>`
+                        )
+                        .join('') || '<span class="text-muted">—</span>';
+
+                    const fmt = dateStr => dateStr ?
+                        new Date(dateStr).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                        }) :
+                        '—';
+
+                    const typeBadge = p.project_type === 'Google Ads' ?
+                        `<span class="badge" style="background:#e7f5ff;color:#1971c2;">Google Ads</span>` :
+                        `<span class="badge" style="background:#fff0f6;color:#c2255c;">Social Media</span>`;
+
+                    const nextInvoice = p.next_invoice_date ?
+                        `<span class="badge bg-primary bg-opacity-10 text-primary">${fmt(p.next_invoice_date)}</span>` :
+                        '—';
+
+                    return `<tr>
+            <td>${i + 1}</td>
+            <td><div class="fw-semibold" style="font-size:.85rem;">${p.title}</div></td>
+            <td style="font-size:.85rem;">${p.company_name}</td>
+            <td>${typeBadge}</td>
+            <td><span class="badge bg-${statusColors[p.status]||'secondary'}">${p.status}</span></td>
+            <td>${ams}</td>
+            <td style="font-size:.82rem;">${fmt(p.contract_start_date)}</td>
+            <td style="font-size:.82rem;">${fmt(p.contract_end_date)}</td>
+            <td style="font-size:.82rem;">${nextInvoice}</td>
+            <td><strong class="text-success" style="font-size:.85rem;">AED ${Number(p.monthly_invoice).toFixed(2)}</strong></td>
+            <td style="font-size:.85rem;">AED ${Number(p.contract_value).toFixed(2)}</td>
+            <td style="font-size:.85rem;">${p.contract_term || '—'} mo.</td>
+            <td><a href="/projects/${p.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+        </tr>`;
+                }).join('');
+            }
+
         });
 
         function updateProjectsTable(projects) {

@@ -239,6 +239,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/account-managers/add-member', [UserController::class, 'addTeamMember'])->name('account-maanger.member');
     Route::delete('/account-manager/remove-member', [UserController::class, 'removeMember'])->name('account-maanger.remove-member');
 
+    Route::get('/dashboard/smm-projects/filter', [DashboardController::class, 'filterSmmProjects'])
+        ->name('dashboard.smm-projects.filter');
+
+    Route::get('/dashboard/smm-projects/export', [DashboardController::class, 'exportSmmProjects'])
+        ->name('dashboard.smm-projects.export');
 
     Route::get('/admin/attendance/filter', [DashboardController::class, 'filterAttendance'])->name('admin.attendance.filter');
     Route::get('/admin/attendance', [AttendanceController::class, 'monthlyAttendance'])->name('admin.attendance');
