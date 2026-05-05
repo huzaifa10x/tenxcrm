@@ -5,6 +5,10 @@ namespace App\Providers;
 use App\Console\Commands\SendWeeklyTaskSummary;
 use App\Http\Middleware\CheckPermission;
 use App\Services\ChatGPTService;
+use App\Services\Xero\AnalyticsSnapshotService;
+use App\Services\Xero\XeroApiClient;
+use App\Services\Xero\XeroAuthService;
+use App\Services\Xero\XeroSyncService;
 use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +22,29 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->singleton(\App\Services\Xero\XeroAuthService::class, function ($app) {
+            return new \App\Services\Xero\XeroAuthService();
+        });
+
+        $this->app->singleton(\App\Services\Xero\XeroApiClient::class, function ($app) {
+            return new \App\Services\Xero\XeroApiClient(
+                $app->make(\App\Services\Xero\XeroAuthService::class)
+            );
+        });
+
+        $this->app->singleton(\App\Services\Xero\AnalyticsSnapshotService::class);
+
+        $this->app->singleton(\App\Services\Xero\XeroSyncService::class, function ($app) {
+            return new \App\Services\Xero\XeroSyncService(
+                $app->make(\App\Services\Xero\XeroApiClient::class),
+                $app->make(\App\Services\Xero\AnalyticsSnapshotService::class),
+            );
+        });
+
+        $this->app->singleton(\App\Services\Xero\AnalyticsService::class);
+    }
 
     /**
      * Bootstrap any application services.
