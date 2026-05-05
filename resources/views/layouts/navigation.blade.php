@@ -20,6 +20,15 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('AM') || auth()->user()->hasRole('SALES MANAGER'))
+                <li>
+                    <a href="{{ route('xero.analytics.dashboard') }}">
+                        <i class="w-auto text-xl ri-news-line me-14 d-flex"></i>
+                        <span>Xero Analytics</span>
+                    </a>
+                </li>
+            @endif
             @if ($userPermissions->contains('can view users'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">

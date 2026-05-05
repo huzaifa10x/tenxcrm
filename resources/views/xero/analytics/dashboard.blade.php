@@ -495,7 +495,7 @@ async function loadClientDetail(clientId, clientName) {
     document.getElementById('clientModalBody').innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted);">Loading…</div>';
     document.getElementById('clientModalOverlay').classList.add('show');
 
-    const res  = await fetch(`/tenxcrm/xero/analytics/clients/${clientId}`);
+    const res  = await fetch(`/xero/analytics/clients/${clientId}`);
     const data = await res.json();
 
     const bars = (data.service_breakdown||[]).map(s => {
@@ -562,7 +562,7 @@ document.getElementById('syncNowBtn')?.addEventListener('click', async function(
     this.disabled=true;
     this.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Syncing…';
     try {
-        const res  = await fetch("/tenxcrm/xero/sync/incremental", {
+        const res  = await fetch("/xero/sync/incremental", {
             method:'POST', headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Accept':'application/json'}
         });
         alert((await res.json()).message||'Sync queued.');
