@@ -13,6 +13,7 @@ use App\Services\Xero\XeroAuthService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class XeroAnalyticsDashboardController extends Controller
 {
@@ -50,37 +51,29 @@ class XeroAnalyticsDashboardController extends Controller
     public function dashboard(Request $request)
     {
         [$from, $to] = $this->resolveDateRange($request);
+        $filters     = $this->extractFilters($request);
 
-        $summary         = $this->analytics->financialSummary($from, $to);
-        $monthComparison = $this->analytics->monthComparison();
-        $peakMonth       = $this->analytics->highestRevenueMonth();
-        $trend12         = $this->analytics->monthlyTrend(12);
-        $departmentRev   = $this->analytics->departmentRevenue($from, $to);
-        $clientPerformance = $this->analytics->allClientPerformance($from, $to);
-        $prediction      = $this->analytics->predictNextMonthRevenue();
-        $deptPrediction  = $this->analytics->predictDepartmentRevenue();
-        $lastSync        = XeroSyncLog::where('entity', 'invoices')
-            ->where('status', 'completed')
-            ->latest('completed_at')
-            ->first();
+        $summary           = $this->analytics->financialSummary($from, $to, $filters);
+        $monthComparison   = $this->analytics->monthComparison($filters);
+        $peakMonth         = $this->analytics->highestRevenueMonth($filters);
+        $trend12           = $this->analytics->monthlyTrend(12, $filters);
+        $departmentRev     = $this->analytics->departmentRevenue($from, $to, $filters);
+        $clientPerformance = $this->analytics->allClientPerformance($from, $to, $filters);
+        $serviceBreakdown  = $this->analytics->serviceRevenue($from, $to, $filters);
+        $prediction        = $this->analytics->predictNextMonthRevenue($filters);
+        $deptPrediction    = $this->analytics->predictDepartmentRevenue($filters);
+        $lastSync          = XeroSyncLog::where('entity', 'invoices')->where('status', 'completed')->latest('completed_at')->first();
 
+        // Data for dropdowns
         $departments = XeroDepartment::all();
         $clients     = XeroClient::active()->orderBy('name')->get(['id', 'name']);
+        $services    = DB::table('xero_invoice_items')->whereNotNull('normalized_service')->distinct()->pluck('normalized_service');
 
         return view('xero.analytics.dashboard', compact(
-            'summary',
-            'monthComparison',
-            'peakMonth',
-            'trend12',
-            'departmentRev',
-            'clientPerformance',
-            'prediction',
-            'deptPrediction',
-            'departments',
-            'clients',
-            'from',
-            'to',
-            'lastSync'
+            'summary', 'monthComparison', 'peakMonth', 'trend12',
+            'departmentRev', 'clientPerformance', 'prediction', 'deptPrediction',
+            'serviceBreakdown', 'departments', 'clients', 'services', 
+            'from', 'to', 'lastSync', 'filters'
         ));
     }
 
@@ -89,27 +82,24 @@ class XeroAnalyticsDashboardController extends Controller
     public function summaryAjax(Request $request): JsonResponse
     {
         [$from, $to] = $this->resolveDateRange($request);
+        $filters     = $this->extractFilters($request);
 
         return response()->json([
-            'summary'              => $this->analytics->financialSummary(
-                $from,
-                $to,
-                $request->integer('client_id') ?: null,
-                $request->integer('department_id') ?: null
-            ),
-            'department_breakdown' => $this->analytics->departmentRevenue($from, $to),
-            'service_breakdown'    => $this->analytics->serviceRevenue($from, $to),
-            'top_clients' => $this->analytics->allClientPerformance($from, $to),
+            'summary'              => $this->analytics->financialSummary($from, $to, $filters),
+            'department_breakdown' => $this->analytics->departmentRevenue($from, $to, $filters),
+            'service_breakdown'    => $this->analytics->serviceRevenue($from, $to, $filters),
+            'top_clients'          => $this->analytics->allClientPerformance($from, $to, $filters),
         ]);
     }
 
     public function departmentTrendAjax(Request $request): JsonResponse
     {
-        $months = (int) $request->input('months', 6);
-        $months = in_array($months, [3, 6, 12]) ? $months : 6;
+        $months  = (int) $request->input('months', 6);
+        $months  = in_array($months, [3, 6, 12]) ? $months : 6;
+        $filters = $this->extractFilters($request);
 
         return response()->json([
-            'trend' => $this->analytics->departmentMonthlyTrend($months),
+            'trend' => $this->analytics->departmentMonthlyTrend($months, $filters),
         ]);
     }
 
@@ -122,14 +112,13 @@ class XeroAnalyticsDashboardController extends Controller
 
     public function predictionsAjax(Request $request): JsonResponse
     {
-        // 1. Resolve the date range from the request
         [$from, $to] = $this->resolveDateRange($request);
+        $filters     = $this->extractFilters($request);
 
         return response()->json([
-            'overall'     => $this->analytics->predictNextMonthRevenue(),
-            'departments' => $this->analytics->predictDepartmentRevenue(),
-            // 2. Now $from and $to are defined and can be passed here safely
-            'top_clients' => $this->analytics->allClientPerformance($from, $to),
+            'overall'     => $this->analytics->predictNextMonthRevenue($filters),
+            'departments' => $this->analytics->predictDepartmentRevenue($filters),
+            'top_clients' => $this->analytics->allClientPerformance($from, $to, $filters),
         ]);
     }
 
@@ -140,7 +129,7 @@ class XeroAnalyticsDashboardController extends Controller
         $clients = XeroClient::active()
             ->where(function ($query) use ($q) {
                 $query->where('name', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%");
+                      ->orWhere('email', 'like', "%{$q}%");
             })
             ->orderBy('name')
             ->limit(20)
@@ -169,14 +158,9 @@ class XeroAnalyticsDashboardController extends Controller
             ->orderByDesc('started_at')
             ->limit(10)
             ->get([
-                'entity',
-                'sync_type',
-                'status',
-                'records_fetched',
-                'records_created',
-                'records_updated',
-                'started_at',
-                'completed_at',
+                'entity', 'sync_type', 'status',
+                'records_fetched', 'records_created', 'records_updated',
+                'started_at', 'completed_at',
             ]);
 
         return response()->json(['logs' => $logs]);
@@ -201,5 +185,13 @@ class XeroAnalyticsDashboardController extends Controller
             ],
             default      => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()],
         };
+    }
+
+    private function extractFilters(Request $request): array
+    {
+        return array_filter(
+            $request->only(['client_id', 'department_id', 'service', 'min_amount', 'max_amount']),
+            fn($v) => $v !== null && $v !== ''
+        );
     }
 }

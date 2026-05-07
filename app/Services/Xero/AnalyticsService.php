@@ -14,30 +14,63 @@ class AnalyticsService
 {
     private const CACHE_TTL = 600;
 
-    // helper — builds the month string without reserved words or LPAD
     private function monthExpr(string $dateCol): string
     {
         return "CONCAT(YEAR({$dateCol}),'-',RIGHT(CONCAT('0',MONTH({$dateCol})),2))";
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // 1. FINANCIAL SUMMARY
-    // ═══════════════════════════════════════════════════════════
+    // ── CENTRALIZED FILTER BUILDERS ─────────────────────────────────
 
-    public function financialSummary(
-        Carbon $from,
-        Carbon $to,
-        ?int   $clientId = null,
-        ?int   $departmentId = null
-    ): array {
-        $key = "xero_summary_{$from->toDateString()}_{$to->toDateString()}_{$clientId}_{$departmentId}";
+    private function baseFilteredQuery(Carbon $from, Carbon $to, array $filters = [])
+    {
+        $q = XeroInvoice::sales()->authorised()
+            ->whereBetween('invoice_date', [$from->toDateString(), $to->toDateString()]);
 
-        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to, $clientId, $departmentId) {
-            $base = $this->baseInvoiceQuery($from, $to, $clientId);
-            if ($departmentId) {
-                $base->whereHas('items', fn($q) => $q->where('department_id', $departmentId));
-            }
-            $stats = $base->selectRaw('
+        if (!empty($filters['client_id'])) {
+            $q->where('xero_client_id', $filters['client_id']);
+        }
+        if (!empty($filters['min_amount'])) {
+            $q->where('total', '>=', (float) $filters['min_amount']);
+        }
+        if (!empty($filters['max_amount'])) {
+            $q->where('total', '<=', (float) $filters['max_amount']);
+        }
+        if (!empty($filters['department_id']) || !empty($filters['service'])) {
+            $q->whereHas('items', function ($iq) use ($filters) {
+                if (!empty($filters['department_id'])) $iq->where('department_id', $filters['department_id']);
+                if (!empty($filters['service'])) $iq->where('normalized_service', $filters['service']);
+            });
+        }
+        return $q;
+    }
+
+    private function baseFilteredItemQuery(Carbon $from, Carbon $to, array $filters = [])
+    {
+        $q = DB::table('xero_invoice_items as ii')
+            ->join('xero_invoices as inv', 'inv.id', '=', 'ii.invoice_id')
+            ->whereIn('inv.status', ['PAID', 'AUTHORISED'])
+            ->where('inv.type', 'ACCREC')
+            ->whereBetween('inv.invoice_date', [$from->toDateString(), $to->toDateString()])
+            ->whereNull('inv.deleted_at');
+
+        if (!empty($filters['client_id'])) $q->where('inv.xero_client_id', $filters['client_id']);
+        if (!empty($filters['min_amount'])) $q->where('inv.total', '>=', (float) $filters['min_amount']);
+        if (!empty($filters['max_amount'])) $q->where('inv.total', '<=', (float) $filters['max_amount']);
+        if (!empty($filters['department_id'])) $q->where('ii.department_id', $filters['department_id']);
+        if (!empty($filters['service'])) $q->where('ii.normalized_service', $filters['service']);
+
+        return $q;
+    }
+
+    // ── 1. FINANCIAL SUMMARY ─────────────────────────────────────────
+
+    public function financialSummary(Carbon $from, Carbon $to, array $filters = []): array
+    {
+        $hash = md5(json_encode($filters));
+        $key = "xero_summary_{$from->toDateString()}_{$to->toDateString()}_{$hash}";
+
+        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to, $filters) {
+            $stats = $this->baseFilteredQuery($from, $to, $filters)->selectRaw('
                 COUNT(*) as invoice_count,
                 SUM(total) as total_revenue,
                 SUM(CASE WHEN status = "PAID" THEN total ELSE 0 END) as paid_revenue,
@@ -56,14 +89,13 @@ class AnalyticsService
         });
     }
 
-    public function monthComparison(): array
+    public function monthComparison(array $filters = []): array
     {
-        return Cache::remember('xero_month_comparison', self::CACHE_TTL, function () {
-            $current  = $this->monthRevenue(now()->year, now()->month);
-            $previous = $this->monthRevenue(now()->subMonth()->year, now()->subMonth()->month);
-            $growth   = $previous > 0
-                ? round((($current - $previous) / $previous) * 100, 1)
-                : ($current > 0 ? 100 : 0);
+        $hash = md5(json_encode($filters));
+        return Cache::remember("xero_month_comparison_{$hash}", self::CACHE_TTL, function () use ($filters) {
+            $current  = $this->monthRevenue(now()->year, now()->month, $filters);
+            $previous = $this->monthRevenue(now()->subMonth()->year, now()->subMonth()->month, $filters);
+            $growth   = $previous > 0 ? round((($current - $previous) / $previous) * 100, 1) : ($current > 0 ? 100 : 0);
 
             return [
                 'current_month'  => $current,
@@ -75,39 +107,27 @@ class AnalyticsService
         });
     }
 
-    private function monthRevenue(int $year, int $month): float
+    private function monthRevenue(int $year, int $month, array $filters = []): float
     {
-        return (float) XeroInvoice::sales()->authorised()
-            ->whereYear('invoice_date', $year)
-            ->whereMonth('invoice_date', $month)
-            ->sum('total');
+        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $end   = $start->copy()->endOfMonth();
+        return (float) $this->baseFilteredQuery($start, $end, $filters)->sum('total');
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // 2. TRENDS
-    // ═══════════════════════════════════════════════════════════
+    // ── 2. TRENDS ────────────────────────────────────────────────────
 
-    public function monthlyTrend(int $months = 12): Collection
+    public function monthlyTrend(int $months = 12, array $filters = []): Collection
     {
-        return Cache::remember("xero_monthly_trend_{$months}", self::CACHE_TTL, function () use ($months) {
-            $from  = Carbon::now()->subMonths($months - 1)->startOfMonth()->toDateString();
-            $to    = Carbon::now()->endOfMonth()->toDateString();
-            $expr  = $this->monthExpr('invoice_date');
+        $hash = md5(json_encode($filters));
+        return Cache::remember("xero_monthly_trend_{$months}_{$hash}", self::CACHE_TTL, function () use ($months, $filters) {
             $start = Carbon::now()->subMonths($months - 1)->startOfMonth();
+            $to    = Carbon::now()->endOfMonth();
+            $expr  = $this->monthExpr('invoice_date');
 
-            $rows = collect(DB::select("
-                SELECT {$expr} AS ym,
-                       SUM(total) AS revenue,
-                       SUM(CASE WHEN status='PAID' THEN total ELSE 0 END) AS paid,
-                       COUNT(*) AS invoice_count
-                FROM xero_invoices
-                WHERE type = 'ACCREC'
-                  AND status IN ('AUTHORISED','PAID')
-                  AND deleted_at IS NULL
-                  AND invoice_date BETWEEN '{$from}' AND '{$to}'
-                GROUP BY YEAR(invoice_date), MONTH(invoice_date), {$expr}
-                ORDER BY YEAR(invoice_date) ASC, MONTH(invoice_date) ASC
-            "))->keyBy('ym');
+            $rows = $this->baseFilteredQuery($start, $to, $filters)
+                ->selectRaw("{$expr} AS ym, SUM(total) AS revenue, SUM(CASE WHEN status='PAID' THEN total ELSE 0 END) AS paid, COUNT(*) AS invoice_count")
+                ->groupByRaw("YEAR(invoice_date), MONTH(invoice_date), {$expr}")
+                ->get()->keyBy('ym');
 
             return collect(range(0, $months - 1))->map(function ($i) use ($start, $rows) {
                 $ym  = $start->copy()->addMonths($i)->format('Y-m');
@@ -123,20 +143,17 @@ class AnalyticsService
         });
     }
 
-    public function highestRevenueMonth(): array
+    public function highestRevenueMonth(array $filters = []): array
     {
-        return Cache::remember('xero_peak_month', self::CACHE_TTL * 6, function () {
+        $hash = md5(json_encode($filters));
+        return Cache::remember("xero_peak_month_{$hash}", self::CACHE_TTL * 6, function () use ($filters) {
             $expr = $this->monthExpr('invoice_date');
-            $row  = DB::selectOne("
-                SELECT {$expr} AS ym, SUM(total) AS rev
-                FROM xero_invoices
-                WHERE type = 'ACCREC'
-                  AND status IN ('AUTHORISED','PAID')
-                  AND deleted_at IS NULL
-                GROUP BY YEAR(invoice_date), MONTH(invoice_date), {$expr}
-                ORDER BY SUM(total) DESC
-                LIMIT 1
-            ");
+            
+            $row = $this->baseFilteredQuery(Carbon::parse('2000-01-01'), Carbon::now()->addYear(), $filters)
+                ->selectRaw("{$expr} AS ym, SUM(total) AS rev")
+                ->groupByRaw("YEAR(invoice_date), MONTH(invoice_date), {$expr}")
+                ->orderByDesc('rev')
+                ->first();
 
             return [
                 'year_month' => $row?->ym,
@@ -146,26 +163,20 @@ class AnalyticsService
         });
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // 3. DEPARTMENT ANALYTICS
-    // ═══════════════════════════════════════════════════════════
+    // ── 3. DEPARTMENT ANALYTICS ──────────────────────────────────────
 
-    public function departmentRevenue(Carbon $from, Carbon $to): Collection
+    public function departmentRevenue(Carbon $from, Carbon $to, array $filters = []): Collection
     {
-        $key = "xero_dept_rev_{$from->toDateString()}_{$to->toDateString()}";
+        $hash = md5(json_encode($filters));
+        $key = "xero_dept_rev_{$from->toDateString()}_{$to->toDateString()}_{$hash}";
 
-        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to) {
-            $rows = DB::table('xero_invoice_items as ii')
-                ->join('xero_invoices as inv', 'inv.id', '=', 'ii.invoice_id')
+        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to, $filters) {
+            $rows = $this->baseFilteredItemQuery($from, $to, $filters)
                 ->join('xero_departments as d', 'd.id', '=', 'ii.department_id')
-                ->whereIn('inv.status', ['PAID', 'AUTHORISED'])
-                ->where('inv.type', 'ACCREC')
-                ->whereBetween('inv.invoice_date', [$from->toDateString(), $to->toDateString()])
-                ->whereNull('inv.deleted_at')
                 ->selectRaw('d.id AS department_id, d.name AS department_name, d.color,
-                         SUM(ii.line_amount) AS revenue,
-                         SUM(CASE WHEN inv.status = "AUTHORISED" THEN ii.line_amount ELSE 0 END) AS outstanding_revenue,
-                         COUNT(DISTINCT inv.id) AS invoice_count')
+                             SUM(ii.line_amount) AS revenue,
+                             SUM(CASE WHEN inv.status = "AUTHORISED" THEN ii.line_amount ELSE 0 END) AS outstanding_revenue,
+                             COUNT(DISTINCT inv.id) AS invoice_count')
                 ->groupBy('d.id', 'd.name', 'd.color')
                 ->orderByDesc('revenue')
                 ->get();
@@ -183,120 +194,82 @@ class AnalyticsService
         });
     }
 
-    public function departmentMonthlyTrend(int $months = 6): Collection
+    public function departmentMonthlyTrend(int $months = 6, array $filters = []): Collection
     {
-        return Cache::remember("xero_dept_trend_{$months}", self::CACHE_TTL, function () use ($months) {
-            $from = Carbon::now()->subMonths($months - 1)->startOfMonth()->toDateString();
-            $expr = $this->monthExpr('inv.invoice_date');
+        $hash = md5(json_encode($filters));
+        return Cache::remember("xero_dept_trend_{$months}_{$hash}", self::CACHE_TTL, function () use ($months, $filters) {
+            $start = Carbon::now()->subMonths($months - 1)->startOfMonth();
+            $expr  = $this->monthExpr('inv.invoice_date');
 
-            return collect(DB::select("
-                SELECT d.name AS department_name,
-                       d.color,
-                       {$expr} AS ym,
-                       SUM(ii.line_amount) AS revenue
-                FROM xero_invoice_items ii
-                JOIN xero_invoices inv ON inv.id = ii.invoice_id
-                JOIN xero_departments d ON d.id = ii.department_id
-                WHERE inv.status IN ('PAID','AUTHORISED')
-                  AND inv.type = 'ACCREC'
-                  AND inv.invoice_date >= '{$from}'
-                  AND inv.deleted_at IS NULL
-                GROUP BY d.name, d.color, YEAR(inv.invoice_date), MONTH(inv.invoice_date), {$expr}
-                ORDER BY YEAR(inv.invoice_date) ASC, MONTH(inv.invoice_date) ASC
-            "))->groupBy('department_name');
+            $rows = $this->baseFilteredItemQuery($start, Carbon::now()->endOfMonth(), $filters)
+                ->join('xero_departments as d', 'd.id', '=', 'ii.department_id')
+                ->selectRaw("d.name AS department_name, d.color, {$expr} AS ym, SUM(ii.line_amount) AS revenue")
+                ->groupByRaw("d.name, d.color, YEAR(inv.invoice_date), MONTH(inv.invoice_date), {$expr}")
+                ->orderByRaw("YEAR(inv.invoice_date) ASC, MONTH(inv.invoice_date) ASC")
+                ->get();
+
+            return collect($rows)->map(fn($r)=>(array)$r)->groupBy('department_name');
         });
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // 4. SERVICE ANALYTICS
-    // ═══════════════════════════════════════════════════════════
+    // ── 4. SERVICE ANALYTICS ─────────────────────────────────────────
 
-    public function serviceRevenue(Carbon $from, Carbon $to): Collection
+    public function serviceRevenue(Carbon $from, Carbon $to, array $filters = []): Collection
     {
-        $key = "xero_service_rev_{$from->toDateString()}_{$to->toDateString()}";
+        $hash = md5(json_encode($filters));
+        $key = "xero_service_rev_{$from->toDateString()}_{$to->toDateString()}_{$hash}";
 
-        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to) {
-            return DB::table('xero_invoice_items as ii')
-                ->join('xero_invoices as inv', 'inv.id', '=', 'ii.invoice_id')
-                ->whereIn('inv.status', ['PAID', 'AUTHORISED'])
-                ->where('inv.type', 'ACCREC')
-                ->whereBetween('inv.invoice_date', [$from->toDateString(), $to->toDateString()])
-                ->whereNull('inv.deleted_at')
+        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to, $filters) {
+            return $this->baseFilteredItemQuery($from, $to, $filters)
                 ->selectRaw('ii.normalized_service, SUM(ii.line_amount) AS revenue, COUNT(DISTINCT inv.id) AS invoice_count')
                 ->groupBy('ii.normalized_service')
                 ->orderByDesc('revenue')
-                ->get();
-        });
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // 5. CLIENT ANALYTICS
-    // ═══════════════════════════════════════════════════════════
-
-    public function topClients(Carbon $from, Carbon $to, int $limit = 10): Collection
-    {
-        $key = "xero_top_clients_{$from->toDateString()}_{$to->toDateString()}_{$limit}";
-
-        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to, $limit) {
-            return XeroInvoice::sales()->authorised()
-                ->whereBetween('invoice_date', [$from, $to])
-                ->with('client:id,name,email')
-                ->selectRaw('
-                xero_client_id, 
-                SUM(total) AS revenue, 
-                SUM(CASE WHEN status = "AUTHORISED" THEN amount_due ELSE 0 END) AS outstanding_revenue,
-                COUNT(*) AS invoice_count
-            ')
-                ->groupBy('xero_client_id')
-                ->orderByDesc('revenue')
-                ->limit($limit)
                 ->get()
-                ->map(fn($r) => [
-                    'client_id'           => $r->xero_client_id,
-                    'client_name'         => $r->client?->name ?? 'Unknown',
-                    'email'               => $r->client?->email,
-                    'revenue'             => (float) $r->revenue,
-                    'outstanding_revenue' => (float) $r->outstanding_revenue,
-                    'invoice_count'       => (int)   $r->invoice_count,
-                ]);
+                ->map(fn($r) => (array) $r); // Force return array to prevent stdClass blade errors
         });
     }
 
-    public function allClientPerformance(Carbon $from, Carbon $to): Collection
-    {
-        $key = "xero_all_clients_{$from->toDateString()}_{$to->toDateString()}";
+    // ── 5. CLIENT ANALYTICS ──────────────────────────────────────────
 
-        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to) {
-            // First, aggregate the invoice data for the specific date range
-            $invoices = DB::table('xero_invoices')
-                ->where('type', 'ACCREC')
-                ->whereIn('status', ['PAID', 'AUTHORISED'])
-                ->whereBetween('invoice_date', [$from->toDateString(), $to->toDateString()])
-                ->whereNull('deleted_at')
+    public function allClientPerformance(Carbon $from, Carbon $to, array $filters = []): Collection
+    {
+        $hash = md5(json_encode($filters));
+        $key = "xero_all_clients_{$from->toDateString()}_{$to->toDateString()}_{$hash}";
+
+        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to, $filters) {
+            $invoices = $this->baseFilteredQuery($from, $to, $filters)
                 ->selectRaw('
-                xero_client_id, 
-                SUM(total) AS revenue, 
-                SUM(CASE WHEN status = "AUTHORISED" THEN amount_due ELSE 0 END) AS outstanding_revenue,
-                COUNT(*) AS invoice_count
-            ')
+                    xero_client_id, 
+                    SUM(total) AS revenue, 
+                    SUM(CASE WHEN status = "AUTHORISED" THEN amount_due ELSE 0 END) AS outstanding_revenue,
+                    COUNT(*) AS invoice_count
+                ')
                 ->groupBy('xero_client_id');
 
-            // Then, left join it to all active clients so no one is left behind
-            return DB::table('xero_clients as c')
+            $query = DB::table('xero_clients as c')
                 ->leftJoinSub($invoices, 'inv', 'c.id', '=', 'inv.xero_client_id')
                 ->where('c.status', 'ACTIVE')
                 ->selectRaw('
-                c.id as client_id,
-                c.name as client_name,
-                c.email,
-                COALESCE(inv.revenue, 0) as revenue,
-                COALESCE(inv.outstanding_revenue, 0) as outstanding_revenue,
-                COALESCE(inv.invoice_count, 0) as invoice_count
-            ')
+                    c.id as client_id,
+                    c.name as client_name,
+                    c.email,
+                    COALESCE(inv.revenue, 0) as revenue,
+                    COALESCE(inv.outstanding_revenue, 0) as outstanding_revenue,
+                    COALESCE(inv.invoice_count, 0) as invoice_count
+                ');
+
+            // Hide empty clients if filters are active
+            if (!empty($filters['client_id'])) {
+                $query->where('c.id', $filters['client_id']);
+            } elseif (!empty($filters)) {
+                $query->whereNotNull('inv.xero_client_id'); 
+            }
+
+            return $query
                 ->orderByDesc('revenue')
                 ->orderBy('client_name')
                 ->get()
-                ->map(fn($r) => (array) $r); // Cast standard objects back to arrays for the frontend
+                ->map(fn($r) => (array) $r);
         });
     }
 
@@ -355,14 +328,13 @@ class AnalyticsService
         });
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // 6. PREDICTION ENGINE
-    // ═══════════════════════════════════════════════════════════
+    // ── 6. PREDICTION ENGINE ─────────────────────────────────────────
 
-    public function predictNextMonthRevenue(): array
+    public function predictNextMonthRevenue(array $filters = []): array
     {
-        return Cache::remember('xero_prediction_overall', self::CACHE_TTL * 2, function () {
-            $trend  = $this->monthlyTrend(12);
+        $hash = md5(json_encode($filters));
+        return Cache::remember("xero_prediction_overall_{$hash}", self::CACHE_TTL * 2, function () use ($filters) {
+            $trend  = $this->monthlyTrend(12, $filters);
             $values = $trend->pluck('revenue')->toArray();
             $labels = $trend->pluck('label')->toArray();
             $wma    = $this->weightedMovingAverage($values, 3);
@@ -382,29 +354,29 @@ class AnalyticsService
         });
     }
 
-    public function predictDepartmentRevenue(): Collection
+    public function predictDepartmentRevenue(array $filters = []): Collection
     {
-        return Cache::remember('xero_prediction_departments', self::CACHE_TTL * 2, function () {
-            $departments = XeroDepartment::all();
-            $from        = Carbon::now()->subMonths(11)->startOfMonth()->toDateString();
-            $expr        = $this->monthExpr('inv.invoice_date');
+        $hash = md5(json_encode($filters));
+        return Cache::remember("xero_prediction_departments_{$hash}", self::CACHE_TTL * 2, function () use ($filters) {
+            $departments = XeroDepartment::when(!empty($filters['department_id']), function($q) use ($filters) {
+                return $q->where('id', $filters['department_id']);
+            })->get();
+            
             $start       = Carbon::now()->subMonths(11)->startOfMonth();
+            $to          = Carbon::now()->endOfMonth();
+            $expr        = $this->monthExpr('inv.invoice_date');
 
-            return $departments->map(function ($dept) use ($from, $expr, $start) {
-                $rows = collect(DB::select("
-                    SELECT {$expr} AS ym, SUM(ii.line_amount) AS rev
-                    FROM xero_invoice_items ii
-                    JOIN xero_invoices inv ON inv.id = ii.invoice_id
-                    WHERE ii.department_id = {$dept->id}
-                      AND inv.status IN ('PAID','AUTHORISED')
-                      AND inv.invoice_date >= '{$from}'
-                    GROUP BY YEAR(inv.invoice_date), MONTH(inv.invoice_date), {$expr}
-                    ORDER BY YEAR(inv.invoice_date) ASC, MONTH(inv.invoice_date) ASC
-                "))->pluck('rev', 'ym');
+            $rows = $this->baseFilteredItemQuery($start, $to, $filters)
+                ->selectRaw("ii.department_id, {$expr} AS ym, SUM(ii.line_amount) AS rev")
+                ->groupByRaw("ii.department_id, YEAR(inv.invoice_date), MONTH(inv.invoice_date), {$expr}")
+                ->get()
+                ->groupBy('department_id');
 
-                $values = collect(range(0, 11))->map(
-                    fn($i) =>
-                    (float) ($rows->get($start->copy()->addMonths($i)->format('Y-m')) ?? 0)
+            return $departments->map(function ($dept) use ($start, $rows) {
+                $deptRows = collect($rows->get($dept->id) ?? [])->pluck('rev', 'ym');
+                
+                $values = collect(range(0, 11))->map(fn($i) =>
+                    (float) ($deptRows->get($start->copy()->addMonths($i)->format('Y-m')) ?? 0)
                 )->toArray();
 
                 return [
@@ -414,50 +386,27 @@ class AnalyticsService
                     'historical'      => $values,
                     'predicted'       => round(($this->weightedMovingAverage($values, 3) + $this->linearRegressionPredict($values)) / 2, 2),
                 ];
-            })->sortByDesc('predicted')->values();
-        });
-    }
-
-    public function predictTopClientRevenue(int $limit = 5): Collection
-    {
-        return Cache::remember("xero_prediction_clients_{$limit}", self::CACHE_TTL * 2, function () use ($limit) {
-            return XeroInvoice::sales()->authorised()
-                ->where('invoice_date', '>=', Carbon::now()->subMonths(3)->startOfMonth())
-                ->selectRaw('xero_client_id, SUM(total) AS rev')
-                ->groupBy('xero_client_id')
-                ->orderByDesc('rev')
-                ->limit($limit)
-                ->pluck('xero_client_id')
-                ->map(function ($clientId) {
-                    return [
-                        'client_id'   => $clientId,
-                        'client_name' => XeroClient::find($clientId)?->name ?? 'Unknown',
-                        'predicted'   => $this->predictClientNextMonth($clientId),
-                    ];
-                });
+            })
+            ->filter(fn($d) => array_sum($d['historical']) > 0 || !empty($filters['department_id'])) 
+            ->sortByDesc('predicted')->values();
         });
     }
 
     private function predictClientNextMonth(int $clientId): float
     {
-        $from  = Carbon::now()->subMonths(11)->startOfMonth()->toDateString();
-        $expr  = $this->monthExpr('invoice_date');
         $start = Carbon::now()->subMonths(11)->startOfMonth();
+        $expr  = $this->monthExpr('invoice_date');
 
-        $rows = collect(DB::select("
-            SELECT {$expr} AS ym, SUM(total) AS rev
-            FROM xero_invoices
-            WHERE xero_client_id = {$clientId}
-              AND type = 'ACCREC'
-              AND status IN ('AUTHORISED','PAID')
-              AND deleted_at IS NULL
-              AND invoice_date >= '{$from}'
-            GROUP BY YEAR(invoice_date), MONTH(invoice_date), {$expr}
-            ORDER BY YEAR(invoice_date) ASC, MONTH(invoice_date) ASC
-        "))->pluck('rev', 'ym');
+        $rows = XeroInvoice::sales()->authorised()
+            ->where('xero_client_id', $clientId)
+            ->where('invoice_date', '>=', $start->toDateString())
+            ->selectRaw("{$expr} AS ym, SUM(total) AS rev")
+            ->groupByRaw("YEAR(invoice_date), MONTH(invoice_date), {$expr}")
+            ->orderByRaw("YEAR(invoice_date) ASC, MONTH(invoice_date) ASC")
+            ->get()
+            ->pluck('rev', 'ym');
 
-        $values = collect(range(0, 11))->map(
-            fn($i) =>
+        $values = collect(range(0, 11))->map(fn($i) =>
             (float) ($rows->get($start->copy()->addMonths($i)->format('Y-m')) ?? 0)
         )->toArray();
 
@@ -483,14 +432,9 @@ class AnalyticsService
         $n = count($values);
         if ($n < 2) return $values[0] ?? 0;
         $xs = range(0, $n - 1);
-        $sumX = array_sum($xs);
-        $sumY = array_sum($values);
-        $sumXY = 0;
-        $sumX2 = 0;
-        for ($i = 0; $i < $n; $i++) {
-            $sumXY += $xs[$i] * $values[$i];
-            $sumX2 += $xs[$i] ** 2;
-        }
+        $sumX = array_sum($xs); $sumY = array_sum($values);
+        $sumXY = 0; $sumX2 = 0;
+        for ($i = 0; $i < $n; $i++) { $sumXY += $xs[$i] * $values[$i]; $sumX2 += $xs[$i] ** 2; }
         $denom = $n * $sumX2 - $sumX ** 2;
         if ($denom == 0) return $sumY / $n;
         $b = ($n * $sumXY - $sumX * $sumY) / $denom;
@@ -505,13 +449,5 @@ class AnalyticsService
         if ($mean == 0) return 50;
         $variance = array_sum(array_map(fn($v) => ($v - $mean) ** 2, $values)) / count($values);
         return max(10, min(99, (int) round((1 - min(sqrt($variance) / $mean, 1)) * 100)));
-    }
-
-    private function baseInvoiceQuery(Carbon $from, Carbon $to, ?int $clientId = null)
-    {
-        $q = XeroInvoice::sales()->authorised()
-            ->whereBetween('invoice_date', [$from->toDateString(), $to->toDateString()]);
-        if ($clientId) $q->where('xero_client_id', $clientId);
-        return $q;
     }
 }

@@ -33,7 +33,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .xd-head h1 {
@@ -87,6 +87,106 @@
         .xd-btn:hover {
             border-color: var(--accent);
             color: var(--accent);
+        }
+
+        /* ── Modern Filter Bar ── */
+        .xd-filter-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .xd-filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .xd-filter-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .xd-filter-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--muted);
+            margin-bottom: .4rem;
+            display: block;
+        }
+
+        .xd-filter-select, .xd-filter-input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .45rem .75rem;
+            font-size: .8rem;
+            color: var(--text);
+            background: var(--surface2);
+            transition: border .2s;
+        }
+
+        .xd-filter-select:focus, .xd-filter-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .xd-filter-submit {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: .5rem 1.2rem;
+            font-weight: 700;
+            font-size: .8rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 91, 219, .2);
+            transition: transform .15s;
+        }
+
+        .xd-filter-submit:hover {
+            transform: translateY(-1px);
+        }
+
+        .xd-filter-clear {
+            color: var(--muted);
+            font-size: .8rem;
+            text-decoration: none;
+            font-weight: 600;
+            padding: .5rem .75rem;
+        }
+
+        .xd-filter-clear:hover {
+            color: var(--red);
+        }
+
+        /* ── Active Filters Badges ── */
+        .xd-active-filters {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border);
+        }
+
+        .xd-active-badge {
+            background: #eef2ff;
+            color: var(--accent);
+            border: 1px solid #c5d0fc;
+            padding: .25rem .75rem;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
         }
 
         /* ── KPI Row ── */
@@ -574,8 +674,7 @@
         }
     </style>
 
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
     <div class="xd">
@@ -590,18 +689,107 @@
                         Synced {{ $lastSync->completed_at?->diffForHumans() }}
                         <span class="sync-pill ms-1">● In sync</span>
                     @else
-                        <span class="sync-pill" style="background:#fff9db;color:var(--orange);border-color:#ffe066;">No
-                            sync yet</span>
+                        <span class="sync-pill" style="background:#fff9db;color:var(--orange);border-color:#ffe066;">No sync yet</span>
                     @endif
                 </p>
             </div>
             <div class="xd-actions">
                 <button class="xd-btn" id="syncNowBtn"><i class="bi bi-arrow-clockwise me-1"></i>Sync Now</button>
-                <button class="xd-btn" id="connectButton"><i class="bi bi-arrow-clockwise me-1"></i>Connect
-                    Xero</button>
-                <button class="xd-btn" data-bs-toggle="modal" data-bs-target="#filtersModal"><i
-                        class="bi bi-sliders me-1"></i>Filters</button>
+                <button class="xd-btn" id="connectButton"><i class="bi bi-link-45deg me-1"></i>Connect Xero</button>
             </div>
+        </div>
+
+        {{-- Modern Inline Filter Bar --}}
+        <div class="xd-filter-bar">
+            <form id="filterForm" method="GET" action="{{ route('xero.analytics.dashboard') }}">
+                <div class="xd-filter-row">
+                    
+                    {{-- Date Range --}}
+                    <div class="xd-filter-group">
+                        <label class="xd-filter-label">Date Range</label>
+                        <select name="range" id="rangeSelect" class="xd-filter-select">
+                            <option value="this_month" {{ request('range', 'this_month') === 'this_month' ? 'selected' : '' }}>This Month</option>
+                            <option value="last_month" {{ request('range') === 'last_month' ? 'selected' : '' }}>Last Month</option>
+                            <option value="last_3m"    {{ request('range') === 'last_3m' ? 'selected' : '' }}>Last 3 Months</option>
+                            <option value="last_6m"    {{ request('range') === 'last_6m' ? 'selected' : '' }}>Last 6 Months</option>
+                            <option value="this_year"  {{ request('range') === 'this_year' ? 'selected' : '' }}>This Year</option>
+                            <option value="custom"     {{ request('range') === 'custom' ? 'selected' : '' }}>Custom Dates...</option>
+                        </select>
+                    </div>
+
+                    {{-- Custom Dates (Hidden by default) --}}
+                    <div class="xd-filter-group" id="customDatesFrom" style="{{ request('range') === 'custom' ? '' : 'display:none;' }}">
+                        <label class="xd-filter-label">From Date</label>
+                        <input type="date" name="from" value="{{ request('from') }}" class="xd-filter-input">
+                    </div>
+                    <div class="xd-filter-group" id="customDatesTo" style="{{ request('range') === 'custom' ? '' : 'display:none;' }}">
+                        <label class="xd-filter-label">To Date</label>
+                        <input type="date" name="to" value="{{ request('to') }}" class="xd-filter-input">
+                    </div>
+
+                    {{-- Client Filter --}}
+                    <div class="xd-filter-group">
+                        <label class="xd-filter-label">Client</label>
+                        <select name="client_id" class="xd-filter-select">
+                            <option value="">All Clients</option>
+                            @foreach ($clients as $c)
+                                <option value="{{ $c->id }}" {{ request('client_id') == $c->id ? 'selected' : '' }}>
+                                    {{ Str::limit($c->name, 30) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Service Filter --}}
+                    <div class="xd-filter-group">
+                        <label class="xd-filter-label">Service Type</label>
+                        <select name="service" class="xd-filter-select">
+                            <option value="">All Services</option>
+                            @foreach ($services as $s)
+                                <option value="{{ $s }}" {{ request('service') == $s ? 'selected' : '' }}>
+                                    {{ ucwords(str_replace('_', ' ', $s)) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Submit actions --}}
+                    <div class="xd-filter-group" style="flex: 0; min-width: auto; display: flex; align-items: center; gap: 0.5rem;">
+                        <button type="submit" class="xd-filter-submit">Apply</button>
+                        @if(!empty($filters))
+                            <a href="{{ route('xero.analytics.dashboard') }}" class="xd-filter-clear">Clear</a>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Active Badges Row --}}
+                @if(!empty($filters))
+                    <div class="xd-active-filters">
+                        <span style="font-size: .7rem; font-weight: 700; color: var(--muted); margin-right: .25rem; display: flex; align-items: center;">Active Filters:</span>
+                        
+                        @if(!empty($filters['client_id']))
+                            <div class="xd-active-badge">
+                                <i class="bi bi-person"></i> 
+                                {{ $clients->firstWhere('id', $filters['client_id'])?->name ?? 'Client' }}
+                            </div>
+                        @endif
+
+                        @if(!empty($filters['service']))
+                            <div class="xd-active-badge">
+                                <i class="bi bi-gear"></i> 
+                                {{ ucwords(str_replace('_', ' ', $filters['service'])) }}
+                            </div>
+                        @endif
+                        
+                        @if(!empty($filters['min_amount']) || !empty($filters['max_amount']))
+                            <div class="xd-active-badge">
+                                <i class="bi bi-cash"></i> 
+                                Amount: {{ $filters['min_amount'] ?? '0' }} - {{ $filters['max_amount'] ?? 'Max' }}
+                            </div>
+                        @endif
+                    </div>
+                @endif
+            </form>
         </div>
 
         {{-- KPI Strip --}}
@@ -615,22 +803,18 @@
             <div class="xd-kpi">
                 <div class="kpi-accent-bar" style="background:linear-gradient(180deg,#087f5b,#20c997);"></div>
                 <div class="xd-kpi-label">Collected</div>
-                <div class="xd-kpi-value" style="color:var(--green);">AED
-                    {{ number_format($summary['paid_revenue'], 0) }}</div>
+                <div class="xd-kpi-value" style="color:var(--green);">AED {{ number_format($summary['paid_revenue'], 0) }}</div>
                 <div class="xd-kpi-sub">{{ $summary['invoice_count'] }} invoices paid</div>
             </div>
             <div class="xd-kpi">
                 <div class="kpi-accent-bar" style="background:linear-gradient(180deg,#d4820a,#ffa94d);"></div>
                 <div class="xd-kpi-label">Outstanding</div>
-                <div class="xd-kpi-value" style="color:var(--orange);">AED
-                    {{ number_format($summary['outstanding_revenue'], 0) }}</div>
+                <div class="xd-kpi-value" style="color:var(--orange);">AED {{ number_format($summary['outstanding_revenue'], 0) }}</div>
                 <div class="xd-kpi-sub">Awaiting payment</div>
             </div>
             <div class="xd-kpi">
                 @php $g = $monthComparison['growth_pct']; @endphp
-                <div class="kpi-accent-bar"
-                    style="background:{{ $g >= 0 ? 'linear-gradient(180deg,#087f5b,#20c997)' : 'linear-gradient(180deg,#c92a2a,#f03e3e)' }};">
-                </div>
+                <div class="kpi-accent-bar" style="background:{{ $g >= 0 ? 'linear-gradient(180deg,#087f5b,#20c997)' : 'linear-gradient(180deg,#c92a2a,#f03e3e)' }};"></div>
                 <div class="xd-kpi-label">vs Last Month</div>
                 <div class="xd-kpi-value" style="color:{{ $g >= 0 ? 'var(--green)' : 'var(--red)' }};">
                     {{ $g > 0 ? '+' : '' }}{{ $g }}%</div>
@@ -663,39 +847,41 @@
             $topClient = $clientPerformance->first();
         @endphp
         <div class="xd-insights">
+            @if($topDept)
             <div class="xd-insight" onclick="openSection('sec-departments')">
                 <div class="xd-insight-icon" style="background:#d3f9d8;color:var(--green);">🏆</div>
                 <div class="xd-insight-title">Top Department</div>
-                <div class="xd-insight-main" style="color:var(--green);">{{ $topDept['department_name'] ?? '—' }}</div>
-                <div class="xd-insight-sub">AED {{ number_format($topDept['revenue'] ?? 0, 0) }} ·
-                    {{ $topDept['contribution_pct'] ?? 0 }}% of revenue</div>
+                <div class="xd-insight-main" style="color:var(--green);">{{ $topDept['department_name'] }}</div>
+                <div class="xd-insight-sub">AED {{ number_format($topDept['revenue'], 0) }} · {{ $topDept['contribution_pct'] }}% of revenue</div>
                 <i class="bi bi-arrow-right xd-insight-arrow"></i>
             </div>
+            @endif
+            
+            @if($bottomDept && $bottomDept['department_id'] !== $topDept['department_id'])
             <div class="xd-insight" onclick="openSection('sec-departments')">
                 <div class="xd-insight-icon" style="background:#ffe3e3;color:var(--red);">📉</div>
                 <div class="xd-insight-title">Lowest Department</div>
-                <div class="xd-insight-main" style="color:var(--red);">{{ $bottomDept['department_name'] ?? '—' }}
-                </div>
-                <div class="xd-insight-sub">AED {{ number_format($bottomDept['revenue'] ?? 0, 0) }} ·
-                    {{ $bottomDept['contribution_pct'] ?? 0 }}% of revenue</div>
+                <div class="xd-insight-main" style="color:var(--red);">{{ $bottomDept['department_name'] }}</div>
+                <div class="xd-insight-sub">AED {{ number_format($bottomDept['revenue'], 0) }} · {{ $bottomDept['contribution_pct'] }}% of revenue</div>
                 <i class="bi bi-arrow-right xd-insight-arrow"></i>
             </div>
+            @endif
+            
+            @if($topClient)
             <div class="xd-insight" onclick="openSection('sec-clients')">
                 <div class="xd-insight-icon" style="background:#eef2ff;color:var(--accent);">⭐</div>
                 <div class="xd-insight-title">Top Client</div>
-                <div class="xd-insight-main" style="color:var(--accent);">
-                    {{ Str::limit($topClient['client_name'] ?? '—', 28) }}</div>
-                <div class="xd-insight-sub">AED {{ number_format($topClient['revenue'] ?? 0, 0) }} ·
-                    {{ $topClient['invoice_count'] ?? 0 }} invoices</div>
+                <div class="xd-insight-main" style="color:var(--accent);">{{ Str::limit($topClient['client_name'], 28) }}</div>
+                <div class="xd-insight-sub">AED {{ number_format($topClient['revenue'], 0) }} · {{ $topClient['invoice_count'] }} invoices</div>
                 <i class="bi bi-arrow-right xd-insight-arrow"></i>
             </div>
+            @endif
+            
             <div class="xd-insight" onclick="openSection('sec-prediction')">
                 <div class="xd-insight-icon" style="background:#fff9db;color:var(--orange);">🔮</div>
                 <div class="xd-insight-title">Next Month Forecast</div>
-                <div class="xd-insight-main" style="color:var(--orange);">AED
-                    {{ number_format($prediction['predicted_revenue'], 0) }}</div>
-                <div class="xd-insight-sub">{{ $prediction['for_month'] }} · {{ $prediction['confidence'] }}%
-                    confidence</div>
+                <div class="xd-insight-main" style="color:var(--orange);">AED {{ number_format($prediction['predicted_revenue'], 0) }}</div>
+                <div class="xd-insight-sub">{{ $prediction['for_month'] }} · {{ $prediction['confidence'] }}% confidence</div>
                 <i class="bi bi-arrow-right xd-insight-arrow"></i>
             </div>
         </div>
@@ -715,12 +901,8 @@
                     <canvas id="trendChart" height="100"></canvas>
                 </div>
                 @php
-                    $thisYear = $trend12
-                        ->filter(fn($m) => str_starts_with($m['year_month'], now()->year))
-                        ->sum('revenue');
-                    $lastYear = $trend12
-                        ->filter(fn($m) => str_starts_with($m['year_month'], now()->subYear()->year))
-                        ->sum('revenue');
+                    $thisYear = $trend12->filter(fn($m) => str_starts_with($m['year_month'], now()->year))->sum('revenue');
+                    $lastYear = $trend12->filter(fn($m) => str_starts_with($m['year_month'], now()->subYear()->year))->sum('revenue');
                 @endphp
                 <div style="display:flex;gap:1rem;flex-wrap:wrap;">
                     <div class="xd-year-box">
@@ -742,14 +924,13 @@
         </div>
 
         {{-- Departments --}}
+        @if($departmentRev->count() > 0)
         <div class="xd-section" id="sec-departments">
             <div class="xd-section-head" onclick="toggleSection('sec-departments')">
                 <div class="xd-section-title">
                     <div class="xd-section-icon" style="background:#d3f9d8;color:var(--green);">🏢</div>
                     Department Performance
-                    <span
-                        style="font-size:.68rem;background:#eef2ff;color:var(--accent);padding:.15rem .5rem;border-radius:20px;font-weight:600;">{{ $departmentRev->count() }}
-                        depts</span>
+                    <span style="font-size:.68rem;background:#eef2ff;color:var(--accent);padding:.15rem .5rem;border-radius:20px;font-weight:600;">{{ $departmentRev->count() }} depts</span>
                 </div>
                 <i class="bi bi-chevron-down xd-chevron"></i>
             </div>
@@ -758,19 +939,15 @@
                 @foreach ($departmentRev as $dept)
                     <div class="xd-dept-row">
                         <div style="flex:1;">
-                            <div class="xd-dept-name" style="color:{{ $dept['color'] }};">
-                                {{ $dept['department_name'] }}</div>
+                            <div class="xd-dept-name" style="color:{{ $dept['color'] }};">{{ $dept['department_name'] }}</div>
                             <div class="xd-dept-bar-wrap">
-                                <div class="xd-dept-bar-fill"
-                                    style="width:{{ ($dept['revenue'] / $maxRev) * 100 }}%;background:{{ $dept['color'] }};">
-                                </div>
+                                <div class="xd-dept-bar-fill" style="width:{{ ($dept['revenue'] / $maxRev) * 100 }}%;background:{{ $dept['color'] }};"></div>
                             </div>
                         </div>
                         <div style="text-align:right;margin-left:1rem;">
                             <div class="xd-dept-rev">AED {{ number_format($dept['revenue'], 0) }}</div>
                             <div class="xd-dept-pct">
-                                <span style="color:var(--orange);font-weight:600;">Out: AED
-                                    {{ number_format($dept['outstanding_revenue'], 0) }}</span>
+                                <span style="color:var(--orange);font-weight:600;">Out: AED {{ number_format($dept['outstanding_revenue'], 0) }}</span>
                                 <span style="color:var(--border);">|</span>
                                 {{ $dept['contribution_pct'] }}% · {{ $dept['invoice_count'] }} inv
                             </div>
@@ -783,66 +960,90 @@
                 </div>
             </div>
         </div>
+        @endif
 
-        {{-- Clients --}}
-        <div class="xd-section" id="sec-clients">
-            <div class="xd-section-head" onclick="toggleSection('sec-clients')">
+        {{-- Service Breakdown --}}
+        <div class="xd-section open" id="sec-services">
+            <div class="xd-section-head" onclick="toggleSection('sec-services')">
                 <div class="xd-section-title">
-                    <div class="xd-section-icon" style="background:#eef2ff;color:var(--accent);">👥</div>
-                    All Clients Overview
-                    <span
-                        style="font-size:.68rem;background:#eef2ff;color:var(--accent);padding:.15rem .5rem;border-radius:20px;font-weight:600;">{{ count($clientPerformance) }}
-                        Total</span>
+                    <div class="xd-section-icon" style="background:#eef2ff;color:var(--accent);">⚙️</div>
+                    Service Breakdown
                 </div>
                 <i class="bi bi-chevron-down xd-chevron"></i>
             </div>
             <div class="xd-section-body">
-                <!-- Scrollable Wrapper for Full List -->
-                <div style="max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
-                    <table class="xd-client-table" style="margin: 0;">
-                        <thead style="position: sticky; top: 0; z-index: 10;">
-                            <tr>
-                                <th>#</th>
-                                <th>Client</th>
-                                <th style="text-align:right;">Total Rev</th>
-                                <th style="text-align:right;">Outstanding</th>
-                                <th style="text-align:center;">Inv.</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($clientPerformance as $i => $client)
-                                <tr
-                                    onclick="loadClientDetail({{ $client['client_id'] }}, '{{ addslashes($client['client_name']) }}')">
-                                    <td style="color:var(--muted);font-weight:700;">{{ $i + 1 }}</td>
-                                    <td>
-                                        <div style="font-weight:700;">{{ $client['client_name'] }}</div>
-                                        <div style="font-size:.72rem;color:var(--muted);">
-                                            {{ $client['email'] ?? 'No email' }}</div>
-                                    </td>
-                                    <td style="text-align:right;font-weight:800;color:var(--text);">AED
-                                        {{ number_format($client['revenue'] ?? 0, 0) }}</td>
-                                    <td style="text-align:right;font-weight:700;color:var(--orange);">AED
-                                        {{ number_format($client['outstanding_revenue'] ?? 0, 0) }}</td>
-                                    <td style="text-align:center;color:var(--muted);">
-                                        {{ $client['invoice_count'] ?? 0 }}</td>
-                                    <td style="color:var(--muted);font-size:.75rem;">→</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">No
-                                        clients found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div style="font-size: 0.75rem; color: var(--muted); margin-top: 0.75rem;">
-                    <i class="bi bi-info-circle me-1"></i> Click on any client row to view their monthly trend, total
-                    lifetime paid, and a breakdown of revenue by service type.
-                </div>
+                @php $maxSrv = $serviceBreakdown->max('revenue') ?: 1; @endphp
+                @forelse ($serviceBreakdown as $srv)
+                    <div class="xd-dept-row">
+                        <div style="flex:1;">
+                            {{-- Now safely using array syntax since we map() cast it in AnalyticsService --}}
+                            <div class="xd-dept-name">{{ ucwords(str_replace('_', ' ', $srv['normalized_service'] ?: 'Uncategorized')) }}</div>
+                            <div class="xd-dept-bar-wrap">
+                                <div class="xd-dept-bar-fill" style="width:{{ ($srv['revenue'] / $maxSrv) * 100 }}%;background:var(--accent);"></div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;margin-left:1rem;">
+                            <div class="xd-dept-rev">AED {{ number_format($srv['revenue'], 0) }}</div>
+                            <div class="xd-dept-pct">{{ $srv['invoice_count'] }} invoices</div>
+                        </div>
+                    </div>
+                @empty
+                    <div style="padding:1rem;text-align:center;color:var(--muted);">No services logged for this filter.</div>
+                @endforelse
             </div>
         </div>
+
+        {{-- Clients --}}
+        @if (empty(request('client_id')))
+            <div class="xd-section" id="sec-clients">
+                <div class="xd-section-head" onclick="toggleSection('sec-clients')">
+                    <div class="xd-section-title">
+                        <div class="xd-section-icon" style="background:#eef2ff;color:var(--accent);">👥</div>
+                        All Clients Overview
+                        <span style="font-size:.68rem;background:#eef2ff;color:var(--accent);padding:.15rem .5rem;border-radius:20px;font-weight:600;">{{ count($clientPerformance) }} Total</span>
+                    </div>
+                    <i class="bi bi-chevron-down xd-chevron"></i>
+                </div>
+                <div class="xd-section-body">
+                    <div style="max-height: 500px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
+                        <table class="xd-client-table" style="margin: 0;">
+                            <thead style="position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Client</th>
+                                    <th style="text-align:right;">Total Rev</th>
+                                    <th style="text-align:right;">Outstanding</th>
+                                    <th style="text-align:center;">Inv.</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($clientPerformance as $i => $client)
+                                    <tr onclick="loadClientDetail({{ $client['client_id'] }}, '{{ addslashes($client['client_name']) }}')">
+                                        <td style="color:var(--muted);font-weight:700;">{{ $i + 1 }}</td>
+                                        <td>
+                                            <div style="font-weight:700;">{{ $client['client_name'] }}</div>
+                                            <div style="font-size:.72rem;color:var(--muted);">{{ $client['email'] ?? 'No email' }}</div>
+                                        </td>
+                                        <td style="text-align:right;font-weight:800;color:var(--text);">AED {{ number_format($client['revenue'] ?? 0, 0) }}</td>
+                                        <td style="text-align:right;font-weight:700;color:var(--orange);">AED {{ number_format($client['outstanding_revenue'] ?? 0, 0) }}</td>
+                                        <td style="text-align:center;color:var(--muted);">{{ $client['invoice_count'] ?? 0 }}</td>
+                                        <td style="color:var(--muted);font-size:.75rem;">→</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">No clients found matching filters.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--muted); margin-top: 0.75rem;">
+                        <i class="bi bi-info-circle me-1"></i> Click on any client row to view their monthly trend, total lifetime paid, and a breakdown of revenue by service type.
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Prediction --}}
         <div class="xd-section" id="sec-prediction">
@@ -858,13 +1059,11 @@
                     <div class="xd-pred-label"><i class="bi bi-cpu me-1"></i>AI Forecast</div>
                     <div class="xd-pred-amount">AED {{ number_format($prediction['predicted_revenue'], 0) }}</div>
                     <div class="xd-pred-month">Forecast for {{ $prediction['for_month'] }}</div>
-                    <div class="xd-confidence"><i
-                            class="bi bi-shield-check me-1"></i>{{ $prediction['confidence'] }}% confidence</div>
+                    <div class="xd-confidence"><i class="bi bi-shield-check me-1"></i>{{ $prediction['confidence'] }}% confidence</div>
                     <div class="xd-pred-methods">
                         <div class="xd-pred-method">
                             <div class="xd-pred-method-label">Weighted MA</div>
-                            <div class="xd-pred-method-val">AED {{ number_format($prediction['method_wma'], 0) }}
-                            </div>
+                            <div class="xd-pred-method-val">AED {{ number_format($prediction['method_wma'], 0) }}</div>
                         </div>
                         <div class="xd-pred-method">
                             <div class="xd-pred-method-label">Linear Regression</div>
@@ -872,71 +1071,25 @@
                         </div>
                     </div>
                 </div>
-                @php $maxPred = $deptPrediction->max('predicted') ?: 1; @endphp
-                <div
-                    style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:.75rem;">
-                    By Department</div>
-                @foreach ($deptPrediction as $dp)
-                    <div style="margin-bottom:.75rem;">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
-                            <span
-                                style="font-size:.82rem;font-weight:700;color:{{ $dp['color'] }};">{{ $dp['department_name'] }}</span>
-                            <span style="font-size:.82rem;font-weight:800;">AED
-                                {{ number_format($dp['predicted'], 0) }}</span>
-                        </div>
-                        <div style="background:var(--border);height:5px;border-radius:3px;overflow:hidden;">
-                            <div
-                                style="background:{{ $dp['color'] }};height:100%;width:{{ ($dp['predicted'] / $maxPred) * 100 }}%;border-radius:3px;">
+                
+                @if($deptPrediction->count() > 0)
+                    @php $maxPred = $deptPrediction->max('predicted') ?: 1; @endphp
+                    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:.75rem;">By Department</div>
+                    @foreach ($deptPrediction as $dp)
+                        <div style="margin-bottom:.75rem;">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+                                <span style="font-size:.82rem;font-weight:700;color:{{ $dp['color'] }};">{{ $dp['department_name'] }}</span>
+                                <span style="font-size:.82rem;font-weight:800;">AED {{ number_format($dp['predicted'], 0) }}</span>
+                            </div>
+                            <div style="background:var(--border);height:5px;border-radius:3px;overflow:hidden;">
+                                <div style="background:{{ $dp['color'] }};height:100%;width:{{ ($dp['predicted'] / $maxPred) * 100 }}%;border-radius:3px;"></div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                @endif
             </div>
         </div>
 
-    </div>
-
-    {{-- Filters Modal --}}
-    <div class="modal fade" id="filtersModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius:18px;border:1px solid var(--border);">
-                <div class="modal-header" style="border-bottom:1px solid var(--border);">
-                    <span class="modal-title fw-bold">Filters</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form method="GET" action="{{ route('xero.analytics.dashboard') }}">
-                        <div class="mb-3">
-                            <label
-                                style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:.4rem;">Date
-                                Range</label>
-                            <select name="range" class="form-select" style="border-radius:10px;">
-                                <option value="this_month"
-                                    {{ request('range', 'this_month') === 'this_month' ? 'selected' : '' }}>This Month
-                                </option>
-                                <option value="last_month" {{ request('range') === 'last_month' ? 'selected' : '' }}>
-                                    Last
-                                    Month</option>
-                                <option value="last_3m" {{ request('range') === 'last_3m' ? 'selected' : '' }}>Last 3
-                                    Months
-                                </option>
-                                <option value="last_6m" {{ request('range') === 'last_6m' ? 'selected' : '' }}>Last 6
-                                    Months
-                                </option>
-                                <option value="this_year" {{ request('range') === 'this_year' ? 'selected' : '' }}>
-                                    This Year
-                                </option>
-                            </select>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary flex-grow-1">Apply</button>
-                            <a href="{{ route('xero.analytics.dashboard') }}"
-                                class="btn btn-outline-secondary">Reset</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
     {{-- Client Modal --}}
@@ -944,8 +1097,7 @@
         <div class="xd-modal">
             <div class="xd-modal-head">
                 <div class="xd-modal-title" id="clientModalTitle">Client Analytics</div>
-                <button class="xd-modal-close"
-                    onclick="document.getElementById('clientModalOverlay').classList.remove('show')">✕</button>
+                <button class="xd-modal-close" onclick="document.getElementById('clientModalOverlay').classList.remove('show')">✕</button>
             </div>
             <div class="xd-modal-body" id="clientModalBody">
                 <div style="text-align:center;padding:3rem;color:var(--muted);">Loading…</div>
@@ -954,6 +1106,13 @@
     </div>
 
     <script>
+        // Custom Date Filter Toggle
+        document.getElementById('rangeSelect').addEventListener('change', function() {
+            const isCustom = this.value === 'custom';
+            document.getElementById('customDatesFrom').style.display = isCustom ? 'block' : 'none';
+            document.getElementById('customDatesTo').style.display = isCustom ? 'block' : 'none';
+        });
+
         Chart.defaults.color = '#7a8299';
         Chart.defaults.font.family = 'DM Sans, sans-serif';
 
@@ -993,101 +1152,56 @@
                 },
                 options: {
                     responsive: true,
-                    interaction: {
-                        mode: 'index'
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#7a8299',
-                                boxWidth: 10
-                            }
-                        }
-                    },
+                    interaction: { mode: 'index' },
+                    plugins: { legend: { labels: { color: '#7a8299', boxWidth: 10 } } },
                     scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#7a8299'
-                            }
-                        },
-                        y: {
-                            grid: {
-                                color: 'rgba(0,0,0,.04)'
-                            },
-                            ticks: {
-                                callback: v => 'AED ' + (v / 1000).toFixed(0) + 'k',
-                                color: '#7a8299'
-                            }
-                        }
+                        x: { grid: { display: false }, ticks: { color: '#7a8299' } },
+                        y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { callback: v => 'AED ' + (v / 1000).toFixed(0) + 'k', color: '#7a8299' } }
                     }
                 }
             });
         })();
 
-        // Dept trend
-        (async function() {
-            const res = await fetch("{{ route('xero.analytics.dept-trend') }}?months=12");
-            const json = await res.json();
-            const trend = json.trend;
-            const allMonths = [...new Set(Object.values(trend).flatMap(rows => rows.map(r => r.ym || r
-                .year_month)))].sort();
-            const datasets = Object.entries(trend).map(([name, rows]) => {
-                const color = rows[0]?.color ?? '#aaa';
-                const map = Object.fromEntries(rows.map(r => [r.ym || r.year_month, parseFloat(r
-                    .revenue)]));
-                return {
-                    label: name,
-                    data: allMonths.map(m => map[m] ?? 0),
-                    backgroundColor: color + '55',
-                    borderColor: color,
-                    borderWidth: 1,
-                    borderRadius: 4
-                };
-            });
-            const ctx = document.getElementById('deptTrendChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: allMonths,
-                    datasets
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            stacked: true,
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#7a8299'
-                            }
+        // Dept trend (Requires existing canvas, which is hidden if 0 depts)
+        const deptCanvas = document.getElementById('deptTrendChart');
+        if(deptCanvas) {
+            (async function() {
+                // IMPORTANT: Automatically inherit all current URL parameters so the chart matches the filters!
+                const searchParams = new URLSearchParams(window.location.search);
+                searchParams.set('months', '12'); // override months parameter specifically for chart
+                
+                const res = await fetch("{{ route('xero.analytics.dept-trend') }}?" + searchParams.toString());
+                const json = await res.json();
+                const trend = json.trend;
+                const allMonths = [...new Set(Object.values(trend).flatMap(rows => rows.map(r => r.ym || r.year_month)))].sort();
+                
+                const datasets = Object.entries(trend).map(([name, rows]) => {
+                    const color = rows[0]?.color ?? '#aaa';
+                    const map = Object.fromEntries(rows.map(r => [r.ym || r.year_month, parseFloat(r.revenue)]));
+                    return {
+                        label: name,
+                        data: allMonths.map(m => map[m] ?? 0),
+                        backgroundColor: color + '55',
+                        borderColor: color,
+                        borderWidth: 1,
+                        borderRadius: 4
+                    };
+                });
+                
+                new Chart(deptCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: allMonths, datasets },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { stacked: true, grid: { display: false }, ticks: { color: '#7a8299' } },
+                            y: { stacked: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { callback: v => 'AED ' + (v / 1000).toFixed(0) + 'k', color: '#7a8299' } }
                         },
-                        y: {
-                            stacked: true,
-                            grid: {
-                                color: 'rgba(0,0,0,.04)'
-                            },
-                            ticks: {
-                                callback: v => 'AED ' + (v / 1000).toFixed(0) + 'k',
-                                color: '#7a8299'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#7a8299',
-                                boxWidth: 10
-                            }
-                        }
+                        plugins: { legend: { labels: { color: '#7a8299', boxWidth: 10 } } }
                     }
-                }
-            });
-        })();
+                });
+            })();
+        }
 
         // Accordion
         function toggleSection(id) {
@@ -1097,18 +1211,14 @@
         function openSection(id) {
             const s = document.getElementById(id);
             s.classList.add('open');
-            s.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+            s.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // Client detail
         let clientChart;
         async function loadClientDetail(clientId, clientName) {
             document.getElementById('clientModalTitle').textContent = clientName;
-            document.getElementById('clientModalBody').innerHTML =
-                '<div style="text-align:center;padding:3rem;color:var(--muted);">Loading…</div>';
+            document.getElementById('clientModalBody').innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted);">Loading…</div>';
             document.getElementById('clientModalOverlay').classList.add('show');
 
             const url = "{{ route('xero.analytics.client', ':id') }}".replace(':id', clientId);
@@ -1118,43 +1228,43 @@
             const bars = (data.service_breakdown || []).map(s => {
                 const max = data.service_breakdown[0]?.revenue || 1;
                 return `<div style="margin-bottom:.6rem;">
-            <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem;">
-                <span style="font-weight:700;">${(s.normalized_service||'').replace(/_/g,' ').toUpperCase()}</span>
-                <span style="color:var(--green);font-weight:800;">AED ${parseFloat(s.revenue).toLocaleString()}</span>
-            </div>
-            <div style="background:var(--border);height:4px;border-radius:2px;overflow:hidden;">
-                <div style="background:var(--accent);height:100%;width:${(s.revenue/max*100).toFixed(0)}%;"></div>
-            </div></div>`;
+                <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem;">
+                    <span style="font-weight:700;">${(s.normalized_service||'').replace(/_/g,' ').toUpperCase()}</span>
+                    <span style="color:var(--green);font-weight:800;">AED ${parseFloat(s.revenue).toLocaleString()}</span>
+                </div>
+                <div style="background:var(--border);height:4px;border-radius:2px;overflow:hidden;">
+                    <div style="background:var(--accent);height:100%;width:${(s.revenue/max*100).toFixed(0)}%;"></div>
+                </div></div>`;
             }).join('');
 
             document.getElementById('clientModalBody').innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem;">
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
-                <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:.3rem;">Total Paid</div>
-                <div style="font-size:1.2rem;font-weight:800;color:var(--green);">AED ${parseFloat(data.total_paid).toLocaleString()}</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem;">
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+                    <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:.3rem;">Total Paid</div>
+                    <div style="font-size:1.2rem;font-weight:800;color:var(--green);">AED ${parseFloat(data.total_paid).toLocaleString()}</div>
+                </div>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+                    <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:.3rem;">Outstanding</div>
+                    <div style="font-size:1.2rem;font-weight:800;color:var(--orange);">AED ${parseFloat(data.outstanding).toLocaleString()}</div>
+                </div>
+                <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+                    <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:.3rem;">Next Month</div>
+                    <div style="font-size:1.2rem;font-weight:800;color:var(--orange);">AED ${parseFloat(data.next_month_prediction).toLocaleString()}</div>
+                </div>
             </div>
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
-                <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:.3rem;">Outstanding</div>
-                <div style="font-size:1.2rem;font-weight:800;color:var(--orange);">AED ${parseFloat(data.outstanding).toLocaleString()}</div>
-            </div>
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
-                <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:.3rem;">Next Month</div>
-                <div style="font-size:1.2rem;font-weight:800;color:var(--orange);">AED ${parseFloat(data.next_month_prediction).toLocaleString()}</div>
-            </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div>
-                <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:.75rem;">Monthly Trend</div>
-                <canvas id="clientTrendCanvas" height="140"></canvas>
-            </div>
-            <div>
-                <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:.75rem;">Services</div>
-                ${bars}
-                ${data.peak_month?`<div style="background:#eef2ff;border:1px solid #c5d0fc;border-radius:8px;padding:.6rem .85rem;font-size:.75rem;margin-top:.75rem;">
-                                    🏆 Peak: <strong>${data.peak_month.ym||data.peak_month.year_month}</strong> — AED ${parseFloat(data.peak_month.revenue).toLocaleString()}
-                                </div>`:''}
-            </div>
-        </div>`;
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div>
+                    <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:.75rem;">Monthly Trend</div>
+                    <canvas id="clientTrendCanvas" height="140"></canvas>
+                </div>
+                <div>
+                    <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:.75rem;">Services</div>
+                    ${bars}
+                    ${data.peak_month?`<div style="background:#eef2ff;border:1px solid #c5d0fc;border-radius:8px;padding:.6rem .85rem;font-size:.75rem;margin-top:.75rem;">
+                                🏆 Peak: <strong>${data.peak_month.ym||data.peak_month.year_month}</strong> — AED ${parseFloat(data.peak_month.revenue).toLocaleString()}
+                            </div>`:''}
+                </div>
+            </div>`;
 
             const cCtx = document.getElementById('clientTrendCanvas').getContext('2d');
             if (clientChart) clientChart.destroy();
@@ -1173,29 +1283,10 @@
                     }]
                 },
                 options: {
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            ticks: {
-                                callback: v => 'AED ' + (v / 1000).toFixed(0) + 'k',
-                                color: '#7a8299'
-                            },
-                            grid: {
-                                color: 'rgba(0,0,0,.04)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#7a8299'
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
+                        y: { ticks: { callback: v => 'AED ' + (v / 1000).toFixed(0) + 'k', color: '#7a8299' }, grid: { color: 'rgba(0,0,0,.04)' } },
+                        x: { ticks: { color: '#7a8299' }, grid: { display: false } }
                     }
                 }
             });
@@ -1212,10 +1303,7 @@
             try {
                 const res = await fetch("{{ route('xero.sync.incremental') }}", {
                     method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
                 });
                 alert((await res.json()).message || 'Sync queued.');
             } catch (e) {
