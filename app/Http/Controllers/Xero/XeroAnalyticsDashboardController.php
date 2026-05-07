@@ -56,23 +56,31 @@ class XeroAnalyticsDashboardController extends Controller
         $peakMonth       = $this->analytics->highestRevenueMonth();
         $trend12         = $this->analytics->monthlyTrend(12);
         $departmentRev   = $this->analytics->departmentRevenue($from, $to);
-        $topClients      = $this->analytics->topClients($from, $to, 10);
+        $clientPerformance = $this->analytics->allClientPerformance($from, $to);
         $prediction      = $this->analytics->predictNextMonthRevenue();
         $deptPrediction  = $this->analytics->predictDepartmentRevenue();
         $lastSync        = XeroSyncLog::where('entity', 'invoices')
-                            ->where('status', 'completed')
-                            ->latest('completed_at')
-                            ->first();
+            ->where('status', 'completed')
+            ->latest('completed_at')
+            ->first();
 
         $departments = XeroDepartment::all();
         $clients     = XeroClient::active()->orderBy('name')->get(['id', 'name']);
 
         return view('xero.analytics.dashboard', compact(
-            'summary', 'monthComparison', 'peakMonth',
-            'trend12', 'departmentRev', 'topClients',
-            'prediction', 'deptPrediction',
-            'departments', 'clients',
-            'from', 'to', 'lastSync'
+            'summary',
+            'monthComparison',
+            'peakMonth',
+            'trend12',
+            'departmentRev',
+            'clientPerformance',
+            'prediction',
+            'deptPrediction',
+            'departments',
+            'clients',
+            'from',
+            'to',
+            'lastSync'
         ));
     }
 
@@ -84,13 +92,14 @@ class XeroAnalyticsDashboardController extends Controller
 
         return response()->json([
             'summary'              => $this->analytics->financialSummary(
-                $from, $to,
+                $from,
+                $to,
                 $request->integer('client_id') ?: null,
                 $request->integer('department_id') ?: null
             ),
             'department_breakdown' => $this->analytics->departmentRevenue($from, $to),
             'service_breakdown'    => $this->analytics->serviceRevenue($from, $to),
-            'top_clients'          => $this->analytics->topClients($from, $to),
+            'top_clients' => $this->analytics->allClientPerformance($from, $to),
         ]);
     }
 
@@ -111,12 +120,16 @@ class XeroAnalyticsDashboardController extends Controller
         );
     }
 
-    public function predictionsAjax(): JsonResponse
+    public function predictionsAjax(Request $request): JsonResponse
     {
+        // 1. Resolve the date range from the request
+        [$from, $to] = $this->resolveDateRange($request);
+
         return response()->json([
             'overall'     => $this->analytics->predictNextMonthRevenue(),
             'departments' => $this->analytics->predictDepartmentRevenue(),
-            'top_clients' => $this->analytics->predictTopClientRevenue(),
+            // 2. Now $from and $to are defined and can be passed here safely
+            'top_clients' => $this->analytics->allClientPerformance($from, $to),
         ]);
     }
 
@@ -127,7 +140,7 @@ class XeroAnalyticsDashboardController extends Controller
         $clients = XeroClient::active()
             ->where(function ($query) use ($q) {
                 $query->where('name', 'like', "%{$q}%")
-                      ->orWhere('email', 'like', "%{$q}%");
+                    ->orWhere('email', 'like', "%{$q}%");
             })
             ->orderBy('name')
             ->limit(20)
@@ -156,9 +169,14 @@ class XeroAnalyticsDashboardController extends Controller
             ->orderByDesc('started_at')
             ->limit(10)
             ->get([
-                'entity', 'sync_type', 'status',
-                'records_fetched', 'records_created', 'records_updated',
-                'started_at', 'completed_at',
+                'entity',
+                'sync_type',
+                'status',
+                'records_fetched',
+                'records_created',
+                'records_updated',
+                'started_at',
+                'completed_at',
             ]);
 
         return response()->json(['logs' => $logs]);

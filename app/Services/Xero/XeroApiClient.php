@@ -41,7 +41,11 @@ class XeroApiClient
             Log::info("Xero: Fetched page {$page} of {$endpoint} — " . count($records) . ' records.');
 
             $page++;
-        } while (count($records) === self::MAX_PAGE_SIZE);
+            
+            // FIX: Xero will often return fewer than MAX_PAGE_SIZE records on a page
+            // if server-side filtering (like 'where' clauses) is applied, or if you simply 
+            // hit the last page. We only stop when 0 records are returned.
+        } while (count($records) > 0);
 
         return $all;
     }

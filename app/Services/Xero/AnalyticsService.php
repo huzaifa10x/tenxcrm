@@ -163,19 +163,22 @@ class AnalyticsService
                 ->whereBetween('inv.invoice_date', [$from->toDateString(), $to->toDateString()])
                 ->whereNull('inv.deleted_at')
                 ->selectRaw('d.id AS department_id, d.name AS department_name, d.color,
-                             SUM(ii.line_amount) AS revenue, COUNT(DISTINCT inv.id) AS invoice_count')
+                         SUM(ii.line_amount) AS revenue,
+                         SUM(CASE WHEN inv.status = "AUTHORISED" THEN ii.line_amount ELSE 0 END) AS outstanding_revenue,
+                         COUNT(DISTINCT inv.id) AS invoice_count')
                 ->groupBy('d.id', 'd.name', 'd.color')
                 ->orderByDesc('revenue')
                 ->get();
 
             $total = $rows->sum('revenue');
             return $rows->map(fn($row) => [
-                'department_id'    => $row->department_id,
-                'department_name'  => $row->department_name,
-                'color'            => $row->color,
-                'revenue'          => (float) $row->revenue,
-                'invoice_count'    => (int)   $row->invoice_count,
-                'contribution_pct' => $total > 0 ? round(($row->revenue / $total) * 100, 1) : 0,
+                'department_id'       => $row->department_id,
+                'department_name'     => $row->department_name,
+                'color'               => $row->color,
+                'revenue'             => (float) $row->revenue,
+                'outstanding_revenue' => (float) $row->outstanding_revenue,
+                'invoice_count'       => (int)   $row->invoice_count,
+                'contribution_pct'    => $total > 0 ? round(($row->revenue / $total) * 100, 1) : 0,
             ]);
         });
     }
@@ -238,18 +241,62 @@ class AnalyticsService
             return XeroInvoice::sales()->authorised()
                 ->whereBetween('invoice_date', [$from, $to])
                 ->with('client:id,name,email')
-                ->selectRaw('xero_client_id, SUM(total) AS revenue, COUNT(*) AS invoice_count')
+                ->selectRaw('
+                xero_client_id, 
+                SUM(total) AS revenue, 
+                SUM(CASE WHEN status = "AUTHORISED" THEN amount_due ELSE 0 END) AS outstanding_revenue,
+                COUNT(*) AS invoice_count
+            ')
                 ->groupBy('xero_client_id')
                 ->orderByDesc('revenue')
                 ->limit($limit)
                 ->get()
                 ->map(fn($r) => [
-                    'client_id'     => $r->xero_client_id,
-                    'client_name'   => $r->client?->name ?? 'Unknown',
-                    'email'         => $r->client?->email,
-                    'revenue'       => (float) $r->revenue,
-                    'invoice_count' => (int)   $r->invoice_count,
+                    'client_id'           => $r->xero_client_id,
+                    'client_name'         => $r->client?->name ?? 'Unknown',
+                    'email'               => $r->client?->email,
+                    'revenue'             => (float) $r->revenue,
+                    'outstanding_revenue' => (float) $r->outstanding_revenue,
+                    'invoice_count'       => (int)   $r->invoice_count,
                 ]);
+        });
+    }
+
+    public function allClientPerformance(Carbon $from, Carbon $to): Collection
+    {
+        $key = "xero_all_clients_{$from->toDateString()}_{$to->toDateString()}";
+
+        return Cache::remember($key, self::CACHE_TTL, function () use ($from, $to) {
+            // First, aggregate the invoice data for the specific date range
+            $invoices = DB::table('xero_invoices')
+                ->where('type', 'ACCREC')
+                ->whereIn('status', ['PAID', 'AUTHORISED'])
+                ->whereBetween('invoice_date', [$from->toDateString(), $to->toDateString()])
+                ->whereNull('deleted_at')
+                ->selectRaw('
+                xero_client_id, 
+                SUM(total) AS revenue, 
+                SUM(CASE WHEN status = "AUTHORISED" THEN amount_due ELSE 0 END) AS outstanding_revenue,
+                COUNT(*) AS invoice_count
+            ')
+                ->groupBy('xero_client_id');
+
+            // Then, left join it to all active clients so no one is left behind
+            return DB::table('xero_clients as c')
+                ->leftJoinSub($invoices, 'inv', 'c.id', '=', 'inv.xero_client_id')
+                ->where('c.status', 'ACTIVE')
+                ->selectRaw('
+                c.id as client_id,
+                c.name as client_name,
+                c.email,
+                COALESCE(inv.revenue, 0) as revenue,
+                COALESCE(inv.outstanding_revenue, 0) as outstanding_revenue,
+                COALESCE(inv.invoice_count, 0) as invoice_count
+            ')
+                ->orderByDesc('revenue')
+                ->orderBy('client_name')
+                ->get()
+                ->map(fn($r) => (array) $r); // Cast standard objects back to arrays for the frontend
         });
     }
 
@@ -355,7 +402,8 @@ class AnalyticsService
                     ORDER BY YEAR(inv.invoice_date) ASC, MONTH(inv.invoice_date) ASC
                 "))->pluck('rev', 'ym');
 
-                $values = collect(range(0, 11))->map(fn($i) =>
+                $values = collect(range(0, 11))->map(
+                    fn($i) =>
                     (float) ($rows->get($start->copy()->addMonths($i)->format('Y-m')) ?? 0)
                 )->toArray();
 
@@ -408,7 +456,8 @@ class AnalyticsService
             ORDER BY YEAR(invoice_date) ASC, MONTH(invoice_date) ASC
         "))->pluck('rev', 'ym');
 
-        $values = collect(range(0, 11))->map(fn($i) =>
+        $values = collect(range(0, 11))->map(
+            fn($i) =>
             (float) ($rows->get($start->copy()->addMonths($i)->format('Y-m')) ?? 0)
         )->toArray();
 
@@ -434,9 +483,14 @@ class AnalyticsService
         $n = count($values);
         if ($n < 2) return $values[0] ?? 0;
         $xs = range(0, $n - 1);
-        $sumX = array_sum($xs); $sumY = array_sum($values);
-        $sumXY = 0; $sumX2 = 0;
-        for ($i = 0; $i < $n; $i++) { $sumXY += $xs[$i] * $values[$i]; $sumX2 += $xs[$i] ** 2; }
+        $sumX = array_sum($xs);
+        $sumY = array_sum($values);
+        $sumXY = 0;
+        $sumX2 = 0;
+        for ($i = 0; $i < $n; $i++) {
+            $sumXY += $xs[$i] * $values[$i];
+            $sumX2 += $xs[$i] ** 2;
+        }
         $denom = $n * $sumX2 - $sumX ** 2;
         if ($denom == 0) return $sumY / $n;
         $b = ($n * $sumXY - $sumX * $sumY) / $denom;
