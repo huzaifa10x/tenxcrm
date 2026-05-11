@@ -234,13 +234,13 @@
                                 href="{{ $project->companies->website ?? '' }}">{{ $project->companies->name ?? '' }}</a>
                         </h6>
                         <div class="">
-                            <p class="text-white">
-                                <a
-                                    href="mailto:{{ optional(optional($project->companies)->details->first())->email ?? '' }}">
-                                    {{ optional(optional($project->companies)->details->first())->email ?? '' }}
-                            </p>
-                            </a>
                             @if ($userPermissions->contains('can view companies'))
+                                <p class="text-white">
+                                    <a
+                                        href="mailto:{{ optional(optional($project->companies)->details->first())->email ?? '' }}">
+                                        {{ optional(optional($project->companies)->details->first())->email ?? '' }}
+                                    </a>
+                                </p>
                                 <a href="{{ route('companies.show', $project->companies->id) }}"
                                     class="py-8 mb-16 text-sm btn rounded-pill w-100 bg-gradient-blue-warning">View
                                     Company</a>
@@ -1798,7 +1798,8 @@
                                 <div>
                                     <h5 class="mb-1 alert-heading">🎉 Website is LIVE!</h5>
                                     <p class="mb-0">Went live on:
-                                        <strong>{{ $wp->go_live_date->format('M d, Y H:i') }}</strong></p>
+                                        <strong>{{ $wp->go_live_date->format('M d, Y H:i') }}</strong>
+                                    </p>
                                 </div>
                             </div>
                         @endif
@@ -2043,7 +2044,7 @@
                                 ${note.note}
                             </div>
                             ${note.user_id === {{ auth()->id() }} ? `
-                                                                                                                                                                                                <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
+                                                                                                                                                                                                            <button class="btn btn-sm btn-danger delete-note" data-id="${note.id}">Delete</button>` : ''}
                         </li>`;
                 });
                 $('#notes-list').html(html);
