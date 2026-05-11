@@ -21,7 +21,7 @@
                 </a>
             </li>
 
-            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('AM') || auth()->user()->hasRole('SALES MANAGER'))
+            @if (auth()->user()->hasRole('ADMIN'))
                 <li>
                     <a href="{{ route('xero.analytics.dashboard') }}">
                         <i class="w-auto text-xl ri-news-line me-14 d-flex"></i>
