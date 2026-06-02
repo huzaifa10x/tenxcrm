@@ -269,6 +269,8 @@
                         <span>Leads</span>
                     </a>
                 </li>
+            @endif
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SALES MANAGER'))
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <iconify-icon icon="solar:chart-2-outline" class="menu-icon"></iconify-icon>
