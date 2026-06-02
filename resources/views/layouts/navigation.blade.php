@@ -269,6 +269,30 @@
                         <span>Leads</span>
                     </a>
                 </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <iconify-icon icon="solar:chart-2-outline" class="menu-icon"></iconify-icon>
+                        <span>Pipedrive</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a href="{{ route('pipedrive.deals.index') }}"><i
+                                    class="w-auto ri-circle-fill circle-icon text-primary-600"></i> Deals</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('pipedrive.deals.create') }}"><i
+                                    class="w-auto ri-circle-fill circle-icon text-info-main"></i> Add Deal</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('pipedrive.persons.index') }}"><i
+                                    class="w-auto ri-circle-fill circle-icon text-primary-600"></i> Contacts</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('pipedrive.organizations.index') }}"><i
+                                    class="w-auto ri-circle-fill circle-icon text-primary-600"></i> Organizations</a>
+                        </li>
+                    </ul>
+                </li>
             @endif
             <li>
                 <a href="{{ route('messages.index') }}">

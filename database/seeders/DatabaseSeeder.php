@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PaymentMethodsSeeder::class,
             ProjectSeeder::class,
             TaskSeeder::class,
+            CrmSeeder::class,
             // AttendanceSeeder::class,
         ]);
     }

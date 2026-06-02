@@ -7,6 +7,11 @@ use App\Http\Controllers\AttendanceNoteController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\ContentWriterController;
+use App\Http\Controllers\Crm\NoteController;
+use App\Http\Controllers\Crm\OrganizationController;
+use App\Http\Controllers\Crm\PersonController;
+use App\Http\Controllers\Crm\PipeActivityController;
+use App\Http\Controllers\Crm\PipedriveDealController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DealController;
 use App\Http\Controllers\GeneralSettingController;
@@ -62,6 +67,43 @@ Route::get('/invoices/{uuid}/download', [InvoiceController::class, 'downloadPdf'
 Route::get('email/check/index', [InvoiceController::class, 'emailCheckView'])->name('email.check.index');
 
 Route::middleware('auth')->group(function () {
+
+    Route::prefix('pipedrive')
+        ->name('pipedrive.')
+        ->group(function () {
+
+            // ── Deals ──────────────────────────────────────────────
+            Route::get('deals/list', [PipedriveDealController::class, 'list'])->name('deals.list');      // AJAX (table view)
+            Route::post('deals/import', [PipedriveDealController::class, 'import'])->name('deals.import');
+            Route::get('deals/export', [PipedriveDealController::class, 'export'])->name('deals.export');
+
+            Route::post('deals/{deal}/move', [PipedriveDealController::class, 'move'])->name('deals.move'); // drag & drop
+            Route::post('deals/{deal}/won', [PipedriveDealController::class, 'markWon'])->name('deals.won');
+            Route::post('deals/{deal}/lost', [PipedriveDealController::class, 'markLost'])->name('deals.lost');
+
+            Route::resource('deals', PipedriveDealController::class);
+
+            // ── Organizations ──────────────────────────────────────
+            Route::get('organizations/search', [OrganizationController::class, 'search'])->name('organizations.search');
+            Route::resource('organizations', OrganizationController::class)->except(['show']);
+
+            // ── Persons / contacts ─────────────────────────────────
+            Route::get('persons/search', [PersonController::class, 'search'])->name('persons.search');
+            Route::resource('persons', PersonController::class)->except(['show']);
+
+            // ── Activities ─────────────────────────────────────────
+            Route::post('deals/{deal}/activities', [PipeActivityController::class, 'store'])->name('activities.store');
+            Route::post('activities/{activity}/toggle', [PipeActivityController::class, 'toggle'])->name('activities.toggle');
+            Route::put('activities/{activity}', [PipeActivityController::class, 'update'])->name('activities.update');
+            Route::delete('activities/{activity}', [PipeActivityController::class, 'destroy'])->name('activities.destroy');
+
+            // ── Notes ──────────────────────────────────────────────
+            Route::post('deals/{deal}/notes', [NoteController::class, 'store'])->name('notes.store');
+            Route::put('notes/{note}', [NoteController::class, 'update'])->name('notes.update');
+            Route::post('notes/{note}/pin', [NoteController::class, 'pin'])->name('notes.pin');
+            Route::delete('notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
+        });
+
     Route::put('/admin/cancellations/{id}/approve', [ProjectController::class, 'approveCancellation'])->name('admin.approveCancellation');
     Route::post('/projects/cancel', [ProjectController::class, 'cancel'])->name('projects.cancel');
     Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');
@@ -354,4 +396,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 -require __DIR__ . '/auth.php';
-require __DIR__.'/xero.php';
+require __DIR__ . '/xero.php';
