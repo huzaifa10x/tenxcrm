@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="header">{{ __('CRM — Deals') }}</x-slot>
+    <x-slot name="header">{{ __('PipeDrive — Deals') }}</x-slot>
 
     @include('pipedrive._styles')
 

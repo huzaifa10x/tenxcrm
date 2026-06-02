@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="header">{{ __('CRM — Edit Organization') }}</x-slot>
+    <x-slot name="header">{{ __('PipeDrive — Edit Organization') }}</x-slot>
     @include('pipedrive._styles')
     <div class="crm-page">
         <div class="crm-toolbar"><h4><i class="bi bi-pencil-square me-2"></i>Edit Organization</h4>

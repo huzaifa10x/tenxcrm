@@ -16,7 +16,7 @@
         --ds-shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .05);
     }
 
-    .crm-page { background: var(--ds-bg); min-height: 100vh; padding: 1.25rem 1.25rem 3rem; }
+    .crm-page { background: var(--ds-bg); min-height: 100vh; padding: 0; }
 
     .crm-toolbar {
         display: flex; align-items: center; justify-content: space-between;
@@ -36,9 +36,9 @@
     /* ── Kanban board ─────────────────────────────────────────── */
     .crm-board { display: flex; gap: .85rem; overflow-x: auto; padding-bottom: 1rem; align-items: flex-start; }
     .crm-col {
-        flex: 0 0 290px; max-width: 290px; background: #eef1f6;
+        flex: 0 0 290px; max-width: 240px; background: #eef1f6;
         border-radius: var(--ds-radius); display: flex; flex-direction: column;
-        max-height: calc(100vh - 220px); border: 1px solid var(--ds-border);
+        max-height: calc(100vh - 270px); border: 1px solid var(--ds-border);
     }
     .crm-col-head {
         padding: .65rem .85rem; border-top: 4px solid var(--ds-accent);

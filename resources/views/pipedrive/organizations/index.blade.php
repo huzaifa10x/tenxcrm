@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="header">{{ __('CRM — Organizations') }}</x-slot>
+    <x-slot name="header">{{ __('PipeDrive — Organizations') }}</x-slot>
     @include('pipedrive._styles')
     <div class="crm-page">
         @if (session('success'))<div class="alert alert-success py-2" style="font-size:.85rem;">{{ session('success') }}</div>@endif
