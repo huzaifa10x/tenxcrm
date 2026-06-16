@@ -1412,7 +1412,7 @@
             </form>
         @endif
 
-        @if ($userPermissions->contains('can create tasks') && auth()->user()->id == $task->created_by)
+        {{-- @if ($userPermissions->contains('can create tasks') && auth()->user()->id == $task->created_by)
             @if ($task->repeatingTask && $task->repeat_task)
                 <button class="ts-btn ts-btn-danger ts-btn-sm disable-repeating"
                     data-task-id="{{ $task->id }}"><i class="bi bi-pause-circle me-1"></i>Disable Repeat</button>
@@ -1421,7 +1421,7 @@
                 <button class="ts-btn ts-btn-success ts-btn-sm enable-repeating"
                     data-task-id="{{ $task->id }}"><i class="bi bi-play-circle me-1"></i>Enable Repeat</button>
             @endif
-        @endif
+        @endif --}}
 
         @if ($task->parent_task_id)
             <a href="{{ route('tasks.show', $task->parent_task_id) }}" class="ts-btn ts-btn-outline ts-btn-sm"><i
