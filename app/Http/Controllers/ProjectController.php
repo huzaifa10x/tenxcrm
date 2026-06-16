@@ -158,7 +158,7 @@ class ProjectController extends Controller
         $industries = Industry::all();
         $users = User::all();
         $paymentMethods = PaymentMethod::all();
-        $companies = Company::all();
+        $companies = Company::orderBy('name', 'asc')->get();
         return view('projects.create', compact('industries', 'users', 'paymentMethods', 'companies'));
     }
 
