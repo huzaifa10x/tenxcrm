@@ -40,6 +40,25 @@ use Illuminate\Support\Str;
 
 class TaskController extends Controller
 {
+    public function stopRepeat($id)
+    {
+        try {
+            $task = Task::findOrFail($id);
+            if ($task->repeatingTask) {
+                $task->repeatingTask->delete();
+                $task->update(['repeat_task' => 0]);
+                TaskHistory::create([
+                    'task_id' => $task->id,
+                    'user_id' => auth()->user()->id,
+                    'action' => 'Repeating stopped by ' . auth()->user()->name,
+                ]);
+                return redirect()->back()->with('success', 'Task will no longer repeat.');
+            }
+            return redirect()->back()->with('error', 'This task is not currently set to repeat.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error stopping task: ' . $e->getMessage());
+        }
+    }
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -707,11 +726,11 @@ class TaskController extends Controller
                         ],
                     ]);
                     break;
-    
+
                 case 'Keywords Approval':
                     foreach ($keywordsApprovalTasks as $loopTask) {
                         $alreadyExists = Task::where('project_id', $project->id)->where('title', $loopTask['title'])->exists();
-    
+
                         if (!$alreadyExists) {
                             Task::create([
                                 'is_automated' => 1,
@@ -731,7 +750,7 @@ class TaskController extends Controller
                         }
                     }
                     break;
-    
+
                 case 'Content Audit':
                     Task::create([
                         'is_automated' => 1,
@@ -745,7 +764,7 @@ class TaskController extends Controller
                         'type' => 'CONTENT',
                     ]);
                     break;
-    
+
                 case 'SEO Content Request':
                     Task::create([
                         'is_automated' => 1,
@@ -759,7 +778,7 @@ class TaskController extends Controller
                         'description' => 'system generated task',
                     ]);
                     break;
-    
+
                 case 'First On-site':
                     Task::create([
                         'is_automated' => 1,
@@ -772,7 +791,7 @@ class TaskController extends Controller
                         'type' => 'SEO ADMIN',
                         'description' => 'system generated task',
                     ]);
-    
+
                     Task::create([
                         'is_automated' => 1,
                         'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
@@ -784,7 +803,7 @@ class TaskController extends Controller
                         'type' => 'ADHOC',
                         'description' => 'system generated task',
                     ]);
-    
+
                     Task::create([
                         'is_automated' => 1,
                         'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
@@ -796,9 +815,9 @@ class TaskController extends Controller
                         'type' => 'ADHOC',
                         'description' => 'system generated task',
                     ]);
-    
+
                     break;
-    
+
                 case 'Create the Project on SE Ranking':
                     Task::create([
                         'is_automated' => 1,
@@ -812,7 +831,7 @@ class TaskController extends Controller
                         'description' => 'system generated task',
                     ]);
                     break;
-    
+
                 case 'Intro Call':
                     // Task::create([
                     //     'is_automated' => 1,
@@ -826,7 +845,7 @@ class TaskController extends Controller
                     //     'description' => 'system generated task'
                     // ]);
                     break;
-    
+
                 default:
                     break;
             }

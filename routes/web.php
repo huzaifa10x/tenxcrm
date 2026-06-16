@@ -343,6 +343,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/tasks/{task}/attachments', [TaskController::class, 'jsonTaskAttachments'])->name('tasks.attachments.index');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
 
+    Route::post('/tasks/{task}/stop-repeat', [TaskController::class, 'stopRepeat'])->name('tasks.stop-repeat');
+
     Route::get('/tasks/clear-session', function () {
         session()->forget('open_task_id');
         return response()->json(['status' => 'cleared']);
