@@ -197,6 +197,21 @@ class AttendanceController extends Controller
             ->first();
         $todayAttendanceId = $todayAttendance?->id ?? null;
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'users' => $users,
+                'month' => $month,
+                'summary' => [
+                    'present' => $totalPresent,
+                    'absent' => $totalAbsent,
+                    'late' => $totalLate,
+                    'half_day' => $totalHalfDay,
+                    'early_out' => $totalEarlyOut,
+                    'deductions' => $deductions,
+                ]
+            ]);
+        }
+
         return view('attendance.index', compact('users', 'breakEndTime', 'earlyOutThreshold', 'halfDayThreshold', 'lateThreshold', 'month', 'totalDays', 'userId', 'totalPresent', 'totalAbsent', 'totalLate', 'totalHalfDay', 'totalEarlyOut', 'deductions', 'holidays', 'todayAttendanceId'));
     }
 }

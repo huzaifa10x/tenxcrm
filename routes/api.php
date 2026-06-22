@@ -9,3 +9,13 @@ Route::get('/show-leads', [ClientLeadController::class, 'show'])->name('show-lea
 Route::post('/store-lead', [ClientLeadController::class, 'store'])->name('store-leads');
 
 Route::get('/services', [ServiceController::class, 'getServices']);
+
+Route::post('/login', [ApiAuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [ApiAuthController::class, 'logout']);
+    Route::get('/me', [ApiAuthController::class, 'me']);
+    Route::post('/attendance/punch-in', [AttendanceController::class, 'punchIn']);
+    Route::post('/attendance/punch-out', [AttendanceController::class, 'punchOut']);
+    Route::get('/attendance/monthly', [AttendanceController::class, 'monthlyAttendance']);
+});
