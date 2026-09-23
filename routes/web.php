@@ -42,7 +42,10 @@ use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebsiteProjectController;
 use App\Jobs\CreateRecurringTaskJob;
+use App\Mail\TaskAssignedMail;
+use App\Mail\TaskCompletedMail;
 use App\Models\Task;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
@@ -52,6 +55,22 @@ Route::post('/groq-chat', [DashboardController::class, 'chat'])->name('groq.chat
 
 Route::get('/', function () {
     return redirect()->route('login');
+});
+
+// Task Assigned Email Render
+Route::get('/task/mail/assign', function () {
+    $task = Task::latest()->first();
+    $user = User::first();
+
+    return new TaskAssignedMail($task, $user);
+})->name('booking.public-view');
+
+// Task Completed Email Render
+Route::get('/task/mail/completed', function () {
+    $task = Task::latest()->first();
+    $user = User::first();
+
+    return new TaskCompletedMail($task, $user);
 });
 
 Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');

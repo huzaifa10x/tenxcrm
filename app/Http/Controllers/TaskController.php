@@ -6,6 +6,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Events\TaskCompleted;
 use App\Jobs\CreateDelayedTask;
 use App\Jobs\CreateRecurringTaskJob;
+use App\Mail\TaskAssignedMail;
+use App\Mail\TaskCompletedMail;
 use App\Models\AdminTask;
 use App\Models\AmTask;
 use App\Models\ContentTask;
@@ -28,7 +30,10 @@ use App\Models\TaskHistory;
 use App\Notifications\CustomNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\FuncCall;
 use Illuminate\Support\Facades\Validator;
@@ -40,6 +45,38 @@ use Illuminate\Support\Str;
 
 class TaskController extends Controller
 {
+    private const SYSTEM_EMAIL = 'system@10xdigital.ae';
+
+    /**
+     * Send a task email without ever breaking the request.
+     * Skips missing users, users without email, the system user,
+     * and the person who triggered the action (no self-emails).
+     */
+    private function sendTaskMail(?User $recipient, Mailable $mailable): void
+    {
+        if (!$recipient || empty($recipient->email)) {
+            return;
+        }
+
+        if (strcasecmp($recipient->email, self::SYSTEM_EMAIL) === 0) {
+            return;
+        }
+
+        if (auth()->check() && (int) $recipient->id === (int) auth()->id()) {
+            return;
+        }
+
+        try {
+            Mail::to($recipient->email)->send($mailable); // queued automatically (ShouldQueue)
+        } catch (\Throwable $e) {
+            Log::error('Task email failed', [
+                'recipient' => $recipient->email,
+                'mailable'  => get_class($mailable),
+                'error'     => $e->getMessage(),
+            ]);
+        }
+    }
+
     public function stopRepeat($id)
     {
         try {
@@ -59,6 +96,7 @@ class TaskController extends Controller
             return redirect()->back()->with('error', 'Error stopping task: ' . $e->getMessage());
         }
     }
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -134,11 +172,12 @@ class TaskController extends Controller
         $tasks = $taskQuery->get();
         return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
     }
+
     public function search(Request $request)
     {
         $user = auth()->user();
 
-        $tasks = Task::with('project:id,title') // Project title fetch karne ke liye
+        $tasks = Task::with('project:id,title')
             ->where('title', 'LIKE', '%' . $request->query('query') . '%')
             ->where(function ($query) use ($user) {
                 $query
@@ -167,6 +206,7 @@ class TaskController extends Controller
             }),
         );
     }
+
     public function create()
     {
         $projects = Project::whereIn('status', 'Current', 'WFF', 'Debt Collection');
@@ -174,6 +214,7 @@ class TaskController extends Controller
         $departments = Role::all();
         return redirect()->route('tasks.index');
     }
+
     public function store(Request $request)
     {
         try {
@@ -313,7 +354,7 @@ class TaskController extends Controller
             ]);
 
             $user = User::find($request->assigned_to);
-            if (!$request->has('repeat_task') && !$request->repeat_task) {
+            if ($user && !$request->has('repeat_task') && !$request->repeat_task) {
                 DB::table('notifications')->insert([
                     'id' => Str::uuid(),
                     'type' => \App\Notifications\CustomNotification::class,
@@ -329,11 +370,15 @@ class TaskController extends Controller
                 ]);
             }
 
+            // Email the assignee
+            $this->sendTaskMail($user, new TaskAssignedMail($task, auth()->user()));
+
             return redirect()->back()->with('success', 'Task created successfully!');
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
     public function show(Request $request, Task $task)
     {
         $users = User::all();
@@ -385,11 +430,13 @@ class TaskController extends Controller
 
         return view('tasks.show', compact('task', 'projects', 'users', 'departments', 'relatedData', 'qrCode'));
     }
+
     public function showTask($id)
     {
         session()->flash('open_task_id', $id);
         return redirect()->route('tasks.index');
     }
+
     public function destroy(Task $task)
     {
         $user = User::find($task->assigned_to);
@@ -398,6 +445,7 @@ class TaskController extends Controller
         $task->delete();
         return redirect()->back()->with('success', 'Task deleted successfully!');
     }
+
     public function addAttachment(Request $request, Task $task)
     {
         $request->validate([
@@ -423,6 +471,7 @@ class TaskController extends Controller
             ->route('tasks.show', ['task' => $task->id])
             ->with('success', 'Task Attachment Added!');
     }
+
     public function removeAttachment(Task $task, TaskAttachment $attachment)
     {
         if (file_exists(storage_path('app/public/' . $attachment->file_path))) {
@@ -439,9 +488,11 @@ class TaskController extends Controller
             ->route('tasks.show', ['task' => $task->id])
             ->with('success', 'Attachment deleted successfully!');
     }
+
     public function updateStatus(Request $request)
     {
         $task = Task::findOrFail($request->task_id);
+        $oldStatus = $task->status;
 
         TaskHistory::create([
             'task_id' => $task->id,
@@ -450,7 +501,7 @@ class TaskController extends Controller
         ]);
 
         $task->status = $request->status;
-        $task->save(); // Save before notification
+        $task->save();
 
         $user = User::find($task->assigned_to);
 
@@ -470,8 +521,14 @@ class TaskController extends Controller
             ]);
         }
 
+        // Email the creator if the task was moved to Completed via the status dropdown / board
+        if ($oldStatus !== 'Completed' && $request->status === 'Completed') {
+            $this->sendTaskMail($task->createdBy, new TaskCompletedMail($task, auth()->user()));
+        }
+
         return response()->json(['message' => 'Task status updated successfully']);
     }
+
     public function deleteAttachment(TaskAttachment $attachment)
     {
         Storage::disk('public')->delete($attachment->file_path);
@@ -528,50 +585,13 @@ class TaskController extends Controller
         ]);
     }
 
-    // public function tasksAttachmentsStore(Request $request, Task $task)
-    // {
-    //     $request->validate([
-    //         'attachments' => 'required|array',
-    //         'attachments.*' => 'file',
-    //     ]);
-
-    //     $uploadedCount = 0;
-
-    //     foreach ($request->file('attachments') as $file) {
-    //         $path = $file->store('task_attachments', 'public');
-
-    //         $task->attachments()->create([
-    //             'file_path' => $path,
-    //             'file_type' => $file->getClientMimeType(),
-    //             'original_name' => $file->getClientOriginalName(),
-    //             'user_id' => auth()->id(),
-    //         ]);
-
-    //         $uploadedCount++;
-    //     }
-
-    //     $attachments = $task->attachments()->with('user')->get();
-
-    //     if ($uploadedCount > 0) {
-    //         TaskHistory::create([
-    //             'task_id' => $task->id,
-    //             'user_id' => auth()->user()->id,
-    //             'action' => "$uploadedCount Attachment(s) Added by " . auth()->user()->name,
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Attachments uploaded successfully.',
-    //         'attachments' => $attachments,
-    //     ]);
-    // }
     public function jsonTaskAttachments(Task $task)
     {
         return response()->json([
             'attachments' => $task->attachments()->with('user')->get(),
         ]);
     }
+
     public function updateTaskAjax(Request $request, $id)
     {
         $task = Task::findOrFail($id);
@@ -656,7 +676,7 @@ class TaskController extends Controller
                 'description' => 'Please review and obtain client approval. Click the button labeled "Parent Task" at the top to view the related tasks.',
                 'project_id' => $project->id,
                 'department_id' => null,
-                'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                 'assigned_to' => $accountManager,
                 'priority' => 'High',
                 'type' => 'AM',
@@ -667,18 +687,11 @@ class TaskController extends Controller
                 'parent_task_id' => $task->id,
             ]);
 
-            // ContentTask::create([
-            //     "task_id" => $newContentApprovalTask->id,
-            //     "sub_type" => $task->contentTask->sub_type || 'ADHOC',
-            //     "number_of_pages" => $task->contentTask->number_of_pages,
-            // ]);
-
             foreach ($task->attachments as $attachment) {
-                // Assuming 'file_type' and 'original_name' are stored in the attachment model
                 $newContentApprovalTask->attachments()->create([
                     'file_path' => $attachment->file_path,
-                    'file_type' => $attachment->file_type, // Assuming it's stored in the model
-                    'original_name' => $attachment->original_name, // Assuming it's stored in the model
+                    'file_type' => $attachment->file_type,
+                    'original_name' => $attachment->original_name,
                     'user_id' => auth()->id(),
                 ]);
             }
@@ -715,7 +728,7 @@ class TaskController extends Controller
                     Task::insert([
                         [
                             'is_automated' => 1,
-                            'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                            'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                             'project_id' => $project->id,
                             'title' => 'Keywords Approval',
                             'assigned_to' => $accountManager,
@@ -738,7 +751,7 @@ class TaskController extends Controller
                                 'description' => 'system generated task',
                                 'project_id' => $project->id,
                                 'department_id' => null,
-                                'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                                'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                                 'assigned_to' => $loopTask['assignee'],
                                 'priority' => 'High',
                                 'type' => $loopTask['type'],
@@ -754,7 +767,7 @@ class TaskController extends Controller
                 case 'Content Audit':
                     Task::create([
                         'is_automated' => 1,
-                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                         'project_id' => $project->id,
                         'title' => 'SEO Content Request',
                         'description' => 'SEO Content Request ( CONTENT AUDIT+ KW MAPPING +CONTENT INTAKE FORM)',
@@ -768,7 +781,7 @@ class TaskController extends Controller
                 case 'SEO Content Request':
                     Task::create([
                         'is_automated' => 1,
-                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                         'project_id' => $project->id,
                         'title' => 'PUBLISH CONTENT',
                         'assigned_to' => $accountManager,
@@ -782,7 +795,7 @@ class TaskController extends Controller
                 case 'First On-site':
                     Task::create([
                         'is_automated' => 1,
-                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                         'project_id' => $project->id,
                         'title' => 'Request for R1',
                         'assigned_to' => $seoAdmin,
@@ -794,7 +807,7 @@ class TaskController extends Controller
 
                     Task::create([
                         'is_automated' => 1,
-                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                         'project_id' => $project->id,
                         'title' => 'Request for R2',
                         'assigned_to' => $seoAdmin,
@@ -806,7 +819,7 @@ class TaskController extends Controller
 
                     Task::create([
                         'is_automated' => 1,
-                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                         'project_id' => $project->id,
                         'title' => 'Request for R3',
                         'assigned_to' => $seoAdmin,
@@ -821,7 +834,7 @@ class TaskController extends Controller
                 case 'Create the Project on SE Ranking':
                     Task::create([
                         'is_automated' => 1,
-                        'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
+                        'created_by' => User::where('email', self::SYSTEM_EMAIL)->value('id') ?? 1,
                         'project_id' => $project->id,
                         'title' => 'Request Local Listing',
                         'assigned_to' => $seoAdmin,
@@ -833,17 +846,6 @@ class TaskController extends Controller
                     break;
 
                 case 'Intro Call':
-                    // Task::create([
-                    //     'is_automated' => 1,
-                    //     'created_by' => User::where('email', 'system@10xdigital.ae')->value('id') ?? 1,
-                    //     'project_id' => $project->id,
-                    //     'title' => 'Request Backlinks',
-                    //     'assigned_to' => $seoAdmin,
-                    //     'status' => 'Todo',
-                    //     'start_date' => now()->addDays(30),
-                    //     'type' => 'SEO ADMIN',
-                    //     'description' => 'system generated task'
-                    // ]);
                     break;
 
                 default:
@@ -870,6 +872,9 @@ class TaskController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Email the task creator
+        $this->sendTaskMail($task->createdBy, new TaskCompletedMail($task, auth()->user()));
 
         return response()->json(['success' => true, 'message' => 'Task marked as completed.']);
     }
