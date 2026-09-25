@@ -33,7 +33,7 @@ class TaskCompletedMail extends Mailable implements ShouldQueue
     }
 
     /**
-     * Client name: project's company (if the relation exists), else a client_name column, else project title.
+     * Client name: project's company (companies relation), else a client_name column, else project title.
      */
     public static function clientName(Task $task): string
     {
@@ -43,7 +43,7 @@ class TaskCompletedMail extends Mailable implements ShouldQueue
             return 'General';
         }
 
-        return optional($project->company)->name
+        return optional($project->companies)->name
             ?? $project->client_name
             ?? $project->title
             ?? 'General';

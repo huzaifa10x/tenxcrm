@@ -4,6 +4,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ProjectCancellationRequestedMail;
 use App\Models\CancellationReason;
 use App\Models\ClientCredential;
 use App\Models\Company;
@@ -20,6 +21,8 @@ use App\Models\WebDevProject;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -125,21 +128,53 @@ class ProjectController extends Controller
 
         return view('projects.index', compact('projects', 'accountManagers', 'statusCounts', 'typeCounts', 'users', 'salesManagers', $extraData));
     }
+
     public function cancel(Request $request)
     {
         $request->validate([
-            'project_id' => 'required|exists:projects,id',
-            'reason' => 'required|string',
+            'project_id'       => 'required|exists:projects,id',
+            'reason'           => 'required|string',
+            'effective_date'   => 'nullable|date',
+            'additional_notes' => 'nullable|string|max:2000',
         ]);
 
-        CancellationReason::create([
+        $cancellation = CancellationReason::create([
             'project_id' => $request->project_id,
-            'reason' => $request->reason,
-            'approved' => false,
+            'reason'     => $request->reason,
+            'approved'   => false,
         ]);
+
+        $this->notifyAdminsOfCancellation($cancellation, $request->effective_date, $request->additional_notes);
 
         return response()->json(['message' => 'Cancellation submitted']);
     }
+
+    private function notifyAdminsOfCancellation(CancellationReason $cancellation, ?string $effectiveDate, ?string $notes): void
+    {
+        $project   = Project::find($cancellation->project_id);
+        $requester = auth()->user();
+
+        if (!$project || !$requester) {
+            return;
+        }
+
+        $admins = User::whereHas('roles', fn($q) => $q->where('name', 'ADMIN'))
+            ->whereNotNull('email')
+            ->where('email', '!=', 'system@10xdigital.ae')
+            ->where('id', '!=', $requester->id)
+            ->get();
+
+        foreach ($admins as $admin) {
+            try {
+                Mail::to($admin->email)->send(
+                    new ProjectCancellationRequestedMail($project, $cancellation, $requester, $admin, $effectiveDate, $notes)
+                );
+            } catch (\Throwable $e) {
+                Log::error('Cancellation email failed', ['admin' => $admin->email, 'error' => $e->getMessage()]);
+            }
+        }
+    }
+
     public function approveCancellation($id)
     {
         $cancellation = CancellationReason::findOrFail($id);
