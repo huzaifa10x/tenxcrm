@@ -17,7 +17,16 @@ class ProjectKeyword extends Model
         'type',
         'destination_url',
         'link_cost',
+        'created_by',
+        'rel',
+        'dr',
+        'link_status',
     ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     public function project()
     {

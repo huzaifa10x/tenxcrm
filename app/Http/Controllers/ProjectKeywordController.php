@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ProjectKeyword;
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 class ProjectKeywordController extends Controller
@@ -16,9 +17,17 @@ class ProjectKeywordController extends Controller
             'keywords.*.url' => 'required|url',
             'keywords.*.destination_url' => 'nullable',
             'keywords.*.link_cost' => 'nullable|numeric',
+            'keywords.*.rel' => 'nullable|in:dofollow,nofollow',
+            'keywords.*.dr' => 'nullable|integer|min:0|max:100',
             'task_id' => 'required|exists:tasks,id',
             'type' => 'required|string',
         ]);
+
+        // Credit the link to the Offsite employee who logged it; if someone else
+        // (admin, AM) logs it on their behalf, credit the task's assignee.
+        $task = Task::find($validated['task_id']);
+        $creditTo = auth()->user()->hasRole('OFFSITE') ? auth()->id() : ($task->assigned_to ?? auth()->id());
+        $isClosing = $validated['type'] === 'closing';
 
         foreach ($validated['keywords'] as $item) {
             ProjectKeyword::create([
@@ -29,7 +38,10 @@ class ProjectKeywordController extends Controller
                 'url'              => $item['url'],
                 'destination_url'  => $item['destination_url'] ?? null,
                 'link_cost'        => $item['link_cost'] ?? 0,
-                'created_by'       => auth()->id(),
+                'created_by'       => $creditTo,
+                'rel'              => $isClosing ? ($item['rel'] ?? null) : null,
+                'dr'               => $isClosing ? ($item['dr'] ?? null) : null,
+                'link_status'      => $isClosing ? 'live' : null,
             ]);
         }
 

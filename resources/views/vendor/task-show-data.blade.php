@@ -1462,6 +1462,20 @@
                             value="0" id="mainLinkCost" placeholder="Link Cost USD" required></div>
                     <div class="ts-form-group"><label>Destination URL</label><input type="text" value="-"
                             required class="ts-input" id="destinationUrl" placeholder="Destination URL"></div>
+                    <div class="ts-form-row">
+                        <div class="ts-form-group"><label>Link Type <span
+                                    style="font-size:.68rem;color:var(--ts-muted);font-weight:400;">(optional)</span></label>
+                            <select class="ts-select" id="mainLinkRel">
+                                <option value="">Not specified</option>
+                                <option value="dofollow">Dofollow</option>
+                                <option value="nofollow">Nofollow</option>
+                            </select>
+                        </div>
+                        <div class="ts-form-group"><label>Domain Rating (DR) <span
+                                    style="font-size:.68rem;color:var(--ts-muted);font-weight:400;">(optional, 0-100)</span></label>
+                            <input type="number" min="0" max="100" class="ts-input" id="mainLinkDr" placeholder="e.g. 45">
+                        </div>
+                    </div>
                     <input type="hidden" name="type" value="closing">
                     <div class="ts-form-group"><label>URLs <span
                                 style="font-size:.68rem;color:var(--ts-muted);font-weight:400;">(one per
@@ -2280,6 +2294,8 @@
                 formData.append(`keywords[${index}][keyword]`, keyword);
                 formData.append(`keywords[${index}][link_cost]`, linkCost);
                 formData.append(`keywords[${index}][destination_url]`, destinationUrl);
+                formData.append(`keywords[${index}][rel]`, $("#mainLinkRel").val() || '');
+                formData.append(`keywords[${index}][dr]`, $("#mainLinkDr").val() || '');
                 formData.append(`keywords[${index}][url]`, url.trim());
             });
             $.ajax({

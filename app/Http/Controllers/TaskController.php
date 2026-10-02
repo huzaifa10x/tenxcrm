@@ -501,6 +501,9 @@ class TaskController extends Controller
         ]);
 
         $task->status = $request->status;
+        if ($request->status === 'Completed' && !$task->completed_date) {
+            $task->completed_date = now();
+        }
         $task->save();
 
         $user = User::find($task->assigned_to);

@@ -24,6 +24,8 @@ use App\Http\Controllers\LeadSourceController;
 use App\Http\Controllers\LeadStatusController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OffsiteLinkController;
+use App\Http\Controllers\OffsiteSeoController;
 use App\Http\Controllers\OffsiteTaskController;
 use App\Http\Controllers\PartnerLinkController;
 use App\Http\Controllers\PaymentMethodController;
@@ -136,6 +138,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/invoices/update-paid-status', [InvoiceController::class, 'updatePaidStatus'])->name('invoices.updatePaidStatus');
     Route::get('/admin/content-writers', [ContentWriterController::class, 'index'])->name('admin.content-writers.index');
     Route::get('/admin/content-writers/{user}', [ContentWriterController::class, 'show'])->name('admin.content-writers.show');
+
+    // Offsite SEO performance + link-building records
+    Route::get('/admin/offsite-seo', [OffsiteSeoController::class, 'index'])->name('admin.offsite-seo.index');
+    Route::get('/admin/offsite-seo/links', [OffsiteLinkController::class, 'index'])->name('admin.offsite-seo.links.index');
+    Route::get('/admin/offsite-seo/links/tasks', [OffsiteLinkController::class, 'tasks'])->name('admin.offsite-seo.links.tasks');
+    Route::post('/admin/offsite-seo/links', [OffsiteLinkController::class, 'store'])->name('admin.offsite-seo.links.store');
+    Route::put('/admin/offsite-seo/links/{link}', [OffsiteLinkController::class, 'update'])->name('admin.offsite-seo.links.update');
+    Route::patch('/admin/offsite-seo/links/{link}/status', [OffsiteLinkController::class, 'updateStatus'])->name('admin.offsite-seo.links.status');
+    Route::delete('/admin/offsite-seo/links/{link}', [OffsiteLinkController::class, 'destroy'])->name('admin.offsite-seo.links.destroy');
+    Route::get('/admin/offsite-seo/{user}', [OffsiteSeoController::class, 'show'])->name('admin.offsite-seo.show');
 });
 
 Route::get('/invoices/view/{uuid}', [InvoiceController::class, 'showPublic'])->name('invoices.public');

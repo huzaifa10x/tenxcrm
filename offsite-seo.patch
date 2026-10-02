@@ -1,0 +1,1498 @@
+diff --git a/app/Http/Controllers/OffsiteLinkController.php b/app/Http/Controllers/OffsiteLinkController.php
+new file mode 100644
+index 0000000..bf294ca
+--- /dev/null
++++ b/app/Http/Controllers/OffsiteLinkController.php
+@@ -0,0 +1,244 @@
++<?php
++
++namespace App\Http\Controllers;
++
++use App\Models\Project;
++use App\Models\ProjectKeyword;
++use App\Models\Task;
++use Carbon\Carbon;
++use Illuminate\Http\Request;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Validation\ValidationException;
++
++/**
++ * Data entry for link-building records.
++ * Records are the same project_keywords (type = closing) rows that the task page
++ * "Add KW/URLs" form creates - this screen only adds a place to review and maintain them.
++ *
++ * ADMIN / SEO ADMIN: manage every Offsite SEO employee's links.
++ * OFFSITE: manage their own links only.
++ */
++class OffsiteLinkController extends Controller
++{
++    public const STATUSES = ['live' => 'Live', 'pending' => 'Pending', 'lost' => 'Lost'];
++    public const RELS = ['dofollow' => 'Dofollow', 'nofollow' => 'Nofollow'];
++
++    public function index(Request $request)
++    {
++        $isManager = $this->isManager();
++        [$from, $to, $range] = OffsiteSeoController::resolveRange($request);
++
++        $team = OffsiteSeoController::offsiteUsers();
++        $names = $team->pluck('name', 'id');
++
++        if (!$isManager) {
++            $userIds = [auth()->id()];
++        } elseif ($request->filled('user_id') && $names->has((int) $request->input('user_id'))) {
++            $userIds = [(int) $request->input('user_id')];
++        } else {
++            $userIds = $team->pluck('id')->all();
++        }
++
++        $links = ProjectKeyword::query()
++            ->select('project_keywords.*', DB::raw('COALESCE(project_keywords.created_by, tasks.assigned_to) as owner_id'))
++            ->join('tasks', 'tasks.id', '=', 'project_keywords.task_id')
++            ->where('project_keywords.type', 'closing')
++            ->where('tasks.title', '!=', 'Add KW Mapping') // keyword mapping rows, not links
++            ->whereIn(DB::raw('COALESCE(project_keywords.created_by, tasks.assigned_to)'), $userIds ?: [0])
++            ->whereBetween('project_keywords.created_at', [$from, $to])
++            ->when($request->filled('project_id'), function ($query) use ($request) {
++                $query->where('project_keywords.project_id', $request->input('project_id'));
++            })
++            ->when($request->filled('link_status'), function ($query) use ($request) {
++                $request->input('link_status') === 'none'
++                    ? $query->whereNull('project_keywords.link_status')
++                    : $query->where('project_keywords.link_status', $request->input('link_status'));
++            })
++            ->with(['project:id,title', 'task:id,title,type', 'task.offsiteTask'])
++            ->orderByDesc('project_keywords.created_at')
++            ->paginate(50)
++            ->withQueryString();
++
++        $projects = Project::whereIn('id', ProjectKeyword::where('type', 'closing')->distinct()->pluck('project_id'))
++            ->orderBy('title')->get(['id', 'title']);
++
++        return view('admin.offsite-seo.links', [
++            'links'     => $links,
++            'team'      => $team,
++            'names'     => $names,
++            'projects'  => $projects,
++            'isManager' => $isManager,
++            'from'      => $from,
++            'to'        => $to,
++            'range'     => $range,
++            'ranges'    => OffsiteSeoController::RANGES,
++            'statuses'  => self::STATUSES,
++            'rels'      => self::RELS,
++        ]);
++    }
++
++    /** Tasks an employee can log a link against (open, or completed in the last 60 days). */
++    public function tasks(Request $request)
++    {
++        $userId = $this->isManager() ? (int) $request->input('user_id') : auth()->id();
++
++        $tasks = Task::with(['project:id,title', 'offsiteTask'])
++            ->where('assigned_to', $userId)
++            ->whereNotNull('project_id')
++            ->where(function ($query) {
++                $query->whereIn('status', OffsiteSeoController::OPEN_STATUSES)
++                    ->orWhere(function ($q) {
++                        $q->where('status', 'Completed')->where('completed_date', '>=', Carbon::now()->subDays(60));
++                    });
++            })
++            ->orderByDesc('id')
++            ->limit(300)
++            ->get(['id', 'title', 'project_id', 'type', 'status']);
++
++        return response()->json($tasks->map(function ($task) {
++            return [
++                'id'    => $task->id,
++                'label' => '#' . $task->id . ' ' . $task->title
++                    . ' — ' . ($task->project->title ?? 'No project')
++                    . ' (' . ($task->offsiteTask->sub_type ?? $task->type) . ', ' . $task->status . ')',
++            ];
++        }));
++    }
++
++    public function store(Request $request)
++    {
++        $data = $this->validated($request);
++        [$ownerId, $task] = $this->resolveOwnerAndTask($request, $data);
++
++        $link = new ProjectKeyword($this->attributes($data, $task, $ownerId));
++        $this->applyDate($link, $data['link_date'] ?? null);
++        $link->save();
++
++        return redirect()->back()->with('success', 'Link added successfully!');
++    }
++
++    public function update(Request $request, ProjectKeyword $link)
++    {
++        $this->authorizeLink($link);
++        $data = $this->validated($request);
++        [$ownerId, $task] = $this->resolveOwnerAndTask($request, $data);
++
++        $link->fill($this->attributes($data, $task, $ownerId));
++        $this->applyDate($link, $data['link_date'] ?? null);
++        $link->save();
++
++        return redirect()->back()->with('success', 'Link updated successfully!');
++    }
++
++    public function updateStatus(Request $request, ProjectKeyword $link)
++    {
++        $this->authorizeLink($link);
++
++        $request->validate(['link_status' => 'required|in:' . implode(',', array_keys(self::STATUSES))]);
++        $link->update(['link_status' => $request->input('link_status')]);
++
++        return response()->json(['message' => 'Link status updated successfully']);
++    }
++
++    public function destroy(ProjectKeyword $link)
++    {
++        $this->authorizeLink($link);
++        $link->delete();
++
++        return redirect()->back()->with('success', 'Link deleted successfully!');
++    }
++
++    /* ───────────────────────── Helpers ───────────────────────── */
++
++    private function validated(Request $request): array
++    {
++        return $request->validate([
++            'user_id'         => 'nullable|integer|exists:users,id',
++            'task_id'         => 'required|integer|exists:tasks,id',
++            'keyword'         => 'required|string|max:255',
++            'url'             => 'required|url|max:255',
++            'destination_url' => 'nullable|string|max:2000',
++            'rel'             => 'nullable|in:' . implode(',', array_keys(self::RELS)),
++            'dr'              => 'nullable|integer|min:0|max:100',
++            'link_status'     => 'required|in:' . implode(',', array_keys(self::STATUSES)),
++            'link_date'       => 'nullable|date|before_or_equal:today',
++        ]);
++    }
++
++    private function resolveOwnerAndTask(Request $request, array $data): array
++    {
++        $ownerId = $this->isManager() ? (int) ($data['user_id'] ?? 0) : auth()->id();
++
++        if (!OffsiteSeoController::offsiteUsers()->contains('id', $ownerId)) {
++            throw ValidationException::withMessages(['user_id' => 'Please select an Offsite SEO employee.']);
++        }
++
++        $task = Task::findOrFail($data['task_id']);
++
++        if ((int) $task->assigned_to !== $ownerId) {
++            throw ValidationException::withMessages(['task_id' => 'The selected task is not assigned to this employee.']);
++        }
++        if (!$task->project_id) {
++            throw ValidationException::withMessages(['task_id' => 'The selected task has no project.']);
++        }
++
++        return [$ownerId, $task];
++    }
++
++    private function attributes(array $data, Task $task, int $ownerId): array
++    {
++        return [
++            'project_id'      => $task->project_id,
++            'task_id'         => $task->id,
++            'type'            => 'closing',
++            'keyword'         => $data['keyword'],
++            'url'             => $data['url'],
++            'destination_url' => $data['destination_url'] ?? '-',
++            'rel'             => $data['rel'] ?? null,
++            'dr'              => $data['dr'] ?? null,
++            'link_status'     => $data['link_status'],
++            'created_by'      => $ownerId,
++        ];
++    }
++
++    /** Keeps the time of day so ordering stays stable when only the date is changed. */
++    private function applyDate(ProjectKeyword $link, ?string $date): void
++    {
++        if (!$date) {
++            return;
++        }
++
++        $current = $link->created_at ?? Carbon::now();
++        if ($current->toDateString() !== Carbon::parse($date)->toDateString()) {
++            $link->created_at = Carbon::parse($date)->setTimeFrom($current);
++        }
++    }
++
++    private function authorizeLink(ProjectKeyword $link): void
++    {
++        if ($this->isManager()) {
++            return;
++        }
++
++        $ownerId = $link->created_by ?? optional($link->task)->assigned_to;
++
++        if ((int) $ownerId !== (int) auth()->id()) {
++            abort(403, 'Unauthorized action.');
++        }
++    }
++
++    /** Aborts unless the user is a manager or an Offsite SEO employee. */
++    private function isManager(): bool
++    {
++        $user = auth()->user();
++
++        if ($user->hasRole('ADMIN') || $user->hasRole('SEO ADMIN')) {
++            return true;
++        }
++        if (!$user->hasRole(OffsiteSeoController::ROLE)) {
++            abort(403, 'Unauthorized action.');
++        }
++
++        return false;
++    }
++}
+diff --git a/app/Http/Controllers/OffsiteSeoController.php b/app/Http/Controllers/OffsiteSeoController.php
+new file mode 100644
+index 0000000..2237602
+--- /dev/null
++++ b/app/Http/Controllers/OffsiteSeoController.php
+@@ -0,0 +1,342 @@
++<?php
++
++namespace App\Http\Controllers;
++
++use App\Models\Task;
++use App\Models\User;
++use Carbon\Carbon;
++use Illuminate\Http\Request;
++use Illuminate\Support\Collection;
++use Illuminate\Support\Facades\DB;
++
++class OffsiteSeoController extends Controller
++{
++    public const ROLE = 'OFFSITE';
++    public const OPEN_STATUSES = ['Todo', 'In Progress', 'Review'];
++    public const RANGES = [
++        'today'       => 'Today',
++        'last_7_days' => 'Last 7 Days',
++        'this_month'  => 'This Month',
++        'last_month'  => 'Last Month',
++        'custom'      => 'Custom Range',
++    ];
++
++    public function index(Request $request)
++    {
++        $this->authorizeManager();
++
++        return view('admin.offsite-seo.index', $this->build($request));
++    }
++
++    public function show(Request $request, User $user)
++    {
++        $this->authorizeManager();
++
++        if (!$user->hasRole(self::ROLE)) {
++            abort(403, 'User is not an Offsite SEO employee');
++        }
++
++        return view('admin.offsite-seo.index', $this->build($request, $user));
++    }
++
++    /* ───────────────────────── Shared helpers ───────────────────────── */
++
++    /** Only users holding the OFFSITE role. */
++    public static function offsiteUsers(): Collection
++    {
++        return User::whereHas('roles', function ($query) {
++            $query->where('name', self::ROLE);
++        })->orderBy('name')->get(['id', 'name', 'email']);
++    }
++
++    /** @return array{0: Carbon, 1: Carbon, 2: string} */
++    public static function resolveRange(Request $request): array
++    {
++        $now = Carbon::now();
++        $range = $request->input('range', 'this_month');
++
++        if ($range === 'today') {
++            return [$now->copy()->startOfDay(), $now->copy()->endOfDay(), $range];
++        }
++        if ($range === 'last_7_days') {
++            return [$now->copy()->subDays(6)->startOfDay(), $now->copy()->endOfDay(), $range];
++        }
++        if ($range === 'last_month') {
++            $start = $now->copy()->startOfMonth()->subMonth();
++            return [$start, $start->copy()->endOfMonth(), $range];
++        }
++        if ($range === 'custom' && $request->filled('start_date') && $request->filled('end_date')) {
++            try {
++                $start = Carbon::parse($request->input('start_date'))->startOfDay();
++                $end = Carbon::parse($request->input('end_date'))->endOfDay();
++                if ($start->gt($end)) {
++                    [$start, $end] = [$end->copy()->startOfDay(), $start->copy()->endOfDay()];
++                }
++                return [$start, $end, $range];
++            } catch (\Throwable $e) {
++                // invalid dates: fall back to this month
++            }
++        }
++
++        return [$now->copy()->startOfMonth(), $now->copy()->endOfDay(), 'this_month'];
++    }
++
++    /**
++     * Links built in the period by the given employees.
++     * Source 1: project_keywords (type = closing) - credited to created_by, else the task's assignee.
++     * Source 2: partner_links - credited to the task's assignee.
++     */
++    public static function linkRows(array $userIds, Carbon $from, Carbon $to): Collection
++    {
++        if (empty($userIds)) {
++            return collect();
++        }
++
++        $range = [$from->toDateTimeString(), $to->toDateTimeString()];
++
++        $links = DB::table('project_keywords as l')
++            ->join('tasks as t', 't.id', '=', 'l.task_id')
++            ->leftJoin('offsite_tasks as o', 'o.task_id', '=', 't.id')
++            ->leftJoin('projects as p', 'p.id', '=', 'l.project_id')
++            ->where('l.type', 'closing')
++            ->where('t.title', '!=', 'Add KW Mapping') // keyword mapping rows, not links
++            ->whereBetween('l.created_at', $range)
++            ->whereIn(DB::raw('COALESCE(l.created_by, t.assigned_to)'), $userIds)
++            ->select(
++                'l.id',
++                'l.task_id',
++                'l.project_id',
++                'p.title as project',
++                'l.keyword',
++                'l.url',
++                'l.destination_url',
++                'l.rel',
++                'l.dr',
++                'l.link_status',
++                'l.created_at',
++                DB::raw('COALESCE(l.created_by, t.assigned_to) as user_id'),
++                DB::raw("COALESCE(o.sub_type, t.type) as link_type")
++            )
++            ->get();
++
++        $partner = DB::table('partner_links as l')
++            ->join('tasks as t', 't.id', '=', 'l.task_id')
++            ->leftJoin('projects as p', 'p.id', '=', 'l.project_id')
++            ->whereBetween('l.created_at', $range)
++            ->whereIn('t.assigned_to', $userIds)
++            ->select(
++                'l.id',
++                'l.task_id',
++                'l.project_id',
++                'p.title as project',
++                'l.keyword',
++                'l.backlink as url',
++                'l.url as destination_url',
++                DB::raw('NULL as rel'),
++                DB::raw('NULL as dr'),
++                DB::raw('NULL as link_status'),
++                'l.created_at',
++                't.assigned_to as user_id',
++                DB::raw("'PARTNER LINKS' as link_type")
++            )
++            ->get();
++
++        // Referring domain + duplicate flag (same link URL logged again for the same project in the period)
++        $seen = [];
++
++        return $links->concat($partner)->sortBy('created_at')->values()->map(function ($link) use (&$seen) {
++            $host = parse_url(trim((string) $link->url), PHP_URL_HOST);
++            $link->domain = $host ? preg_replace('/^www\./i', '', strtolower($host)) : null;
++            $key = strtolower(rtrim(trim((string) $link->url), '/')) . '|' . $link->project_id;
++            $link->is_duplicate = isset($seen[$key]);
++            $seen[$key] = true;
++
++            return $link;
++        });
++    }
++
++    /* ───────────────────────── Dashboard data ───────────────────────── */
++
++    private function build(Request $request, ?User $member = null): array
++    {
++        [$from, $to, $range] = self::resolveRange($request);
++
++        $team = self::offsiteUsers();
++        $names = $team->pluck('name', 'id');
++
++        if ($member) {
++            $userIds = [$member->id];
++        } elseif ($request->filled('user_id') && $names->has((int) $request->input('user_id'))) {
++            $userIds = [(int) $request->input('user_id')];
++        } else {
++            $userIds = $team->pluck('id')->all();
++        }
++
++        $columns = ['id', 'title', 'project_id', 'assigned_to', 'status', 'due_date', 'completed_date', 'created_at'];
++
++        // Tasks assigned in the period
++        $assigned = Task::visibleTasks()->whereIn('assigned_to', $userIds)
++            ->whereBetween('created_at', [$from, $to])
++            ->get($columns);
++
++        // Tasks completed in the period
++        $completed = Task::visibleTasks()->whereIn('assigned_to', $userIds)
++            ->where('status', 'Completed')
++            ->whereBetween('completed_date', [$from, $to])
++            ->get($columns);
++
++        // Tasks assigned up to the end of the period that are still open
++        $open = Task::visibleTasks()->with('project:id,title')->whereIn('assigned_to', $userIds)
++            ->whereIn('status', self::OPEN_STATUSES)
++            ->where('created_at', '<=', $to)
++            ->get($columns);
++
++        $today = Carbon::today();
++        $overdue = $open->filter(function ($task) use ($today) {
++            return $task->due_date && Carbon::parse($task->due_date)->startOfDay()->lt($today);
++        })->map(function ($task) use ($today, $names) {
++            $task->days_overdue = (int) floor(Carbon::parse($task->due_date)->startOfDay()->diffInDays($today, false));
++            $task->assignee_name = $names[$task->assigned_to] ?? '—';
++            return $task;
++        })->sortByDesc('days_overdue')->values();
++
++        $links = self::linkRows($userIds, $from, $to);
++        $workDays = $this->workingDays($from, $to);
++
++        $stats = $this->summarize($assigned, $completed, $open, $overdue, $links, $workDays);
++
++        // Per employee (team page only)
++        $employees = collect();
++        if (!$member) {
++            $a = $assigned->groupBy('assigned_to');
++            $c = $completed->groupBy('assigned_to');
++            $o = $open->groupBy('assigned_to');
++            $d = $overdue->groupBy('assigned_to');
++            $l = $links->groupBy('user_id');
++
++            $employees = $team->whereIn('id', $userIds)->map(function ($user) use ($a, $c, $o, $d, $l, $workDays) {
++                return ['id' => $user->id, 'name' => $user->name, 'email' => $user->email] + $this->summarize(
++                    $a->get($user->id, collect()),
++                    $c->get($user->id, collect()),
++                    $o->get($user->id, collect()),
++                    $d->get($user->id, collect()),
++                    $l->get($user->id, collect()),
++                    $workDays
++                );
++            })->sortByDesc('links')->values();
++        }
++
++        // Daily / monthly productivity
++        $group = $request->input('group');
++        if (!in_array($group, ['day', 'month'])) {
++            $group = $from->diffInDays($to) > 62 ? 'month' : 'day';
++        }
++
++        $rated = $links->whereNotNull('dr');
++        $quality = [
++            'domains'    => $stats['domains'],
++            'duplicates' => $stats['duplicates'],
++            'dofollow'   => $links->where('rel', 'dofollow')->count(),
++            'nofollow'   => $links->where('rel', 'nofollow')->count(),
++            'avg_dr'     => $rated->count() ? round($rated->avg('dr'), 1) : null,
++            'dr_count'   => $rated->count(),
++            'live'       => $links->where('link_status', 'live')->count(),
++            'lost'       => $links->where('link_status', 'lost')->count(),
++        ];
++
++        return [
++            'member'      => $member,
++            'team'        => $team,
++            'names'       => $names,
++            'from'        => $from,
++            'to'          => $to,
++            'range'       => $range,
++            'ranges'      => self::RANGES,
++            'group'       => $group,
++            'selectedUser' => (!$member && count($userIds) === 1 && $request->filled('user_id')) ? $userIds[0] : null,
++            'query'       => array_filter([
++                'range'      => $range,
++                'start_date' => $range === 'custom' ? $from->toDateString() : null,
++                'end_date'   => $range === 'custom' ? $to->toDateString() : null,
++            ]),
++            'workDays'    => $workDays,
++            'stats'       => $stats,
++            'quality'     => $quality,
++            'employees'   => $employees,
++            'series'      => $this->series($completed, $links, $from, $to, $group),
++            'overdue'     => $overdue->take(10),
++            'recentLinks' => $member ? $links->sortByDesc('created_at')->take(15)->values() : collect(),
++        ];
++    }
++
++    private function summarize(Collection $assigned, Collection $completed, Collection $open, Collection $overdue, Collection $links, int $workDays): array
++    {
++        $manual = $links->where('link_type', 'MANUAL LINKS')->count();
++
++        return [
++            'total'         => $assigned->count(),
++            'completed'     => $completed->count(),
++            'pending'       => $open->count(),
++            'overdue'       => $overdue->count(),
++            'links'         => $links->count(),
++            'manual'        => $manual,
++            'links_per_day' => $workDays > 0 ? round($links->count() / $workDays, 1) : 0,
++            'domains'       => $links->pluck('domain')->filter()->unique()->count(),
++            'duplicates'    => $links->where('is_duplicate', true)->count(),
++        ];
++    }
++
++    private function series(Collection $completed, Collection $links, Carbon $from, Carbon $to, string $group): array
++    {
++        $format = $group === 'month' ? 'Y-m' : 'Y-m-d';
++        $rows = [];
++        $end = $to->copy()->min(Carbon::now()->endOfDay());
++
++        for ($day = $from->copy()->startOfDay(); $day->lte($end); $day->addDay()) {
++            $rows[$day->format($format)] ??= ['completed' => 0, 'links' => 0, 'manual' => 0];
++        }
++
++        foreach ($completed as $task) {
++            $key = Carbon::parse($task->completed_date)->format($format);
++            if (isset($rows[$key])) {
++                $rows[$key]['completed']++;
++            }
++        }
++
++        foreach ($links as $link) {
++            $key = Carbon::parse($link->created_at)->format($format);
++            if (isset($rows[$key])) {
++                $rows[$key]['links']++;
++                if ($link->link_type === 'MANUAL LINKS') {
++                    $rows[$key]['manual']++;
++                }
++            }
++        }
++
++        return $rows;
++    }
++
++    /** Mon-Fri days of the period that have already started. */
++    private function workingDays(Carbon $from, Carbon $to): int
++    {
++        $end = $to->copy()->min(Carbon::now()->endOfDay());
++        $count = 0;
++
++        for ($day = $from->copy()->startOfDay(); $day->lte($end); $day->addDay()) {
++            if (!$day->isWeekend()) {
++                $count++;
++            }
++        }
++
++        return $count;
++    }
++
++    private function authorizeManager(): void
++    {
++        $user = auth()->user();
++
++        if (!$user->hasRole('ADMIN') && !$user->hasRole('SEO ADMIN')) {
++            abort(403, 'Unauthorized action.');
++        }
++    }
++}
+diff --git a/app/Http/Controllers/ProjectKeywordController.php b/app/Http/Controllers/ProjectKeywordController.php
+index be0af64..f5d7f8a 100644
+--- a/app/Http/Controllers/ProjectKeywordController.php
++++ b/app/Http/Controllers/ProjectKeywordController.php
+@@ -4,6 +4,7 @@
+ 
+ use App\Models\Project;
+ use App\Models\ProjectKeyword;
++use App\Models\Task;
+ use Illuminate\Http\Request;
+ 
+ class ProjectKeywordController extends Controller
+@@ -16,10 +17,18 @@ public function store(Request $request, Project $project)
+             'keywords.*.url' => 'required|url',
+             'keywords.*.destination_url' => 'nullable',
+             'keywords.*.link_cost' => 'nullable|numeric',
++            'keywords.*.rel' => 'nullable|in:dofollow,nofollow',
++            'keywords.*.dr' => 'nullable|integer|min:0|max:100',
+             'task_id' => 'required|exists:tasks,id',
+             'type' => 'required|string',
+         ]);
+ 
++        // Credit the link to the Offsite employee who logged it; if someone else
++        // (admin, AM) logs it on their behalf, credit the task's assignee.
++        $task = Task::find($validated['task_id']);
++        $creditTo = auth()->user()->hasRole('OFFSITE') ? auth()->id() : ($task->assigned_to ?? auth()->id());
++        $isClosing = $validated['type'] === 'closing';
++
+         foreach ($validated['keywords'] as $item) {
+             ProjectKeyword::create([
+                 'project_id'       => $project->id,
+@@ -29,7 +38,10 @@ public function store(Request $request, Project $project)
+                 'url'              => $item['url'],
+                 'destination_url'  => $item['destination_url'] ?? null,
+                 'link_cost'        => $item['link_cost'] ?? 0,
+-                'created_by'       => auth()->id(),
++                'created_by'       => $creditTo,
++                'rel'              => $isClosing ? ($item['rel'] ?? null) : null,
++                'dr'               => $isClosing ? ($item['dr'] ?? null) : null,
++                'link_status'      => $isClosing ? 'live' : null,
+             ]);
+         }
+ 
+diff --git a/app/Http/Controllers/TaskController.php b/app/Http/Controllers/TaskController.php
+index 150e3d8..243867f 100644
+--- a/app/Http/Controllers/TaskController.php
++++ b/app/Http/Controllers/TaskController.php
+@@ -501,6 +501,9 @@ public function updateStatus(Request $request)
+         ]);
+ 
+         $task->status = $request->status;
++        if ($request->status === 'Completed' && !$task->completed_date) {
++            $task->completed_date = now();
++        }
+         $task->save();
+ 
+         $user = User::find($task->assigned_to);
+diff --git a/app/Models/ProjectKeyword.php b/app/Models/ProjectKeyword.php
+index 1af8977..9ef6ff1 100644
+--- a/app/Models/ProjectKeyword.php
++++ b/app/Models/ProjectKeyword.php
+@@ -17,8 +17,17 @@ class ProjectKeyword extends Model
+         'type',
+         'destination_url',
+         'link_cost',
++        'created_by',
++        'rel',
++        'dr',
++        'link_status',
+     ];
+ 
++    public function creator()
++    {
++        return $this->belongsTo(User::class, 'created_by');
++    }
++
+     public function project()
+     {
+         return $this->belongsTo(Project::class, 'project_id');
+diff --git a/database/migrations/2026_10_02_120000_add_tracking_fields_to_project_keywords_table.php b/database/migrations/2026_10_02_120000_add_tracking_fields_to_project_keywords_table.php
+new file mode 100644
+index 0000000..aac660c
+--- /dev/null
++++ b/database/migrations/2026_10_02_120000_add_tracking_fields_to_project_keywords_table.php
+@@ -0,0 +1,43 @@
++<?php
++
++use Illuminate\Database\Migrations\Migration;
++use Illuminate\Database\Schema\Blueprint;
++use Illuminate\Support\Facades\Schema;
++
++return new class extends Migration
++{
++    /**
++     * Link-building records already live in project_keywords (type = closing).
++     * This only adds what the Offsite SEO dashboard needs on top of that:
++     * who built the link, and three basic quality fields.
++     * Each column is skipped if it already exists.
++     */
++    public function up(): void
++    {
++        Schema::table('project_keywords', function (Blueprint $table) {
++            if (!Schema::hasColumn('project_keywords', 'created_by')) {
++                $table->unsignedBigInteger('created_by')->nullable()->index();
++            }
++            if (!Schema::hasColumn('project_keywords', 'rel')) {
++                $table->string('rel', 12)->nullable();          // dofollow | nofollow
++            }
++            if (!Schema::hasColumn('project_keywords', 'dr')) {
++                $table->unsignedTinyInteger('dr')->nullable();  // 0-100
++            }
++            if (!Schema::hasColumn('project_keywords', 'link_status')) {
++                $table->string('link_status', 12)->nullable();  // live | pending | lost
++            }
++        });
++    }
++
++    public function down(): void
++    {
++        Schema::table('project_keywords', function (Blueprint $table) {
++            foreach (['created_by', 'rel', 'dr', 'link_status'] as $column) {
++                if (Schema::hasColumn('project_keywords', $column)) {
++                    $table->dropColumn($column);
++                }
++            }
++        });
++    }
++};
+diff --git a/resources/views/admin/offsite-seo/_filters.blade.php b/resources/views/admin/offsite-seo/_filters.blade.php
+new file mode 100644
+index 0000000..6577ba2
+--- /dev/null
++++ b/resources/views/admin/offsite-seo/_filters.blade.php
+@@ -0,0 +1,38 @@
++{{-- Shared date filter. Expects: $action, $range, $ranges, $from, $to. Extra fields go in the slot. --}}
++<form method="GET" action="{{ $action }}" class="mb-4 card">
++    <div class="card-body">
++        <div class="row g-3 align-items-end">
++            <div class="col-md-3 col-6">
++                <label class="form-label fw-semibold">Period</label>
++                <select name="range" class="form-select js-range">
++                    @foreach ($ranges as $key => $label)
++                        <option value="{{ $key }}" {{ $range === $key ? 'selected' : '' }}>{{ $label }}</option>
++                    @endforeach
++                </select>
++            </div>
++            <div class="col-md-2 col-6 js-custom-date" style="{{ $range === 'custom' ? '' : 'display:none' }}">
++                <label class="form-label fw-semibold">From</label>
++                <input type="date" name="start_date" class="form-control" value="{{ $from->toDateString() }}">
++            </div>
++            <div class="col-md-2 col-6 js-custom-date" style="{{ $range === 'custom' ? '' : 'display:none' }}">
++                <label class="form-label fw-semibold">To</label>
++                <input type="date" name="end_date" class="form-control" value="{{ $to->toDateString() }}">
++            </div>
++            {{ $slot ?? '' }}
++            <div class="col-md-auto col-12">
++                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel-fill me-1"></i>Apply</button>
++                <a href="{{ $action }}" class="btn btn-outline-secondary">Reset</a>
++            </div>
++        </div>
++        <small class="mt-2 text-muted d-block">Showing {{ $from->format('d M Y') }} – {{ $to->format('d M Y') }}</small>
++    </div>
++</form>
++<script>
++    document.querySelectorAll('.js-range').forEach(function(select) {
++        select.addEventListener('change', function() {
++            document.querySelectorAll('.js-custom-date').forEach(function(el) {
++                el.style.display = select.value === 'custom' ? '' : 'none';
++            });
++        });
++    });
++</script>
+diff --git a/resources/views/admin/offsite-seo/index.blade.php b/resources/views/admin/offsite-seo/index.blade.php
+new file mode 100644
+index 0000000..316e516
+--- /dev/null
++++ b/resources/views/admin/offsite-seo/index.blade.php
+@@ -0,0 +1,311 @@
++@php
++    $pageUrl = $member ? route('admin.offsite-seo.show', $member->id) : route('admin.offsite-seo.index');
++    $linksUrl = route('admin.offsite-seo.links.index', $query + array_filter(['user_id' => $member->id ?? $selectedUser]));
++    $ratedRel = $quality['dofollow'] + $quality['nofollow'];
++    $cards = [
++        ['Total Tasks', $stats['total'], 'Assigned in this period', '#0d6efd'],
++        ['Completed', $stats['completed'], 'Completed in this period', '#198754'],
++        ['Pending', $stats['pending'], 'Still open', '#ffc107'],
++        ['Overdue', $stats['overdue'], 'Open and past due date', '#dc3545'],
++        ['Links Created', $stats['links'], $stats['links_per_day'] . ' per working day', '#6f42c1'],
++        ['Manual Links', $stats['manual'], 'From Manual Links tasks', '#20c997'],
++    ];
++@endphp
++<x-app-layout>
++    <x-slot name="header">
++        {{ __($member ? $member->name . ' — Offsite SEO Performance' : 'Offsite SEO Performance') }}
++    </x-slot>
++
++    <style>
++        .os-stat { border: 0; border-left: 4px solid var(--os-color, #0d6efd); }
++        .os-stat .os-value { font-size: 1.75rem; font-weight: 700; line-height: 1.1; }
++        .os-stat .os-label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: #6c757d; }
++        .os-stat .os-sub { font-size: .75rem; color: #6c757d; }
++    </style>
++
++    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
++        <div>
++            @if ($member)
++                <a href="{{ route('admin.offsite-seo.index', $query) }}" class="btn btn-sm btn-outline-secondary">
++                    <i class="bi bi-arrow-left me-1"></i>All employees</a>
++            @endif
++        </div>
++        <a href="{{ $linksUrl }}" class="btn btn-sm btn-success"><i class="bi bi-link-45deg me-1"></i>Manage links</a>
++    </div>
++
++    {{-- Filters --}}
++    @component('admin.offsite-seo._filters', ['action' => $pageUrl, 'range' => $range, 'ranges' => $ranges, 'from' => $from, 'to' => $to])
++        @unless ($member)
++            <div class="col-md-3 col-6">
++                <label class="form-label fw-semibold">Employee</label>
++                <select name="user_id" class="form-select">
++                    <option value="">All Offsite SEO employees</option>
++                    @foreach ($team as $user)
++                        <option value="{{ $user->id }}" {{ $selectedUser == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
++                    @endforeach
++                </select>
++            </div>
++        @endunless
++    @endcomponent
++
++    @if ($team->isEmpty())
++        <div class="alert alert-warning">No users have the OFFSITE role yet. Assign the role under Users to see them here.</div>
++    @endif
++
++    {{-- Summary cards --}}
++    <div class="mb-4 row g-3">
++        @foreach ($cards as [$label, $value, $sub, $color])
++            <div class="col-6 col-md-4 col-xl-2">
++                <div class="shadow-sm card h-100 os-stat" style="--os-color: {{ $color }}">
++                    <div class="card-body">
++                        <div class="os-label">{{ $label }}</div>
++                        <div class="os-value">{{ number_format($value) }}</div>
++                        <div class="os-sub">{{ $sub }}</div>
++                    </div>
++                </div>
++            </div>
++        @endforeach
++    </div>
++
++    <div class="mb-4 row g-3">
++        {{-- Productivity chart --}}
++        <div class="col-lg-8">
++            <div class="shadow-sm card h-100">
++                <div class="card-header d-flex justify-content-between align-items-center">
++                    <h6 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>{{ $group === 'month' ? 'Monthly' : 'Daily' }} Productivity</h6>
++                    <div class="btn-group btn-group-sm">
++                        <a href="{{ request()->fullUrlWithQuery(['group' => 'day']) }}"
++                            class="btn {{ $group === 'day' ? 'btn-primary' : 'btn-outline-primary' }}">Daily</a>
++                        <a href="{{ request()->fullUrlWithQuery(['group' => 'month']) }}"
++                            class="btn {{ $group === 'month' ? 'btn-primary' : 'btn-outline-primary' }}">Monthly</a>
++                    </div>
++                </div>
++                <div class="card-body">
++                    <div id="productivityChart"></div>
++                </div>
++            </div>
++        </div>
++
++        {{-- Link quality --}}
++        <div class="col-lg-4">
++            <div class="shadow-sm card h-100">
++                <div class="card-header">
++                    <h6 class="mb-0"><i class="bi bi-award me-2"></i>Link Quality</h6>
++                </div>
++                <div class="card-body p-0">
++                    <table class="table mb-0 align-middle">
++                        <tbody>
++                            <tr>
++                                <td>Unique referring domains</td>
++                                <td class="text-end fw-bold">{{ $quality['domains'] }} <small class="text-muted fw-normal">of {{ $stats['links'] }} links</small></td>
++                            </tr>
++                            <tr>
++                                <td>Duplicate links</td>
++                                <td class="text-end fw-bold {{ $quality['duplicates'] ? 'text-danger' : '' }}">{{ $quality['duplicates'] }}</td>
++                            </tr>
++                            <tr>
++                                <td>Dofollow</td>
++                                <td class="text-end fw-bold">
++                                    @if ($ratedRel)
++                                        {{ round($quality['dofollow'] / $ratedRel * 100) }}% <small class="text-muted fw-normal">({{ $quality['dofollow'] }} of {{ $ratedRel }})</small>
++                                    @else
++                                        <span class="text-muted fw-normal">Not recorded</span>
++                                    @endif
++                                </td>
++                            </tr>
++                            <tr>
++                                <td>Average DR</td>
++                                <td class="text-end fw-bold">
++                                    @if ($quality['avg_dr'] !== null)
++                                        {{ $quality['avg_dr'] }} <small class="text-muted fw-normal">({{ $quality['dr_count'] }} links)</small>
++                                    @else
++                                        <span class="text-muted fw-normal">Not recorded</span>
++                                    @endif
++                                </td>
++                            </tr>
++                            <tr>
++                                <td>Live / Lost</td>
++                                <td class="text-end fw-bold">
++                                    <span class="text-success">{{ $quality['live'] }}</span> /
++                                    <span class="{{ $quality['lost'] ? 'text-danger' : '' }}">{{ $quality['lost'] }}</span>
++                                </td>
++                            </tr>
++                        </tbody>
++                    </table>
++                </div>
++                <div class="card-footer">
++                    <small class="text-muted">Dofollow, DR and status come from what is entered with each link.</small>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    {{-- Employees (team page) --}}
++    @unless ($member)
++        <div class="mb-4 shadow-sm card">
++            <div class="card-header">
++                <h6 class="mb-0"><i class="bi bi-people-fill me-2"></i>Employees</h6>
++            </div>
++            <div class="table-responsive">
++                <table class="table mb-0 align-middle table-hover">
++                    <thead class="table-light">
++                        <tr>
++                            <th>Employee</th>
++                            <th class="text-center">Tasks</th>
++                            <th class="text-center">Completed</th>
++                            <th class="text-center">Pending</th>
++                            <th class="text-center">Overdue</th>
++                            <th class="text-center">Links</th>
++                            <th class="text-center">Manual</th>
++                            <th class="text-center">Links / day</th>
++                            <th class="text-center">Unique domains</th>
++                            <th></th>
++                        </tr>
++                    </thead>
++                    <tbody>
++                        @forelse ($employees as $employee)
++                            <tr>
++                                <td>
++                                    <div class="fw-semibold">{{ $employee['name'] }}</div>
++                                    <small class="text-muted">{{ $employee['email'] }}</small>
++                                </td>
++                                <td class="text-center">{{ $employee['total'] }}</td>
++                                <td class="text-center text-success fw-semibold">{{ $employee['completed'] }}</td>
++                                <td class="text-center">{{ $employee['pending'] }}</td>
++                                <td class="text-center {{ $employee['overdue'] ? 'text-danger fw-semibold' : '' }}">{{ $employee['overdue'] }}</td>
++                                <td class="text-center fw-semibold">{{ $employee['links'] }}</td>
++                                <td class="text-center">{{ $employee['manual'] }}</td>
++                                <td class="text-center">{{ $employee['links_per_day'] }}</td>
++                                <td class="text-center">{{ $employee['domains'] }}</td>
++                                <td class="text-end">
++                                    <a href="{{ route('admin.offsite-seo.show', ['user' => $employee['id']] + $query) }}"
++                                        class="btn btn-sm btn-outline-primary"><i class="bi bi-eye me-1"></i>Details</a>
++                                </td>
++                            </tr>
++                        @empty
++                            <tr>
++                                <td colspan="10" class="py-4 text-center text-muted">No Offsite SEO employees found.</td>
++                            </tr>
++                        @endforelse
++                    </tbody>
++                </table>
++            </div>
++        </div>
++    @endunless
++
++    {{-- Overdue tasks --}}
++    <div class="mb-4 shadow-sm card">
++        <div class="card-header">
++            <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2 text-danger"></i>Overdue Tasks
++                @if ($stats['overdue'] > $overdue->count())
++                    <small class="text-muted">(top {{ $overdue->count() }} of {{ $stats['overdue'] }})</small>
++                @endif
++            </h6>
++        </div>
++        <div class="table-responsive">
++            <table class="table mb-0 align-middle table-hover">
++                <thead class="table-light">
++                    <tr>
++                        <th>Task</th>
++                        <th>Project</th>
++                        @unless ($member)
++                            <th>Employee</th>
++                        @endunless
++                        <th>Status</th>
++                        <th>Due date</th>
++                        <th class="text-end">Days overdue</th>
++                    </tr>
++                </thead>
++                <tbody>
++                    @forelse ($overdue as $task)
++                        <tr>
++                            <td><a href="{{ route('tasks.show', $task->id) }}" class="text-decoration-none">#{{ $task->id }} {{ Str::limit($task->title, 60) }}</a></td>
++                            <td>{{ $task->project->title ?? '—' }}</td>
++                            @unless ($member)
++                                <td>{{ $task->assignee_name }}</td>
++                            @endunless
++                            <td><span class="badge bg-secondary">{{ $task->status }}</span></td>
++                            <td>{{ \Carbon\Carbon::parse($task->due_date)->format('d M Y') }}</td>
++                            <td class="text-end text-danger fw-bold">{{ $task->days_overdue }}</td>
++                        </tr>
++                    @empty
++                        <tr>
++                            <td colspan="6" class="py-4 text-center text-muted">No overdue tasks.</td>
++                        </tr>
++                    @endforelse
++                </tbody>
++            </table>
++        </div>
++    </div>
++
++    {{-- Recent links (employee page) --}}
++    @if ($member)
++        <div class="mb-4 shadow-sm card">
++            <div class="card-header d-flex justify-content-between align-items-center">
++                <h6 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Latest Links in This Period</h6>
++                <a href="{{ $linksUrl }}" class="btn btn-sm btn-outline-primary">View all</a>
++            </div>
++            <div class="table-responsive">
++                <table class="table mb-0 align-middle table-hover">
++                    <thead class="table-light">
++                        <tr>
++                            <th>Date</th>
++                            <th>Project</th>
++                            <th>Type</th>
++                            <th>Keyword</th>
++                            <th>Link URL</th>
++                            <th>DR</th>
++                            <th>Status</th>
++                        </tr>
++                    </thead>
++                    <tbody>
++                        @forelse ($recentLinks as $link)
++                            <tr>
++                                <td class="text-nowrap">{{ \Carbon\Carbon::parse($link->created_at)->format('d M Y') }}</td>
++                                <td>{{ $link->project ?? '—' }}</td>
++                                <td><span class="badge bg-light text-dark">{{ $link->link_type }}</span></td>
++                                <td>{{ $link->keyword }}</td>
++                                <td>
++                                    <a href="{{ $link->url }}" target="_blank" rel="noopener">{{ Str::limit($link->url, 50) }}</a>
++                                    @if ($link->is_duplicate)
++                                        <span class="badge bg-danger">Duplicate</span>
++                                    @endif
++                                </td>
++                                <td>{{ $link->dr ?? '—' }}</td>
++                                <td>{{ $link->link_status ? ucfirst($link->link_status) : '—' }}</td>
++                            </tr>
++                        @empty
++                            <tr>
++                                <td colspan="7" class="py-4 text-center text-muted">No links logged in this period.</td>
++                            </tr>
++                        @endforelse
++                    </tbody>
++                </table>
++            </div>
++        </div>
++    @endif
++
++    <script>
++        document.addEventListener('DOMContentLoaded', function() {
++            const series = @json($series);
++            const keys = Object.keys(series);
++
++            new ApexCharts(document.querySelector('#productivityChart'), {
++                chart: { height: 320, type: 'line', toolbar: { show: false } },
++                series: [
++                    { name: 'Links created', type: 'column', data: keys.map(k => series[k].links) },
++                    { name: 'Manual links', type: 'column', data: keys.map(k => series[k].manual) },
++                    { name: 'Tasks completed', type: 'line', data: keys.map(k => series[k].completed) }
++                ],
++                xaxis: { categories: keys, tickAmount: Math.min(keys.length, 15), labels: { rotate: -45, style: { fontSize: '10px' } } },
++                yaxis: { min: 0, forceNiceScale: true, labels: { formatter: v => Math.round(v) } },
++                colors: ['#6f42c1', '#20c997', '#198754'],
++                stroke: { width: [0, 0, 3], curve: 'smooth' },
++                plotOptions: { bar: { borderRadius: 3, columnWidth: '60%' } },
++                dataLabels: { enabled: false },
++                legend: { position: 'top' },
++                noData: { text: 'No activity in this period' }
++            }).render();
++        });
++    </script>
++</x-app-layout>
+diff --git a/resources/views/admin/offsite-seo/links.blade.php b/resources/views/admin/offsite-seo/links.blade.php
+new file mode 100644
+index 0000000..0cfeb9a
+--- /dev/null
++++ b/resources/views/admin/offsite-seo/links.blade.php
+@@ -0,0 +1,313 @@
++@php
++    $statusBadge = ['live' => 'success', 'pending' => 'warning', 'lost' => 'danger'];
++@endphp
++<x-app-layout>
++    <x-slot name="header">
++        {{ __('Offsite Links') }}
++    </x-slot>
++
++    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
++        <div>
++            @if ($isManager)
++                <a href="{{ route('admin.offsite-seo.index') }}" class="btn btn-sm btn-outline-secondary">
++                    <i class="bi bi-arrow-left me-1"></i>Performance dashboard</a>
++            @endif
++        </div>
++        <button type="button" class="btn btn-success" id="addLinkBtn"><i class="bi bi-plus-circle me-1"></i>Add Link</button>
++    </div>
++
++    @if ($errors->any())
++        <div class="alert alert-danger">
++            <ul class="mb-0">
++                @foreach ($errors->all() as $error)
++                    <li>{{ $error }}</li>
++                @endforeach
++            </ul>
++        </div>
++    @endif
++
++    {{-- Filters --}}
++    @component('admin.offsite-seo._filters', ['action' => route('admin.offsite-seo.links.index'), 'range' => $range, 'ranges' => $ranges, 'from' => $from, 'to' => $to])
++        @if ($isManager)
++            <div class="col-md-2 col-6">
++                <label class="form-label fw-semibold">Employee</label>
++                <select name="user_id" class="form-select">
++                    <option value="">All</option>
++                    @foreach ($team as $user)
++                        <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
++                    @endforeach
++                </select>
++            </div>
++        @endif
++        <div class="col-md-2 col-6">
++            <label class="form-label fw-semibold">Project</label>
++            <select name="project_id" class="form-select">
++                <option value="">All</option>
++                @foreach ($projects as $project)
++                    <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>{{ $project->title }}</option>
++                @endforeach
++            </select>
++        </div>
++        <div class="col-md-2 col-6">
++            <label class="form-label fw-semibold">Status</label>
++            <select name="link_status" class="form-select">
++                <option value="">All</option>
++                @foreach ($statuses as $key => $label)
++                    <option value="{{ $key }}" {{ request('link_status') === $key ? 'selected' : '' }}>{{ $label }}</option>
++                @endforeach
++                <option value="none" {{ request('link_status') === 'none' ? 'selected' : '' }}>Not set</option>
++            </select>
++        </div>
++    @endcomponent
++
++    <div class="shadow-sm card">
++        <div class="card-header d-flex justify-content-between align-items-center">
++            <h6 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Link-Building Records</h6>
++            <span class="badge bg-primary">{{ $links->total() }} links</span>
++        </div>
++        <div class="table-responsive">
++            <table class="table mb-0 align-middle table-hover">
++                <thead class="table-light">
++                    <tr>
++                        <th>Date</th>
++                        <th>Employee</th>
++                        <th>Project / Task</th>
++                        <th>Type</th>
++                        <th>Keyword</th>
++                        <th>Link URL</th>
++                        <th>Target URL</th>
++                        <th>Follow</th>
++                        <th>DR</th>
++                        <th>Status</th>
++                        <th class="text-end">Actions</th>
++                    </tr>
++                </thead>
++                <tbody>
++                    @forelse ($links as $link)
++                        <tr>
++                            <td class="text-nowrap">{{ $link->created_at?->format('d M Y') }}</td>
++                            <td>{{ $names[$link->owner_id] ?? '—' }}</td>
++                            <td>
++                                <div class="fw-semibold">{{ $link->project->title ?? '—' }}</div>
++                                @if ($link->task)
++                                    <a href="{{ route('tasks.show', $link->task_id) }}" class="small text-decoration-none">
++                                        #{{ $link->task_id }} {{ Str::limit($link->task->title, 35) }}</a>
++                                @endif
++                            </td>
++                            <td><span class="badge bg-light text-dark">{{ $link->task->offsiteTask->sub_type ?? ($link->task->type ?? '—') }}</span></td>
++                            <td>{{ $link->keyword }}</td>
++                            <td><a href="{{ $link->url }}" target="_blank" rel="noopener">{{ Str::limit($link->url, 40) }}</a></td>
++                            <td>
++                                @if (Str::startsWith($link->destination_url, 'http'))
++                                    <a href="{{ $link->destination_url }}" target="_blank" rel="noopener">{{ Str::limit($link->destination_url, 35) }}</a>
++                                @else
++                                    {{ $link->destination_url ?: '—' }}
++                                @endif
++                            </td>
++                            <td>{{ $link->rel ? ucfirst($link->rel) : '—' }}</td>
++                            <td>{{ $link->dr ?? '—' }}</td>
++                            <td>
++                                <select class="form-select form-select-sm js-status" style="min-width:105px;"
++                                    data-url="{{ route('admin.offsite-seo.links.status', $link->id) }}">
++                                    @if (!$link->link_status)
++                                        <option value="" selected disabled>Not set</option>
++                                    @endif
++                                    @foreach ($statuses as $key => $label)
++                                        <option value="{{ $key }}" {{ $link->link_status === $key ? 'selected' : '' }}>{{ $label }}</option>
++                                    @endforeach
++                                </select>
++                            </td>
++                            <td class="text-end text-nowrap">
++                                <button type="button" class="btn btn-sm btn-outline-warning js-edit" title="Edit"
++                                    data-url="{{ route('admin.offsite-seo.links.update', $link->id) }}"
++                                    data-user="{{ $link->owner_id }}"
++                                    data-task="{{ $link->task_id }}"
++                                    data-task-label="#{{ $link->task_id }} {{ $link->task->title ?? '' }} — {{ $link->project->title ?? '' }}"
++                                    data-keyword="{{ $link->keyword }}"
++                                    data-link="{{ $link->url }}"
++                                    data-destination="{{ $link->destination_url }}"
++                                    data-rel="{{ $link->rel }}"
++                                    data-dr="{{ $link->dr }}"
++                                    data-status="{{ $link->link_status ?? 'live' }}"
++                                    data-date="{{ $link->created_at?->toDateString() }}">
++                                    <i class="bi bi-pencil"></i>
++                                </button>
++                                <form action="{{ route('admin.offsite-seo.links.destroy', $link->id) }}" method="POST" class="d-inline"
++                                    onsubmit="return confirm('Delete this link record?');">
++                                    @csrf @method('DELETE')
++                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
++                                </form>
++                            </td>
++                        </tr>
++                    @empty
++                        <tr>
++                            <td colspan="11" class="py-5 text-center text-muted">
++                                <i class="mb-2 bi bi-inbox fs-1 d-block"></i>No links found for this period.
++                            </td>
++                        </tr>
++                    @endforelse
++                </tbody>
++            </table>
++        </div>
++        @if ($links->hasPages())
++            <div class="card-footer">{{ $links->links('pagination::bootstrap-5') }}</div>
++        @endif
++    </div>
++
++    {{-- Add / Edit modal --}}
++    <div class="modal fade" id="linkModal" tabindex="-1" aria-hidden="true">
++        <div class="modal-dialog modal-lg modal-dialog-centered">
++            <div class="modal-content">
++                <form method="POST" id="linkForm" action="{{ route('admin.offsite-seo.links.store') }}">
++                    @csrf
++                    <input type="hidden" name="_method" id="linkMethod" value="POST">
++                    <div class="modal-header">
++                        <h6 class="modal-title" id="linkModalTitle">Add Link</h6>
++                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
++                    </div>
++                    <div class="modal-body">
++                        <div class="row g-3">
++                            @if ($isManager)
++                                <div class="col-md-6">
++                                    <label class="form-label fw-semibold">Employee <span class="text-danger">*</span></label>
++                                    <select name="user_id" id="linkUser" class="form-select" required>
++                                        <option value="">Select employee</option>
++                                        @foreach ($team as $user)
++                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
++                                        @endforeach
++                                    </select>
++                                </div>
++                            @endif
++                            <div class="{{ $isManager ? 'col-md-6' : 'col-12' }}">
++                                <label class="form-label fw-semibold">Task <span class="text-danger">*</span></label>
++                                <select name="task_id" id="linkTask" class="form-select" required>
++                                    <option value="">Select task</option>
++                                </select>
++                                <small class="text-muted">Project and link type are taken from the task.</small>
++                            </div>
++                            <div class="col-md-6">
++                                <label class="form-label fw-semibold">Keyword / anchor text <span class="text-danger">*</span></label>
++                                <input type="text" name="keyword" id="linkKeyword" class="form-control" maxlength="255" required>
++                            </div>
++                            <div class="col-md-6">
++                                <label class="form-label fw-semibold">Link created on</label>
++                                <input type="date" name="link_date" id="linkDate" class="form-control" max="{{ now()->toDateString() }}">
++                            </div>
++                            <div class="col-12">
++                                <label class="form-label fw-semibold">Link URL (page where the backlink is placed) <span class="text-danger">*</span></label>
++                                <input type="url" name="url" id="linkUrl" class="form-control" maxlength="255" placeholder="https://" required>
++                            </div>
++                            <div class="col-12">
++                                <label class="form-label fw-semibold">Target URL (client page the link points to)</label>
++                                <input type="text" name="destination_url" id="linkDestination" class="form-control" placeholder="https://">
++                            </div>
++                            <div class="col-md-4">
++                                <label class="form-label fw-semibold">Follow type</label>
++                                <select name="rel" id="linkRel" class="form-select">
++                                    <option value="">Not specified</option>
++                                    @foreach ($rels as $key => $label)
++                                        <option value="{{ $key }}">{{ $label }}</option>
++                                    @endforeach
++                                </select>
++                            </div>
++                            <div class="col-md-4">
++                                <label class="form-label fw-semibold">Domain Rating (0-100)</label>
++                                <input type="number" name="dr" id="linkDr" class="form-control" min="0" max="100">
++                            </div>
++                            <div class="col-md-4">
++                                <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
++                                <select name="link_status" id="linkStatus" class="form-select" required>
++                                    @foreach ($statuses as $key => $label)
++                                        <option value="{{ $key }}">{{ $label }}</option>
++                                    @endforeach
++                                </select>
++                            </div>
++                        </div>
++                    </div>
++                    <div class="modal-footer">
++                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
++                        <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle me-1"></i>Save Link</button>
++                    </div>
++                </form>
++            </div>
++        </div>
++    </div>
++
++    <script>
++        document.addEventListener('DOMContentLoaded', function() {
++            const isManager = @json($isManager);
++            const storeUrl = @json(route('admin.offsite-seo.links.store'));
++            const tasksUrl = @json(route('admin.offsite-seo.links.tasks'));
++            const today = @json(now()->toDateString());
++            const modal = new bootstrap.Modal(document.getElementById('linkModal'));
++            const $task = $('#linkTask');
++
++            function loadTasks(userId, selected, selectedLabel) {
++                $task.html('<option value="">Loading…</option>');
++                if (isManager && !userId) {
++                    $task.html('<option value="">Select an employee first</option>');
++                    return;
++                }
++                $.get(tasksUrl, { user_id: userId }, function(tasks) {
++                    $task.html('<option value="">Select task</option>');
++                    tasks.forEach(function(task) {
++                        $task.append($('<option>').val(task.id).text(task.label));
++                    });
++                    // keep the current task selectable even if it is older than the list covers
++                    if (selected && !$task.find('option[value="' + selected + '"]').length) {
++                        $task.append($('<option>').val(selected).text(selectedLabel));
++                    }
++                    $task.val(selected || '');
++                }).fail(function() {
++                    $task.html('<option value="">Could not load tasks</option>');
++                });
++            }
++
++            $('#linkUser').on('change', function() {
++                loadTasks($(this).val(), null, null);
++            });
++
++            $('#addLinkBtn').on('click', function() {
++                $('#linkForm').attr('action', storeUrl)[0].reset();
++                $('#linkMethod').val('POST');
++                $('#linkModalTitle').text('Add Link');
++                $('#linkDate').val(today);
++                loadTasks(isManager ? $('#linkUser').val() : null, null, null);
++                modal.show();
++            });
++
++            $(document).on('click', '.js-edit', function() {
++                const d = $(this).data();
++                $('#linkForm').attr('action', d.url);
++                $('#linkMethod').val('PUT');
++                $('#linkModalTitle').text('Edit Link');
++                $('#linkUser').val(d.user);
++                $('#linkKeyword').val(d.keyword);
++                $('#linkUrl').val(d.link);
++                $('#linkDestination').val(d.destination === '-' ? '' : d.destination);
++                $('#linkRel').val(d.rel || '');
++                $('#linkDr').val(d.dr);
++                $('#linkStatus').val(d.status);
++                $('#linkDate').val(d.date);
++                loadTasks(d.user, d.task, d.taskLabel);
++                modal.show();
++            });
++
++            $(document).on('change', '.js-status', function() {
++                const select = this;
++                $.ajax({
++                    url: $(select).data('url'),
++                    type: 'PATCH',
++                    data: { _token: '{{ csrf_token() }}', link_status: $(select).val() },
++                    success: function(response) {
++                        $(select).find('option[value=""]').remove();
++                        toastr.success(response.message);
++                    },
++                    error: function() {
++                        toastr.error('Could not update the link status.');
++                    }
++                });
++            });
++        });
++    </script>
++</x-app-layout>
+diff --git a/resources/views/layouts/navigation.blade.php b/resources/views/layouts/navigation.blade.php
+index 90d271d..6c2ef04 100644
+--- a/resources/views/layouts/navigation.blade.php
++++ b/resources/views/layouts/navigation.blade.php
+@@ -247,6 +247,23 @@ class="w-auto ri-circle-fill circle-icon text-info-main"></i> Add Project</a>
+                 </li>
+             @endif
+ 
++            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN'))
++                <li>
++                    <a href="{{ route('admin.offsite-seo.index') }}">
++                        <i class="w-auto text-xl ri-links-line me-14 d-flex"></i>
++                        <span>Offsite SEO Performance</span>
++                    </a>
++                </li>
++            @endif
++            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN') || auth()->user()->hasRole('OFFSITE'))
++                <li>
++                    <a href="{{ route('admin.offsite-seo.links.index') }}">
++                        <i class="w-auto text-xl ri-link me-14 d-flex"></i>
++                        <span>Offsite Links</span>
++                    </a>
++                </li>
++            @endif
++
+             @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('Accountant'))
+                 <li>
+                     <a href="{{ route('invoices.index') }}">
+diff --git a/resources/views/vendor/task-show-data.blade.php b/resources/views/vendor/task-show-data.blade.php
+index fec16f8..84c06bd 100644
+--- a/resources/views/vendor/task-show-data.blade.php
++++ b/resources/views/vendor/task-show-data.blade.php
+@@ -1462,6 +1462,20 @@ class="bi bi-plus-circle me-1"></i>Add KW/URLs</button>
+                             value="0" id="mainLinkCost" placeholder="Link Cost USD" required></div>
+                     <div class="ts-form-group"><label>Destination URL</label><input type="text" value="-"
+                             required class="ts-input" id="destinationUrl" placeholder="Destination URL"></div>
++                    <div class="ts-form-row">
++                        <div class="ts-form-group"><label>Link Type <span
++                                    style="font-size:.68rem;color:var(--ts-muted);font-weight:400;">(optional)</span></label>
++                            <select class="ts-select" id="mainLinkRel">
++                                <option value="">Not specified</option>
++                                <option value="dofollow">Dofollow</option>
++                                <option value="nofollow">Nofollow</option>
++                            </select>
++                        </div>
++                        <div class="ts-form-group"><label>Domain Rating (DR) <span
++                                    style="font-size:.68rem;color:var(--ts-muted);font-weight:400;">(optional, 0-100)</span></label>
++                            <input type="number" min="0" max="100" class="ts-input" id="mainLinkDr" placeholder="e.g. 45">
++                        </div>
++                    </div>
+                     <input type="hidden" name="type" value="closing">
+                     <div class="ts-form-group"><label>URLs <span
+                                 style="font-size:.68rem;color:var(--ts-muted);font-weight:400;">(one per
+@@ -2280,6 +2294,8 @@ function triggerCompletionSubmit() {
+                 formData.append(`keywords[${index}][keyword]`, keyword);
+                 formData.append(`keywords[${index}][link_cost]`, linkCost);
+                 formData.append(`keywords[${index}][destination_url]`, destinationUrl);
++                formData.append(`keywords[${index}][rel]`, $("#mainLinkRel").val() || '');
++                formData.append(`keywords[${index}][dr]`, $("#mainLinkDr").val() || '');
+                 formData.append(`keywords[${index}][url]`, url.trim());
+             });
+             $.ajax({
+diff --git a/routes/web.php b/routes/web.php
+index 3b3f386..2c04492 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -24,6 +24,8 @@
+ use App\Http\Controllers\LeadStatusController;
+ use App\Http\Controllers\MessageController;
+ use App\Http\Controllers\NotificationController;
++use App\Http\Controllers\OffsiteLinkController;
++use App\Http\Controllers\OffsiteSeoController;
+ use App\Http\Controllers\OffsiteTaskController;
+ use App\Http\Controllers\PartnerLinkController;
+ use App\Http\Controllers\PaymentMethodController;
+@@ -136,6 +138,16 @@
+     Route::post('/invoices/update-paid-status', [InvoiceController::class, 'updatePaidStatus'])->name('invoices.updatePaidStatus');
+     Route::get('/admin/content-writers', [ContentWriterController::class, 'index'])->name('admin.content-writers.index');
+     Route::get('/admin/content-writers/{user}', [ContentWriterController::class, 'show'])->name('admin.content-writers.show');
++
++    // Offsite SEO performance + link-building records
++    Route::get('/admin/offsite-seo', [OffsiteSeoController::class, 'index'])->name('admin.offsite-seo.index');
++    Route::get('/admin/offsite-seo/links', [OffsiteLinkController::class, 'index'])->name('admin.offsite-seo.links.index');
++    Route::get('/admin/offsite-seo/links/tasks', [OffsiteLinkController::class, 'tasks'])->name('admin.offsite-seo.links.tasks');
++    Route::post('/admin/offsite-seo/links', [OffsiteLinkController::class, 'store'])->name('admin.offsite-seo.links.store');
++    Route::put('/admin/offsite-seo/links/{link}', [OffsiteLinkController::class, 'update'])->name('admin.offsite-seo.links.update');
++    Route::patch('/admin/offsite-seo/links/{link}/status', [OffsiteLinkController::class, 'updateStatus'])->name('admin.offsite-seo.links.status');
++    Route::delete('/admin/offsite-seo/links/{link}', [OffsiteLinkController::class, 'destroy'])->name('admin.offsite-seo.links.destroy');
++    Route::get('/admin/offsite-seo/{user}', [OffsiteSeoController::class, 'show'])->name('admin.offsite-seo.show');
+ });
+ 
+ Route::get('/invoices/view/{uuid}', [InvoiceController::class, 'showPublic'])->name('invoices.public');

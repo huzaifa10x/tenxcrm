@@ -247,6 +247,23 @@
                 </li>
             @endif
 
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN'))
+                <li>
+                    <a href="{{ route('admin.offsite-seo.index') }}">
+                        <i class="w-auto text-xl ri-links-line me-14 d-flex"></i>
+                        <span>Offsite SEO Performance</span>
+                    </a>
+                </li>
+            @endif
+            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('SEO ADMIN') || auth()->user()->hasRole('OFFSITE'))
+                <li>
+                    <a href="{{ route('admin.offsite-seo.links.index') }}">
+                        <i class="w-auto text-xl ri-link me-14 d-flex"></i>
+                        <span>Offsite Links</span>
+                    </a>
+                </li>
+            @endif
+
             @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('Accountant'))
                 <li>
                     <a href="{{ route('invoices.index') }}">
