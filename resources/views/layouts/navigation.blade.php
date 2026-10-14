@@ -234,7 +234,7 @@
                     <span>{{ $__navManage ? 'Attendance' : 'My Attendance' }}</span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ $__navApprove ? route('leaves.admin') : route('leaves.index') }}" class="{{ request()->routeIs('leaves.*') ? 'active-page' : '' }}">
                     <iconify-icon icon="solar:suitcase-tag-linear" class="menu-icon"></iconify-icon>
                     <span>{{ $__navApprove ? 'Leave Requests' : 'My Leave' }}</span>
@@ -250,7 +250,7 @@
                         <span>My Leave</span>
                     </a>
                 </li>
-            @endif
+            @endif --}}
             @if (auth()->user()->hasRole('ADMIN'))
                 <li>
                     <a href="{{ route('settings.index') }}">
