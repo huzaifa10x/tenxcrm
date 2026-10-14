@@ -23,6 +23,12 @@
 
             @if (auth()->user()->hasRole('ADMIN'))
                 <li>
+                    <a href="{{ route('admin.content-writers.index') }}">
+                        <i class="w-auto text-xl ri-news-line me-14 d-flex"></i>
+                        <span>Content Writers</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('xero.analytics.dashboard') }}">
                         <i class="w-auto text-xl ri-news-line me-14 d-flex"></i>
                         <span>Xero Analytics</span>
@@ -234,7 +240,7 @@
                     <span>{{ $__navManage ? 'Attendance' : 'My Attendance' }}</span>
                 </a>
             </li>
-            {{-- <li>
+            <li>
                 <a href="{{ $__navApprove ? route('leaves.admin') : route('leaves.index') }}" class="{{ request()->routeIs('leaves.*') ? 'active-page' : '' }}">
                     <iconify-icon icon="solar:suitcase-tag-linear" class="menu-icon"></iconify-icon>
                     <span>{{ $__navApprove ? 'Leave Requests' : 'My Leave' }}</span>
@@ -250,7 +256,7 @@
                         <span>My Leave</span>
                     </a>
                 </li>
-            @endif --}}
+            @endif
             @if (auth()->user()->hasRole('ADMIN'))
                 <li>
                     <a href="{{ route('settings.index') }}">

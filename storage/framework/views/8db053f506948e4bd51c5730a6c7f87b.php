@@ -234,7 +234,23 @@
                     <span><?php echo e($__navManage ? 'Attendance' : 'My Attendance'); ?></span>
                 </a>
             </li>
-            
+            <li>
+                <a href="<?php echo e($__navApprove ? route('leaves.admin') : route('leaves.index')); ?>" class="<?php echo e(request()->routeIs('leaves.*') ? 'active-page' : ''); ?>">
+                    <iconify-icon icon="solar:suitcase-tag-linear" class="menu-icon"></iconify-icon>
+                    <span><?php echo e($__navApprove ? 'Leave Requests' : 'My Leave'); ?></span>
+                    <?php if($__navPending): ?>
+                        <span class="badge rounded-pill ms-auto" style="background:#a9e324;color:#0f1412;font-weight:700"><?php echo e($__navPending); ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+            <?php if($__navApprove): ?>
+                <li>
+                    <a href="<?php echo e(route('leaves.index')); ?>">
+                        <iconify-icon icon="solar:calendar-add-linear" class="menu-icon"></iconify-icon>
+                        <span>My Leave</span>
+                    </a>
+                </li>
+            <?php endif; ?>
             <?php if(auth()->user()->hasRole('ADMIN')): ?>
                 <li>
                     <a href="<?php echo e(route('settings.index')); ?>">
