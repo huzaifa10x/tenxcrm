@@ -100,6 +100,15 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+
+        // "?ui=old" / "?ui=new" switches the tasks screen and remembers the choice for this user.
+        if (in_array($request->query('ui'), ['old', 'new'], true)) {
+            $user->setUiPreference('tasks_ui', $request->query('ui'));
+            $query = $request->except('ui');
+
+            return redirect()->to($request->url() . ($query ? '?' . http_build_query($query) : ''));
+        }
+        $useOldUi = $user->uiPreference('tasks_ui', 'new') === 'old';
         $statuses = ['Current', 'WFF', 'Debt Collection'];
 
         if ($user->hasRole('ADMIN')) {
@@ -111,6 +120,9 @@ class TaskController extends Controller
         $users = User::all();
         $departments = Role::all();
         $taskQuery = Task::with(['project', 'createdBy', 'assignedTo'])->visibleTasks();
+        if (!$useOldUi) {
+            $taskQuery->withCount(['comments', 'attachments']);
+        }
         if ($request->has('type')) {
             $type = $request->input('type');
             switch ($type) {
@@ -170,7 +182,15 @@ class TaskController extends Controller
         }
         $taskQuery->orderByRaw("FIELD(priority, 'Urgent', 'High', 'Medium', 'Low')");
         $tasks = $taskQuery->get();
-        return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
+
+        if ($useOldUi) {
+            return view('tasks.board', compact('tasks', 'projects', 'users', 'departments'));
+        }
+
+        // Which list is showing (the same rules as the query above).
+        $scope = $request->input('type') ?: ($user->hasRole('ADMIN') ? 'all-tasks' : 'assigned-to-me');
+
+        return view('tasks.board-new', compact('tasks', 'projects', 'users', 'departments', 'scope'));
     }
 
     public function search(Request $request)

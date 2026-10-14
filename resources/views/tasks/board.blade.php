@@ -329,6 +329,9 @@
                     <option value="list" {{ request()->query('view_type') !== 'board' ? 'selected' : '' }}>List View</option>
                     <option value="board" {{ request()->query('view_type') === 'board' ? 'selected' : '' }}>Board View</option>
                 </select>
+                <a href="{{ request()->fullUrlWithQuery(['ui' => 'new']) }}" class="tk-btn tk-btn-outline" title="Switch to the new tasks screen">
+                    <i class="bi bi-stars"></i> New UI
+                </a>
                 <button data-bs-toggle="modal" data-bs-target="#taskCreateModal" class="tk-btn tk-btn-primary">
                     <i class="bi bi-plus-lg"></i> Create Task
                 </button>

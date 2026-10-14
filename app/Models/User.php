@@ -49,6 +49,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'notification_preferences' => 'array',
+            'ui_preferences' => 'array',
             'pin_set_at' => 'datetime',
             'pin_locked_until' => 'datetime',
         ];
@@ -158,5 +159,18 @@ class User extends Authenticatable
     public function pinIsLocked(): bool
     {
         return $this->pin_locked_until !== null && $this->pin_locked_until->isFuture();
+    }
+
+    /** Interface choices the user made (e.g. classic vs new tasks screen). */
+    public function uiPreference(string $key, $default = null)
+    {
+        return ($this->ui_preferences ?? [])[$key] ?? $default;
+    }
+
+    public function setUiPreference(string $key, $value): void
+    {
+        $prefs = $this->ui_preferences ?? [];
+        $prefs[$key] = $value;
+        $this->forceFill(['ui_preferences' => $prefs])->save();
     }
 }
