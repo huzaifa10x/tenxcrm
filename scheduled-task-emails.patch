@@ -1,0 +1,1737 @@
+From 475fbe2b3f96b68ed073f130f217546dcd6da819 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 14 Oct 2026 11:50:09 +0500
+Subject: [PATCH] Add scheduled task and renewal emails
+
+- 48h/24h due-date reminders, overdue notice with AM copied, escalation to lead
+- Daily My Tasks digest (weekdays) with per-user opt-out
+- 60/30-day renewal reminders to account managers
+- email_reminder_logs table so each email is sent once per due/renewal date
+- Email preferences section on the profile page
+- Fix Task::assignedTo lowercase class reference
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017GCsXMaUQHHwG6TR9wD6mw
+---
+ app/Console/Commands/SendDailyTaskDigest.php  |  98 ++++++++++
+ app/Console/Commands/SendRenewalReminders.php |  98 ++++++++++
+ app/Console/Commands/SendTaskDueReminders.php | 184 ++++++++++++++++++
+ app/Http/Controllers/ProfileController.php    |  15 ++
+ app/Mail/DailyTaskDigestMail.php              |  58 ++++++
+ app/Mail/RenewalReminderMail.php              | 117 +++++++++++
+ app/Mail/TaskDueReminderMail.php              |  51 +++++
+ app/Mail/TaskOverdueMail.php                  |  58 ++++++
+ app/Models/EmailReminderLog.php               |  54 +++++
+ app/Models/Task.php                           |   2 +-
+ app/Models/User.php                           |  23 +++
+ app/Support/ReminderSettings.php              |  40 ++++
+ app/Support/TaskMailContext.php               | 104 ++++++++++
+ config/task_emails.php                        |  41 ++++
+ ...00001_create_email_reminder_logs_table.php |  29 +++
+ ...otification_preferences_to_users_table.php |  22 +++
+ .../views/emails/partials/callout.blade.php   |  10 +
+ resources/views/emails/partials/cta.blade.php |  18 ++
+ .../views/emails/partials/details.blade.php   |  14 ++
+ .../views/emails/partials/hero.blade.php      |  19 ++
+ .../views/emails/partials/steps.blade.php     |  16 ++
+ .../views/emails/partials/task-card.blade.php |  16 ++
+ .../projects/renewal-reminder.blade.php       | 113 +++++++++++
+ .../views/emails/tasks/daily-digest.blade.php |  80 ++++++++
+ .../views/emails/tasks/due-reminder.blade.php |  48 +++++
+ .../views/emails/tasks/overdue.blade.php      |  64 ++++++
+ resources/views/profile/edit.blade.php        |   2 +
+ .../email-notifications-form.blade.php        |  30 +++
+ routes/console.php                            |  27 +++
+ routes/web.php                                |   1 +
+ 30 files changed, 1451 insertions(+), 1 deletion(-)
+ create mode 100644 app/Console/Commands/SendDailyTaskDigest.php
+ create mode 100644 app/Console/Commands/SendRenewalReminders.php
+ create mode 100644 app/Console/Commands/SendTaskDueReminders.php
+ create mode 100644 app/Mail/DailyTaskDigestMail.php
+ create mode 100644 app/Mail/RenewalReminderMail.php
+ create mode 100644 app/Mail/TaskDueReminderMail.php
+ create mode 100644 app/Mail/TaskOverdueMail.php
+ create mode 100644 app/Models/EmailReminderLog.php
+ create mode 100644 app/Support/ReminderSettings.php
+ create mode 100644 app/Support/TaskMailContext.php
+ create mode 100644 config/task_emails.php
+ create mode 100644 database/migrations/2026_10_14_000001_create_email_reminder_logs_table.php
+ create mode 100644 database/migrations/2026_10_14_000002_add_notification_preferences_to_users_table.php
+ create mode 100644 resources/views/emails/partials/callout.blade.php
+ create mode 100644 resources/views/emails/partials/cta.blade.php
+ create mode 100644 resources/views/emails/partials/details.blade.php
+ create mode 100644 resources/views/emails/partials/hero.blade.php
+ create mode 100644 resources/views/emails/partials/steps.blade.php
+ create mode 100644 resources/views/emails/partials/task-card.blade.php
+ create mode 100644 resources/views/emails/projects/renewal-reminder.blade.php
+ create mode 100644 resources/views/emails/tasks/daily-digest.blade.php
+ create mode 100644 resources/views/emails/tasks/due-reminder.blade.php
+ create mode 100644 resources/views/emails/tasks/overdue.blade.php
+ create mode 100644 resources/views/profile/partials/email-notifications-form.blade.php
+
+diff --git a/app/Console/Commands/SendDailyTaskDigest.php b/app/Console/Commands/SendDailyTaskDigest.php
+new file mode 100644
+index 0000000..1d28cee
+--- /dev/null
++++ b/app/Console/Commands/SendDailyTaskDigest.php
+@@ -0,0 +1,98 @@
++<?php
++
++namespace App\Console\Commands;
++
++use App\Mail\DailyTaskDigestMail;
++use App\Models\EmailReminderLog;
++use App\Models\User;
++use App\Support\ReminderSettings;
++use App\Support\TaskMailContext;
++use Illuminate\Console\Command;
++use Illuminate\Support\Facades\Log;
++use Illuminate\Support\Facades\Mail;
++
++/**
++ * Daily "My Tasks" digest — one email per team member who has overdue,
++ * due-today or upcoming open tasks.
++ */
++class SendDailyTaskDigest extends Command
++{
++    protected $signature = 'tasks:send-daily-digest
++                            {--user= : Only send for this user ID}
++                            {--dry-run : List what would be sent without sending or logging}
++                            {--to= : Send to this address instead (test mode, nothing is logged)}';
++
++    protected $description = 'Send the daily "My Tasks" digest to each team member';
++
++    public function handle(): int
++    {
++        $today = now()->startOfDay();
++        $todayStr = $today->toDateString();
++        $upcomingUntil = $today->copy()->addDays((int) ReminderSettings::get('digest_upcoming_days'))->toDateString();
++        $max = (int) ReminderSettings::get('digest_max_items');
++        $digestDate = $today->format('l, d M Y');
++
++        $tasksByUser = TaskMailContext::openTasksQuery()
++            ->when($this->option('user'), fn ($q, $id) => $q->where('assigned_to', $id))
++            ->whereDate('due_date', '<=', $upcomingUntil)
++            ->with(['project.companies'])
++            ->orderByRaw("CASE priority WHEN 'Urgent' THEN 1 WHEN 'High' THEN 2 WHEN 'Medium' THEN 3 ELSE 4 END")
++            ->orderBy('due_date')
++            ->get()
++            ->groupBy('assigned_to');
++
++        $users = User::whereIn('id', $tasksByUser->keys())->get();
++        $sent = 0;
++
++        foreach ($users as $user) {
++            if (!$user->canReceiveEmail() || (!$this->option('to') && !$user->wantsEmail('daily_digest'))) {
++                continue;
++            }
++
++            $tasks = $tasksByUser[$user->id];
++            // due_date may come back as "Y-m-d" or "Y-m-d H:i:s" depending on the driver.
++            $day = fn ($t) => substr((string) $t->due_date, 0, 10);
++            $groups = [
++                'overdue'   => $tasks->filter(fn ($t) => $day($t) < $todayStr)->sortBy($day),
++                'due_today' => $tasks->filter(fn ($t) => $day($t) === $todayStr),
++                'upcoming'  => $tasks->filter(fn ($t) => $day($t) > $todayStr)->sortBy($day),
++            ];
++
++            $sections = [];
++            foreach ($groups as $key => $group) {
++                $sections[$key] = $group->take($max)->map(fn ($t) => TaskMailContext::row($t))->values()->all();
++                $sections[$key . '_count'] = $group->count();
++            }
++
++            if ($this->option('dry-run')) {
++                $this->line(sprintf('  %-28s %-32s overdue %d · today %d · upcoming %d', $user->name, $user->email, $sections['overdue_count'], $sections['due_today_count'], $sections['upcoming_count']));
++                $sent++;
++                continue;
++            }
++
++            if ($this->option('to')) {
++                Mail::to($this->option('to'))->send(new DailyTaskDigestMail($user, $sections, $digestDate));
++                $this->line("  digest for {$user->name} → {$this->option('to')} (test)");
++                $sent++;
++                continue;
++            }
++
++            if (!EmailReminderLog::claim('digest', 'user', $user->id, $todayStr, $user->id)) {
++                continue;
++            }
++
++            try {
++                Mail::to($user->email)->send(new DailyTaskDigestMail($user, $sections, $digestDate));
++                $sent++;
++            } catch (\Throwable $e) {
++                EmailReminderLog::release('digest', 'user', $user->id, $todayStr);
++                Log::error('Daily digest email failed', ['user' => $user->id, 'error' => $e->getMessage()]);
++                $this->error("  digest for {$user->email} failed: {$e->getMessage()}");
++            }
++        }
++
++        $this->info(($this->option('dry-run') ? '[dry run] ' : '') . "{$sent} digest(s) " . ($this->option('dry-run') ? 'would be sent.' : 'sent.'));
++
++        return self::SUCCESS;
++    }
++}
+diff --git a/app/Console/Commands/SendRenewalReminders.php b/app/Console/Commands/SendRenewalReminders.php
+new file mode 100644
+index 0000000..96c1d58
+--- /dev/null
++++ b/app/Console/Commands/SendRenewalReminders.php
+@@ -0,0 +1,98 @@
++<?php
++
++namespace App\Console\Commands;
++
++use App\Mail\RenewalReminderMail;
++use App\Models\EmailReminderLog;
++use App\Models\Project;
++use App\Models\User;
++use App\Support\ReminderSettings;
++use Illuminate\Console\Command;
++use Illuminate\Support\Facades\Log;
++use Illuminate\Support\Facades\Mail;
++
++/**
++ * Daily: renewal reminders to the account manager(s) 60 and 30 days before
++ * the current contract ends. Each stage is sent once per renewal date.
++ */
++class SendRenewalReminders extends Command
++{
++    protected $signature = 'projects:send-renewal-reminders
++                            {--project= : Only process this project ID}
++                            {--stage= : Force a stage (60 or 30) — only with --to}
++                            {--dry-run : List what would be sent without sending or logging}
++                            {--to= : Send to this address instead (test mode, nothing is logged)}';
++
++    protected $description = 'Send 60-day and 30-day renewal reminders to account managers';
++
++    public function handle(): int
++    {
++        $windows = collect(ReminderSettings::get('renewal_windows'));
++        $forced = $this->option('to') && $this->option('stage') ? (int) $this->option('stage') : null;
++        $today = now()->startOfDay();
++        $sent = 0;
++
++        $projects = Project::whereNotIn('status', ReminderSettings::INACTIVE_PROJECT_STATUSES)
++            ->when($this->option('project'), fn ($q, $id) => $q->whereKey($id))
++            ->with('accountManagers')
++            ->get();
++
++        foreach ($projects as $project) {
++            $renewalDate = RenewalReminderMail::contract($project)['renewal_date'];
++            if (!$renewalDate) {
++                continue;
++            }
++
++            $daysLeft = (int) $today->diffInDays($renewalDate, false);
++            $stage = $forced ?? $windows->search(fn ($w) => $daysLeft >= (int) $w[0] && $daysLeft <= (int) $w[1]);
++
++            if ($stage === false || $stage === null) {
++                continue;
++            }
++            $stage = (int) $stage;
++
++            $ams = $project->accountManagers->filter(fn (User $u) => $u->canReceiveEmail());
++            if ($ams->isEmpty()) {
++                $this->warn("  #{$project->id} {$project->title}: renewal in {$daysLeft} days but no account manager with an email — skipped.");
++                continue;
++            }
++
++            if ($this->option('dry-run')) {
++                if (EmailReminderLog::wasSent("renewal_{$stage}", 'project', $project->id, $renewalDate->toDateString())) {
++                    continue;
++                }
++                $this->line(sprintf('  renewal_%-3d #%-5d %-40s %3d days → %s', $stage, $project->id, mb_strimwidth($project->title, 0, 40, '…'), $daysLeft, $ams->pluck('email')->implode(', ')));
++                $sent++;
++                continue;
++            }
++
++            if ($this->option('to')) {
++                Mail::to($this->option('to'))->send(new RenewalReminderMail($project, $stage, $ams->first()));
++                $this->line("  renewal_{$stage} #{$project->id} → {$this->option('to')} (test)");
++                $sent++;
++                continue;
++            }
++
++            if (!EmailReminderLog::claim("renewal_{$stage}", 'project', $project->id, $renewalDate->toDateString())) {
++                continue;
++            }
++
++            try {
++                // One personalised email per account manager ("Hi {name}").
++                foreach ($ams as $am) {
++                    Mail::to($am->email)->send(new RenewalReminderMail($project, $stage, $am));
++                    $sent++;
++                }
++                $this->line("  renewal_{$stage} #{$project->id} {$project->title} → " . $ams->pluck('email')->implode(', '));
++            } catch (\Throwable $e) {
++                EmailReminderLog::release("renewal_{$stage}", 'project', $project->id, $renewalDate->toDateString());
++                Log::error('Renewal reminder email failed', ['project' => $project->id, 'error' => $e->getMessage()]);
++                $this->error("  renewal #{$project->id} failed: {$e->getMessage()}");
++            }
++        }
++
++        $this->info(($this->option('dry-run') ? '[dry run] ' : '') . "{$sent} renewal email(s) " . ($this->option('dry-run') ? 'would be sent.' : 'sent.'));
++
++        return self::SUCCESS;
++    }
++}
+diff --git a/app/Console/Commands/SendTaskDueReminders.php b/app/Console/Commands/SendTaskDueReminders.php
+new file mode 100644
+index 0000000..1c4ad0a
+--- /dev/null
++++ b/app/Console/Commands/SendTaskDueReminders.php
+@@ -0,0 +1,184 @@
++<?php
++
++namespace App\Console\Commands;
++
++use App\Mail\TaskDueReminderMail;
++use App\Mail\TaskOverdueMail;
++use App\Models\EmailReminderLog;
++use App\Models\Task;
++use App\Models\User;
++use App\Support\ReminderSettings;
++use App\Support\TaskMailContext;
++use Illuminate\Console\Command;
++use Illuminate\Support\Facades\Log;
++use Illuminate\Support\Facades\Mail;
++
++/**
++ * Hourly: 48h / 24h due-date reminders, overdue notices, and escalation to the lead.
++ * Each email is sent once per task per due date (tracked in email_reminder_logs).
++ */
++class SendTaskDueReminders extends Command
++{
++    protected $signature = 'tasks:send-due-reminders
++                            {--task= : Only process this task ID}
++                            {--dry-run : List what would be sent without sending or logging}
++                            {--to= : Send every email to this address instead (test mode, nothing is logged)}';
++
++    protected $description = 'Send 48h/24h due-date reminders, overdue notices and escalations';
++
++    private int $sent = 0;
++
++    public function handle(): int
++    {
++        $now = now();
++        $lookback = (int) ReminderSettings::get('overdue_lookback_days');
++        $hours = collect(ReminderSettings::get('reminder_hours'))->map(fn ($h) => (int) $h)->sortDesc()->values();
++
++        $tasks = TaskMailContext::openTasksQuery()
++            ->when($this->option('task'), fn ($q, $id) => $q->whereKey($id))
++            // Window: overdue within the lookback period, up to the furthest reminder ahead.
++            ->whereDate('due_date', '>=', $now->copy()->subDays($lookback + 1)->toDateString())
++            ->whereDate('due_date', '<=', $now->copy()->addHours($hours->first() + 24)->toDateString())
++            ->with(['assignedTo.managers', 'project.accountManagers', 'project.companies'])
++            ->orderBy('due_date')
++            ->get();
++
++        foreach ($tasks as $task) {
++            $assignee = $task->assignedTo;
++            $dueAt = TaskMailContext::dueAt($task);
++
++            if (!$assignee || !$assignee->canReceiveEmail() || !$dueAt) {
++                continue;
++            }
++
++            if ($now->lessThan($dueAt)) {
++                $this->handleUpcoming($task, $assignee, $dueAt, $hours->all());
++            } else {
++                $this->handleOverdue($task, $assignee, $dueAt);
++            }
++        }
++
++        $this->info(($this->option('dry-run') ? '[dry run] ' : '') . "{$this->sent} email(s) " . ($this->option('dry-run') ? 'would be sent' : 'sent') . " ({$tasks->count()} task(s) checked).");
++
++        return self::SUCCESS;
++    }
++
++    private function handleUpcoming(Task $task, User $assignee, $dueAt, array $hours): void
++    {
++        if (!$assignee->wantsEmail('due_reminders')) {
++            return;
++        }
++
++        // Pick the narrowest window we're in (e.g. 24h beats 48h); never send both.
++        $hoursLeft = now()->diffInMinutes($dueAt) / 60;
++        $window = collect($hours)->sort()->first(fn ($h) => $hoursLeft <= $h);
++
++        if ($window === null) {
++            return;
++        }
++
++        // The "task assigned" email already covered a task created inside this window.
++        if ($task->created_at && $task->created_at->greaterThan($dueAt->copy()->subHours($window))) {
++            return;
++        }
++
++        $this->deliver("due_{$window}h", $task, [$assignee->email], [], fn () => new TaskDueReminderMail($task, $window));
++    }
++
++    private function handleOverdue(Task $task, User $assignee, $dueAt): void
++    {
++        $daysOverdue = $dueAt->diffInHours(now()) / 24;
++        $threshold = (int) ReminderSettings::get('escalation_threshold_days');
++
++        $amEmails = TaskMailContext::accountManagers($task)
++            ->pluck('email')
++            ->reject(fn ($e) => strcasecmp($e, $assignee->email) === 0)
++            ->unique()->values()->all();
++
++        if ($daysOverdue < $threshold) {
++            $this->deliver('overdue', $task, [$assignee->email], $amEmails,
++                fn () => new TaskOverdueMail($task, false, null, !empty($amEmails)));
++
++            return;
++        }
++
++        // Past the threshold and still open: escalate once. If the plain overdue notice was
++        // never sent (e.g. first run after deploy), this escalated email replaces it.
++        $lead = $this->leadFor($assignee);
++        $cc = $amEmails;
++        if ($lead && strcasecmp($lead->email, $assignee->email) !== 0) {
++            $cc[] = $lead->email;
++        }
++
++        if ($this->deliver('overdue_escalated', $task, [$assignee->email], array_values(array_unique($cc)),
++            fn () => new TaskOverdueMail($task, true, $lead, !empty($amEmails)))) {
++            if (!$this->isTestRun() && !$this->option('dry-run')) {
++                EmailReminderLog::claim('overdue', 'task', $task->id, TaskMailContext::dueReference($task), $assignee->id);
++            }
++        }
++    }
++
++    private function leadFor(User $assignee): ?User
++    {
++        $lead = $assignee->managers->first(fn (User $u) => $u->canReceiveEmail() && $u->id !== $assignee->id);
++
++        if (!$lead && ($fallback = ReminderSettings::get('escalation_fallback_email'))) {
++            $lead = User::where('email', $fallback)->first();
++        }
++
++        return $lead;
++    }
++
++    /**
++     * Claim, then queue the email. Returns true if it was (or would be) sent.
++     */
++    private function deliver(string $kind, Task $task, array $to, array $cc, callable $makeMail): bool
++    {
++        $reference = TaskMailContext::dueReference($task);
++
++        if ($this->option('dry-run')) {
++            if (EmailReminderLog::wasSent($kind, 'task', $task->id, $reference)) {
++                return false;
++            }
++            $this->line(sprintf('  %-18s #%-6d %-45s → %s%s', $kind, $task->id, mb_strimwidth($task->title, 0, 45, '…'), implode(', ', $to), $cc ? ' (cc ' . implode(', ', $cc) . ')' : ''));
++            $this->sent++;
++
++            return true;
++        }
++
++        if ($this->isTestRun()) {
++            Mail::to($this->option('to'))->send($makeMail());
++            $this->line("  {$kind} #{$task->id} → {$this->option('to')} (test)");
++            $this->sent++;
++
++            return true;
++        }
++
++        if (!EmailReminderLog::claim($kind, 'task', $task->id, $reference, $task->assigned_to)) {
++            return false;
++        }
++
++        try {
++            $mail = Mail::to($to);
++            if ($cc) {
++                $mail->cc($cc);
++            }
++            $mail->send($makeMail());
++            $this->line("  {$kind} #{$task->id} → " . implode(', ', $to));
++            $this->sent++;
++
++            return true;
++        } catch (\Throwable $e) {
++            EmailReminderLog::release($kind, 'task', $task->id, $reference);
++            Log::error('Task reminder email failed', ['kind' => $kind, 'task' => $task->id, 'error' => $e->getMessage()]);
++            $this->error("  {$kind} #{$task->id} failed: {$e->getMessage()}");
++
++            return false;
++        }
++    }
++
++    private function isTestRun(): bool
++    {
++        return (bool) $this->option('to');
++    }
++}
+diff --git a/app/Http/Controllers/ProfileController.php b/app/Http/Controllers/ProfileController.php
+index a48eb8d..b783dac 100644
+--- a/app/Http/Controllers/ProfileController.php
++++ b/app/Http/Controllers/ProfileController.php
+@@ -37,6 +37,21 @@ public function update(ProfileUpdateRequest $request): RedirectResponse
+         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+     }
+ 
++    /**
++     * Update which optional emails the user receives.
++     */
++    public function updateNotifications(Request $request): RedirectResponse
++    {
++        $prefs = [];
++        foreach (array_keys(\App\Models\User::OPTIONAL_EMAILS) as $key) {
++            $prefs[$key] = $request->boolean("notifications.{$key}");
++        }
++
++        $request->user()->forceFill(['notification_preferences' => $prefs])->save();
++
++        return Redirect::to(route('profile.edit') . '#email-notifications')->with('status', 'notifications-updated');
++    }
++
+     /**
+      * Delete the user's account.
+      */
+diff --git a/app/Mail/DailyTaskDigestMail.php b/app/Mail/DailyTaskDigestMail.php
+new file mode 100644
+index 0000000..89bc560
+--- /dev/null
++++ b/app/Mail/DailyTaskDigestMail.php
+@@ -0,0 +1,58 @@
++<?php
++
++namespace App\Mail;
++
++use App\Models\User;
++use App\Support\MailBrand;
++use App\Support\ReminderSettings;
++use Illuminate\Bus\Queueable;
++use Illuminate\Contracts\Queue\ShouldQueue;
++use Illuminate\Mail\Mailable;
++use Illuminate\Mail\Mailables\Content;
++use Illuminate\Mail\Mailables\Envelope;
++use Illuminate\Queue\SerializesModels;
++
++/**
++ * Daily "My Tasks" digest — one per team member.
++ * $sections = ['due_today' => [...rows], 'overdue' => [...], 'upcoming' => [...]] plus *_count totals.
++ */
++class DailyTaskDigestMail extends Mailable implements ShouldQueue
++{
++    use Queueable, SerializesModels;
++
++    // protected: public properties are auto-injected into the view and override `with`
++    public function __construct(protected User $recipient, protected array $sections, protected string $digestDate)
++    {
++    }
++
++    public function envelope(): Envelope
++    {
++        $s = $this->sections;
++        $parts = array_filter([
++            $s['overdue_count'] ? $s['overdue_count'] . ' overdue' : null,
++            $s['due_today_count'] ? $s['due_today_count'] . ' due today' : null,
++            $s['upcoming_count'] ? $s['upcoming_count'] . ' upcoming' : null,
++        ]);
++
++        return new Envelope(
++            subject: 'My Tasks — ' . $this->digestDate . ': ' . implode(', ', $parts) . ' | 10X One',
++        );
++    }
++
++    public function content(): Content
++    {
++        return new Content(
++            view: 'emails.tasks.daily-digest',
++            with: array_merge($this->sections, [
++                'b'               => MailBrand::get(),
++                'recipient_name'  => $this->recipient->name,
++                'recipient_email' => $this->recipient->email,
++                'digest_date'     => $this->digestDate,
++                'timezone'        => ReminderSettings::TIMEZONE_LABEL,
++                'board_link'      => url('tasks?type=assigned-to-me'),
++                'prefs_link'      => route('profile.edit') . '#email-notifications',
++                'dashboardUrl'    => url('tasks'),
++            ]),
++        );
++    }
++}
+diff --git a/app/Mail/RenewalReminderMail.php b/app/Mail/RenewalReminderMail.php
+new file mode 100644
+index 0000000..2251006
+--- /dev/null
++++ b/app/Mail/RenewalReminderMail.php
+@@ -0,0 +1,117 @@
++<?php
++
++namespace App\Mail;
++
++use App\Models\Project;
++use App\Models\Task;
++use App\Models\User;
++use App\Support\MailBrand;
++use App\Support\ReminderSettings;
++use Carbon\Carbon;
++use Illuminate\Bus\Queueable;
++use Illuminate\Contracts\Queue\ShouldQueue;
++use Illuminate\Mail\Mailable;
++use Illuminate\Mail\Mailables\Content;
++use Illuminate\Mail\Mailables\Envelope;
++use Illuminate\Queue\SerializesModels;
++
++/**
++ * Retainer renewal reminder to the account manager — stage 60 (plan) or 30 (action needed).
++ */
++class RenewalReminderMail extends Mailable implements ShouldQueue
++{
++    use Queueable, SerializesModels;
++
++    public const CURRENCY = 'AED';
++
++    // protected: public properties are auto-injected into the view and override `with`
++    public function __construct(protected Project $project, protected int $stage, protected User $accountManager)
++    {
++    }
++
++    /**
++     * Current contract terms: the current renewal if there is one, else the project itself.
++     * Returns value, term, mrr and the renewal (contract end) date.
++     */
++    public static function contract(Project $project): array
++    {
++        $contract = $project->renewals()->where('is_current', true)->latest()->first() ?? $project;
++        $term = (int) ($contract->contract_term ?? 0);
++        $value = (float) ($contract->contract_value ?? 0);
++        $start = $contract->contract_start_date ? Carbon::parse($contract->contract_start_date) : null;
++
++        return [
++            'value'        => $value,
++            'term'         => $term,
++            'mrr'          => $term > 0 ? $value / $term : $value,
++            'renewal_date' => ($start && $term > 0) ? $start->copy()->addMonths($term)->startOfDay() : null,
++        ];
++    }
++
++    public function envelope(): Envelope
++    {
++        $name = $this->project->title;
++
++        return new Envelope(
++            subject: $this->stage <= 30
++                ? "[Action needed] Renewal in 30 days: {$name}"
++                : "Renewal in 60 days: {$name} — time to plan",
++        );
++    }
++
++    public function content(): Content
++    {
++        $project = $this->project->loadMissing(['companies']);
++        $contract = self::contract($project);
++        $renewalDate = $contract['renewal_date'];
++        $clientSince = $project->contract_start_date ? Carbon::parse($project->contract_start_date) : null;
++
++        return new Content(
++            view: 'emails.projects.renewal-reminder',
++            with: [
++                'b'                  => MailBrand::get(),
++                'stage'              => $this->stage,
++                'account_manager'    => $this->accountManager->name,
++                'account_name'       => $project->title,
++                'client_name'        => optional($project->companies)->name,
++                'account_id'         => 'PRJ-' . str_pad((string) $project->id, 5, '0', STR_PAD_LEFT),
++                'plan_name'          => trim(($project->project_type ?? '') . ($project->category ? ' · ' . $project->category : '')) ?: 'N/A',
++                'account_mrr'        => self::CURRENCY . ' ' . number_format($contract['mrr'], 2),
++                'contract_value'     => self::CURRENCY . ' ' . number_format($contract['value'], 2) . ($contract['term'] > 0 ? " / {$contract['term']} months" : ''),
++                'is_high_value'      => $contract['mrr'] >= (float) ReminderSettings::get('high_value_mrr'),
++                'start_date'         => $clientSince ? $clientSince->format('d M Y') : 'N/A',
++                'renewal_date'       => $renewalDate ? $renewalDate->format('d M Y') : 'N/A',
++                'days_until_renewal' => $renewalDate ? (int) now()->startOfDay()->diffInDays($renewalDate, false) : null,
++                'renewal_status'     => self::renewalStatus($project, $renewalDate),
++                'project_status'     => $project->status ?? 'N/A',
++                'account_link'       => route('projects.show', $project->id),
++                'dashboardUrl'       => route('projects.index'),
++            ],
++        );
++    }
++
++    /**
++     * There is no renewal-status field, so this reads the "Renewal Reminder" task that
++     * tasks:contract-renewal creates a month before the contract ends.
++     */
++    public static function renewalStatus(Project $project, ?Carbon $renewalDate): string
++    {
++        $task = Task::where('project_id', $project->id)
++            ->where('title', 'Renewal Reminder')
++            ->when($renewalDate, fn ($q) => $q->where('created_at', '>=', $renewalDate->copy()->subDays(45)))
++            ->latest()
++            ->first();
++
++        if (!$task) {
++            return 'Not started';
++        }
++
++        return match ($task->status) {
++            'Completed'   => 'Renewal task completed — confirm the new agreement is recorded',
++            'In Progress' => 'In progress',
++            'Review'      => 'In review',
++            'Blocked'     => 'Blocked',
++            default       => 'Renewal task open, not started',
++        };
++    }
++}
+diff --git a/app/Mail/TaskDueReminderMail.php b/app/Mail/TaskDueReminderMail.php
+new file mode 100644
+index 0000000..8709a2f
+--- /dev/null
++++ b/app/Mail/TaskDueReminderMail.php
+@@ -0,0 +1,51 @@
++<?php
++
++namespace App\Mail;
++
++use App\Models\Task;
++use App\Support\TaskMailContext;
++use Illuminate\Bus\Queueable;
++use Illuminate\Contracts\Queue\ShouldQueue;
++use Illuminate\Mail\Mailable;
++use Illuminate\Mail\Mailables\Content;
++use Illuminate\Mail\Mailables\Envelope;
++use Illuminate\Queue\SerializesModels;
++
++/**
++ * Sent to the assignee 48h and 24h before a task's due date.
++ */
++class TaskDueReminderMail extends Mailable implements ShouldQueue
++{
++    use Queueable, SerializesModels;
++
++    // protected: public properties are auto-injected into the view and override `with`
++    public function __construct(protected Task $task, protected int $hoursBefore = 24)
++    {
++    }
++
++    public function envelope(): Envelope
++    {
++        $task = $this->task->loadMissing('project');
++        $dueAt = TaskMailContext::dueAt($task);
++        $project = optional($task->project)->title ?? 'General';
++
++        return new Envelope(
++            subject: 'Due ' . ($dueAt ? $dueAt->format('d M Y') : 'soon') . ": {$task->title} — {$project}",
++        );
++    }
++
++    public function content(): Content
++    {
++        $data = TaskMailContext::base($this->task);
++        $dueAt = TaskMailContext::dueAt($this->task);
++        $now = now();
++
++        $data['time_remaining'] = $dueAt && $dueAt->greaterThan($now)
++            ? TaskMailContext::human($now, $dueAt)
++            : 'no time';
++        $data['hours_before'] = $this->hoursBefore;
++        $data['is_final'] = $this->hoursBefore <= 24;
++
++        return new Content(view: 'emails.tasks.due-reminder', with: $data);
++    }
++}
+diff --git a/app/Mail/TaskOverdueMail.php b/app/Mail/TaskOverdueMail.php
+new file mode 100644
+index 0000000..954a184
+--- /dev/null
++++ b/app/Mail/TaskOverdueMail.php
+@@ -0,0 +1,58 @@
++<?php
++
++namespace App\Mail;
++
++use App\Models\Task;
++use App\Models\User;
++use App\Support\ReminderSettings;
++use App\Support\TaskMailContext;
++use Illuminate\Bus\Queueable;
++use Illuminate\Contracts\Queue\ShouldQueue;
++use Illuminate\Mail\Mailable;
++use Illuminate\Mail\Mailables\Content;
++use Illuminate\Mail\Mailables\Envelope;
++use Illuminate\Queue\SerializesModels;
++
++/**
++ * Sent to the assignee when the due date passes (account manager copied).
++ * Re-sent once with $escalated = true, adding the assignee's lead, when the task
++ * is still open after the escalation threshold.
++ */
++class TaskOverdueMail extends Mailable implements ShouldQueue
++{
++    use Queueable, SerializesModels;
++
++    // protected: public properties are auto-injected into the view and override `with`
++    public function __construct(
++        protected Task $task,
++        protected bool $escalated = false,
++        protected ?User $escalatedTo = null,
++        protected bool $accountManagerCopied = true,
++    ) {
++    }
++
++    public function envelope(): Envelope
++    {
++        $dueAt = TaskMailContext::dueAt($this->task);
++
++        return new Envelope(
++            subject: ($this->escalated ? '[Overdue · Escalated] ' : '[Overdue] ')
++                . $this->task->title . ' — was due ' . ($dueAt ? $dueAt->format('d M Y') : 'earlier'),
++        );
++    }
++
++    public function content(): Content
++    {
++        $data = TaskMailContext::base($this->task);
++        $dueAt = TaskMailContext::dueAt($this->task);
++
++        $data['days_overdue'] = $dueAt ? TaskMailContext::human($dueAt, now(), 1) : 'some time';
++        $data['escalated'] = $this->escalated;
++        $data['escalation_threshold'] = (int) ReminderSettings::get('escalation_threshold_days');
++        $data['escalated_to_name'] = $this->escalatedTo?->name;
++        $data['escalated_to_email'] = $this->escalatedTo?->email;
++        $data['account_manager_copied'] = $this->accountManagerCopied;
++
++        return new Content(view: 'emails.tasks.overdue', with: $data);
++    }
++}
+diff --git a/app/Models/EmailReminderLog.php b/app/Models/EmailReminderLog.php
+new file mode 100644
+index 0000000..94888d6
+--- /dev/null
++++ b/app/Models/EmailReminderLog.php
+@@ -0,0 +1,54 @@
++<?php
++
++namespace App\Models;
++
++use Illuminate\Database\Eloquent\Model;
++
++/**
++ * One row per scheduled email actually sent, so reminders never go out twice.
++ */
++class EmailReminderLog extends Model
++{
++    public $timestamps = false;
++
++    protected $fillable = ['kind', 'subject_type', 'subject_id', 'reference', 'recipient_id', 'sent_at'];
++
++    protected $casts = ['sent_at' => 'datetime'];
++
++    /**
++     * Atomically reserve a send. Returns false if it was already sent (or another
++     * scheduler run claimed it first), true if this caller should send it.
++     */
++    public static function claim(string $kind, string $subjectType, int $subjectId, string $reference, ?int $recipientId = null): bool
++    {
++        return static::query()->insertOrIgnore([
++            'kind' => $kind,
++            'subject_type' => $subjectType,
++            'subject_id' => $subjectId,
++            'reference' => $reference,
++            'recipient_id' => $recipientId,
++            'sent_at' => now(),
++        ]) === 1;
++    }
++
++    public static function wasSent(string $kind, string $subjectType, int $subjectId, string $reference): bool
++    {
++        return static::query()->where([
++            'kind' => $kind,
++            'subject_type' => $subjectType,
++            'subject_id' => $subjectId,
++            'reference' => $reference,
++        ])->exists();
++    }
++
++    /** Undo a claim when sending failed, so the next run retries. */
++    public static function release(string $kind, string $subjectType, int $subjectId, string $reference): void
++    {
++        static::query()->where([
++            'kind' => $kind,
++            'subject_type' => $subjectType,
++            'subject_id' => $subjectId,
++            'reference' => $reference,
++        ])->delete();
++    }
++}
+diff --git a/app/Models/Task.php b/app/Models/Task.php
+index 589dd08..129f12a 100644
+--- a/app/Models/Task.php
++++ b/app/Models/Task.php
+@@ -34,7 +34,7 @@ public function createdBy()
+     }
+     public function assignedTo()
+     {
+-        return $this->belongsTo(user::class, 'assigned_to');
++        return $this->belongsTo(User::class, 'assigned_to');
+     }
+     public function department()
+     {
+diff --git a/app/Models/User.php b/app/Models/User.php
+index 391f2ca..30d5fd8 100644
+--- a/app/Models/User.php
++++ b/app/Models/User.php
+@@ -47,6 +47,7 @@ protected function casts(): array
+         return [
+             'email_verified_at' => 'datetime',
+             'password' => 'hashed',
++            'notification_preferences' => 'array',
+         ];
+     }
+ 
+@@ -121,4 +122,26 @@ public function teams()
+             'am_id'
+         );
+     }
++
++    /** Email types a user can switch off from their profile. Everything else is always sent. */
++    public const OPTIONAL_EMAILS = [
++        'daily_digest'  => 'Daily "My Tasks" digest',
++        'due_reminders' => 'Due-date reminders (48h and 24h before)',
++    ];
++
++    public function wantsEmail(string $type): bool
++    {
++        if (!array_key_exists($type, self::OPTIONAL_EMAILS)) {
++            return true;
++        }
++
++        return (bool) (($this->notification_preferences ?? [])[$type] ?? true);
++    }
++
++    /** Real person with a usable address (not the system account). */
++    public function canReceiveEmail(): bool
++    {
++        return !empty($this->email)
++            && strcasecmp($this->email, \App\Support\ReminderSettings::SYSTEM_EMAIL) !== 0;
++    }
+ }
+diff --git a/app/Support/ReminderSettings.php b/app/Support/ReminderSettings.php
+new file mode 100644
+index 0000000..857abf8
+--- /dev/null
++++ b/app/Support/ReminderSettings.php
+@@ -0,0 +1,40 @@
++<?php
++
++namespace App\Support;
++
++/**
++ * Settings for scheduled task / renewal emails, with defaults that apply
++ * even when config/task_emails.php is missing or the config cache is stale.
++ */
++class ReminderSettings
++{
++    public const TIMEZONE = 'Asia/Dubai';
++    public const TIMEZONE_LABEL = 'GST';
++
++    /** Task statuses that count as "still open". */
++    public const OPEN_STATUSES = ['Todo', 'In Progress', 'Review'];
++
++    /** Projects in these statuses get no task reminders and no renewal emails. */
++    public const INACTIVE_PROJECT_STATUSES = ['Paused', 'Expired', 'Cancelled', 'Completed'];
++
++    public const SYSTEM_EMAIL = 'system@10xdigital.ae';
++
++    private const DEFAULTS = [
++        'due_time' => '18:00',
++        'reminder_hours' => [48, 24],
++        'overdue_lookback_days' => 14,
++        'escalation_threshold_days' => 2,
++        'escalation_fallback_email' => null,
++        'digest_upcoming_days' => 7,
++        'digest_max_items' => 10,
++        'renewal_windows' => [60 => [54, 60], 30 => [24, 30]],
++        'high_value_mrr' => 5000,
++    ];
++
++    public static function get(string $key)
++    {
++        $value = config('task_emails.' . $key);
++
++        return ($value === null || $value === '') ? self::DEFAULTS[$key] : $value;
++    }
++}
+diff --git a/app/Support/TaskMailContext.php b/app/Support/TaskMailContext.php
+new file mode 100644
+index 0000000..fd48d64
+--- /dev/null
++++ b/app/Support/TaskMailContext.php
+@@ -0,0 +1,104 @@
++<?php
++
++namespace App\Support;
++
++use App\Mail\TaskAssignedMail;
++use App\Mail\TaskCompletedMail;
++use App\Models\Task;
++use App\Models\User;
++use Carbon\Carbon;
++use Carbon\CarbonInterface;
++use Illuminate\Support\Collection;
++
++/**
++ * Shared data for scheduled task emails (reminder, overdue, digest).
++ */
++class TaskMailContext
++{
++    /** The moment a task is due: its due_date at the configured due time, in Dubai time. */
++    public static function dueAt(Task $task): ?Carbon
++    {
++        if (!$task->due_date) {
++            return null;
++        }
++
++        [$h, $m] = array_map('intval', explode(':', (string) ReminderSettings::get('due_time')) + [1 => 0]);
++
++        return Carbon::parse($task->due_date, ReminderSettings::TIMEZONE)->setTime($h, $m);
++    }
++
++    /** Stable key for the reminder log: changing the due date re-arms every reminder. */
++    public static function dueReference(Task $task): string
++    {
++        return Carbon::parse($task->due_date)->toDateString();
++    }
++
++    public static function human(CarbonInterface $from, CarbonInterface $to, int $parts = 2): string
++    {
++        return $from->diffForHumans($to, CarbonInterface::DIFF_ABSOLUTE, false, $parts);
++    }
++
++    /** Project account managers who can receive email. */
++    public static function accountManagers(Task $task): Collection
++    {
++        return optional($task->project)->accountManagers?->filter(fn (User $u) => $u->canReceiveEmail())->values()
++            ?? collect();
++    }
++
++    /** One-row representation used by the digest lists. */
++    public static function row(Task $task): array
++    {
++        $dueAt = self::dueAt($task);
++
++        return [
++            'task_name'      => $task->title,
++            'task_id'        => TaskAssignedMail::taskCode($task),
++            'client'         => TaskCompletedMail::clientName($task),
++            'due_date'       => $dueAt ? $dueAt->format('d M Y') : 'No due date',
++            'priority'       => $task->priority ?: 'Medium',
++            'priority_color' => TaskAssignedMail::priorityColor($task->priority),
++            'status'         => $task->status ?: 'Todo',
++            'task_link'      => url("tasks/{$task->id}"),
++        ];
++    }
++
++    /** Fields shared by the reminder and overdue emails. */
++    public static function base(Task $task): array
++    {
++        $task->loadMissing(['project.accountManagers', 'project.companies', 'assignedTo']);
++        $dueAt = self::dueAt($task);
++        $ams = self::accountManagers($task);
++
++        return [
++            'b'                => MailBrand::get(),
++            'task'             => $task,
++            'assignee_name'    => $task->assignedTo->name ?? 'there',
++            'task_name'        => $task->title,
++            'task_id'          => TaskAssignedMail::taskCode($task),
++            'client'           => TaskCompletedMail::clientName($task),
++            'project'          => optional($task->project)->title ?? 'General',
++            'due_date'         => $dueAt ? $dueAt->format('d M Y') : 'Not set',
++            'due_time'         => $dueAt ? $dueAt->format('h:i A') : '',
++            'timezone'         => ReminderSettings::TIMEZONE_LABEL,
++            'priority'         => $task->priority ?: 'Medium',
++            'priority_color'   => TaskAssignedMail::priorityColor($task->priority),
++            'status'           => $task->status ?: 'Todo',
++            'type'             => $task->type ?: 'ADHOC',
++            'account_manager'  => $ams->pluck('name')->implode(', ') ?: 'your account manager',
++            'task_link'        => url("tasks/{$task->id}"),
++            'prefs_link'       => route('profile.edit') . '#email-notifications',
++            'dashboardUrl'     => url('tasks'),
++        ];
++    }
++
++    /** Open, visible tasks on active projects, with a due date and an assignee. */
++    public static function openTasksQuery()
++    {
++        return Task::query()
++            ->visibleTasks()
++            ->whereIn('status', ReminderSettings::OPEN_STATUSES)
++            ->whereNotNull('due_date')
++            ->whereNotNull('assigned_to')
++            ->whereHas('project', fn ($q) => $q->whereNotIn('status', ReminderSettings::INACTIVE_PROJECT_STATUSES));
++    }
++}
+diff --git a/config/task_emails.php b/config/task_emails.php
+new file mode 100644
+index 0000000..83e744e
+--- /dev/null
++++ b/config/task_emails.php
+@@ -0,0 +1,41 @@
++<?php
++
++/*
++|--------------------------------------------------------------------------
++| Scheduled task & renewal emails
++|--------------------------------------------------------------------------
++| Every value has a built-in default in App\Support\ReminderSettings, so the
++| emails keep working even if this file is missing or the config is cached.
++*/
++
++return [
++    // tasks.due_date is a DATE column, so this is the time of day a task is "due".
++    'due_time' => env('TASK_DUE_TIME', '18:00'),
++
++    // Due-date reminders: hours before the due moment.
++    'reminder_hours' => [48, 24],
++
++    // Overdue notices are only sent for tasks that went overdue within this many days
++    // (stops a flood of emails for old, stale tasks the first time this runs).
++    'overdue_lookback_days' => (int) env('TASK_OVERDUE_LOOKBACK_DAYS', 14),
++
++    // Escalate to the assignee's lead once a task is this many days overdue and still open.
++    'escalation_threshold_days' => (int) env('TASK_ESCALATION_DAYS', 2),
++
++    // Used when the assignee has no lead in account_manager_leads. Leave empty to skip.
++    'escalation_fallback_email' => env('TASK_ESCALATION_FALLBACK_EMAIL'),
++
++    // Daily digest: how far ahead "upcoming" looks, and how many rows per section.
++    'digest_upcoming_days' => 7,
++    'digest_max_items' => 10,
++
++    // Renewal reminders: [stage => [earliest day, latest day]] before the renewal date.
++    // The window is a few days wide so a missed scheduler run still sends the email.
++    'renewal_windows' => [
++        60 => [54, 60],
++        30 => [24, 30],
++    ],
++
++    // Monthly value at or above which an account is flagged high-value (AED).
++    'high_value_mrr' => 5000,
++];
+diff --git a/database/migrations/2026_10_14_000001_create_email_reminder_logs_table.php b/database/migrations/2026_10_14_000001_create_email_reminder_logs_table.php
+new file mode 100644
+index 0000000..888e0fe
+--- /dev/null
++++ b/database/migrations/2026_10_14_000001_create_email_reminder_logs_table.php
+@@ -0,0 +1,29 @@
++<?php
++
++use Illuminate\Database\Migrations\Migration;
++use Illuminate\Database\Schema\Blueprint;
++use Illuminate\Support\Facades\Schema;
++
++return new class extends Migration
++{
++    public function up(): void
++    {
++        Schema::create('email_reminder_logs', function (Blueprint $table) {
++            $table->id();
++            $table->string('kind', 40);                    // due_48h, due_24h, overdue, overdue_escalated, renewal_60, renewal_30, digest
++            $table->string('subject_type', 40);            // task, project, user
++            $table->unsignedBigInteger('subject_id');
++            $table->string('reference', 64);               // due date / renewal date / digest date — a changed date re-arms the reminder
++            $table->unsignedBigInteger('recipient_id')->nullable();
++            $table->timestamp('sent_at')->useCurrent();
++
++            $table->unique(['kind', 'subject_type', 'subject_id', 'reference'], 'email_reminder_logs_unique');
++            $table->index(['subject_type', 'subject_id']);
++        });
++    }
++
++    public function down(): void
++    {
++        Schema::dropIfExists('email_reminder_logs');
++    }
++};
+diff --git a/database/migrations/2026_10_14_000002_add_notification_preferences_to_users_table.php b/database/migrations/2026_10_14_000002_add_notification_preferences_to_users_table.php
+new file mode 100644
+index 0000000..80cda26
+--- /dev/null
++++ b/database/migrations/2026_10_14_000002_add_notification_preferences_to_users_table.php
+@@ -0,0 +1,22 @@
++<?php
++
++use Illuminate\Database\Migrations\Migration;
++use Illuminate\Database\Schema\Blueprint;
++use Illuminate\Support\Facades\Schema;
++
++return new class extends Migration
++{
++    public function up(): void
++    {
++        Schema::table('users', function (Blueprint $table) {
++            $table->json('notification_preferences')->nullable()->after('img');
++        });
++    }
++
++    public function down(): void
++    {
++        Schema::table('users', function (Blueprint $table) {
++            $table->dropColumn('notification_preferences');
++        });
++    }
++};
+diff --git a/resources/views/emails/partials/callout.blade.php b/resources/views/emails/partials/callout.blade.php
+new file mode 100644
+index 0000000..0545b56
+--- /dev/null
++++ b/resources/views/emails/partials/callout.blade.php
+@@ -0,0 +1,10 @@
++{{-- Expects: $c, $bg, $border, $html (already escaped) --}}
++<tr>
++    <td class="px" style="padding: 20px 40px 0 40px;">
++        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: {{ $bg }}; border-left: 4px solid {{ $border }}; border-radius: 8px;">
++            <tr>
++                <td style="padding: 14px 18px; font-size: 14px; line-height: 22px; color: {{ $c['text'] }};">{!! $html !!}</td>
++            </tr>
++        </table>
++    </td>
++</tr>
+diff --git a/resources/views/emails/partials/cta.blade.php b/resources/views/emails/partials/cta.blade.php
+new file mode 100644
+index 0000000..53651b0
+--- /dev/null
++++ b/resources/views/emails/partials/cta.blade.php
+@@ -0,0 +1,18 @@
++{{-- Expects: $c, $url, $label, $note (optional, escaped) --}}
++<tr>
++    <td class="px" align="center" style="padding: 32px 40px 36px 40px;">
++        <table cellpadding="0" cellspacing="0" role="presentation">
++            <tr>
++                <td align="center" style="background-color: {{ $c['primary'] }}; border-radius: 10px;">
++                    <a href="{{ $url }}" target="_blank" style="display: inline-block; padding: 15px 38px; font-size: 15px; font-weight: 800; color: {{ $c['dark'] }}; text-decoration: none; letter-spacing: 0.3px;">{{ $label }} &rarr;</a>
++                </td>
++            </tr>
++        </table>
++        <div style="margin-top: 14px; font-size: 12px; color: {{ $c['muted'] }};">
++            Button not working? <a href="{{ $url }}" style="color: {{ $c['primary_dark'] }}; word-break: break-all;">{{ $url }}</a>
++        </div>
++        @if (!empty($note))
++            <div style="margin-top: 16px; font-size: 12px; line-height: 18px; color: {{ $c['muted'] }};">{!! $note !!}</div>
++        @endif
++    </td>
++</tr>
+diff --git a/resources/views/emails/partials/details.blade.php b/resources/views/emails/partials/details.blade.php
+new file mode 100644
+index 0000000..0383141
+--- /dev/null
++++ b/resources/views/emails/partials/details.blade.php
+@@ -0,0 +1,14 @@
++{{-- Expects: $c, $heading, $rows = [label => value] (values are escaped) --}}
++<tr>
++    <td class="px" style="padding: 28px 40px 0 40px;">
++        <div style="font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: {{ $c['text'] }}; margin-bottom: 10px;">{{ $heading }}</div>
++        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-size: 14px;">
++            @foreach ($rows as $label => $value)
++                <tr>
++                    <td style="padding: 11px 0; width: 42%; color: {{ $c['muted'] }};{{ $loop->last ? '' : ' border-bottom: 1px solid ' . $c['border'] . ';' }}">{{ $label }}</td>
++                    <td style="padding: 11px 0; font-weight: 600; color: {{ $c['text'] }};{{ $loop->last ? '' : ' border-bottom: 1px solid ' . $c['border'] . ';' }}">{{ $value }}</td>
++                </tr>
++            @endforeach
++        </table>
++    </td>
++</tr>
+diff --git a/resources/views/emails/partials/hero.blade.php b/resources/views/emails/partials/hero.blade.php
+new file mode 100644
+index 0000000..c7bb4bc
+--- /dev/null
++++ b/resources/views/emails/partials/hero.blade.php
+@@ -0,0 +1,19 @@
++{{-- Expects: $c, $accent, $icon, $iconColor (optional), $eyebrow, $meta, $title, $intro (HTML-safe, already escaped) --}}
++<tr>
++    <td style="height: 6px; line-height: 6px; font-size: 0; background-color: {{ $accent }};">&nbsp;</td>
++</tr>
++<tr>
++    <td class="px" style="padding: 36px 40px 8px 40px; background-color: {{ $c['dark'] }};">
++        <table cellpadding="0" cellspacing="0" role="presentation">
++            <tr>
++                <td style="width: 44px; height: 44px; background-color: {{ $accent }}; border-radius: 12px; text-align: center; vertical-align: middle; font-size: 22px; line-height: 44px; color: {{ $iconColor ?? '#ffffff' }}; font-weight: 800;">{!! $icon !!}</td>
++                <td style="padding-left: 14px;">
++                    <div style="font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: {{ $accent }};">{{ $eyebrow }}</div>
++                    <div style="font-size: 13px; color: {{ $c['on_dark_muted'] }}; margin-top: 2px;">{{ $meta }}</div>
++                </td>
++            </tr>
++        </table>
++        <h1 class="hero-title" style="margin: 22px 0 8px 0; font-size: 26px; line-height: 34px; font-weight: 800; color: #ffffff;">{{ $title }}</h1>
++        <p style="margin: 0 0 30px 0; font-size: 15px; line-height: 24px; color: {{ $c['on_dark_soft'] }};">{!! $intro !!}</p>
++    </td>
++</tr>
+diff --git a/resources/views/emails/partials/steps.blade.php b/resources/views/emails/partials/steps.blade.php
+new file mode 100644
+index 0000000..8b29d56
+--- /dev/null
++++ b/resources/views/emails/partials/steps.blade.php
+@@ -0,0 +1,16 @@
++{{-- Expects: $c, $heading, $steps = [string, ...] (escaped) --}}
++<tr>
++    <td class="px" style="padding: 28px 40px 0 40px;">
++        <div style="font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: {{ $c['text'] }}; margin-bottom: 10px;">{{ $heading }}</div>
++        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-size: 14px; line-height: 22px; color: {{ $c['text'] }};">
++            @foreach ($steps as $i => $step)
++                <tr>
++                    <td valign="top" style="width: 34px; padding: 6px 0;">
++                        <div style="width: 24px; height: 24px; line-height: 24px; border-radius: 50%; background-color: {{ $c['primary_light'] }}; color: {{ $c['primary_dark'] }}; font-size: 12px; font-weight: 800; text-align: center;">{{ $i + 1 }}</div>
++                    </td>
++                    <td valign="top" style="padding: 7px 0;">{{ $step }}</td>
++                </tr>
++            @endforeach
++        </table>
++    </td>
++</tr>
+diff --git a/resources/views/emails/partials/task-card.blade.php b/resources/views/emails/partials/task-card.blade.php
+new file mode 100644
+index 0000000..3ee265e
+--- /dev/null
++++ b/resources/views/emails/partials/task-card.blade.php
+@@ -0,0 +1,16 @@
++{{-- Expects: $c, $task_id, $task_name, $client, $priority, $priority_color, $status, $accent --}}
++<tr>
++    <td class="px" style="padding: 32px 40px 0 40px;">
++        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border: 1px solid {{ $c['border'] }}; border-left: 5px solid {{ $accent }}; border-radius: 12px;">
++            <tr>
++                <td style="padding: 22px 24px;">
++                    <div style="font-size: 12px; font-weight: 700; color: {{ $c['muted'] }}; letter-spacing: 1px; font-family: Consolas, Monaco, monospace;">{{ $task_id }}</div>
++                    <div style="font-size: 20px; line-height: 28px; font-weight: 800; color: {{ $c['text'] }}; margin: 6px 0 4px 0;">{{ $task_name }}</div>
++                    <div style="font-size: 14px; color: {{ $c['muted'] }}; margin-bottom: 14px;">{{ $client }}</div>
++                    <span style="display: inline-block; padding: 5px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #ffffff; background-color: {{ $priority_color }}; border-radius: 50px;">{{ $priority }}</span>
++                    <span style="display: inline-block; padding: 5px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: {{ $c['text'] }}; background-color: {{ $c['bg'] }}; border-radius: 50px;">{{ $status }}</span>
++                </td>
++            </tr>
++        </table>
++    </td>
++</tr>
+diff --git a/resources/views/emails/projects/renewal-reminder.blade.php b/resources/views/emails/projects/renewal-reminder.blade.php
+new file mode 100644
+index 0000000..8e94565
+--- /dev/null
++++ b/resources/views/emails/projects/renewal-reminder.blade.php
+@@ -0,0 +1,113 @@
++@php
++    $c = $b['colors'];
++    $urgent = $stage <= 30;
++    $accent = $urgent ? $c['warning'] : $c['primary'];
++@endphp
++
++@include('emails.partials.header', [
++    'label'     => 'Renewal in ' . $stage . ' days',
++    'preheader' => $account_name . ' renews on ' . $renewal_date . ' (' . $account_mrr . '/month).',
++])
++
++@include('emails.partials.hero', [
++    'accent'    => $accent,
++    'icon'      => '&#8635;',
++    'iconColor' => $c['dark'],
++    'eyebrow'   => $urgent ? 'Action needed · Renewal in 30 days' : 'Renewal in 60 days',
++    'meta'      => 'Renewal date: ' . $renewal_date,
++    'title'     => 'Hi ' . $account_manager . ',',
++    'intro'     => $urgent
++        ? '<strong style="color:#ffffff;">' . e($account_name) . '</strong> renews in 30 days. The renewal conversation should be happening now.'
++        : 'A retainer renewal is 60 days out. Early enough to plan the play, not so early it\'s ignored.',
++])
++
++{{-- Account card --}}
++<tr>
++    <td class="px" style="padding: 32px 40px 0 40px;">
++        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border: 1px solid {{ $c['border'] }}; border-left: 5px solid {{ $accent }}; border-radius: 12px;">
++            <tr>
++                <td style="padding: 22px 24px;">
++                    <div style="font-size: 12px; font-weight: 700; color: {{ $c['muted'] }}; letter-spacing: 1px; font-family: Consolas, Monaco, monospace;">{{ $account_id }}</div>
++                    <div style="font-size: 20px; line-height: 28px; font-weight: 800; color: {{ $c['text'] }}; margin: 6px 0 4px 0;">{{ $account_name }}</div>
++                    @if ($client_name)
++                        <div style="font-size: 14px; color: {{ $c['muted'] }}; margin-bottom: 14px;">{{ $client_name }}</div>
++                    @else
++                        <div style="height: 10px; line-height: 10px; font-size: 0;">&nbsp;</div>
++                    @endif
++                    <span style="display: inline-block; padding: 5px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: {{ $c['primary_dark'] }}; background-color: {{ $c['primary_light'] }}; border-radius: 50px;">{{ $plan_name }}</span>
++                    @if ($is_high_value)
++                        <span style="display: inline-block; padding: 5px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: {{ $c['dark'] }}; background-color: {{ $c['warning'] }}; border-radius: 50px;">&#9733; High Value</span>
++                    @endif
++                </td>
++            </tr>
++        </table>
++    </td>
++</tr>
++
++{{-- Stats --}}
++<tr>
++    <td class="px" style="padding: 20px 40px 0 40px;">
++        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: {{ $c['bg'] }}; border-radius: 12px;">
++            <tr>
++                <td class="stack stack-first" width="33%" style="padding: 18px 12px; text-align: center;">
++                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: {{ $c['muted'] }};">Monthly Value</div>
++                    <div style="font-size: 17px; font-weight: 800; color: {{ $c['text'] }}; margin-top: 6px;">{{ $account_mrr }}</div>
++                </td>
++                <td class="stack" width="34%" style="padding: 18px 12px; text-align: center; border-left: 1px solid {{ $c['border'] }};">
++                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: {{ $c['muted'] }};">Renewal Date</div>
++                    <div style="font-size: 16px; font-weight: 800; color: {{ $c['text'] }}; margin-top: 6px;">{{ $renewal_date }}</div>
++                </td>
++                <td class="stack" width="33%" style="padding: 18px 12px; text-align: center; border-left: 1px solid {{ $c['border'] }};">
++                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: {{ $c['muted'] }};">Days Away</div>
++                    <div style="font-size: 22px; font-weight: 800; color: {{ $accent }}; margin-top: 4px;">{{ $days_until_renewal ?? '—' }}</div>
++                </td>
++            </tr>
++        </table>
++    </td>
++</tr>
++
++@php
++    $rows = [
++        'Account'        => $account_name,
++        'Plan / service' => $plan_name,
++        'Monthly value'  => $account_mrr,
++    ];
++    if ($urgent) {
++        $rows['Renewal date'] = $renewal_date . ' (' . $days_until_renewal . ' days away)';
++        $rows['Renewal status'] = $renewal_status;
++    } else {
++        $rows['Client since'] = $start_date;
++        $rows['Renewal date'] = $renewal_date;
++    }
++    $rows['Contract value'] = $contract_value;
++@endphp
++
++@include('emails.partials.details', ['heading' => 'Account', 'rows' => $rows])
++
++@include('emails.partials.steps', $urgent ? [
++    'heading' => "If you haven't yet",
++    'steps' => [
++        'Book or confirm the renewal conversation this week.',
++        'Send the renewal terms / new agreement for sign-off.',
++        'Update the renewal status in the CRM so we can track what\'s at risk.',
++    ],
++] : [
++    'heading' => 'This week',
++    'steps' => [
++        'Review account health — recent performance, deliverables, any red flags.',
++        'Decide the direction: straight renewal, upsell, or renegotiation.',
++        'Note any risks now so there\'s time to address them before the conversation.',
++    ],
++])
++
++@if ($urgent)
++    @include('emails.partials.callout', [
++        'bg'     => $c['warning_light'],
++        'border' => $c['warning'],
++        'html'   => '<strong style="color:#B7791F;">Not renewing?</strong> Flag it now so Finance and delivery can plan the wind-down.',
++    ])
++@endif
++
++@include('emails.partials.cta', ['url' => $account_link, 'label' => 'Open the account'])
++
++@include('emails.partials.footer')
+diff --git a/resources/views/emails/tasks/daily-digest.blade.php b/resources/views/emails/tasks/daily-digest.blade.php
+new file mode 100644
+index 0000000..f1546ea
+--- /dev/null
++++ b/resources/views/emails/tasks/daily-digest.blade.php
+@@ -0,0 +1,80 @@
++@php
++    $c = $b['colors'];
++    $sections = [
++        ['key' => 'overdue',   'title' => 'Overdue',   'count' => $overdue_count,   'color' => $c['danger'],       'empty' => 'Nothing overdue.'],
++        ['key' => 'due_today', 'title' => 'Due today', 'count' => $due_today_count, 'color' => $c['warning'],      'empty' => 'Nothing due today.'],
++        ['key' => 'upcoming',  'title' => 'Upcoming',  'count' => $upcoming_count,  'color' => $c['primary_dark'], 'empty' => 'Nothing due in the next few days.'],
++    ];
++@endphp
++
++@include('emails.partials.header', [
++    'label'     => 'My Tasks',
++    'preheader' => $overdue_count . ' overdue, ' . $due_today_count . ' due today, ' . $upcoming_count . ' upcoming.',
++])
++
++@include('emails.partials.hero', [
++    'accent'    => $c['primary'],
++    'icon'      => '&#9776;',
++    'iconColor' => $c['dark'],
++    'eyebrow'   => 'My Tasks · Daily digest',
++    'meta'      => $digest_date . ' (' . $timezone . ')',
++    'title'     => 'Good morning, ' . $recipient_name . '.',
++    'intro'     => "Here's what's on your plate today.",
++])
++
++{{-- Counters --}}
++<tr>
++    <td class="px" style="padding: 32px 40px 0 40px;">
++        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: {{ $c['bg'] }}; border-radius: 12px;">
++            <tr>
++                @foreach ($sections as $s)
++                    <td class="stack{{ $loop->first ? ' stack-first' : '' }}" width="33%" style="padding: 18px 12px; text-align: center;{{ $loop->first ? '' : ' border-left: 1px solid ' . $c['border'] . ';' }}">
++                        <div style="font-size: 26px; font-weight: 800; color: {{ $s['count'] ? $s['color'] : $c['muted'] }};">{{ $s['count'] }}</div>
++                        <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: {{ $c['muted'] }}; margin-top: 4px;">{{ $s['title'] }}</div>
++                    </td>
++                @endforeach
++            </tr>
++        </table>
++    </td>
++</tr>
++
++@foreach ($sections as $s)
++    @php $rows = ${$s['key']}; @endphp
++    <tr>
++        <td class="px" style="padding: 28px 40px 0 40px;">
++            <div style="font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: {{ $s['color'] }}; margin-bottom: 10px;">{{ $s['title'] }} ({{ $s['count'] }})</div>
++            @if (count($rows) === 0)
++                <div style="font-size: 14px; color: {{ $c['muted'] }}; padding: 6px 0;">{{ $s['empty'] }}</div>
++            @else
++                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="font-size: 14px;">
++                    @foreach ($rows as $row)
++                        <tr>
++                            <td style="padding: 12px 0; border-bottom: 1px solid {{ $c['border'] }};">
++                                <a href="{{ $row['task_link'] }}" style="font-weight: 700; color: {{ $c['text'] }}; text-decoration: none;">{{ $row['task_name'] }}</a>
++                                <div style="font-size: 12px; color: {{ $c['muted'] }}; margin-top: 3px;">
++                                    {{ $row['task_id'] }} &middot; {{ $row['client'] }} &middot; Due {{ $row['due_date'] }} &middot; {{ $row['status'] }}
++                                </div>
++                            </td>
++                            <td align="right" valign="top" style="padding: 12px 0 12px 10px; border-bottom: 1px solid {{ $c['border'] }}; white-space: nowrap;">
++                                <span style="display: inline-block; padding: 4px 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #ffffff; background-color: {{ $row['priority_color'] }}; border-radius: 50px;">{{ $row['priority'] }}</span>
++                            </td>
++                        </tr>
++                    @endforeach
++                </table>
++                @if ($s['count'] > count($rows))
++                    <div style="font-size: 13px; color: {{ $c['muted'] }}; padding-top: 10px;">
++                        + {{ $s['count'] - count($rows) }} more — <a href="{{ $board_link }}" style="color: {{ $c['primary_dark'] }};">see them on your board</a>
++                    </div>
++                @endif
++            @endif
++        </td>
++    </tr>
++@endforeach
++
++@include('emails.partials.cta', [
++    'url'   => $board_link,
++    'label' => 'Open my task board',
++    'note'  => 'Sent to ' . e($recipient_email) . ' every working day. <a href="' . e($prefs_link) . '" style="color:' . $c['primary_dark'] . ';">Manage email preferences</a>',
++])
++
++@include('emails.partials.footer')
+diff --git a/resources/views/emails/tasks/due-reminder.blade.php b/resources/views/emails/tasks/due-reminder.blade.php
+new file mode 100644
+index 0000000..95006a8
+--- /dev/null
++++ b/resources/views/emails/tasks/due-reminder.blade.php
+@@ -0,0 +1,48 @@
++@php
++    $c = $b['colors'];
++    $accent = $is_final ? $c['warning'] : $c['primary'];
++@endphp
++
++@include('emails.partials.header', [
++    'label'     => 'Task Due Soon',
++    'preheader' => $task_name . ' is due ' . $due_date . ' at ' . $due_time . ' ' . $timezone . ' — ' . $time_remaining . ' left.',
++])
++
++@include('emails.partials.hero', [
++    'accent'    => $accent,
++    'icon'      => '&#9201;',
++    'iconColor' => $c['dark'],
++    'eyebrow'   => 'Due in ' . $time_remaining,
++    'meta'      => 'Due ' . $due_date . ' at ' . $due_time . ' (' . $timezone . ')',
++    'title'     => 'Hi ' . $assignee_name . ', heads-up — one of your tasks is due soon.',
++    'intro'     => e($task_name) . ' (' . e($task_id) . ') for <strong style="color:#ffffff;">' . e($client) . '</strong> is due in <strong style="color:#ffffff;">' . e($time_remaining) . '</strong>.',
++])
++
++@include('emails.partials.task-card', ['accent' => $accent])
++
++@include('emails.partials.details', [
++    'heading' => 'Task',
++    'rows' => [
++        'Task'           => $task_name . ' (' . $task_id . ')',
++        'Client'         => $client,
++        'Project'        => $project,
++        'Due'            => $due_date . ' at ' . $due_time . ' ' . $timezone,
++        'Time remaining' => $time_remaining . ' left',
++        'Priority'       => $priority,
++        'Status'         => $status,
++    ],
++])
++
++@include('emails.partials.callout', [
++    'bg'     => $c['primary_light'],
++    'border' => $c['primary'],
++    'html'   => '<strong style="color:' . $c['primary_dark'] . ';">If you\'re on track, no action needed.</strong> If you\'ll need more time, update the due date or add a comment on the task so <strong>' . e($account_manager) . '</strong> isn\'t caught out.',
++])
++
++@include('emails.partials.cta', [
++    'url'   => $task_link,
++    'label' => 'Open the task',
++    'note'  => 'You are receiving this because the task is assigned to you. <a href="' . e($prefs_link) . '" style="color:' . $c['primary_dark'] . ';">Manage email preferences</a>',
++])
++
++@include('emails.partials.footer')
+diff --git a/resources/views/emails/tasks/overdue.blade.php b/resources/views/emails/tasks/overdue.blade.php
+new file mode 100644
+index 0000000..15991b5
+--- /dev/null
++++ b/resources/views/emails/tasks/overdue.blade.php
+@@ -0,0 +1,64 @@
++@php
++    $c = $b['colors'];
++@endphp
++
++@include('emails.partials.header', [
++    'label'     => 'Task Overdue',
++    'preheader' => $task_name . ' for ' . $client . ' is ' . $days_overdue . ' past due and still ' . $status . '.',
++])
++
++@include('emails.partials.hero', [
++    'accent'  => $c['danger'],
++    'icon'    => '!',
++    'eyebrow' => $escalated ? 'Overdue · Escalated' : 'Overdue',
++    'meta'    => 'Was due ' . $due_date . ' at ' . $due_time . ' (' . $timezone . ')',
++    'title'   => 'Hi ' . $assignee_name . ', this task is past due.',
++    'intro'   => e($task_name) . ' (' . e($task_id) . ') for <strong style="color:#ffffff;">' . e($client) . '</strong> is now <strong style="color:#ffffff;">' . e($days_overdue) . '</strong> past due and still marked <strong style="color:#ffffff;">' . e($status) . '</strong>.',
++])
++
++@include('emails.partials.task-card', ['accent' => $c['danger']])
++
++@include('emails.partials.details', [
++    'heading' => 'Task',
++    'rows' => [
++        'Task'     => $task_name,
++        'Client'   => $client,
++        'Was due'  => $due_date . ' at ' . $due_time . ' ' . $timezone,
++        'Overdue'  => $days_overdue,
++        'Priority' => $priority,
++        'Status'   => $status,
++    ],
++])
++
++@if ($escalated)
++    @include('emails.partials.callout', [
++        'bg'     => $c['danger_light'],
++        'border' => $c['danger'],
++        'html'   => '<strong style="color:' . $c['danger'] . ';">Escalated.</strong> This task has been open for more than ' . e($escalation_threshold) . ' day(s) past its due date'
++            . ($escalated_to_name ? ', so <strong>' . e($escalated_to_name) . '</strong> has been copied.' : '.'),
++    ])
++@endif
++
++@include('emails.partials.steps', [
++    'heading' => 'Please do one of two things',
++    'steps' => [
++        'Close it out if the work is done, or',
++        'Set a realistic new due date so ' . $project . ' stays accurate.',
++    ],
++])
++
++<tr>
++    <td class="px" style="padding: 16px 40px 0 40px; font-size: 14px; line-height: 22px; color: {{ $c['muted'] }};">
++        If something's blocking you, add a comment on the task and we'll help unblock it.
++    </td>
++</tr>
++
++@include('emails.partials.cta', [
++    'url'   => $task_link,
++    'label' => 'Open the task',
++    'note'  => $account_manager_copied
++        ? e($account_manager) . ' has been copied as this task affects a client deliverable.'
++        : null,
++])
++
++@include('emails.partials.footer')
+diff --git a/resources/views/profile/edit.blade.php b/resources/views/profile/edit.blade.php
+index 5a4a45a..1a155ef 100644
+--- a/resources/views/profile/edit.blade.php
++++ b/resources/views/profile/edit.blade.php
+@@ -9,5 +9,7 @@
+     <hr class="my-40">
+     @include('profile.partials.update-password-form')
+     <hr class="my-40">
++    @include('profile.partials.email-notifications-form')
++    <hr class="my-40">
+     @include('profile.partials.delete-user-form')
+ </x-app-layout>
+diff --git a/resources/views/profile/partials/email-notifications-form.blade.php b/resources/views/profile/partials/email-notifications-form.blade.php
+new file mode 100644
+index 0000000..128d178
+--- /dev/null
++++ b/resources/views/profile/partials/email-notifications-form.blade.php
+@@ -0,0 +1,30 @@
++<section id="email-notifications">
++    <header class="mb-4">
++        <h2 class="h5 text-dark">{{ __('Email Notifications') }}</h2>
++        <p class="text-muted small">
++            {{ __('Choose which optional emails you receive. Task assignment, completion, overdue and renewal emails are always sent.') }}
++        </p>
++    </header>
++
++    <form method="post" action="{{ route('profile.notifications.update') }}">
++        @csrf
++        @method('patch')
++
++        @foreach (\App\Models\User::OPTIONAL_EMAILS as $key => $label)
++            <div class="form-check form-switch mb-3">
++                <input type="hidden" name="notifications[{{ $key }}]" value="0">
++                <input class="form-check-input" type="checkbox" role="switch" value="1"
++                       id="notify_{{ $key }}" name="notifications[{{ $key }}]"
++                       @checked($user->wantsEmail($key))>
++                <label class="form-check-label" for="notify_{{ $key }}">{{ $label }}</label>
++            </div>
++        @endforeach
++
++        <div class="d-flex align-items-center gap-3">
++            <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
++            @if (session('status') === 'notifications-updated')
++                <span class="text-success small">{{ __('Saved.') }}</span>
++            @endif
++        </div>
++    </form>
++</section>
+diff --git a/routes/console.php b/routes/console.php
+index 5e80d6f..bcfcc1b 100644
+--- a/routes/console.php
++++ b/routes/console.php
+@@ -24,3 +24,30 @@
+     \Illuminate\Support\Facades\Cache::forget('xero_prediction_overall');
+     \Illuminate\Support\Facades\Cache::forget('xero_month_comparison');
+ })->daily();
++
++/*
++|--------------------------------------------------------------------------
++| Task & renewal emails (times are Asia/Dubai — the app timezone)
++|--------------------------------------------------------------------------
++| Needs the Laravel scheduler cron: * * * * * php artisan schedule:run
++*/
++
++// 48h / 24h due-date reminders, overdue notices and escalations.
++Schedule::command('tasks:send-due-reminders')
++    ->hourlyAt(5)
++    ->withoutOverlapping()
++    ->appendOutputTo(storage_path('logs/task-emails.log'));
++
++// Daily "My Tasks" digest, working days.
++Schedule::command('tasks:send-daily-digest')
++    ->weekdays()
++    ->at('08:45')
++    ->withoutOverlapping()
++    ->appendOutputTo(storage_path('logs/task-emails.log'));
++
++// Renewal reminders 60 and 30 days out.
++Schedule::command('projects:send-renewal-reminders')
++    ->dailyAt('09:15')
++    ->withoutOverlapping()
++    ->appendOutputTo(storage_path('logs/task-emails.log'));
++
+diff --git a/routes/web.php b/routes/web.php
+index 2c04492..27bf214 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -304,6 +304,7 @@
+ 
+     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
++    Route::patch('/profile/notifications', [ProfileController::class, 'updateNotifications'])->name('profile.notifications.update');
+     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+ 
+-- 
+2.43.0
+

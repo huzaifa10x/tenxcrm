@@ -47,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
     }
 
@@ -120,5 +121,27 @@ class User extends Authenticatable
             'manager_id',
             'am_id'
         );
+    }
+
+    /** Email types a user can switch off from their profile. Everything else is always sent. */
+    public const OPTIONAL_EMAILS = [
+        'daily_digest'  => 'Daily "My Tasks" digest',
+        'due_reminders' => 'Due-date reminders (48h and 24h before)',
+    ];
+
+    public function wantsEmail(string $type): bool
+    {
+        if (!array_key_exists($type, self::OPTIONAL_EMAILS)) {
+            return true;
+        }
+
+        return (bool) (($this->notification_preferences ?? [])[$type] ?? true);
+    }
+
+    /** Real person with a usable address (not the system account). */
+    public function canReceiveEmail(): bool
+    {
+        return !empty($this->email)
+            && strcasecmp($this->email, \App\Support\ReminderSettings::SYSTEM_EMAIL) !== 0;
     }
 }

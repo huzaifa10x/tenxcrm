@@ -34,7 +34,7 @@ class Task extends Model
     }
     public function assignedTo()
     {
-        return $this->belongsTo(user::class, 'assigned_to');
+        return $this->belongsTo(User::class, 'assigned_to');
     }
     public function department()
     {

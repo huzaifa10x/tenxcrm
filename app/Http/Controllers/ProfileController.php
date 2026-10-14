@@ -38,6 +38,21 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update which optional emails the user receives.
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $prefs = [];
+        foreach (array_keys(\App\Models\User::OPTIONAL_EMAILS) as $key) {
+            $prefs[$key] = $request->boolean("notifications.{$key}");
+        }
+
+        $request->user()->forceFill(['notification_preferences' => $prefs])->save();
+
+        return Redirect::to(route('profile.edit') . '#email-notifications')->with('status', 'notifications-updated');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse
