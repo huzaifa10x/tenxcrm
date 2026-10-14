@@ -78,7 +78,7 @@
     </div>
 </div>
 
-<?php if (! $__env->hasRenderedOnce('ba30745c-e552-4aef-b1cb-5acdf2dd3144')): $__env->markAsRenderedOnce('ba30745c-e552-4aef-b1cb-5acdf2dd3144'); ?>
+<?php if (! $__env->hasRenderedOnce('306e04ea-7d61-42cc-ac2a-f38fa9e9398a')): $__env->markAsRenderedOnce('306e04ea-7d61-42cc-ac2a-f38fa9e9398a'); ?>
 <style>
     .x-clock {
         display: flex;

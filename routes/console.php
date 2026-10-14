@@ -51,3 +51,15 @@ Schedule::command('projects:send-renewal-reminders')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/task-emails.log'));
 
+
+/*
+|--------------------------------------------------------------------------
+| Attendance
+|--------------------------------------------------------------------------
+| Close finished days (missed punch-outs at closing time, absences / leave rows).
+| Runs after the overnight window (noon); the pages also run it lazily.
+*/
+Schedule::command('attendance:close-days')
+    ->dailyAt('12:10')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/attendance.log'));

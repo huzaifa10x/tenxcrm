@@ -19,9 +19,14 @@ class GeneralSetting extends Model
         'early_out_threshold',
         'late_deduction_threshold',
         'half_day_deduction_threshold',
+        'working_days',
+        'annual_leave_allowance',
+        'leave_year_start_month',
+        'early_punch_in_minutes',
     ];
 
     protected $casts = [
         'holidays' => 'array',
+        'working_days' => 'array',
     ];
 }

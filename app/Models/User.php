@@ -50,6 +50,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'notification_preferences' => 'array',
             'ui_preferences' => 'array',
+            'track_attendance' => 'boolean',
             'pin_set_at' => 'datetime',
             'pin_locked_until' => 'datetime',
         ];
@@ -67,6 +68,28 @@ class User extends Authenticatable
     public function attendances()
     {
         return $this->hasMany(Attendance::class, 'user_id');
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function leaveBalances()
+    {
+        return $this->hasMany(LeaveBalance::class);
+    }
+
+    /** People whose attendance is tracked (excludes system accounts and anyone switched off). */
+    public function scopeTracked($q)
+    {
+        return $q->where('track_attendance', true)->where('email', '!=', 'system@10xdigital.ae');
+    }
+
+    /** Roles double as departments in this app. */
+    public function departmentNames(): string
+    {
+        return $this->roles->pluck('name')->implode(', ');
     }
     public function permissions()
     {

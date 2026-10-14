@@ -15,6 +15,8 @@ use App\Http\Controllers\Crm\PipedriveDealController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DealController;
 use App\Http\Controllers\GeneralSettingController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LeavePolicyController;
 use App\Http\Controllers\ImageCompressorController;
 use App\Http\Controllers\IndustryController;
 use App\Http\Controllers\InvoiceController;
@@ -324,6 +326,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/attendance/filter', [DashboardController::class, 'filterAttendance'])->name('admin.attendance.filter');
     Route::get('/admin/attendance', [AttendanceController::class, 'monthlyAttendance'])->name('admin.attendance');
     Route::get('/admin/attendance/monthly', [AttendanceController::class, 'monthlyAttendance'])->name('attendance.monthly');
+
+    // Attendance (permissions are checked in the controllers: employees only ever get their own data)
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/attendance/export', [AttendanceController::class, 'export'])->name('attendance.export');
+    Route::get('/attendance/performance', [DashboardController::class, 'attendancePerformance'])->name('attendance.performance');
+    Route::post('/attendance/records', [AttendanceController::class, 'store'])->name('attendance.records.store');
+    Route::get('/attendance/records/{attendance}', [AttendanceController::class, 'show'])->name('attendance.records.show');
+    Route::put('/attendance/records/{attendance}', [AttendanceController::class, 'update'])->name('attendance.records.update');
+
+    // Leave
+    Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
+    Route::post('/leaves', [LeaveController::class, 'store'])->middleware('throttle:20,1')->name('leaves.store');
+    Route::post('/leaves/preview', [LeaveController::class, 'preview'])->name('leaves.preview');
+    Route::get('/leaves/manage', [LeaveController::class, 'admin'])->name('leaves.admin');
+    Route::get('/leaves/policies', [LeavePolicyController::class, 'index'])->name('leaves.policies');
+    Route::post('/leaves/policies/settings', [LeavePolicyController::class, 'updateSettings'])->name('leaves.policies.settings');
+    Route::post('/leaves/types', [LeavePolicyController::class, 'storeType'])->name('leaves.types.store');
+    Route::put('/leaves/types/{type}', [LeavePolicyController::class, 'updateType'])->name('leaves.types.update');
+    Route::post('/leaves/balances/adjust', [LeavePolicyController::class, 'adjust'])->name('leaves.balances.adjust');
+    Route::post('/leaves/tracking/{user}', [LeavePolicyController::class, 'tracking'])->name('leaves.tracking');
+    Route::get('/leaves/{leave}', [LeaveController::class, 'show'])->whereNumber('leave')->name('leaves.show');
+    Route::post('/leaves/{leave}/cancel', [LeaveController::class, 'cancel'])->whereNumber('leave')->name('leaves.cancel');
+    Route::post('/leaves/{leave}/approve', [LeaveController::class, 'approve'])->whereNumber('leave')->name('leaves.approve');
+    Route::post('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->whereNumber('leave')->name('leaves.reject');
+    Route::post('/leaves/{leave}/revoke', [LeaveController::class, 'revoke'])->whereNumber('leave')->name('leaves.revoke');
     Route::get('/dashboard/task-counts', [DashboardController::class, 'getTaskCounts'])->name('dashboard.taskCounts');
     Route::middleware('permission:can view users')->group(function () {
         Route::resource('users', UserController::class);

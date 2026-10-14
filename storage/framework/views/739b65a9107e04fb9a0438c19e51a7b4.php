@@ -1529,7 +1529,7 @@
                         <h6 class="ds-section-title">
                             <span class="ds-section-icon" style="background:#ebfbee;color:#2f9e44;"><i
                                     class="bi bi-speedometer2"></i></span>
-                            Admin Overview
+                            Admin Overview · Attendance
                         </h6>
                         <div class="ds-section-meta">
                             <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
@@ -1886,9 +1886,12 @@
                             date
                         },
                         success: function(r) {
+                            const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+                            const t = (v) => v ? new Date('1970-01-01T' + v).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
+                            const labels = { present: 'Present', late: 'Late', half_day: 'Half day', early_out: 'Early out', absent: 'Absent', leave: 'On leave', holiday: 'Holiday' };
                             let rows = r.attendance.length ?
                                 r.attendance.map(a =>
-                                    `<tr><td>${a.user.name}</td><td>${a.date}</td><td>${a.punch_in||'—'}</td><td>${a.punch_out??'Working'}</td><td>${a.total_hours??'Pending'}</td><td>${a.status||'Pending'}</td></tr>`
+                                    `<tr><td>${esc(a.user.name)}</td><td>${esc(a.date)}</td><td>${t(a.punch_in)}${a.late_minutes ? ` <small class="text-warning-600">+${a.late_minutes}m</small>` : ''}</td><td>${a.punch_in ? (a.punch_out ? t(a.punch_out) + (a.auto_closed ? ' <small class="text-danger">auto</small>' : '') : 'Working') : '—'}</td><td>${esc(a.worked)}</td><td>${esc(labels[a.status] || a.status || 'Pending')}</td></tr>`
                                 ).join('') :
                                 '<tr><td colspan="6" class="text-center text-muted py-3" style="font-size:.82rem;">No records found.</td></tr>';
                             $('#attendanceTable tbody').html(rows);

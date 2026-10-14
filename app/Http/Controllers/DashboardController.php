@@ -154,49 +154,13 @@ class DashboardController extends Controller
 
         $settings = GeneralSetting::first();
 
-        if ($settings) {
-            $closingTime = Carbon::parse($settings->office_close_time)->toTimeString();
-            $currentTime = now()->toTimeString();
-            $pendingAttendances = Attendance::where('date', '<', today())
-                ->whereNull('punch_out')
-                ->get();
-            if ($currentTime > $closingTime) {
-                $todayAttendances = Attendance::where('date', today())
-                    ->whereNull('punch_out')
-                    ->get();
-                $pendingAttendances = $pendingAttendances->merge($todayAttendances);
-            }
-
-            foreach ($pendingAttendances as $attendance) {
-                $carbonDate = Carbon::parse($attendance->date);
-                $attendance->punch_out = $closingTime;
-
-                $attendance->total_hours = Carbon::parse($attendance->punch_in)
-                    ->diff(Carbon::parse($closingTime))
-                    ->format('%H:%I:%S');
-                $attendance->save();
-            }
-
-            $datesToCheck = [Carbon::yesterday()->toDateString(), Carbon::today()->toDateString()];
-
-            foreach ($datesToCheck as $date) {
-                if ($currentTime > $closingTime || $date == Carbon::yesterday()->toDateString()) {
-                    $absentUsers = User::whereDoesntHave('attendances', function ($query) use ($date) {
-                        $query->whereDate('date', $date);
-                    })->get();
-
-                    foreach ($absentUsers as $user) {
-                        $isWeekend = Carbon::parse($date)->isWeekend();
-                        $status = $isWeekend ? 'holiday' : 'absent';
-
-                        Attendance::create([
-                            'user_id' => $user->id,
-                            'date' => $date,
-                            'status' => $status,
-                        ]);
-                    }
-                }
-            }
+        // Close finished days: missed punch-outs and absences. This used to run inline here on every
+        // dashboard load (auto-closing today's open records at closing time, creating rows for the
+        // system user and for weekends). It now runs once per day, here or from the scheduler.
+        try {
+            app(\App\Services\Attendance\AttendanceService::class)->closeThrough();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('attendance close failed: ' . $e->getMessage());
         }
 
         $office_open_time = Carbon::createFromFormat('H:i:s', $settings->office_open_time ?? '09:00:00')->format('h:i A');
@@ -1069,26 +1033,71 @@ class DashboardController extends Controller
     }
     public function filterAttendance(Request $request)
     {
-        $date = $request->date ?? Carbon::today()->toDateString();
-        $settings = GeneralSetting::first();
-        $holidays = $settings->holidays ?? [];
-        $carbonDate = Carbon::parse($date);
+        // Was open to every signed-in user.
+        abort_unless(\App\Support\Access::manageAttendance(auth()->user()), 403);
 
-        if (in_array($date, $holidays) || $carbonDate->isWeekend()) {
+        $request->validate(['date' => 'nullable|date']);
+        $date = $request->date ?? Carbon::today()->toDateString();
+        $policy = \App\Services\Attendance\AttendancePolicy::current();
+
+        if (!$policy->isWorkingDay($date)) {
             return response()->json(['error' => 'No attendance records on holidays or weekends.'], 400);
         }
 
-        $attendances = Attendance::with('user')
+        $attendances = Attendance::with('user:id,name')
             ->whereDate('date', $date)
-            ->orderBy('date', 'desc')
+            ->whereHas('user')
             ->get()
-            ->map(function ($attendance) {
-                // Use the 'status' field from the database instead of calculating it
+            ->sortBy(fn ($a) => $a->user->name)
+            ->values()
+            ->map(function ($attendance) use ($policy) {
                 $attendance->status_labels = $attendance->status ?? 'Pending';
+                $attendance->late_minutes = $policy->lateMinutes($attendance);
+                $attendance->worked = \App\Services\Attendance\AttendancePolicy::formatMinutes($policy->workedMinutes($attendance));
                 return $attendance;
             });
 
         return response()->json(['attendance' => $attendances]);
+    }
+
+    /**
+     * Admin dashboard: monthly employee performance (HTML fragment, filtered by date range,
+     * department, employee and search).
+     */
+    public function attendancePerformance(Request $request, \App\Services\Attendance\AttendanceReport $report)
+    {
+        abort_unless(\App\Support\Access::manageAttendance(auth()->user()), 403);
+
+        $data = $request->validate([
+            'from' => 'nullable|date',
+            'to' => 'nullable|date|after_or_equal:from',
+            'department' => 'nullable|integer',
+            'user_id' => 'nullable|integer',
+            'q' => 'nullable|string|max:100',
+        ]);
+
+        $from = Carbon::parse($data['from'] ?? now()->startOfMonth())->startOfDay();
+        $to = Carbon::parse($data['to'] ?? now()->endOfMonth())->startOfDay();
+        if ($from->diffInDays($to) > 366) {
+            $to = $from->copy()->addDays(366);
+        }
+
+        $users = User::tracked()->with('roles')
+            ->when($data['user_id'] ?? null, fn ($q, $id) => $q->where('id', $id))
+            ->when($data['department'] ?? null, fn ($q, $id) => $q->whereHas('roles', fn ($r) => $r->where('roles.id', $id)))
+            ->when(trim($data['q'] ?? ''), fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->orderBy('name')
+            ->get();
+
+        $built = $report->build($users, $from, $to);
+
+        return view('attendance.partials.dashboard-performance', [
+            'rows' => $built['rows'],
+            'totals' => $built['totals'],
+            'from' => $from,
+            'to' => $to,
+            'pendingLeaves' => \App\Support\Access::approveLeaves(auth()->user()) ? \App\Models\LeaveRequest::where('status', 'pending')->count() : null,
+        ]);
     }
     public function assignMonthlyTasks()
     {

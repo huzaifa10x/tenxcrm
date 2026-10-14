@@ -44,6 +44,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(\App\Services\Xero\AnalyticsService::class);
+
+        // Attendance rules come from general_settings (cached per request; refreshed on save).
+        $this->app->bind(\App\Services\Attendance\AttendancePolicy::class, fn () => \App\Services\Attendance\AttendancePolicy::current());
     }
 
     /**

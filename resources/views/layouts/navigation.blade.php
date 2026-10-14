@@ -223,18 +223,31 @@
                 </li>
             @endif
 
-            @if (auth()->user()->hasRole('ADMIN') || auth()->user()->hasRole('Accountant'))
+            @php
+                $__navManage = \App\Support\Access::manageAttendance(auth()->user());
+                $__navApprove = \App\Support\Access::approveLeaves(auth()->user());
+                $__navPending = $__navApprove ? \App\Models\LeaveRequest::where('status', 'pending')->count() : 0;
+            @endphp
+            <li>
+                <a href="{{ route('attendance.index') }}" class="{{ request()->routeIs('attendance.index') ? 'active-page' : '' }}">
+                    <iconify-icon icon="solar:calendar-mark-linear" class="menu-icon"></iconify-icon>
+                    <span>{{ $__navManage ? 'Attendance' : 'My Attendance' }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ $__navApprove ? route('leaves.admin') : route('leaves.index') }}" class="{{ request()->routeIs('leaves.*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="solar:suitcase-tag-linear" class="menu-icon"></iconify-icon>
+                    <span>{{ $__navApprove ? 'Leave Requests' : 'My Leave' }}</span>
+                    @if ($__navPending)
+                        <span class="badge rounded-pill ms-auto" style="background:#a9e324;color:#0f1412;font-weight:700">{{ $__navPending }}</span>
+                    @endif
+                </a>
+            </li>
+            @if ($__navApprove)
                 <li>
-                    <a href="{{ route('admin.attendance') }}">
-                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
-                        <span>Monthly Attendance</span>
-                    </a>
-                </li>
-            @else
-                <li>
-                    <a href="{{ route('admin.attendance', ['user_id' => auth()->user()->id]) }}">
-                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
-                        <span>Monthly Attendance</span>
+                    <a href="{{ route('leaves.index') }}">
+                        <iconify-icon icon="solar:calendar-add-linear" class="menu-icon"></iconify-icon>
+                        <span>My Leave</span>
                     </a>
                 </li>
             @endif
