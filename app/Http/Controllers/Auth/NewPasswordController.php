@@ -45,6 +45,9 @@ class NewPasswordController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
+                    // A password reset also clears any PIN lockout.
+                    'pin_failed_attempts' => 0,
+                    'pin_locked_until' => null,
                 ])->save();
 
                 event(new PasswordReset($user));

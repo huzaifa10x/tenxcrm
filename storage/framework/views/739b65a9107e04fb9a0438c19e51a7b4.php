@@ -1,0 +1,2068 @@
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+     <?php $__env->slot('header', null, []); ?> 
+        <?php echo e(__($role . ' DASHBOARD')); ?>
+
+     <?php $__env->endSlot(); ?>
+
+    
+    <style>
+        /* ── Design tokens ───────────────────────────────────────── */
+        :root {
+            --ds-bg: #f0f2f7;
+            --ds-surface: #ffffff;
+            --ds-border: #e2e6ef;
+            --ds-text: #1a1f36;
+            --ds-muted: #6b7280;
+            --ds-accent: #3b5bdb;
+            --ds-accent-soft: #eef2ff;
+            --ds-success: #087f5b;
+            --ds-warning: #e67700;
+            --ds-danger: #c92a2a;
+            --ds-info: #1971c2;
+            --ds-radius: 12px;
+            --ds-radius-lg: 18px;
+            --ds-shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .05);
+            --ds-shadow-lg: 0 2px 8px rgba(0, 0, 0, .08), 0 8px 32px rgba(0, 0, 0, .08);
+        }
+
+        /* ── Page scaffold ───────────────────────────────────────── */
+        .ds-page {
+            background: var(--ds-bg);
+            min-height: 100vh;
+            padding: 1.5rem 1.5rem 3rem;
+        }
+
+        /* ── Greeting bar ────────────────────────────────────────── */
+        .ds-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .ds-greeting h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ds-text);
+            margin: 0;
+        }
+
+        .ds-greeting p {
+            font-size: .85rem;
+            color: var(--ds-muted);
+            margin: 0;
+        }
+
+        /* ── Accordion shell ─────────────────────────────────────── */
+        .ds-accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ds-section {
+            background: var(--ds-surface);
+            border: 1px solid var(--ds-border);
+            border-radius: var(--ds-radius-lg);
+            box-shadow: var(--ds-shadow);
+            overflow: hidden;
+        }
+
+        .ds-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background .15s;
+        }
+
+        .ds-section-header:hover {
+            background: #fafbfc;
+        }
+
+        .ds-section-header .ds-section-title {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--ds-text);
+            margin: 0;
+        }
+
+        .ds-section-header .ds-section-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .ds-section-meta {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .ds-section-badge {
+            font-size: .72rem;
+            font-weight: 600;
+            padding: .25rem .65rem;
+            border-radius: 20px;
+            letter-spacing: .3px;
+        }
+
+        .ds-chevron {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: var(--ds-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ds-muted);
+            font-size: .8rem;
+            transition: transform .25s;
+        }
+
+        .ds-section.open .ds-chevron {
+            transform: rotate(180deg);
+        }
+
+        .ds-section-body {
+            border-top: 1px solid var(--ds-border);
+            padding: 1.25rem;
+        }
+
+        .ds-section-body.hidden {
+            display: none;
+        }
+
+        /* ── Stat cards grid ─────────────────────────────────────── */
+        .ds-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: .85rem;
+        }
+
+        .ds-stat {
+            border-radius: var(--ds-radius);
+            padding: 1.1rem 1.15rem;
+            border: 1px solid var(--ds-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ds-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .ds-stat-accent-purple::before {
+            background: linear-gradient(180deg, #7048e8, #4c6ef5);
+        }
+
+        .ds-stat-accent-green::before {
+            background: linear-gradient(180deg, #099268, #20c997);
+        }
+
+        .ds-stat-accent-teal::before {
+            background: linear-gradient(180deg, #1c7ed6, #339af0);
+        }
+
+        .ds-stat-accent-pink::before {
+            background: linear-gradient(180deg, #d6336c, #f783ac);
+        }
+
+        .ds-stat-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--ds-muted);
+            margin-bottom: .35rem;
+        }
+
+        .ds-stat-sub {
+            font-size: .75rem;
+            color: var(--ds-muted);
+            margin-top: .2rem;
+        }
+
+        .ds-stat-value {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--ds-text);
+            line-height: 1.1;
+        }
+
+        .ds-stat-currency {
+            font-size: .85rem;
+            font-weight: 500;
+            color: var(--ds-muted);
+            margin-right: .15rem;
+        }
+
+        /* ── Inline summary strip ────────────────────────────────── */
+        .ds-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .75rem;
+            padding: .85rem 1.25rem;
+            background: var(--ds-bg);
+            border-bottom: 1px solid var(--ds-border);
+        }
+
+        .ds-strip-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ds-strip-label {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--ds-muted);
+        }
+
+        .ds-strip-value {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--ds-text);
+        }
+
+        /* ── Filter bar ──────────────────────────────────────────── */
+        .ds-filter-bar {
+            background: var(--ds-bg);
+            border-radius: var(--ds-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ds-filter-bar .form-label {
+            font-size: .78rem;
+            font-weight: 600;
+            margin-bottom: .3rem;
+            color: var(--ds-text);
+        }
+
+        .ds-filter-bar .form-control,
+        .ds-filter-bar .form-select {
+            font-size: .82rem;
+            border-radius: 8px;
+            border-color: var(--ds-border);
+        }
+
+        /* ── Table ───────────────────────────────────────────────── */
+        .ds-table {
+            font-size: .82rem;
+        }
+
+        .ds-table thead th {
+            background: #f8f9fc;
+            font-weight: 700;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--ds-muted);
+            border-bottom: 1px solid var(--ds-border);
+            padding: .65rem .85rem;
+            white-space: nowrap;
+        }
+
+        .ds-table tbody td {
+            padding: .7rem .85rem;
+            vertical-align: middle;
+            border-color: #f0f2f7;
+        }
+
+        .ds-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .ds-table-wrap {
+            border-radius: var(--ds-radius);
+            border: 1px solid var(--ds-border);
+            overflow: hidden;
+        }
+
+        .ds-table-scroll {
+            max-height: 520px;
+            overflow-y: auto;
+        }
+
+        /* ── Task bars ───────────────────────────────────────────── */
+        .ds-task-bars {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: .75rem;
+        }
+
+        .ds-task-bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ds-task-bar-fill {
+            width: 100%;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1rem .5rem .75rem;
+            min-height: 80px;
+            transition: min-height .3s;
+        }
+
+        .ds-task-bar-fill.c-warning {
+            background: #fff9db;
+            border: 1.5px solid #ffe066;
+        }
+
+        .ds-task-bar-fill.c-lilac {
+            background: #f3f0ff;
+            border: 1.5px solid #d0bfff;
+        }
+
+        .ds-task-bar-fill.c-primary {
+            background: #eef2ff;
+            border: 1.5px solid #bac8ff;
+        }
+
+        .ds-task-bar-fill.c-success {
+            background: #ebfbee;
+            border: 1.5px solid #b2f2bb;
+        }
+
+        .ds-task-chip {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            font-weight: 800;
+            margin-bottom: .4rem;
+        }
+
+        .c-warning .ds-task-chip {
+            background: #ffd43b;
+            color: #664d03;
+        }
+
+        .c-lilac .ds-task-chip {
+            background: #9775fa;
+            color: #fff;
+        }
+
+        .c-primary .ds-task-chip {
+            background: #4c6ef5;
+            color: #fff;
+        }
+
+        .c-success .ds-task-chip {
+            background: #40c057;
+            color: #fff;
+        }
+
+        .ds-task-bar-label {
+            font-size: .73rem;
+            font-weight: 600;
+            color: var(--ds-muted);
+            text-align: center;
+            margin-top: .4rem;
+        }
+
+        /* ── Activity cards ──────────────────────────────────────── */
+        .ds-activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: .85rem;
+        }
+
+        .ds-activity-card {
+            border-radius: var(--ds-radius);
+            padding: 1rem 1.1rem;
+            border: 1px solid var(--ds-border);
+        }
+
+        .ds-activity-card .act-icon {
+            font-size: 1.4rem;
+            margin-bottom: .5rem;
+        }
+
+        .ds-activity-card .act-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--ds-muted);
+        }
+
+        .ds-activity-card .act-date {
+            font-size: .7rem;
+            color: var(--ds-muted);
+        }
+
+        .ds-activity-card .act-count {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--ds-text);
+            line-height: 1.1;
+        }
+
+        /* ── Notification list ───────────────────────────────────── */
+        .ds-notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: .85rem;
+            padding: .85rem 0;
+            border-bottom: 1px solid var(--ds-border);
+        }
+
+        .ds-notif-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .ds-notif-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--ds-accent-soft);
+            color: var(--ds-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .ds-notif-title {
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--ds-text);
+            margin-bottom: .15rem;
+        }
+
+        .ds-notif-msg {
+            font-size: .78rem;
+            color: var(--ds-muted);
+            margin-bottom: .15rem;
+        }
+
+        .ds-notif-time {
+            font-size: .7rem;
+            color: #adb5bd;
+        }
+
+        /* ── Office timing table ─────────────────────────────────── */
+        .ds-timing-table td:first-child {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--ds-muted);
+            width: 55%;
+        }
+
+        .ds-timing-table td:last-child {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--ds-text);
+        }
+
+        .ds-timing-table tr {
+            border-color: var(--ds-border);
+        }
+
+        /* ── Website project cards ───────────────────────────────── */
+        .ds-wp-card {
+            border-radius: var(--ds-radius);
+            border: 1px solid var(--ds-border);
+            overflow: hidden;
+        }
+
+        .ds-wp-card .wp-header {
+            background: var(--ds-text);
+            color: #fff;
+            padding: .75rem 1rem;
+            font-size: .85rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ds-wp-card .wp-body {
+            padding: .9rem 1rem;
+        }
+
+        /* ── Responsive ──────────────────────────────────────────── */
+        @media (max-width: 767px) {
+            .ds-task-bars {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ds-page {
+                padding: 1rem .85rem 2rem;
+            }
+        }
+    </style>
+
+    
+    <div class="ds-page">
+        <div class="ds-topbar">
+            <div class="ds-greeting">
+                <?php echo e($role); ?> Dashboard
+                <p><?php echo e(\Carbon\Carbon::now()->format('l, d F Y')); ?></p>
+            </div>
+
+            
+            <?php if (isset($component)) { $__componentOriginalcb5d82c074e69976ad4b6fd12fad1d11 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalcb5d82c074e69976ad4b6fd12fad1d11 = $attributes; } ?>
+<?php $component = App\View\Components\Dashboards\PunchInOut::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('dashboards.punch-in-out'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Dashboards\PunchInOut::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalcb5d82c074e69976ad4b6fd12fad1d11)): ?>
+<?php $attributes = $__attributesOriginalcb5d82c074e69976ad4b6fd12fad1d11; ?>
+<?php unset($__attributesOriginalcb5d82c074e69976ad4b6fd12fad1d11); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalcb5d82c074e69976ad4b6fd12fad1d11)): ?>
+<?php $component = $__componentOriginalcb5d82c074e69976ad4b6fd12fad1d11; ?>
+<?php unset($__componentOriginalcb5d82c074e69976ad4b6fd12fad1d11); ?>
+<?php endif; ?>
+        </div>
+
+        
+        <div class="ds-accordion">
+            <?php if($roles->pluck('name')->contains('SENIOR SMM')): ?>
+
+                
+                <div class="ds-section open" id="sec-smm-revenue">
+                    <div class="ds-section-header" onclick="toggleSection('sec-smm-revenue')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#fff0f6;color:#c2255c;">
+                                <i class="bi bi-megaphone"></i>
+                            </span>
+                            SMM &amp; Google Ads Revenue Overview
+                        </h6>
+                        <div class="ds-section-meta">
+                            <span class="ds-section-badge" style="background:#fff0f6;color:#c2255c;">Current Only</span>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body">
+                        <div class="ds-stat-grid">
+                            <div class="ds-stat ds-stat-accent-pink">
+                                <div class="ds-stat-label">Total Current Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span class="ds-stat-currency">AED</span><?php echo e(number_format($smmTotalRevenue, 2)); ?>
+
+                                </div>
+                                <div class="ds-stat-sub">SMM + Google Ads · Active only</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-purple">
+                                <div class="ds-stat-label">Social Media Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span class="ds-stat-currency">AED</span><?php echo e(number_format($smmCurrentRevenue, 2)); ?>
+
+                                </div>
+                                <div class="ds-stat-sub"><?php echo e($smmCurrentCount); ?> current projects</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-teal">
+                                <div class="ds-stat-label">Google Ads Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span
+                                        class="ds-stat-currency">AED</span><?php echo e(number_format($googleAdsCurrentRevenue, 2)); ?>
+
+                                </div>
+                                <div class="ds-stat-sub"><?php echo e($googleAdsCurrentCount); ?> current projects</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-green">
+                                <div class="ds-stat-label">Total Active Projects</div>
+                                <div class="ds-stat-value"><?php echo e($smmCurrentCount + $googleAdsCurrentCount); ?></div>
+                                <div class="ds-stat-sub">Current status only</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="ds-section open" id="sec-smm-projects">
+                    <div class="ds-section-header" onclick="toggleSection('sec-smm-projects')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#fff0f6;color:#c2255c;">
+                                <i class="bi bi-kanban"></i>
+                            </span>
+                            Social Media &amp; Google Ads Projects
+                        </h6>
+                        <div class="ds-section-meta">
+                            <span class="ds-section-badge" style="background:#fff0f6;color:#c2255c;">
+                                <?php echo e($smmProjectsList->count()); ?> projects
+                            </span>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body" style="padding:0;">
+
+                        
+                        <div style="padding:1rem 1.25rem 0;">
+                            <div class="ds-filter-bar">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label"><i class="bi bi-search me-1"></i>Search</label>
+                                        <input type="text" class="form-control" id="smmSearch"
+                                            placeholder="Project or client name…">
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label"><i class="bi bi-flag me-1"></i>Status</label>
+                                        <select class="form-select" id="smmStatus">
+                                            <option value="">All Statuses</option>
+                                            <option value="Current">Current</option>
+                                            <option value="WFF">WFF</option>
+                                            <option value="Debt Collection">Debt Collection</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <option value="Expired">Expired</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label"><i class="bi bi-tag me-1"></i>Type</label>
+                                        <select class="form-select" id="smmType">
+                                            <option value="">All Types</option>
+                                            <option value="Social Media Marketing">Social Media Marketing</option>
+                                            <option value="Google Ads">Google Ads</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <label class="form-label">
+                                            <i class="bi bi-person-badge me-1"></i>Account Manager
+                                        </label>
+                                        <select class="form-select" id="smmAm">
+                                            <option value="">All AMs</option>
+                                            <?php $__currentLoopData = $accountManagers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $am): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($am->id); ?>"><?php echo e($am->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm" id="smmFilterBtn">
+                                        <i class="bi bi-funnel-fill me-1"></i>Apply
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="smmResetBtn">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                                    </button>
+                                    <button class="btn btn-success btn-sm" id="smmExportBtn">
+                                        <i class="bi bi-file-earmark-excel me-1"></i>Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="ds-strip">
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Total Contract Value</span>
+                                <span class="ds-strip-value">
+                                    AED <span id="smmTotalContractValue">
+                                        <?php echo e(number_format($smmProjectsList->sum('contract_value'), 2)); ?>
+
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Monthly Invoices (MRR)</span>
+                                <span class="ds-strip-value" style="color:var(--ds-success);">
+                                    AED <span id="smmTotalMrr">
+                                        <?php echo e(number_format($smmProjectsList->sum('monthly_invoice'), 2)); ?>
+
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Projects Shown</span>
+                                <span class="ds-strip-value" id="smmProjectCount">
+                                    <?php echo e($smmProjectsList->count()); ?>
+
+                                </span>
+                            </div>
+                        </div>
+
+                        
+                        <div style="padding:0 1.25rem 1.25rem;">
+                            <div class="ds-table-wrap">
+                                <div class="ds-table-scroll">
+                                    <table class="table ds-table mb-0" id="smmProjectsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Project</th>
+                                                <th>Client</th>
+                                                <th>Type</th>
+                                                <th>Status</th>
+                                                <th>Account Manager</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Next Invoice</th>
+                                                <th>Monthly Invoice</th>
+                                                <th>Contract Value</th>
+                                                <th>Term (mo.)</th>
+                                                <th class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="smmTableBody">
+                                            <?php
+                                                $statusColors = [
+                                                    'Current' => 'success',
+                                                    'WFF' => 'warning',
+                                                    'Debt Collection' => 'danger',
+                                                    'Completed' => 'info',
+                                                    'Cancelled' => 'secondary',
+                                                    'Expired' => 'dark',
+                                                ];
+                                            ?>
+                                            <?php $__empty_1 = true; $__currentLoopData = $smmProjectsList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $project): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                <tr>
+                                                    <td><?php echo e($index + 1); ?></td>
+                                                    <td>
+                                                        <div class="fw-semibold" style="font-size:.85rem;">
+                                                            <?php echo e($project['title']); ?>
+
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:.85rem;"><?php echo e($project['company_name']); ?></td>
+                                                    <td>
+                                                        <span class="badge"
+                                                            style="background:<?php echo e($project['project_type'] === 'Google Ads' ? '#e7f5ff' : '#fff0f6'); ?>;
+                                                       color:<?php echo e($project['project_type'] === 'Google Ads' ? '#1971c2' : '#c2255c'); ?>;">
+                                                            <?php echo e($project['project_type']); ?>
+
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span
+                                                            class="badge bg-<?php echo e($statusColors[$project['status']] ?? 'secondary'); ?>">
+                                                            <?php echo e($project['status']); ?>
+
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <?php if(!empty($project['account_managers'])): ?>
+                                                            <?php $__currentLoopData = $project['account_managers']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $am): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                <div style="font-size:.8rem;">
+                                                                    <i
+                                                                        class="bi bi-person-circle me-1"></i><?php echo e($am['name']); ?>
+
+                                                                </div>
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                        <?php else: ?>
+                                                            <span class="text-muted">—</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td style="font-size:.82rem;">
+                                                        <?php echo e($project['contract_start_date']
+                                                            ? \Carbon\Carbon::parse($project['contract_start_date'])->format('M d, Y')
+                                                            : '—'); ?>
+
+                                                    </td>
+                                                    <td style="font-size:.82rem;">
+                                                        <?php echo e($project['contract_end_date'] ? \Carbon\Carbon::parse($project['contract_end_date'])->format('M d, Y') : '—'); ?>
+
+                                                    </td>
+                                                    <td style="font-size:.82rem;">
+                                                        <?php if($project['next_invoice_date']): ?>
+                                                            <span class="badge bg-primary bg-opacity-10 text-primary">
+                                                                <?php echo e(\Carbon\Carbon::parse($project['next_invoice_date'])->format('M d, Y')); ?>
+
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <span class="text-muted">—</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <strong class="text-success" style="font-size:.85rem;">
+                                                            AED <?php echo e(number_format($project['monthly_invoice'], 2)); ?>
+
+                                                        </strong>
+                                                    </td>
+                                                    <td style="font-size:.85rem;">
+                                                        AED <?php echo e(number_format($project['contract_value'], 2)); ?>
+
+                                                    </td>
+                                                    <td style="font-size:.85rem;">
+                                                        <?php echo e($project['contract_term'] ?? '—'); ?> mo.
+                                                    </td>
+                                                    <td>
+                                                        <a href="<?php echo e(route('projects.show', $project['id'])); ?>"
+                                                            class="btn btn-sm btn-outline-primary" title="View">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                                <tr>
+                                                    <td colspan="13" class="text-center py-5 text-muted">
+                                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                                        No projects found.
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <?php endif; ?>
+            <?php if($role === 'ADMIN' || $role === 'SEO ADMIN'): ?>
+                <div class="ds-section open" id="sec-revenue">
+                    <div class="ds-section-header" onclick="toggleSection('sec-revenue')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#eef2ff;color:#4c6ef5;"><i
+                                    class="bi bi-cash-stack"></i></span>
+                            Revenue Overview
+                        </h6>
+                        <div class="ds-section-meta">
+                            <span class="ds-section-badge" style="background:#eef2ff;color:#4c6ef5;">SEO · WFF</span>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body">
+                        <div class="ds-stat-grid">
+                            <div class="ds-stat ds-stat-accent-purple">
+                                <div class="ds-stat-label">Total SEO Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span class="ds-stat-currency">AED</span><?php echo e(number_format($totalSeoRevenue, 2)); ?>
+
+                                </div>
+                                <div class="ds-stat-sub">All active SEO campaigns · Monthly recurring</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-green">
+                                <div class="ds-stat-label">Current SEO Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span
+                                        class="ds-stat-currency">AED</span><?php echo e(number_format($currentSeoRevenue, 2)); ?>
+
+                                </div>
+                                <div class="ds-stat-sub"><?php echo e($currentSeoProjectsCount); ?> active projects</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-teal">
+                                <div class="ds-stat-label">Monthly SEO Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span
+                                        class="ds-stat-currency">AED</span><?php echo e(number_format($monthlySeoRevenue, 2)); ?>
+
+                                </div>
+                                <div class="ds-stat-sub"><?php echo e($currentSeoProjectsCount); ?> active projects</div>
+                            </div>
+                            <div class="ds-stat ds-stat-accent-pink">
+                                <div class="ds-stat-label">WFF Revenue</div>
+                                <div class="ds-stat-value">
+                                    <span class="ds-stat-currency">AED</span><?php echo e(number_format($wffRevenue, 2)); ?>
+
+                                </div>
+                                <div class="ds-stat-sub"><?php echo e($wffProjectsCount); ?> waiting for funds</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ds-section open" id="sec-seo-projects">
+                    <div class="ds-section-header" onclick="toggleSection('sec-seo-projects')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#ebfbee;color:#2f9e44;"><i
+                                    class="bi bi-graph-up-arrow"></i></span>
+                            SEO Projects
+                        </h6>
+                        <div class="ds-section-meta">
+                            <span class="ds-section-badge" style="background:#ebfbee;color:#2f9e44;">
+                                <span id="totalProjects"><?php echo e($seoProjects->count()); ?></span> projects
+                            </span>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body" style="padding:0;">
+
+                        
+                        <div style="padding:1rem 1.25rem 0;">
+                            <div class="ds-filter-bar">
+                                <form id="seoProjectFilterForm">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-lg-4 col-md-6">
+                                            <label class="form-label"><i class="bi bi-search me-1"></i>Search</label>
+                                            <input type="text" class="form-control" id="globalSearch"
+                                                name="search" placeholder="Project, client, keywords…">
+                                        </div>
+                                        <div class="col-lg-4 col-md-6">
+                                            <label class="form-label"><i class="bi bi-person-badge me-1"></i>Account
+                                                Manager</label>
+                                            <select class="form-select" id="amFilter" name="account_manager_id">
+                                                <option value="">All Account Managers</option>
+                                                <?php $__currentLoopData = $accountManagers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $am): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($am->id); ?>"><?php echo e($am->name); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6">
+                                            <label class="form-label"><i class="bi bi-flag me-1"></i>Status</label>
+                                            <select class="form-select" id="statusFilter" name="status">
+                                                <option value="">All Statuses</option>
+                                                <option value="Current">Current</option>
+                                                <option value="WFF">WFF</option>
+                                                <option value="Debt Collection">Debt Collection</option>
+                                                <option value="Completed">Completed</option>
+                                                <option value="Cancelled">Cancelled</option>
+                                                <option value="Expired">Expired</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6">
+                                            <label class="form-label"><i class="bi bi-tag me-1"></i>Type</label>
+                                            <select class="form-select" id="projectTypeFilter" name="project_type">
+                                                <option value="">All Types</option>
+                                                <option value="SEO">SEO</option>
+                                                <option value="Google Ads">Google Ads</option>
+                                                <option value="Social Media Marketing">Social Media Marketing</option>
+                                                <option value="Content Marketing">Content Marketing</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6">
+                                            <label class="form-label"><i class="bi bi-calendar-event me-1"></i>Start
+                                                From</label>
+                                            <input type="date" class="form-control" id="startDateFrom"
+                                                name="start_date_from">
+                                        </div>
+                                        <div class="col-lg-4 col-md-6">
+                                            <label class="form-label"><i class="bi bi-calendar-check me-1"></i>Start
+                                                To</label>
+                                            <input type="date" class="form-control" id="startDateTo"
+                                                name="start_date_to">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button type="submit" class="btn btn-primary btn-sm"><i
+                                                class="bi bi-funnel-fill me-1"></i>Apply</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="resetFilters"><i
+                                                class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+                                        <button type="button" class="btn btn-success btn-sm" id="exportProjects"><i
+                                                class="bi bi-file-earmark-excel me-1"></i>Export</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        
+                        <div class="ds-strip">
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Total Contract Value</span>
+                                <span class="ds-strip-value">
+                                    AED <span
+                                        id="totalRevenue"><?php echo e(number_format($seoProjects->sum('contract_value'), 2)); ?></span>
+                                </span>
+                            </div>
+                            <div class="ds-strip-item">
+                                <span class="ds-strip-label">Monthly Recurring (MRR)</span>
+                                <span class="ds-strip-value" style="color:var(--ds-success);">
+                                    AED <span
+                                        id="monthlyRevenue"><?php echo e(number_format($seoProjects->sum(fn($p) => $p->contract_value / ($p->contract_term ?: 1)), 2)); ?></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        
+                        <div style="padding:0 1.25rem 1.25rem;">
+                            <div class="ds-table-wrap">
+                                <div class="ds-table-scroll">
+                                    <table class="table ds-table mb-0" id="seoProjectsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Project</th>
+                                                <th>Client</th>
+                                                <th>Status</th>
+                                                <th>Type</th>
+                                                <th>Assignees</th>
+                                                <th>Revenue</th>
+                                                <th>Timeline</th>
+                                                <th class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="projectsTableBody">
+                                            <?php $__empty_1 = true; $__currentLoopData = $seoProjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $project): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                                <?php
+                                                    $statusColors = [
+                                                        'Current' => 'success',
+                                                        'WFF' => 'warning',
+                                                        'Debt Collection' => 'danger',
+                                                        'Completed' => 'info',
+                                                        'Cancelled' => 'secondary',
+                                                        'Expired' => 'dark',
+                                                    ];
+                                                    $color = $statusColors[$project->status] ?? 'secondary';
+                                                ?>
+                                                <tr data-project-id="<?php echo e($project->id); ?>">
+                                                    <td><?php echo e($index + 1); ?></td>
+                                                    <td>
+                                                        <div class="fw-semibold" style="font-size:.85rem;">
+                                                            <?php echo e($project->title); ?></div>
+                                                        <?php if($project->website_url): ?>
+                                                            <small class="text-muted">
+                                                                <i class="bi bi-link-45deg"></i>
+                                                                <a href="<?php echo e($project->website_url); ?>" target="_blank"
+                                                                    class="text-decoration-none"><?php echo e(Str::limit($project->website_url, 28)); ?></a>
+                                                            </small>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <div style="font-size:.85rem;">
+                                                            <?php echo e($project->companies->name ?? 'N/A'); ?></div>
+                                                        <?php if($project->companies->name ?? false): ?>
+                                                            <small
+                                                                class="text-muted"><?php echo e($project->companies->details->first()->email ?? ''); ?></small>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><span
+                                                            class="badge bg-<?php echo e($color); ?>"><?php echo e($project->status); ?></span>
+                                                    </td>
+                                                    <td><span
+                                                            class="badge bg-primary"><?php echo e($project->project_type); ?></span>
+                                                    </td>
+                                                    <td>
+                                                        <?php if($project->accountManagers->isNotEmpty()): ?>
+                                                            <?php $__currentLoopData = $project->accountManagers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $am): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                <div class="mb-1" style="font-size:.8rem;"><i
+                                                                        class="bi bi-person-circle me-1"></i><?php echo e($am->name); ?>
+
+                                                                </div>
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                        <?php else: ?>
+                                                            <span class="text-muted" style="font-size:.8rem;">—</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <strong class="text-success" style="font-size:.85rem;">AED
+                                                            <?php echo e(number_format($project->contract_value / ($project->contract_term ?: 1), 2)); ?></strong><br>
+                                                        <small class="text-muted">Total: AED
+                                                            <?php echo e(number_format($project->contract_value, 2)); ?></small>
+                                                    </td>
+                                                    <td>
+                                                        <?php if($project->contract_start_date): ?>
+                                                            <span
+                                                                style="font-size:.82rem;"><?php echo e(\Carbon\Carbon::parse($project->contract_start_date)->format('M d, Y')); ?></span><br>
+                                                            <small class="text-muted"><?php echo e($project->contract_term); ?>
+
+                                                                months</small>
+                                                        <?php else: ?>
+                                                            <span class="text-muted">—</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group">
+                                                            <a href="<?php echo e(route('projects.show', $project->id)); ?>"
+                                                                class="btn btn-sm btn-outline-primary"
+                                                                title="View"><i class="bi bi-eye"></i></a>
+                                                            <a href="<?php echo e(route('projects.edit', $project->id)); ?>"
+                                                                class="btn btn-sm btn-outline-warning"
+                                                                title="Edit"><i class="bi bi-pencil"></i></a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                                <tr>
+                                                    <td colspan="9" class="text-center py-5 text-muted">
+                                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>No SEO projects
+                                                        found
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div class="ds-section open" id="sec-tasks">
+                <div class="ds-section-header" onclick="toggleSection('sec-tasks')">
+                    <h6 class="ds-section-title">
+                        <span class="ds-section-icon" style="background:#fff9db;color:#e67700;"><i
+                                class="bi bi-check2-square"></i></span>
+                        Task Activity
+                    </h6>
+                    <div class="ds-section-meta">
+                        <span class="ds-section-badge" style="background:#fff9db;color:#e67700;">Overview</span>
+                        <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                    </div>
+                </div>
+                <div class="ds-section-body">
+                    <div class="row g-3">
+                        
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span
+                                    style="font-size:.8rem;font-weight:700;color:var(--ds-muted);text-transform:uppercase;letter-spacing:.4px;">Task
+                                    Breakdown</span>
+                                <select id="taskFilter" class="form-select form-select-sm w-auto"
+                                    style="font-size:.78rem;border-radius:8px;">
+                                    <option value="today" selected>Today</option>
+                                    <option value="weekly">Last Week</option>
+                                    <option value="monthly">Last Month</option>
+                                    <option value="yearly">Last Year</option>
+                                </select>
+                            </div>
+                            <div class="ds-task-bars">
+                                <div class="ds-task-bar-col">
+                                    <div id="pendingBar" class="ds-task-bar-fill c-warning"
+                                        style="min-height:<?php echo e($taskPercentages['pending']); ?>%;">
+                                        <div class="ds-task-chip"><span
+                                                id="pendingCount"><?php echo e($pendingTasksCountGlobal); ?></span></div>
+                                    </div>
+                                    <div class="ds-task-bar-label">Pending</div>
+                                </div>
+                                <div class="ds-task-bar-col">
+                                    <div id="completedBar" class="ds-task-bar-fill c-lilac"
+                                        style="min-height:<?php echo e($taskPercentages['completed']); ?>%;">
+                                        <div class="ds-task-chip"><span
+                                                id="completedCount"><?php echo e($completedTasksCountGlobal); ?></span></div>
+                                    </div>
+                                    <div class="ds-task-bar-label">Completed</div>
+                                </div>
+                                <div class="ds-task-bar-col">
+                                    <div id="createdBar" class="ds-task-bar-fill c-primary"
+                                        style="min-height:<?php echo e($taskPercentages['created']); ?>%;">
+                                        <div class="ds-task-chip"><span
+                                                id="createdCount"><?php echo e($createdTasksCountGlobal); ?></span></div>
+                                    </div>
+                                    <div class="ds-task-bar-label">Assigned</div>
+                                </div>
+                                <div class="ds-task-bar-col">
+                                    <div id="collaboratorBar" class="ds-task-bar-fill c-success"
+                                        style="min-height:<?php echo e($taskPercentages['collaborator']); ?>%;">
+                                        <div class="ds-task-chip"><span
+                                                id="collaboratorCount"><?php echo e($collaboratorTasksCountGlobal); ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="ds-task-bar-label">Collaborator</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="col-lg-6">
+                            <span
+                                style="font-size:.8rem;font-weight:700;color:var(--ds-muted);text-transform:uppercase;letter-spacing:.4px;">Closed
+                                Tasks</span>
+                            <div class="ds-activity-grid mt-3">
+                                <div class="ds-activity-card" style="background:#f8fffe;">
+                                    <div class="act-icon">📅</div>
+                                    <div class="act-label">Yesterday</div>
+                                    <div class="act-count"><?php echo e($tasksClosedYesterday); ?></div>
+                                    <div class="act-date"><?php echo e(\Carbon\Carbon::yesterday()->format('d M Y')); ?></div>
+                                </div>
+                                <div class="ds-activity-card" style="background:#f8f9ff;">
+                                    <div class="act-icon">📆</div>
+                                    <div class="act-label">Last 7 Days</div>
+                                    <div class="act-count"><?php echo e($tasksClosedLast7Days); ?></div>
+                                    <div class="act-date">Since
+                                        <?php echo e(\Carbon\Carbon::now()->subDays(7)->format('d M Y')); ?></div>
+                                </div>
+                                <div class="ds-activity-card" style="background:#f8fff9;">
+                                    <div class="act-icon">🗓️</div>
+                                    <div class="act-label">Last 30 Days</div>
+                                    <div class="act-count"><?php echo e($tasksClosedLast30Days); ?></div>
+                                    <div class="act-date">Since
+                                        <?php echo e(\Carbon\Carbon::now()->subDays(30)->format('d M Y')); ?></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="mt-3" style="border-top:1px solid var(--ds-border);padding-top:1rem;">
+                        <span
+                            style="font-size:.8rem;font-weight:700;color:var(--ds-muted);text-transform:uppercase;letter-spacing:.4px;">Tasks
+                            Trend</span>
+                        <div id="tasksChart" class="mt-2" style="min-height:200px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ds-section open" id="sec-notifications">
+                <div class="ds-section-header" onclick="toggleSection('sec-notifications')">
+                    <h6 class="ds-section-title">
+                        <span class="ds-section-icon" style="background:#fff3bf;color:#e67700;"><i
+                                class="bi bi-bell"></i></span>
+                        Latest Notifications
+                    </h6>
+                    <div class="ds-section-meta">
+                        <span class="ds-section-badge"
+                            style="background:#fff3bf;color:#e67700;"><?php echo e(count($latestNotifications)); ?> new</span>
+                        <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                    </div>
+                </div>
+                <div class="ds-section-body">
+                    <?php $__empty_1 = true; $__currentLoopData = $latestNotifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <a href="<?php echo e($notification['data']['url']); ?>" class="d-block text-decoration-none">
+                            <div class="ds-notif-item">
+                                <div class="ds-notif-avatar"><?php echo e($notification->notifiable_id); ?></div>
+                                <div class="flex-grow-1">
+                                    <div class="ds-notif-title"><?php echo e($notification['data']['title']); ?></div>
+                                    <div class="ds-notif-msg"><?php echo e($notification['data']['message']); ?></div>
+                                    <div class="ds-notif-time"><?php echo e($notification->created_at->diffForHumans()); ?></div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted" style="font-size:.75rem;"></i>
+                            </div>
+                        </a>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                        <p class="text-muted text-center py-3 mb-0" style="font-size:.85rem;">No notifications yet.
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="ds-section" id="sec-office">
+                <div class="ds-section-header" onclick="toggleSection('sec-office')">
+                    <h6 class="ds-section-title">
+                        <span class="ds-section-icon" style="background:#f3f0ff;color:#7048e8;"><i
+                                class="bi bi-clock-history"></i></span>
+                        Office Timings & Attendance Rules
+                    </h6>
+                    <div class="ds-section-meta">
+                        <span class="ds-section-badge" style="background:#f3f0ff;color:#7048e8;">Policy</span>
+                        <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                    </div>
+                </div>
+                <div class="ds-section-body hidden">
+                    <div class="ds-table-wrap">
+                        <table class="table ds-table ds-timing-table mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>Office Open Time</td>
+                                    <td><?php echo e($office_open_time); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Office Close Time</td>
+                                    <td><?php echo e($office_close_time); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Late Mark After</td>
+                                    <td><?php echo e($late_threshold); ?> minutes</td>
+                                </tr>
+                                <tr>
+                                    <td>Half Day If Arrived After</td>
+                                    <td><?php echo e($half_day_threshold); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Break Ends At</td>
+                                    <td><?php echo e($break_end_time); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Early Out If Left Before</td>
+                                    <td><?php echo e($early_out_threshold); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Late arrivals per deduction</td>
+                                    <td><?php echo e($late_deduction_threshold); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Half-days per deduction</td>
+                                    <td><?php echo e($half_day_deduction_threshold); ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <?php if($role === 'AM'): ?>
+                <div class="ds-section open" id="sec-am">
+                    <div class="ds-section-header" onclick="toggleSection('sec-am')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#e6fcf5;color:#087f5b;"><i
+                                    class="bi bi-person-workspace"></i></span>
+                            Account Manager Dashboard
+                        </h6>
+                        <div class="ds-section-meta">
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body">
+                        <?php if (isset($component)) { $__componentOriginal2c617f11a9519a7a2603c5e3ed8df48f = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal2c617f11a9519a7a2603c5e3ed8df48f = $attributes; } ?>
+<?php $component = App\View\Components\Dashboards\AmDashboard::resolve(['totalRenewals' => $totalRenewals,'monthlyStats' => $monthlyStats,'monthlyData' => $monthlyData,'newSellProjects' => $newSellProjects,'newSell' => $newSell,'typeCounts' => $typeCounts,'statusCounts' => $statusCounts,'currentPortfolio' => $currentPortfolio,'projects' => $projects,'pendingTasks' => $pendingTasks,'completedTasks' => $completedTasks,'assignedTasks' => $assignedTasks] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('dashboards.am-dashboard'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Dashboards\AmDashboard::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal2c617f11a9519a7a2603c5e3ed8df48f)): ?>
+<?php $attributes = $__attributesOriginal2c617f11a9519a7a2603c5e3ed8df48f; ?>
+<?php unset($__attributesOriginal2c617f11a9519a7a2603c5e3ed8df48f); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal2c617f11a9519a7a2603c5e3ed8df48f)): ?>
+<?php $component = $__componentOriginal2c617f11a9519a7a2603c5e3ed8df48f; ?>
+<?php unset($__componentOriginal2c617f11a9519a7a2603c5e3ed8df48f); ?>
+<?php endif; ?>
+                    </div>
+                </div>
+            <?php elseif($role === 'CONTENT'): ?>
+                <div class="ds-section open" id="sec-content">
+                    <div class="ds-section-header" onclick="toggleSection('sec-content')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#e6fcf5;color:#087f5b;"><i
+                                    class="bi bi-file-text"></i></span>
+                            Content Dashboard
+                        </h6>
+                        <div class="ds-section-meta">
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body">
+                        <?php if (isset($component)) { $__componentOriginal0e90084d1eb01e0c8422ca9dc969f004 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal0e90084d1eb01e0c8422ca9dc969f004 = $attributes; } ?>
+<?php $component = App\View\Components\Dashboards\ContentDashboard::resolve(['pendingTasksCount' => $pendingTasksCount,'completedTasksCount' => $completedTasksCount,'pendingWords' => $pendingWords,'completedWords' => $completedWords,'pendingTasks' => $pendingTasks,'completedTasks' => $completedTasks,'assignedTasks' => $assignedTasks] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('dashboards.content-dashboard'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Dashboards\ContentDashboard::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal0e90084d1eb01e0c8422ca9dc969f004)): ?>
+<?php $attributes = $__attributesOriginal0e90084d1eb01e0c8422ca9dc969f004; ?>
+<?php unset($__attributesOriginal0e90084d1eb01e0c8422ca9dc969f004); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal0e90084d1eb01e0c8422ca9dc969f004)): ?>
+<?php $component = $__componentOriginal0e90084d1eb01e0c8422ca9dc969f004; ?>
+<?php unset($__componentOriginal0e90084d1eb01e0c8422ca9dc969f004); ?>
+<?php endif; ?>
+                    </div>
+                </div>
+            <?php elseif($role === 'ADMIN'): ?>
+                <div class="ds-section open" id="sec-website">
+                    <div class="ds-section-header" onclick="toggleSection('sec-website')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#e7f5ff;color:#1971c2;"><i
+                                    class="bi bi-globe2"></i></span>
+                            Website Projects
+                        </h6>
+                        <div class="ds-section-meta">
+                            <span class="ds-section-badge"
+                                style="background:#e7f5ff;color:#1971c2;"><?php echo e(count($WebsiteProjects)); ?>
+
+                                projects</span>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body">
+                        <div class="row g-3">
+                            <?php $__currentLoopData = $WebsiteProjects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $project): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php $wp = $project; ?>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="ds-wp-card h-100">
+                                        <div class="wp-header">
+                                            <span><i
+                                                    class="bi bi-globe2 me-1"></i><?php echo e($project->project->title); ?></span>
+                                            <?php if(
+                                                !$project->websiteProject &&
+                                                    (auth()->user()->hasRole('ADMIN') || auth()->user()->id == $project->accountManagers->pluck('id')->first())): ?>
+                                                <a href="<?php echo e(route('website-projects.create')); ?>?project_id=<?php echo e($project->id); ?>"
+                                                    class="btn btn-sm btn-light text-success py-0 px-2"
+                                                    style="font-size:.75rem;">
+                                                    <i class="bi bi-plus-circle"></i> Add
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="wp-body">
+                                            <div class="d-flex flex-wrap gap-1 mb-2">
+                                                <span class="badge bg-secondary"
+                                                    style="font-size:.7rem;"><?php echo e($wp->platform); ?></span>
+                                                <span class="badge bg-warning" style="font-size:.7rem;">Design:
+                                                    <?php echo e($wp->design_status); ?></span>
+                                                <span class="badge bg-info" style="font-size:.7rem;">Dev:
+                                                    <?php echo e($wp->development_status); ?></span>
+                                            </div>
+                                            <div
+                                                class="d-flex justify-content-between align-items-center small text-muted mb-2">
+                                                <?php if($wp->target_go_live_date): ?>
+                                                    <span class="<?php echo e($wp->isOverdue() ? 'text-danger' : 'text-info'); ?>"
+                                                        style="font-size:.75rem;">
+                                                        <i
+                                                            class="bi bi-calendar-event me-1"></i><?php echo e($wp->target_go_live_date->format('M d, Y')); ?>
+
+                                                    </span>
+                                                <?php endif; ?>
+                                                <?php if($wp->developer): ?>
+                                                    <span style="font-size:.75rem;"><i
+                                                            class="bi bi-person-circle me-1"></i><?php echo e($wp->developer->name); ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <?php if($wp->go_live_date): ?>
+                                                    <span class="badge bg-success"><i
+                                                            class="bi bi-rocket-takeoff me-1"></i>LIVE</span>
+                                                <?php elseif($wp->approved_for_go_live): ?>
+                                                    <span class="badge bg-warning"><i
+                                                            class="bi bi-hourglass-split me-1"></i>Ready</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary"><i
+                                                            class="bi bi-clock-history me-1"></i>In Progress</span>
+                                                <?php endif; ?>
+                                                <a href="<?php echo e(route('website-projects.show', $wp->id)); ?>"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    style="font-size:.75rem;padding:.25rem .6rem;">
+                                                    <i class="bi bi-eye"></i> Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="ds-section" id="sec-cancellations">
+                    <div class="ds-section-header" onclick="toggleSection('sec-cancellations')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#fff5f5;color:#c92a2a;"><i
+                                    class="bi bi-x-circle"></i></span>
+                            Cancellation Requests
+                        </h6>
+                        <div class="ds-section-meta">
+                            <?php if($pendingCancellations->count()): ?>
+                                <span class="ds-section-badge"
+                                    style="background:#fff5f5;color:#c92a2a;"><?php echo e($pendingCancellations->count()); ?>
+
+                                    pending</span>
+                            <?php endif; ?>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body hidden">
+                        <div class="ds-table-wrap">
+                            <table class="table ds-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Project</th>
+                                        <th>Reason</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $__empty_1 = true; $__currentLoopData = $pendingCancellations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $cancel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                        <tr>
+                                            <td><?php echo e($index + 1); ?></td>
+                                            <td><?php echo e($cancel->project->title); ?></td>
+                                            <td>
+                                                <button class="btn btn-outline-info btn-sm view-reason-btn"
+                                                    data-bs-toggle="modal" data-bs-target="#reasonModal"
+                                                    data-project="<?php echo e($cancel->project->title); ?>"
+                                                    data-url="<?php echo e(route('projects.show', $cancel->project->id)); ?>"
+                                                    data-reason="<?php echo e($cancel->reason); ?>" style="font-size:.78rem;">
+                                                    <i class="bi bi-eye"></i> View
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <form action="<?php echo e(route('admin.approveCancellation', $cancel->id)); ?>"
+                                                    method="POST">
+                                                    <?php echo csrf_field(); ?> <?php echo method_field('PUT'); ?>
+                                                    <button class="btn btn-success btn-sm" style="font-size:.78rem;">
+                                                        <i class="bi bi-check2-circle"></i> Approve
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4"
+                                                style="font-size:.85rem;">No pending cancellations.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="ds-section open" id="sec-admin-dash">
+                    <div class="ds-section-header" onclick="toggleSection('sec-admin-dash')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#ebfbee;color:#2f9e44;"><i
+                                    class="bi bi-speedometer2"></i></span>
+                            Admin Overview
+                        </h6>
+                        <div class="ds-section-meta">
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body">
+                        <?php if (isset($component)) { $__componentOriginal66f6c993bafdbd526d8fcd1f29b68b0c = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal66f6c993bafdbd526d8fcd1f29b68b0c = $attributes; } ?>
+<?php $component = App\View\Components\Dashboards\AdminDashboard::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('dashboards.admin-dashboard'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Dashboards\AdminDashboard::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal66f6c993bafdbd526d8fcd1f29b68b0c)): ?>
+<?php $attributes = $__attributesOriginal66f6c993bafdbd526d8fcd1f29b68b0c; ?>
+<?php unset($__attributesOriginal66f6c993bafdbd526d8fcd1f29b68b0c); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal66f6c993bafdbd526d8fcd1f29b68b0c)): ?>
+<?php $component = $__componentOriginal66f6c993bafdbd526d8fcd1f29b68b0c; ?>
+<?php unset($__componentOriginal66f6c993bafdbd526d8fcd1f29b68b0c); ?>
+<?php endif; ?>
+                    </div>
+                </div>
+
+                
+                <div class="ds-section" id="sec-partner">
+                    <div class="ds-section-header" onclick="toggleSection('sec-partner')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#e6fcf5;color:#087f5b;"><i
+                                    class="bi bi-link-45deg"></i></span>
+                            Partner Links Data
+                        </h6>
+                        <div class="ds-section-meta">
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body hidden">
+                        <div class="row g-3">
+                            <?php $__currentLoopData = $partnerLinksByAM; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $amData): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="col-lg-6">
+                                    <div
+                                        style="border:1px solid var(--ds-border);border-radius:var(--ds-radius);overflow:hidden;">
+                                        <div
+                                            style="background:var(--ds-success);color:#fff;padding:.65rem 1rem;font-size:.85rem;font-weight:700;">
+                                            <i class="bi bi-person-badge me-1"></i><?php echo e($amData['am_name']); ?>
+
+                                        </div>
+                                        <table class="table ds-table mb-0 text-center">
+                                            <thead>
+                                                <tr>
+                                                    <th>Month</th>
+                                                    <th>Links</th>
+                                                    <th>Amount (Rs.)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $__currentLoopData = $amData['data']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <tr>
+                                                        <td><?php echo e($row['month']); ?></td>
+                                                        <td><?php echo e($row['links']); ?></td>
+                                                        <td><?php echo e(number_format($row['amount'], 2)); ?></td>
+                                                    </tr>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="ds-section" id="sec-attendance">
+                    <div class="ds-section-header" onclick="toggleSection('sec-attendance')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#f3f0ff;color:#7048e8;"><i
+                                    class="bi bi-calendar-check"></i></span>
+                            Daily Attendance Report
+                        </h6>
+                        <div class="ds-section-meta">
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body hidden">
+                        <input type="date" id="attendanceDate" class="form-control mb-3"
+                            style="max-width:220px;border-radius:8px;font-size:.85rem;">
+                        <div class="ds-table-wrap">
+                            <table class="table ds-table mb-0" id="attendanceTable">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Date</th>
+                                        <th>Punch In</th>
+                                        <th>Punch Out</th>
+                                        <th>Total Hours</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="ds-section" id="sec-writers">
+                    <div class="ds-section-header" onclick="toggleSection('sec-writers')">
+                        <h6 class="ds-section-title">
+                            <span class="ds-section-icon" style="background:#ebfbee;color:#2f9e44;"><i
+                                    class="bi bi-pencil-square"></i></span>
+                            Content Writers Performance
+                        </h6>
+                        <div class="ds-section-meta">
+                            <a href="<?php echo e(route('admin.content-writers.index')); ?>"
+                                class="ds-section-badge text-decoration-none"
+                                style="background:#ebfbee;color:#2f9e44;" onclick="event.stopPropagation()">
+                                View All <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                            <div class="ds-chevron"><i class="bi bi-chevron-down"></i></div>
+                        </div>
+                    </div>
+                    <div class="ds-section-body hidden">
+                        <?php
+                            $topWriters = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'CONTENT'))
+                                ->withCount([
+                                    'assignedTasks as completed_this_month' => fn($q) => $q
+                                        ->where('status', 'Completed')
+                                        ->whereMonth('completed_date', now()->month)
+                                        ->whereYear('completed_date', now()->year),
+                                ])
+                                ->orderBy('completed_this_month', 'desc')
+                                ->take(5)
+                                ->get();
+                        ?>
+                        <div class="ds-table-wrap">
+                            <table class="table ds-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Writer</th>
+                                        <th>Tasks This Month</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $__currentLoopData = $topWriters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $writer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div
+                                                        style="width:34px;height:34px;border-radius:9px;background:var(--ds-accent-soft);color:var(--ds-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">
+                                                        <?php echo e(strtoupper(substr($writer->name, 0, 1))); ?>
+
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-size:.85rem;font-weight:600;">
+                                                            <?php echo e($writer->name); ?></div>
+                                                        <div style="font-size:.72rem;color:var(--ds-muted);">
+                                                            <?php echo e($writer->email); ?></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge bg-success"><?php echo e($writer->completed_this_month); ?>
+
+                                                    completed</span></td>
+                                            <td>
+                                                <a href="<?php echo e(route('admin.content-writers.show', $writer->id)); ?>"
+                                                    class="btn btn-sm btn-outline-primary" style="font-size:.78rem;">
+                                                    <i class="bi bi-eye me-1"></i>Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+        </div>
+        
+    </div>
+
+    
+    <div class="modal fade" id="reasonModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content"
+                style="border-radius:var(--ds-radius-lg);border:none;box-shadow:var(--ds-shadow-lg);">
+                <div class="modal-header"
+                    style="background:var(--ds-info);color:#fff;border-radius:var(--ds-radius-lg) var(--ds-radius-lg) 0 0;">
+                    <span class="modal-title fw-bold"><i class="bi bi-exclamation-circle me-1"></i>Cancellation
+                        Reason</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <a class="fw-bold text-dark project-title d-block mb-2"></a>
+                    <p class="text-secondary reason-text mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                        data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        /* ── Accordion toggle ───────────────────────────────────── */
+        function toggleSection(id) {
+            const sec = document.getElementById(id);
+            const body = sec.querySelector('.ds-section-body');
+            sec.classList.toggle('open');
+            body.classList.toggle('hidden');
+        }
+
+        /* ── Task bars AJAX ─────────────────────────────────────── */
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('taskFilter').addEventListener('change', function() {
+                $.ajax({
+                    url: "<?php echo e(route('dashboard')); ?>",
+                    type: "GET",
+                    data: {
+                        filter: this.value
+                    },
+                    success: function(r) {
+                        document.getElementById('pendingCount').textContent = r
+                            .pendingTasksCountGlobal;
+                        document.getElementById('completedCount').textContent = r
+                            .completedTasksCountGlobal;
+                        document.getElementById('createdCount').textContent = r
+                            .createdTasksCountGlobal;
+                        document.getElementById('collaboratorCount').textContent = r
+                            .collaboratorTasksCountGlobal;
+                        document.getElementById('pendingBar').style.minHeight = r
+                            .taskPercentages.pending + '%';
+                        document.getElementById('completedBar').style.minHeight = r
+                            .taskPercentages.completed + '%';
+                        document.getElementById('createdBar').style.minHeight = r
+                            .taskPercentages.created + '%';
+                        document.getElementById('collaboratorBar').style.minHeight = r
+                            .taskPercentages.collaborator + '%';
+                    }
+                });
+            });
+
+            /* ── SEO filter ─────────────────────────────────────── */
+            const form = document.getElementById('seoProjectFilterForm');
+            const resetBtn = document.getElementById('resetFilters');
+            const exportBtn = document.getElementById('exportProjects');
+
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const params = new URLSearchParams(new FormData(form));
+                    fetch(`<?php echo e(route('dashboard.seo-projects.filter')); ?>?${params}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    }).then(r => r.json()).then(data => {
+                        updateProjectsTable(data.projects);
+                        document.getElementById('totalProjects').textContent = data.total;
+                        document.getElementById('totalRevenue').textContent = Number(data
+                            .totalRevenue).toLocaleString(undefined, {
+                            minimumFractionDigits: 2
+                        });
+                        document.getElementById('monthlyRevenue').textContent = Number(data
+                            .monthlyRevenue).toLocaleString(undefined, {
+                            minimumFractionDigits: 2
+                        });
+                    }).catch(() => alert('An error occurred while filtering projects'));
+                });
+                resetBtn.addEventListener('click', function() {
+                    form.reset();
+                    form.dispatchEvent(new Event('submit'));
+                });
+                exportBtn.addEventListener('click', function() {
+                    window.location.href =
+                        `<?php echo e(route('dashboard.seo-projects.export')); ?>?${new URLSearchParams(new FormData(form))}`;
+                });
+            }
+
+            /* ── Tasks trend chart ──────────────────────────────── */
+            if (document.querySelector('#tasksChart')) {
+                new ApexCharts(document.querySelector('#tasksChart'), {
+                    chart: {
+                        type: 'area',
+                        height: 180,
+                        toolbar: {
+                            show: false
+                        },
+                        sparkline: {
+                            enabled: false
+                        }
+                    },
+                    series: [{
+                        name: 'Tasks',
+                        data: <?php echo json_encode(array_values($taskData->toArray())); ?>
+
+                    }],
+                    xaxis: {
+                        categories: <?php echo json_encode(array_keys($taskData->toArray())); ?>,
+                        labels: {
+                            style: {
+                                fontSize: '10px'
+                            }
+                        }
+                    },
+                    colors: ['#4c6ef5'],
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: .35,
+                            opacityTo: .02
+                        }
+                    },
+                    stroke: {
+                        curve: 'smooth',
+                        width: 2
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    grid: {
+                        borderColor: '#f0f2f7'
+                    },
+                    tooltip: {
+                        style: {
+                            fontSize: '12px'
+                        }
+                    }
+                }).render();
+            }
+
+            /* ── Attendance (admin) ─────────────────────────────── */
+            const attDate = document.getElementById('attendanceDate');
+            if (attDate) {
+                const today = new Date().toISOString().split('T')[0];
+                attDate.value = today;
+
+                function fetchAttendance(date) {
+                    $.ajax({
+                        url: "<?php echo e(route('admin.attendance.filter')); ?>",
+                        type: "GET",
+                        data: {
+                            date
+                        },
+                        success: function(r) {
+                            let rows = r.attendance.length ?
+                                r.attendance.map(a =>
+                                    `<tr><td>${a.user.name}</td><td>${a.date}</td><td>${a.punch_in||'—'}</td><td>${a.punch_out??'Working'}</td><td>${a.total_hours??'Pending'}</td><td>${a.status||'Pending'}</td></tr>`
+                                ).join('') :
+                                '<tr><td colspan="6" class="text-center text-muted py-3" style="font-size:.82rem;">No records found.</td></tr>';
+                            $('#attendanceTable tbody').html(rows);
+                        },
+                        error: () => $('#attendanceTable tbody').html(
+                            '<tr><td colspan="6" class="text-center text-muted py-3" style="font-size:.82rem;">Holiday or weekend.</td></tr>'
+                        )
+                    });
+                }
+                fetchAttendance(today);
+                attDate.addEventListener('change', () => fetchAttendance(attDate.value));
+            }
+
+            /* ── Reason modal ───────────────────────────────────── */
+            $(document).on('click', '.view-reason-btn', function() {
+                const url = $(this).data('url');
+                $('.project-title').attr('href', url).text($(this).data('project'));
+                $('.reason-text').text($(this).data('reason'));
+            });
+
+            const smmFilterBtn = document.getElementById('smmFilterBtn');
+            const smmResetBtn = document.getElementById('smmResetBtn');
+            const smmExportBtn = document.getElementById('smmExportBtn');
+
+            function buildSmmParams() {
+                return new URLSearchParams({
+                    search: document.getElementById('smmSearch')?.value || '',
+                    status: document.getElementById('smmStatus')?.value || '',
+                    project_type: document.getElementById('smmType')?.value || '',
+                    account_manager_id: document.getElementById('smmAm')?.value || '',
+                });
+            }
+
+            function applySmmFilter() {
+                const params = buildSmmParams();
+                fetch(`<?php echo e(route('dashboard.smm-projects.filter')); ?>?${params}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => renderSmmTable(data.projects, data))
+                    .catch(() => alert('Error filtering projects.'));
+            }
+
+            if (smmFilterBtn) {
+                smmFilterBtn.addEventListener('click', applySmmFilter);
+            }
+
+            if (smmResetBtn) {
+                smmResetBtn.addEventListener('click', function() {
+                    ['smmSearch', 'smmStatus', 'smmType', 'smmAm'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    applySmmFilter();
+                });
+            }
+
+            if (smmExportBtn) {
+                smmExportBtn.addEventListener('click', function() {
+                    window.location.href =
+                        `<?php echo e(route('dashboard.smm-projects.export')); ?>?${buildSmmParams()}`;
+                });
+            }
+
+            function renderSmmTable(projects, summary) {
+                const tbody = document.getElementById('smmTableBody');
+                if (!tbody) return;
+
+                document.getElementById('smmProjectCount').textContent = projects.length;
+                document.getElementById('smmTotalContractValue').textContent =
+                    Number(summary.totalContractValue).toLocaleString(undefined, {
+                        minimumFractionDigits: 2
+                    });
+                document.getElementById('smmTotalMrr').textContent =
+                    Number(summary.totalMrr).toLocaleString(undefined, {
+                        minimumFractionDigits: 2
+                    });
+
+                const statusColors = {
+                    'Current': 'success',
+                    'WFF': 'warning',
+                    'Debt Collection': 'danger',
+                    'Completed': 'info',
+                    'Cancelled': 'secondary',
+                    'Expired': 'dark'
+                };
+
+                if (!projects.length) {
+                    tbody.innerHTML = `<tr><td colspan="13" class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>No projects found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = projects.map((p, i) => {
+                    const ams = (p.account_managers || [])
+                        .map(a =>
+                            `<div style="font-size:.8rem;"><i class="bi bi-person-circle me-1"></i>${a.name}</div>`
+                        )
+                        .join('') || '<span class="text-muted">—</span>';
+
+                    const fmt = dateStr => dateStr ?
+                        new Date(dateStr).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                        }) :
+                        '—';
+
+                    const typeBadge = p.project_type === 'Google Ads' ?
+                        `<span class="badge" style="background:#e7f5ff;color:#1971c2;">Google Ads</span>` :
+                        `<span class="badge" style="background:#fff0f6;color:#c2255c;">Social Media</span>`;
+
+                    const nextInvoice = p.next_invoice_date ?
+                        `<span class="badge bg-primary bg-opacity-10 text-primary">${fmt(p.next_invoice_date)}</span>` :
+                        '—';
+
+                    return `<tr>
+            <td>${i + 1}</td>
+            <td><div class="fw-semibold" style="font-size:.85rem;">${p.title}</div></td>
+            <td style="font-size:.85rem;">${p.company_name}</td>
+            <td>${typeBadge}</td>
+            <td><span class="badge bg-${statusColors[p.status]||'secondary'}">${p.status}</span></td>
+            <td>${ams}</td>
+            <td style="font-size:.82rem;">${fmt(p.contract_start_date)}</td>
+            <td style="font-size:.82rem;">${fmt(p.contract_end_date)}</td>
+            <td style="font-size:.82rem;">${nextInvoice}</td>
+            <td><strong class="text-success" style="font-size:.85rem;">AED ${Number(p.monthly_invoice).toFixed(2)}</strong></td>
+            <td style="font-size:.85rem;">AED ${Number(p.contract_value).toFixed(2)}</td>
+            <td style="font-size:.85rem;">${p.contract_term || '—'} mo.</td>
+            <td><a href="/projects/${p.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+        </tr>`;
+                }).join('');
+            }
+
+        });
+
+        function updateProjectsTable(projects) {
+            const tbody = document.getElementById('projectsTableBody');
+            if (!tbody) return;
+            const statusColors = {
+                'Current': 'success',
+                'WFF': 'warning',
+                'Debt Collection': 'danger',
+                'Completed': 'info',
+                'Cancelled': 'secondary',
+                'Expired': 'dark'
+            };
+            tbody.innerHTML = projects.length === 0 ?
+                `<tr><td colspan="9" class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 d-block mb-2"></i>No SEO projects found</td></tr>` :
+                projects.map((p, i) => `
+                    <tr>
+                        <td>${i+1}</td>
+                        <td><div class="fw-semibold" style="font-size:.85rem;">${p.title}</div>${p.website_url?`<small class="text-muted"><i class="bi bi-link-45deg"></i><a href="${p.website_url}" target="_blank" class="text-decoration-none">${p.website_url.substring(0,28)}${p.website_url.length>28?'…':''}</a></small>`:''}</td>
+                        <td><div style="font-size:.85rem;">${p.client_name||'N/A'}</div>${p.client_email?`<small class="text-muted">${p.client_email}</small>`:''}</td>
+                        <td><span class="badge bg-${statusColors[p.status]||'secondary'}">${p.status}</span></td>
+                        <td><span class="badge bg-primary">${p.project_type}</span></td>
+                        <td>${p.account_managers.length?p.account_managers.map(a=>`<div style="font-size:.8rem;"><i class="bi bi-person-circle me-1"></i>${a.name}</div>`).join(''):'<span class="text-muted">—</span>'}</td>
+                        <td><strong class="text-success" style="font-size:.85rem;">AED ${Number(p.monthly_value).toFixed(2)}</strong><br><small class="text-muted">Total: AED ${Number(p.contract_value).toFixed(2)}</small></td>
+                        <td>${p.contract_start_date?`<span style="font-size:.82rem;">${new Date(p.contract_start_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span><br><small class="text-muted">${p.contract_term} months</small>`:'<span class="text-muted">—</span>'}</td>
+                        <td><div class="btn-group"><a href="/projects/${p.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a><a href="/projects/${p.id}/edit" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a></div></td>
+                    </tr>`).join('');
+        }
+    </script>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/resources/views/dashboard.blade.php ENDPATH**/ ?>

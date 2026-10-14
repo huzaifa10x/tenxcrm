@@ -66,7 +66,15 @@ class AttendanceController extends Controller
             'status' => $status,
         ]);
 
-        return response()->json(['success' => 'Punched in successfully!']);
+        $punchedAt = Carbon::parse(Carbon::today()->toDateString() . ' ' . $punchInTime);
+
+        return response()->json([
+            'success' => 'Punched in successfully!',
+            'state' => 'working',
+            'punch_in' => $punchedAt->toIso8601String(),
+            'punch_in_label' => $punchedAt->format('h:i A'),
+            'status' => $status,
+        ]);
     }
     public function punchOut()
     {
@@ -76,8 +84,12 @@ class AttendanceController extends Controller
         $generalSettings = \App\Models\GeneralSetting::first();
         $earlyOutThreshold = $generalSettings->early_out_threshold ?? $generalSettings->office_close_time;
 
-        if (!$attendance || $attendance->punch_out) {
-            return response()->json(['error' => 'You have already punched in and out today. You can punch in again tomorrow.!'], 403);
+        if (!$attendance) {
+            return response()->json(['error' => "You haven't punched in today."], 403);
+        }
+
+        if ($attendance->punch_out) {
+            return response()->json(['error' => 'You have already punched in and out today. You can punch in again tomorrow.'], 403);
         }
 
         $now = Carbon::now();
@@ -92,7 +104,13 @@ class AttendanceController extends Controller
         $attendance->status = $status;
         $attendance->save();
 
-        return response()->json(['success' => 'Punched out successfully!']);
+        return response()->json([
+            'success' => 'Punched out successfully!',
+            'state' => 'done',
+            'punch_out_label' => $now->format('h:i A'),
+            'total_hours' => \App\View\Components\Dashboards\PunchInOut::formatDuration($attendance->total_hours),
+            'status' => $status,
+        ]);
     }
 
     public function monthlyAttendance(Request $request)

@@ -35,6 +35,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'pin_hash',
     ];
 
     /**
@@ -48,6 +49,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'notification_preferences' => 'array',
+            'pin_set_at' => 'datetime',
+            'pin_locked_until' => 'datetime',
         ];
     }
 
@@ -143,5 +146,17 @@ class User extends Authenticatable
     {
         return !empty($this->email)
             && strcasecmp($this->email, \App\Support\ReminderSettings::SYSTEM_EMAIL) !== 0;
+    }
+
+    /** True when the user has set a login PIN. */
+    public function hasPin(): bool
+    {
+        return !empty($this->pin_hash);
+    }
+
+    /** True while the PIN is locked after too many wrong attempts. */
+    public function pinIsLocked(): bool
+    {
+        return $this->pin_locked_until !== null && $this->pin_locked_until->isFuture();
     }
 }

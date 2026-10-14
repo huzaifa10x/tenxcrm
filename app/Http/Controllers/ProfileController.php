@@ -53,6 +53,41 @@ class ProfileController extends Controller
     }
 
     /**
+     * Set or change the login PIN. Requires the current password.
+     */
+    public function updatePin(Request $request): RedirectResponse
+    {
+        $validated = $request->validateWithBag('updatePin', [
+            'current_password' => ['required', 'current_password'],
+            'pin' => ['required', 'string', 'confirmed', function ($attribute, $value, $fail) {
+                if ($reason = \App\Services\Auth\PinService::weaknessReason((string) $value)) {
+                    $fail($reason);
+                }
+            }],
+        ], [
+            'pin.confirmed' => 'The two PINs do not match.',
+        ]);
+
+        \App\Services\Auth\PinService::set($request->user(), $validated['pin']);
+
+        return Redirect::to(route('profile.edit') . '#login-pin')->with('status', 'pin-updated');
+    }
+
+    /**
+     * Remove the login PIN. Requires the current password.
+     */
+    public function destroyPin(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('removePin', [
+            'current_password' => ['required', 'current_password'],
+        ]);
+
+        \App\Services\Auth\PinService::remove($request->user());
+
+        return Redirect::to(route('profile.edit') . '#login-pin')->with('status', 'pin-removed');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

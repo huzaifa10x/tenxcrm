@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>10X CRM | Welcome to 10x Crm</title>
+    <title>10X One | 10X Digital</title>
 
     <link rel="icon" href="{{ asset('/public/fav-icon.webp') }}" type="image/png" sizes="16x16">
 
@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="{{ asset('css/lib/file-upload.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/audioplayer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/10x-theme.css') }}?v={{ @filemtime(base_path('css/10x-theme.css')) }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -335,6 +336,22 @@
             </div>
         </div>
         <div class="dashboard-main-body">
+            @if (auth()->check() && !auth()->user()->hasPin() && !request()->routeIs('profile.edit'))
+                <div class="x-pin-banner" id="xPinBanner" hidden>
+                    <span class="x-pin-banner-icon"><i class="bi bi-grid-3x3-gap"></i></span>
+                    <div class="flex-grow-1"><strong>Sign in faster with a PIN.</strong> Set a 6-digit PIN and skip typing your password next time.</div>
+                    <a href="{{ route('profile.edit') }}#login-pin" class="btn btn-primary">Set up PIN</a>
+                    <button type="button" class="x-pin-dismiss" aria-label="Dismiss" onclick="try{localStorage.setItem('x-pin-banner-dismissed', Date.now())}catch(e){} this.parentElement.remove();">&times;</button>
+                </div>
+                <script>
+                    (function () {
+                        var t = 0;
+                        try { t = +localStorage.getItem('x-pin-banner-dismissed') || 0; } catch (e) {}
+                        // Show again 14 days after it was dismissed.
+                        if (Date.now() - t > 14 * 864e5) document.getElementById('xPinBanner').hidden = false;
+                    })();
+                </script>
+            @endif
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
@@ -366,7 +383,7 @@
         <footer class="d-footer py-1">
             <div class="row align-items-center justify-content-between">
                 <div class="col-auto">
-                    <p class="mb-0 fs-7">© 2025 10X Digital. All Rights Reserved.</p>
+                    <p class="mb-0 fs-7">© {{ date('Y') }} 10X Digital. All Rights Reserved.</p>
                 </div>
                 <div class="col-auto">
                     <p class="mb-0 fs-7">Made by <a href="https://10xdigital.ae" class="text-primary-600">10X

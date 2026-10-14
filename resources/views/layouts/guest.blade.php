@@ -15,11 +15,13 @@
     <link rel="stylesheet" href="{{ asset('css/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/10x-theme.css') }}?v={{ @filemtime(base_path('css/10x-theme.css')) }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            --accent-soft: rgba(25, 135, 84, 0.1);
+            --primary-gradient: linear-gradient(145deg, #18201b 0%, #0f1412 55%, #0b0f0d 100%);
+            --accent-soft: rgba(169, 227, 36, 0.12);
         }
 
         body {
@@ -49,7 +51,7 @@
             position: absolute;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(25, 135, 84, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+            background: radial-gradient(circle, rgba(169, 227, 36, 0.22) 0%, rgba(169, 227, 36, 0) 70%);
             top: -10%;
             left: -10%;
             border-radius: 50%;
@@ -123,7 +125,7 @@
                          style="max-height: 80px;" 
                          alt="10X One Logo">
                 </div>
-                <h1>Empowering Your <br><span style="color: #a8e323;">Workflow.</span></h1>
+                <h1>Empowering Your <br><span style="color: #a9e324;">Workflow.</span></h1>
                 <p class="text-white opacity-50 mt-3 fs-5 fw-light">The all-in-one ecosystem for productivity.</p>
             </div>
         </div>
@@ -131,7 +133,7 @@
         <div class="auth-right py-32">
             <div class="auth-right-container">
                 <div class="d-lg-none text-center mb-4">
-                    <img src="{{ asset('/public/light-logo.png') }}" height="40" alt="Logo">
+                    <img src="{{ asset('/public/dark-logo.png') }}" height="40" alt="10X One">
                 </div>
                 
                 {{ $slot }}

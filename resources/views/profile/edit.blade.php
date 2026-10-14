@@ -9,6 +9,8 @@
     <hr class="my-40">
     @include('profile.partials.update-password-form')
     <hr class="my-40">
+    @include('profile.partials.login-pin-form')
+    <hr class="my-40">
     @include('profile.partials.email-notifications-form')
     <hr class="my-40">
     @include('profile.partials.delete-user-form')

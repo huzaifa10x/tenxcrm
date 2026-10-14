@@ -1,0 +1,103 @@
+[2026-10-14 12:54:39] local.ERROR: Cannot declare class App\Support\MailBrand, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Support\\MailBrand, because the name is already in use at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/config/mail_brand.php:11)
+[stacktrace]
+#0 {main}
+"} 
+[2026-10-14 12:54:45] local.ERROR: View path not found. {"exception":"[object] (RuntimeException(code: 0): View path not found. at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/ViewClearCommand.php:59)
+[stacktrace]
+#0 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\ViewClearCommand->handle()
+#1 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#2 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#3 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#4 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#5 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call(Array)
+#6 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Illuminate\\Console\\OutputStyle))
+#7 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Illuminate\\Console\\OutputStyle))
+#8 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(68): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArrayInput), Object(Symfony\\Component\\Console\\Output\\NullOutput))
+#9 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(41): Illuminate\\Console\\Command->runCommand('view:clear', Array, Object(Symfony\\Component\\Console\\Output\\NullOutput))
+#10 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(53): Illuminate\\Console\\Command->callSilent('view:clear', Array)
+#11 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(48): Illuminate\\Console\\Command->callSilently('view:clear')
+#12 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(40): Illuminate\\Foundation\\Console\\OptimizeClearCommand->Illuminate\\Foundation\\Console\\{closure}()
+#13 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/View/Components/Factory.php(60): Illuminate\\Console\\View\\Components\\Task->render('views', Object(Closure))
+#14 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/OptimizeClearCommand.php(48): Illuminate\\Console\\View\\Components\\Factory->__call('task', Array)
+#15 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\OptimizeClearCommand->handle()
+#16 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#17 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call(Array)
+#21 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#22 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#23 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#24 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\OptimizeClearCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#25 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#26 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#27 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#28 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#29 {main}
+"} 
+[2026-10-14 12:54:52] local.ERROR: symlink(): No such file or directory {"exception":"[object] (ErrorException(code: 0): symlink(): No such file or directory at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:356)
+[stacktrace]
+#0 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError(2, 'symlink(): No s...', '/Applications/X...', 356)
+#1 [internal function]: Illuminate\\Foundation\\Bootstrap\\HandleExceptions->Illuminate\\Foundation\\Bootstrap\\{closure}(2, 'symlink(): No s...', '/Applications/X...', 356)
+#2 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(356): symlink('/home/u40316373...', '/home/u40316373...')
+#3 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/StorageLinkCommand.php(49): Illuminate\\Filesystem\\Filesystem->link('/home/u40316373...', '/home/u40316373...')
+#4 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\StorageLinkCommand->handle()
+#5 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#6 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#7 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#8 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#9 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call(Array)
+#10 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#11 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#12 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#13 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\StorageLinkCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#14 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#18 {main}
+"} 
+[2026-10-14 12:57:53] local.ERROR: symlink(): No such file or directory {"exception":"[object] (ErrorException(code: 0): symlink(): No such file or directory at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:356)
+[stacktrace]
+#0 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError(2, 'symlink(): No s...', '/Applications/X...', 356)
+#1 [internal function]: Illuminate\\Foundation\\Bootstrap\\HandleExceptions->Illuminate\\Foundation\\Bootstrap\\{closure}(2, 'symlink(): No s...', '/Applications/X...', 356)
+#2 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(356): symlink('/home/u40316373...', '/home/u40316373...')
+#3 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/StorageLinkCommand.php(49): Illuminate\\Filesystem\\Filesystem->link('/home/u40316373...', '/home/u40316373...')
+#4 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\StorageLinkCommand->handle()
+#5 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#6 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#7 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#8 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#9 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call(Array)
+#10 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#11 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#12 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#13 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Foundation\\Console\\StorageLinkCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#14 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/artisan(13): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#18 {main}
+"} 
+[2026-10-14 12:57:53] local.ERROR: Cannot declare class App\Support\MailBrand, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Support\\MailBrand, because the name is already in use at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/config/mail_brand.php:11)
+[stacktrace]
+#0 {main}
+"} 
+[2026-10-14 13:00:12] local.ERROR: Cannot declare class App\Support\MailBrand, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Support\\MailBrand, because the name is already in use at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/config/mail_brand.php:11)
+[stacktrace]
+#0 {main}
+"} 
+[2026-10-14 13:01:58] local.ERROR: Cannot declare class App\Support\MailBrandOld, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Support\\MailBrandOld, because the name is already in use at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/config/mail_brand.php:11)
+[stacktrace]
+#0 {main}
+"} 
+[2026-10-14 13:02:12] local.ERROR: Cannot declare class App\Support\MailBrandNew, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Support\\MailBrandNew, because the name is already in use at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/config/mail_brand.php:11)
+[stacktrace]
+#0 {main}
+"} 
+[2026-10-14 13:09:48] local.ERROR: Cannot declare class App\Support\MailBrand, because the name is already in use {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot declare class App\\Support\\MailBrand, because the name is already in use at /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/config/mail_brand.php:11)
+[stacktrace]
+#0 {main}
+"} 
+[2026-10-14 13:13:24] local.INFO: Login PIN set {"user_id":1} 
+[2026-10-14 13:13:42] local.INFO: User signed in with PIN {"user_id":1,"ip":"::1"} 

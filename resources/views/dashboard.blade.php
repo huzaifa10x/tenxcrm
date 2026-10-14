@@ -56,64 +56,6 @@
             margin: 0;
         }
 
-        /* ── Punch card ──────────────────────────────────────────── */
-        .ds-punch-card {
-            background: var(--ds-surface);
-            border-radius: var(--ds-radius);
-            border: 1px solid var(--ds-border);
-            box-shadow: var(--ds-shadow);
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            padding: .65rem 1rem;
-        }
-
-        .ds-punch-card .punch-label {
-            font-size: .75rem;
-            font-weight: 600;
-            color: var(--ds-muted);
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-
-        .ds-punch-card .btn-punch-in {
-            background: #d3f9d8;
-            color: var(--ds-success);
-            border: 1.5px solid #b2f2bb;
-            font-weight: 600;
-            font-size: .82rem;
-            border-radius: 8px;
-            padding: .4rem .9rem;
-            transition: all .18s;
-        }
-
-        .ds-punch-card .btn-punch-in:hover {
-            background: var(--ds-success);
-            color: #fff;
-        }
-
-        .ds-punch-card .btn-punch-out {
-            background: #ffe3e3;
-            color: var(--ds-danger);
-            border: 1.5px solid #ffc9c9;
-            font-weight: 600;
-            font-size: .82rem;
-            border-radius: 8px;
-            padding: .4rem .9rem;
-            transition: all .18s;
-        }
-
-        .ds-punch-card .btn-punch-out:hover {
-            background: var(--ds-danger);
-            color: #fff;
-        }
-
-        .ds-punch-sep {
-            width: 1px;
-            height: 28px;
-            background: var(--ds-border);
-        }
-
         /* ── Accordion shell ─────────────────────────────────────── */
         .ds-accordion {
             display: flex;
@@ -594,16 +536,7 @@
             </div>
 
             {{-- Punch In/Out ─────────────────────────────────────── --}}
-            <div class="ds-punch-card">
-                <span class="punch-label">Attendance</span>
-                <div class="ds-punch-sep"></div>
-                <button class="btn-punch-in" id="punchInBtn" onclick="getLocationAndPunch('in')">
-                    <i class="bi bi-box-arrow-in-right me-1"></i>Punch In
-                </button>
-                <button class="btn-punch-out" id="punchOutBtn" onclick="getLocationAndPunch('out')">
-                    <i class="bi bi-box-arrow-right me-1"></i>Punch Out
-                </button>
-            </div>
+            <x-dashboards.punch-in-out />
         </div>
 
         {{-- ═══════════════════════════════════════════════════════
@@ -1715,24 +1648,6 @@
             const body = sec.querySelector('.ds-section-body');
             sec.classList.toggle('open');
             body.classList.toggle('hidden');
-        }
-
-        /* ── Punch In/Out ───────────────────────────────────────── */
-        function getLocationAndPunch(type) {
-            if (type === 'out') {
-                if (!confirm("Are you sure you want to punch out? Once you punch out, you cannot punch in again today."))
-                    return;
-            }
-            fetch(type === 'in' ? "{{ route('attendance.punchIn') }}" : "{{ route('attendance.punchOut') }}", {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Content-Type": "application/json"
-                }
-            }).then(r => r.json()).then(data => {
-                alert(data.success || data.error);
-                if (data.success || data.error) document.getElementById('punchInBtn').disabled = true;
-            });
         }
 
         /* ── Task bars AJAX ─────────────────────────────────────── */

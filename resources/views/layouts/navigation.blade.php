@@ -2,7 +2,7 @@
     <button type="button" class="sidebar-close-btn">
         <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
     </button>
-    <div style="background: #273142 !important;">
+    <div class="sidebar-logo-wrap">
         <a href="{{ route('dashboard') }}" class="sidebar-logo">
             <img src="{{ asset('/public/light-logo.png') }}" class="p-1" alt="site logo" class="">
         </a>
