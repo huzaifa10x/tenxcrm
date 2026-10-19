@@ -1828,22 +1828,7 @@
 {{-- ══════════════════════════════════════════
      COMMENTS
 ══════════════════════════════════════════ --}}
-<div class="ts-card" style="margin-bottom:.85rem;">
-    <div class="ts-card-header"><span class="ts-card-title"><i class="bi bi-chat-dots me-1"></i>Task
-            Comments</span></div>
-    <div class="ts-card-body">
-        <ul id="comment-list" style="list-style:none;padding:0;margin-bottom:.75rem;"></ul>
-        <div style="display:flex;flex-direction:column;gap:.6rem;">
-            <textarea rows="5" class="editor ts-textarea" style="resize:vertical;"></textarea>
-            <div style="text-align:right;">
-                <button type="button" id="add-commentt" data-taskID="{{ $task->id }}"
-                    onclick="doComment()" class="ts-btn ts-btn-primary">
-                    <i class="bi bi-send me-1"></i>Send
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+@include('vendor.task-comments')
 
 {{-- ══════════════════════════════════════════
      COLLABORATORS + ACTIVITY
@@ -2320,101 +2305,6 @@
         });
     });
 
-    function timeAgo(date) {
-        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-        const intervals = [{
-            label: "year",
-            seconds: 31536000
-        }, {
-            label: "month",
-            seconds: 2592000
-        }, {
-            label: "week",
-            seconds: 604800
-        }, {
-            label: "day",
-            seconds: 86400
-        }, {
-            label: "hour",
-            seconds: 3600
-        }, {
-            label: "minute",
-            seconds: 60
-        }];
-        for (const interval of intervals) {
-            const count = Math.floor(seconds / interval.seconds);
-            if (count > 0) return `${count} ${interval.label}${count !== 1 ? "s" : ""} ago`;
-        }
-        return seconds < 10 ? "Just now" : `${seconds} seconds ago`;
-    }
-
-    function doComment() {
-        const button = document.getElementById('add-commentt'),
-            taskId = button.getAttribute('data-taskID'),
-            commentText = $('.editor').val();
-        fetch("{{ route('comments.store') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    task_id: taskId,
-                    comment: commentText
-                })
-            })
-            .then(r => r.json()).then(data => {
-                loadComments();
-                if (typeof editor !== 'undefined') editor.setContent('');
-            })
-            .catch(error => console.error("Error:", error));
-    }
-
-    function loadComments() {
-        let taskId = $("input[name='task_id']").val();
-        $.get("{{ route('comments.index', $task->id) }}", function(data) {
-            $('#comment-list').empty();
-            data.forEach(comment => {
-                $('#comment-list').append(`
-            <div class="ts-comment">
-                <img src="{{ asset('/public/storage') }}/${comment.user.img}" alt="" class="ts-comment-avatar">
-                <div style="flex:1;min-width:0;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.2rem;">
-                        <div>
-                            <span class="ts-comment-name">${comment.user.name}${comment.user_id == {{ auth()->id() }} ? ' <span style="font-size:.65rem;color:var(--ts-muted);">(you)</span>' : ''}</span>
-                            <span class="ts-comment-time comment-time d-block" data-time="${comment.created_at}"></span>
-                        </div>
-                        ${comment.user_id === {{ auth()->id() }} ? `<button type="button" data-id="${comment.id}" class="delete-comment ts-btn ts-btn-danger ts-btn-sm"><i class="bi bi-trash"></i></button>` : ''}
-                    </div>
-                    <p class="ts-comment-body">${comment.comment}</p>
-                </div>
-            </div>`);
-            });
-            updateTimestamps();
-        });
-    }
-
-    function updateTimestamps() {
-        document.querySelectorAll(".comment-time").forEach(el => {
-            el.textContent = timeAgo(el.getAttribute("data-time"));
-        });
-    }
-    setInterval(updateTimestamps, 30000);
-
-    $(document).on('click', '.delete-comment', function() {
-        let commentId = $(this).data('id');
-        $.ajax({
-            url: "{{ route('comments.destroy', ['id' => ':id']) }}".replace(':id', commentId),
-            type: "DELETE",
-            data: {
-                _token: "{{ csrf_token() }}"
-            },
-            success: function() {
-                loadComments();
-            }
-        });
-    });
-
     function loadTaskAttachments() {
         let taskId = "{{ $task->id }}";
         $.ajax({
@@ -2580,7 +2470,6 @@
     }
 
     $(document).ready(function() {
-        loadComments();
         loadTaskAttachments();
     });
 

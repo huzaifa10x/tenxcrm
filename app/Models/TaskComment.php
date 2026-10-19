@@ -9,7 +9,7 @@ class TaskComment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['task_id', 'user_id', 'comment'];
+    protected $fillable = ['task_id', 'user_id', 'reply_to_id', 'comment'];
 
     public function task()
     {
@@ -19,5 +19,10 @@ class TaskComment extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function replyTo()
+    {
+        return $this->belongsTo(TaskComment::class, 'reply_to_id');
     }
 }

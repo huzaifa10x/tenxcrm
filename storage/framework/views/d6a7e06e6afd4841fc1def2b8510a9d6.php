@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+
+    <title>10X One | 10X Digital</title>
+
+    <link rel="icon" href="<?php echo e(asset('/public/fav-icon.webp')); ?>" type="image/png" sizes="16x16">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
+    <link rel="stylesheet" href="<?php echo e(asset('css/remixicon.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/bootstrap.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/apexcharts.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/dataTables.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/editor-katex.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/editor.atom-one-dark.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/editor.quill.snow.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/flatpickr.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/jquery-jvectormap-2.0.5.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/magnific-popup.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/slick.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/prism.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/file-upload.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/lib/audioplayer.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/style.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/10x-theme.css')); ?>?v=<?php echo e(@filemtime(base_path('css/10x-theme.css'))); ?>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="<?php echo e(asset('t-editor/src/richtext.min.css')); ?>">
+
+    <!-- Dropzone CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
+
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <script src="<?php echo e(asset('js/lib/jquery-3.7.1.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/jquery-ui.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/apexcharts.min.js')); ?>"></script>
+
+    <style>
+        body {
+            scroll-behavior: smooth !important;
+            transition: all .5s ease-in-out !important;
+        }
+    </style>
+
+</head>
+
+<body class="font-sans antialiased">
+    <?php echo $__env->make('layouts.navigation', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+    <main class="dashboard-main">
+        <div class="navbar-header">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto px-1">
+                    <div class="d-flex flex-wrap align-items-center gap-4">
+                        <button type="button" class="sidebar-toggle">
+                            <iconify-icon icon="heroicons:bars-3-solid" class="icon text-2xl non-active"></iconify-icon>
+                            <iconify-icon icon="iconoir:arrow-right" class="icon text-2xl active"></iconify-icon>
+                        </button>
+                        <button type="button" class="sidebar-mobile-toggle">
+                            <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
+                        </button>
+                        <span id="live-time"
+                            class="badge text-sm fw-semibold rounded-pill bg-light-600 px-10 py-1 radius-4 text-dark fs-7">00:00</span>
+                        <script>
+                            function updateTime() {
+                                const options = {
+                                    timeZone: 'Asia/Dubai',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: true
+                                };
+                                const currentTime = new Date().toLocaleTimeString('en-US', options);
+                                document.getElementById('live-time').innerText = currentTime;
+                            }
+
+                            setInterval(updateTime, 1000);
+
+                            updateTime();
+                        </script>
+                    </div>
+                </div>
+                <div class="col-auto px-1">
+
+                    <div class="d-flex flex-wrap align-items-center gap-10 p-0">
+                        <div id="notification-count" class="text-danger fs-7 fw-bold"></div>
+                        <button type="button" data-theme-toggle
+                            class="w-36-px h-36-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
+
+
+                        <div class="dropdown">
+                            <button
+                                class="has-indicator w-36-px h-36-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
+                                type="button" data-bs-toggle="dropdown">
+                                <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
+                            </button>
+                            <div class="dropdown-menu to-top dropdown-menu-lg p-0">
+                                <div
+                                    class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
+                                    <div>
+                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Notifications</h6>
+                                    </div>
+                                    <span id="user-noti-count"
+                                        class="text-primary-600 fw-semibold text-lg w-36-px h-36-px rounded-circle bg-base d-flex justify-content-center align-items-center"></span>
+                                </div>
+
+                                <div class="max-h-400-px overflow-y-auto scroll-sm pe-4" id="notification-list"></div>
+
+                                <script>
+                                    $(document).ready(function() {
+                                        fetchNotifications();
+                                        fetchUnreadCount();
+
+                                        // Fetch notifications every 1 minute
+                                        setInterval(fetchNotifications, 60000);
+                                        setInterval(fetchUnreadCount, 60000);
+
+                                        // Fetch unread notifications
+                                        function fetchNotifications() {
+                                            $.ajax({
+                                                url: "<?php echo e(route('notifications.fetch')); ?>",
+                                                type: "GET",
+                                                success: function(response) {
+                                                    let html = "";
+                                                    if (response.notifications.length === 0) {
+                                                        html = '<p class="text-center text-muted">No new notifications</p>';
+                                                    } else {
+                                                        response.notifications.forEach(function(notification, index) {
+                                                            if (index === 0) {
+                                                                showBrowserNotification(notification.data.title,
+                                                                    notification.data.message, notification.id);
+                                                            }
+                                                            html += `
+                                                                <a
+                                                                href="${notification?.data?.url}"
+                                                                target="_blank"
+                                                                   class="px-24 notification-item position-relative py-12 d-flex align-items-start gap-3 mb-2 justify-content-between"
+                                                                   data-id="${notification.id}">
+                                                                    <div class="text-black d-flex align-items-center gap-3">
+                                                                        <span class="position-relative w-44-px h-44-px ${notification.read_at == null ?"bg-danger-50 text-danger":"bg-success-subtle text-success-main"} rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
+                                                                            <iconify-icon icon="bitcoin-icons:verify-outline" class="icon text-xxl"></iconify-icon>
+                                                                            ${notification.read_at == null ?
+                                                                            `<span class="w-12-px h-12-px rounded-circle bg-warning-600 position-absolute top-0 start-0 m-0"></span>`
+                                                                            :''}
+                                                                        </span>
+                                                                        <div>
+                                                                            <h6 class="text-md fw-semibold mb-4" title="${notification.data.title}">
+                                                                                ${notification.data.title}
+                                                                            </h6>
+                                                                            <p class="mb-0 text-sm text-secondary-light text-w-200-px" title="${notification.data.message}">
+                                                                                ${notification.data.message}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <span class="text-sm text-secondary-light flex-shrink-0">
+                                                                        ${timeAgo(notification.created_at)}
+                                                                    </span>
+                                                                </a>
+                                                            `;
+                                                        });
+                                                    }
+                                                    $("#notification-list").html(html);
+                                                }
+                                            });
+                                        }
+
+                                        function showBrowserNotification(title, message, notificationId) {
+                                            let lastNotificationId = localStorage.getItem("lastNotificationId");
+                                            if (lastNotificationId == notificationId) {
+                                                return;
+                                            }
+                                            localStorage.setItem("lastNotificationId", notificationId);
+                                            toastr.success(message);
+                                            // Play notification sound
+                                            let audio = new Audio("<?php echo e(asset('/public/sounds/notify.mp3')); ?>");
+                                            audio.play();
+                                            toastr.options = {
+                                                "closeButton": true,
+                                                "positionClass": "toast-top-right",
+                                                "showDuration": "1000",
+                                                "hideDuration": "1000",
+                                                "timeOut": "5000",
+                                                "extendedTimeOut": "1000",
+                                                "showEasing": "swing",
+                                                "hideEasing": "linear",
+                                                "showMethod": "fadeIn",
+                                                "hideMethod": "fadeOut"
+                                            };
+                                            if (Notification.permission === "granted") {
+                                                new Notification(title, {
+                                                    body: message,
+                                                    icon: "<?php echo e(asset('/images/logo-icon.png')); ?>"
+                                                });
+                                            } else if (Notification.permission !== "denied") {
+                                                Notification.requestPermission().then(permission => {
+                                                    if (permission === "granted") {
+                                                        new Notification(title, {
+                                                            body: message,
+                                                            icon: "<?php echo e(asset('/images/logo-icon.png')); ?>"
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }
+
+                                        // Mark as Read when clicked
+                                        $(document).on("click", ".notification-item", function() {
+                                            let notificationId = $(this).data("id");
+                                            if (!notificationId) return;
+
+                                            $.ajax({
+                                                url: "<?php echo e(route('notifications.read', ':id')); ?>".replace(':id', notificationId),
+                                                type: "POST",
+                                                data: {
+                                                    _token: "<?php echo e(csrf_token()); ?>"
+                                                },
+                                                success: function() {
+                                                    fetchNotifications();
+                                                    fetchUnreadCount();
+                                                }
+                                            });
+                                        });
+
+                                        // Fetch unread notification count for navbar
+                                        function fetchUnreadCount() {
+                                            $.ajax({
+                                                url: "<?php echo e(route('notifications.unread.count')); ?>",
+                                                type: "GET",
+                                                success: function(response) {
+                                                    if (response.count > 0) {
+                                                        $('.has-indicator').addClass("animate-bell bg-danger-subtle");
+                                                        $('.has-indicator').find("iconify-icon").removeClass("text-primary-light")
+                                                            .addClass(
+                                                                "text-danger-main");
+
+                                                        if (!$('.has-indicator').find(".notification-dot").length) {
+                                                            $('.has-indicator').append(`<span class="notification-dot"></span>`);
+                                                        }
+                                                        $("#user-noti-count").text(response.count);
+                                                    } else {
+                                                        // Remove animation, revert color, and remove dot
+                                                        $('.has-indicator').removeClass("animate-bell bg-danger-subtle");
+                                                        $('.has-indicator').find("iconify-icon").removeClass("text-danger-main")
+                                                            .addClass(
+                                                                "text-primary-light");
+                                                        $('.has-indicator').find(".notification-dot").remove();
+                                                        $("#user-noti-count").text('0');
+                                                    }
+                                                }
+
+                                            });
+                                        }
+
+                                        // Function to convert timestamps to "x minutes ago"
+                                        function timeAgo(time) {
+                                            let date = new Date(time);
+                                            let now = new Date();
+                                            let diff = Math.floor((now - date) / 1000);
+
+                                            if (diff < 60) return diff + " seconds ago";
+                                            else if (diff < 3600) return Math.floor(diff / 60) + " minutes ago";
+                                            else if (diff < 86400) return Math.floor(diff / 3600) + " hours ago";
+                                            else return Math.floor(diff / 86400) + " days ago";
+                                        }
+                                    });
+                                </script>
+
+                            </div>
+                        </div><!-- Notification dropdown end -->
+
+                        <div class="dropdown">
+                            <button
+                                class="w-36-px h-36-px d-flex justify-content-center align-items-center rounded-circle"
+                                type="button" data-bs-toggle="dropdown">
+                                <img src="<?php echo e(auth()->user()->img ? asset('/public/storage/' . auth()->user()->img) : asset('/images/avatar/avatar1.png')); ?>"
+                                    alt="image" class="w-36-px h-36-px object-fit-cover rounded-circle">
+                            </button>
+                            <div class="dropdown-menu to-top dropdown-menu-sm">
+                                <div
+                                    class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
+                                    <div>
+                                        <h6 class="text-lg text-primary-light fw-semibold mb-2">
+                                            <?php echo e(auth()->user()->name); ?>
+
+                                        </h6>
+                                        <span class="text-secondary-light fw-medium text-sm">
+                                            <?php echo e(auth()->user()->roles->pluck('name')->implode(', ')); ?>
+
+                                        </span>
+                                    </div>
+                                    <button type="button" class="hover-text-danger">
+                                        <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon>
+                                    </button>
+                                </div>
+                                <ul class="to-top-list">
+                                    <li>
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
+                                            href="<?php echo e(route('profile.edit')); ?>">
+                                            <iconify-icon icon="solar:user-linear"
+                                                class="icon text-xl"></iconify-icon>
+                                            My Profile</a>
+                                    </li>
+                                    <li>
+                                        <form method="POST" action="<?php echo e(route('logout')); ?>">
+                                            <?php echo csrf_field(); ?>
+                                            <button type="submit"
+                                                class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3">
+                                                <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon>
+                                                Log Out
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div><!-- Profile dropdown end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-main-body">
+            <?php if(auth()->check() && !auth()->user()->hasPin() && !request()->routeIs('profile.edit')): ?>
+                <div class="x-pin-banner" id="xPinBanner" hidden>
+                    <span class="x-pin-banner-icon"><i class="bi bi-grid-3x3-gap"></i></span>
+                    <div class="flex-grow-1"><strong>Sign in faster with a PIN.</strong> Set a 6-digit PIN and skip typing your password next time.</div>
+                    <a href="<?php echo e(route('profile.edit')); ?>#login-pin" class="btn btn-primary">Set up PIN</a>
+                    <button type="button" class="x-pin-dismiss" aria-label="Dismiss" onclick="try{localStorage.setItem('x-pin-banner-dismissed', Date.now())}catch(e){} this.parentElement.remove();">&times;</button>
+                </div>
+                <script>
+                    (function () {
+                        var t = 0;
+                        try { t = +localStorage.getItem('x-pin-banner-dismissed') || 0; } catch (e) {}
+                        // Show again 14 days after it was dismissed.
+                        if (Date.now() - t > 14 * 864e5) document.getElementById('xPinBanner').hidden = false;
+                    })();
+                </script>
+            <?php endif; ?>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+                <ul class="d-flex align-items-center gap-2">
+                    <li class="fw-medium">
+                        <a href="#">
+                            <?php if(isset($header)): ?>
+                                <?php echo e($header); ?>
+
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="d-flex align-items-center gap-2">
+                    <li class="fw-medium">
+                        <a href="<?php echo e(route('dashboard')); ?>"
+                            class="d-flex align-items-center gap-1 hover-text-primary">
+                            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>-</li>
+                    <li class="fw-medium">
+                        <?php if(isset($header)): ?>
+                            <?php echo e($header); ?>
+
+                        <?php endif; ?>
+                    </li>
+                </ul>
+            </div>
+            <?php echo e($slot); ?>
+
+        </div>
+        <footer class="d-footer py-1">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto">
+                    <p class="mb-0 fs-7">© <?php echo e(date('Y')); ?> 10X Digital. All Rights Reserved.</p>
+                </div>
+                <div class="col-auto">
+                    <p class="mb-0 fs-7">Made by <a href="https://10xdigital.ae" class="text-primary-600">10X
+                            Digital</a></p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script src="<?php echo e(asset('js/lib/dataTables.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/iconify-icon.min.js')); ?>"></script>
+
+    <script src="<?php echo e(asset('js/lib/jquery-jvectormap-2.0.5.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/jquery-jvectormap-world-mill-en.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/magnifc-popup.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/slick.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/prism.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/file-upload.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/lib/audioplayer.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/app.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/homeOneChart.js')); ?>"></script>
+    <!-- jQuery & Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script src="<?php echo e(asset('t-editor/src/jquery.richtext.min.js')); ?>"></script>
+
+    <script>
+        $('.editor').richText({
+
+            // text formatting
+            bold: true,
+            italic: true,
+            underline: true,
+
+            // text alignment
+            leftAlign: true,
+            centerAlign: true,
+            rightAlign: true,
+            justify: true,
+
+            // lists
+            ol: true,
+            ul: true,
+
+            // title
+            heading: true,
+
+            // fonts
+            fonts: true,
+            fontList: ["Arial",
+                "Arial Black",
+                "Comic Sans MS",
+                "Courier New",
+                "Geneva",
+                "Georgia",
+                "Helvetica",
+                "Impact",
+                "Lucida Console",
+                "Tahoma",
+                "Times New Roman",
+                "Verdana"
+            ],
+            fontColor: true,
+            backgroundColor: true,
+            fontSize: true,
+
+            // uploads
+            imageUpload: true,
+            fileUpload: true,
+
+            // link
+            urls: true,
+
+            // tables
+            table: true,
+
+            // code
+            removeStyles: true,
+            code: true,
+
+            // colors
+            colors: [],
+
+            // dropdowns
+            fileHTML: '',
+            imageHTML: '',
+
+            // translations
+            translations: {
+                'title': 'Title',
+                'white': 'White',
+                'black': 'Black',
+                'brown': 'Brown',
+                'beige': 'Beige',
+                'darkBlue': 'Dark Blue',
+                'blue': 'Blue',
+                'lightBlue': 'Light Blue',
+                'darkRed': 'Dark Red',
+                'red': 'Red',
+                'darkGreen': 'Dark Green',
+                'green': 'Green',
+                'purple': 'Purple',
+                'darkTurquois': 'Dark Turquois',
+                'turquois': 'Turquois',
+                'darkOrange': 'Dark Orange',
+                'orange': 'Orange',
+                'yellow': 'Yellow',
+                'imageURL': 'Image URL',
+                'fileURL': 'File URL',
+                'linkText': 'Link text',
+                'url': 'URL',
+                'size': 'Size',
+                'responsive': '<a href="https://www.jqueryscript.net/tags.php?/Responsive/">Responsive</a>',
+                'text': 'Text',
+                'openIn': 'Open in',
+                'sameTab': 'Same tab',
+                'newTab': 'New tab',
+                'align': 'Align',
+                'left': 'Left',
+                'justify': 'Justify',
+                'center': 'Center',
+                'right': 'Right',
+                'rows': 'Rows',
+                'columns': 'Columns',
+                'add': 'Add',
+                'pleaseEnterURL': 'Please enter an URL',
+                'videoURLnotSupported': 'Video URL not supported',
+                'pleaseSelectImage': 'Please select an image',
+                'pleaseSelectFile': 'Please select a file',
+                'bold': 'Bold',
+                'italic': 'Italic',
+                'underline': 'Underline',
+                'alignLeft': 'Align left',
+                'alignCenter': 'Align centered',
+                'alignRight': 'Align right',
+                'addOrderedList': 'Ordered list',
+                'addUnorderedList': 'Unordered list',
+                'addHeading': 'Heading/title',
+                'addFont': 'Font',
+                'addFontColor': 'Font color',
+                'addBackgroundColor': 'Background color',
+                'addFontSize': 'Font size',
+                'addImage': 'Add image',
+                'addVideo': 'Add video',
+                'addFile': 'Add file',
+                'addURL': 'Add URL',
+                'addTable': 'Add table',
+                'removeStyles': 'Remove styles',
+                'code': 'Show HTML code',
+                'undo': 'Undo',
+                'redo': 'Redo',
+                'save': 'Save',
+                'close': 'Close'
+            },
+
+            // privacy
+            youtubeCookies: false,
+
+            // preview
+            preview: false,
+
+            // placeholder
+            placeholder: '',
+
+            // dev settings
+            useSingleQuotes: false,
+            height: 0,
+            heightPercentage: 0,
+            adaptiveHeight: false,
+            id: "",
+            class: "",
+            useParagraph: false,
+            maxlength: 0,
+            maxlengthIncludeHTML: false,
+            callback: undefined,
+            useTabForNext: false,
+            save: false,
+            saveCallback: undefined,
+            saveOnBlur: 0,
+            undoRedo: true
+
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr('input[type="date"]', {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: true
+            });
+        });
+    </script>
+
+    <script>
+        <?php if(Session::has('success')): ?>
+            toastr.success("<?php echo e(session('success')); ?>");
+        <?php endif; ?>
+
+        <?php if(Session::has('error')): ?>
+            toastr.error("<?php echo e(session('error')); ?>");
+        <?php endif; ?>
+
+        <?php if(Session::has('warning')): ?>
+            toastr.warning("<?php echo e(session('warning')); ?>");
+        <?php endif; ?>
+
+        <?php if(Session::has('info')): ?>
+            toastr.info("<?php echo e(session('info')); ?>");
+        <?php endif; ?>
+    </script>
+    <script src="<?php echo e(asset('js/lib/bootstrap.bundle.min.js')); ?>"></script>
+</body>
+
+</html>
+<?php /**PATH /Applications/XAMPP/xamppfiles/htdocs/tenxcrm/resources/views/layouts/app.blade.php ENDPATH**/ ?>
